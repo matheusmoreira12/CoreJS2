@@ -1,12 +1,14 @@
-import { Collection } from "./standard";
-import { ArgumentTypeException } from "./exceptions";
-import { Type } from "./Standard.Types";
-import { Destructible } from "./Standard.Destructible";
+import { Collection } from "./Standard.Collections.js";
+import { ArgumentTypeException } from "./exceptions.js";
+import { Type } from "./Standard.Types.js";
+import { Destructible } from "./Standard.Destructible.js";
 
 const workerMap = new WeakMap();
 
 class FrameworkEventWorker extends Destructible {
     constructor(event) {
+        super();
+
         this.event = event;
     }
 
@@ -110,7 +112,7 @@ export class FrameworkEvent extends Destructible {
     }
 
     attach(listener) {
-        if (!(listener instanceof Function) && (listener instanceof FrameworkEvent))
+        if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
         let worker = workerMap.get(this);
@@ -120,7 +122,7 @@ export class FrameworkEvent extends Destructible {
     }
 
     detach(listener) {
-        if (!(listener instanceof Function) && (listener instanceof FrameworkEvent))
+        if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
         let worker = workerMap.get(this);

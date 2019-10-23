@@ -1,5 +1,4 @@
 import { Collection } from "./standard";
-import { IdentifierGenerator } from "./user-interface";
 import { InvalidOperationException, ArgumentTypeException } from "./exceptions";
 
 class VisualTemplateElementPropertyMap extends Map {

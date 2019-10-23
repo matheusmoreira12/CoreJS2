@@ -1,5 +1,7 @@
-import { Enumeration, Collection, ObservableCollection, ObservableCollectionChangeAction, ReverseIterator } from "./standard.js";
+import { ReverseIterator } from "./standard.js";
+import { ObservableCollection, ObservableCollectionChangeAction } from "./Standard.Collections.js";
 import { ArgumentTypeException } from "./exceptions.js";
+import { Enumeration } from "./Standard.Enumeration.js";
 
 const ReferenceRetrievalRequestStatus = Enumeration.create([
     "Pending",

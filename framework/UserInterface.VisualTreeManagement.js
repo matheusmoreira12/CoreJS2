@@ -1,7 +1,6 @@
-import { Collection, ObservableCollection, ObservableCollectionChangeAction } from "./standard.js";
+import { ObservableCollection, ObservableCollectionChangeAction } from "./Standard.Collections.js";
 import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "./exceptions.js";
-import { PropertyBinding, PropertyAttributeBinding, FrameworkProperty } from "./user-interface.js";
-import { ReferenceManager } from "./ReferenceManager.js";
+import { PropertyBinding, PropertyAttributeBinding } from "./user-interface.js";
 
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 

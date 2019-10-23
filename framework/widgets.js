@@ -1,8 +1,10 @@
-import { Collection, ContextSelectionFlags, Enumeration } from "./standard.js";
+import { ContextSelectionFlags } from "./standard.js";
+import { Collection } from "./Standard.Collections.js";
 import { arrayUtils, domUtils } from "./utils.js";
 import { BooleanAttributeValueConverter, JSONAttributeValueConverter, FrameworkProperty, PropertyAttributeBinding, PropertyBinding, FlagsAttributeValueConverter, Utils, EnumerationAttributeValueConverter, DragDropHandler, AutoScroller, BindingDirection } from "./user-interface.js";
 import { VisualTree } from "./UserInterface.VisualTreeManagement.js";
 import { FrameworkEvent, BroadcastFrameworkEvent, FrameworkCustomEvent, NativeEvent } from "./Standard.Events.js";
+import { Enumeration } from "./Standard.Enumeration.js";
 
 class VisualTreeManager {
     constructor(target) {

@@ -1,5 +1,5 @@
-import { Enumeration, Dictionary } from "./standard.js";
-import { InvalidOperationException } from "./exceptions.js";
+import { Dictionary } from "./Standard.Collections.js";
+import { Enumeration } from "./Standard.Enumeration.js";
 
 function* getAllMembers(type) {
     let metadata = metadataMap.get(type);
@@ -53,7 +53,7 @@ function createTypeFromConstructor(constructor) {
 
     let metadata = {
         classConstructor: constructor
-    }
+    };
 
     metadataMap.set(type, metadata);
 
@@ -82,14 +82,10 @@ function getTypeConstructor(type) {
     return metadata.classConstructor;
 }
 
-function getTypeMembers(type) {
-
-}
-
 export class Type {
-    static of(obj) { return createTypeFromConstructor(constructor); }
+    static get(constructor) { return createTypeFromConstructor(constructor); }
 
-    static get(constructor) { return createTypeFromInstance(obj); }
+    static of(obj) { return createTypeFromInstance(obj); }
 
     equals(other) {
         let constructor = getTypeConstructor(this),
@@ -97,7 +93,7 @@ export class Type {
 
         if (!!constructor ^ !!otherConstructor) return false;
 
-        if (!!constructor)
+        if (constructor)
             return constructor === otherConstructor;
 
         return metadata.typeofResult === otherMetadata.typeofResult;
