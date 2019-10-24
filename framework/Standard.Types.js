@@ -5,38 +5,43 @@ function* getAllMembers(type) {
     let metadata = metadataMap.get(type);
     if (!metadata) return;
 
-    let constructor = metadata.constructor;
-    if (!constructor) return;
+    let constructor = getTypeConstructor(type);
+    if (constructor === undefined) return;
 
     const staticDescriptorsDictionary = Dictionary.fromKeyValueObject(Object.getOwnPropertyDescriptors(constructor));
 
     for (let item of staticDescriptorsDictionary)
-        createMember(type, item.key, item.value, true);
+        yield createMember(type, item.key, item.value, true);
 
-    let referenceInstance = metadata.referenceInstance;
-    if (!referenceInstance) return;
+    let reference = getTypeReference(type);
+    if (reference === undefined) return;
 
-    const descriptorsDictionary = Dictionary.fromKeyValueObject(Object.getOwnPropertyDescriptors(referenceInstance));
+    const descriptorsDictionary = Dictionary.fromKeyValueObject(Object.getOwnPropertyDescriptors(reference));
 
     for (let item of descriptorsDictionary)
-        createMember(type, item.key, item.value, false);
+        yield createMember(type, item.key, item.value, false);
 }
 
 function* filterMembers(members, selectionType, selectionAttributes) {
     for (let member of members) {
-        if (member.type & ~selectionType != 0) continue;
+        if ((member instanceof StaticPropertyMember || member instanceof StaticFunctionMember) &&
+            !Enumeration.isSet(selectionType, MemberSelectionType.Static)) continue;
 
-        if (member.attributes & ~selectionAttributes != 0) continue;
+        if (member instanceof PropertyMember && !Enumeration.isSet(selectionType, MemberSelectionType.Property)) continue;
+
+        if (member instanceof FunctionMember && !Enumeration.isSet(selectionType, MemberSelectionType.Function)) continue;
+
+        if (!Enumeration.contains(member.attributes, selectionAttributes));
 
         yield member;
     }
 }
 
 export const MemberSelectionAttributes = Enumeration.create({
-    Any: 0,
     Configurable: 1,
     Enumerable: 2,
-    Writable: 4
+    Writable: 4,
+    Any: 7
 });
 
 export const MemberSelectionType = Enumeration.create({
@@ -52,7 +57,7 @@ function createTypeFromConstructor(constructor) {
     let type = new Type();
 
     let metadata = {
-        classConstructor: constructor
+        constructor: constructor
     };
 
     metadataMap.set(type, metadata);
@@ -63,23 +68,40 @@ function createTypeFromConstructor(constructor) {
 function createTypeFromInstance(obj) {
     let type = new Type();
 
-    const hasConstructor = obj !== null && obj !== undefined;
-
     let metadata = {
-        classConstructor: hasConstructor ? obj.constructor : null,
-        referenceInstance: hasConstructor ? obj : null,
         typeOfResult: typeof obj
     };
+
+    const hasConstructor = obj !== null && obj !== undefined;
+    if (hasConstructor) {
+        metadata.constructor = obj.constructor;
+        metadata.reference = obj;
+    }
+
     metadataMap.set(type, metadata);
 
     return type;
 }
 
 function getTypeConstructor(type) {
-    const metadata = metadataMap.get(this);
-    if (!metadata) return null;
+    const metadata = metadataMap.get(type);
+    if (!metadata) return undefined;
 
-    return metadata.classConstructor;
+    return metadata.constructor;
+}
+
+function getTypeTypeofResult(type) {
+    const metadata = metadataMap.get(type);
+    if (!metadata) return undefined;
+
+    return metadata.typeOfResult;
+}
+
+function getTypeReference(type) {
+    const metadata = metadataMap.get(type);
+    if (!metadata) return undefined;
+
+    return metadata.reference;
 }
 
 export class Type {
@@ -99,22 +121,52 @@ export class Type {
         return metadata.typeofResult === otherMetadata.typeofResult;
     }
 
-    get name() {
-        let constructor = getTypeConstructor(this);
-        if (!constructor) return metadata.typeofResult;
+    equalsAny(...others) {
+        for (let other of others) {
+            if (this.equals(other))
+                return true;
+        }
 
-        return constructor.name;
+        return false;
     }
 
-    getMembers(selectionFlags = MemberSelectionFlags.Any, selectionAttributes = MemberSelectionAttributes.Any) {
+    extends(other) {
+        for (let type of this.getParentTypes()) {
+            if (type.equals(other))
+                return true;
+        }
+
+        return false;
+    }
+
+    extendsAny(...others) {
+        for (let other of others) {
+            if (this.extends(other))
+                return true;
+        }
+
+        return false;
+    }
+
+    get name() {
+        let constructor = getTypeConstructor(this);
+        if (constructor) return constructor.name;
+
+        let typeofResult = getTypeofResult(this);
+        if (typeofResult) return String(typeofResult);
+
+        return null;
+    }
+
+    getMembers(selectionFlags = MemberSelectionType.Any, selectionAttributes = MemberSelectionAttributes.Any) {
         return filterMembers(getAllMembers(this), selectionFlags, selectionAttributes);
     }
 
     getParentType() {
-        const constructor = getTypeConstructor();
-        if (!classConstructor) return null;
+        const constructor = getTypeConstructor(this);
+        if (!constructor) return null;
 
-        const prototype = constructor.prototype;
+        const prototype = Object.getPrototypeOf(constructor);
         if (!prototype) return null;
 
         return Type.get(prototype);
@@ -125,6 +177,7 @@ export class Type {
 
         while (parentType) {
             yield parentType;
+
             parentType = parentType.getParentType();
         }
     }
@@ -136,24 +189,6 @@ export const MemberAttributes = Enumeration.create({
     Writable: 4
 });
 
-const MemberType = Enumeration.create({
-    Property: 1,
-    Function: 2,
-    Static: 4
-});
-
-function getMemberType(descriptor, isStatic) {
-    let value = descriptor.value,
-        memberType = isStatic ? MemberType.Static : 0;
-
-    if (value instanceof Function)
-        memberType |= MemberType.Function;
-    else
-        memberType |= MemberType.Property;
-
-    return memberType;
-}
-
 function getMemberAttributes(descriptor) {
     return (descriptor.writable ? MemberAttributes.Writable : 0) |
         (descriptor.enumerable ? MemberAttributes.Enumerable : 0) |
@@ -161,33 +196,32 @@ function getMemberAttributes(descriptor) {
 }
 
 function createMember(type, name, descriptor, isStatic) {
-    let memberType = getMemberType(descriptor, isStatic),
-        attributes = getMemberAttributes(descriptor);
+    let attributes = getMemberAttributes(descriptor);
 
     let metadata = {
         type,
         name,
-        attributes,
-        memberType
+        attributes
     };
 
     let member = null;
 
-    if (Enumeration.isSet(memberType, MemberType.Property)) {
-        if (Enumeration.isSet(memberType, MemberType.Static))
-            member = new StaticPropertyMember();
-        else
-            member = new PropertyMember();
-    }
-    else if (Enumeration.isSet(memberType, MemberType.Function)) {
-        if (Enumeration.isSet(memberType, MemberType.Static))
+    const isFunction = descriptor.value instanceof Function;
+    if (isFunction) {
+        if (isStatic)
             member = new StaticFunctionMember();
         else
             member = new FunctionMember();
     }
+    else {
+        if (isStatic)
+            member = new StaticPropertyMember();
+        else
+            member = new PropertyMember();
+    }
 
     if (member !== null)
-        metadataMap.set(metadata);
+        metadataMap.set(member, metadata);
 
     return member;
 }
@@ -249,14 +283,14 @@ export class StaticPropertyMember extends PropertyMember {
         let typeMetadata = getParentTypeMetadata(this);
         if (!typeMetadata) return undefined;
 
-        super.getValue(typeMetadata.classConstructor);
+        super.getValue(typeMetadata.constructor);
     }
 
     setValue(value) {
         let typeMetadata = getParentTypeMetadata(this);
         if (!typeMetadata) return;
 
-        super.getValue(typeMetadata.classConstructor, value);
+        super.getValue(typeMetadata.constructor, value);
     }
 }
 
@@ -273,7 +307,7 @@ export class StaticFunctionMember extends FunctionMember {
         let typeMetadata = getParentTypeMetadata(this);
         if (!typeMetadata) return;
 
-        super.invoke(typeMetadata.classConstructor);
+        super.invoke(typeMetadata.constructor);
     }
 }
 

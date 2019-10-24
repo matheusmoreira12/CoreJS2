@@ -1,19 +1,23 @@
 import { Collection } from "./Standard.Collections.js";
-import { ArgumentTypeException } from "./exceptions.js";
+import { ArgumentTypeException, InvalidOperationException, ArgumentException } from "./exceptions.js";
 import { Type } from "./Standard.Types.js";
 import { Destructible } from "./Standard.Destructible.js";
+import { Worker, createWorker, retrieveWorker, overrideWorker } from "./Standard.Workers.js";
 
-const workerMap = new WeakMap();
-
-class FrameworkEventWorker extends Destructible {
-    constructor(event) {
-        super();
-
-        this.event = event;
+class FrameworkEventWorker extends Worker {
+    initialize(defaultListener) {
+        if (defaultListener) {
+            if (defaultListener instanceof Function)
+                this.attach(defaultListener);
+            else
+                throw new ArgumentTypeException("defaultListener", Type.get(Function));
+        }
     }
 
-    destructor() {
+    finalize() {
         this.detachAll();
+
+        super.finalize();
     }
 
     attach(listener) {
@@ -30,24 +34,24 @@ class FrameworkEventWorker extends Destructible {
     }
 
     invoke(sender, args) {
-        let isCanceled = false;
+        let isPropagationStopped = false;
 
         let invokeErrors = [];
 
         let _args = {
             ...args,
-            cancelEvent() { isCanceled = true; }
-        }
+            stopEventPropagation() { isPropagationStopped = true; }
+        };
 
         //Invoke each of the attached listeners
         for (let listener of this.listeners) {
-            if (isCanceled) break;
+            if (isPropagationStopped) break;
 
             try {
                 if (listener instanceof FrameworkEvent)
-                    listener.invoke(sender, args);
+                    listener.invoke(sender, _args);
                 else if (listener instanceof Function)
-                    listener(sender, args);
+                    listener(sender, _args);
             }
             catch (e) {
                 invokeErrors.push(e);
@@ -57,23 +61,7 @@ class FrameworkEventWorker extends Destructible {
         for (let invokeError of invokeErrors) throw invokeError;
     }
 
-    cancel() {
-        this.isCanceled = true;
-    }
-
     listeners = new Collection();
-}
-
-function createWorker(event) {
-    let worker = new FrameworkEventWorker(event);
-    workerMap.set(event, worker);
-}
-
-function deleteWorker(event) {
-    let worker = workerMap.get(event);
-    worker.destruct();
-
-    workerMap.delete(event);
 }
 
 /**
@@ -93,29 +81,25 @@ export class FrameworkEvent extends Destructible {
     constructor(defaultListener) {
         super();
 
-        this._isCanceled = false;
+        this._isPropagationStopped = false;
 
-        createWorker(this);
-
-        if (defaultListener) {
-            if (defaultListener instanceof Function)
-                this.attach(defaultListener);
-            else
-                throw new ArgumentTypeException("defaultListener", Type.get(Function));
-        }
+        createWorker(this, FrameworkEventWorker, defaultListener);
     }
 
     destructor() {
-        deleteWorker(this);
+        let worker = retrieveWorker(this);
+        if (!worker) return;
 
-        clearEventMetadata(this);
+        worker.detachAll();
+
+        deleteWorker(this);
     }
 
     attach(listener) {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
-        let worker = workerMap.get(this);
+        let worker = retrieveWorker(this, FrameworkEventWorker);
         if (!worker) return;
 
         worker.attach(listener);
@@ -125,31 +109,41 @@ export class FrameworkEvent extends Destructible {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
-        let worker = workerMap.get(this);
+        let worker = retrieveWorker(this, FrameworkEventWorker);
         if (!worker) return;
 
         worker.detach(listener);
     }
 
     invoke(sender, args) {
-        let worker = workerMap.get(this);
+        let worker = retrieveWorker(this, FrameworkEventWorker);
         if (!worker) return;
 
         worker.invoke(sender, args);
     }
+}
 
-    cancel() {
-        let worker = workerMap.get(this);
-        if (!worker) return;
+export class NativeEventWorker extends FrameworkEventWorker {
+    initialize(targetElement, nativeEventName, defaultListener) {
+        super.initialize(defaultListener);
 
-        worker.cancel();
+        this.targetElement = targetElement;
+        this.nativeEventName = nativeEventName;
+        this.defaultListener = defaultListener;
+
+        targetElement.addEventListener(nativeEventName, this.bound_nativeEvent_handler);
     }
 
-    get isCanceled() {
-        let worker = workerMap.get(this);
-        if (!worker) return;
+    nativeEvent_handler(evt) {
+        this.invoke(this.targetElement, evt);
+    }
 
-        return worker.isCanceled;
+    bound_nativeEvent_handler = this.nativeEvent_handler.bind(this);
+
+    finalize() {
+        super.finalize();
+
+        this.targetElement.removeEventListener(this.nativeEventName, this.bound_nativeEvent_handler);
     }
 }
 
@@ -158,87 +152,122 @@ export class FrameworkEvent extends Destructible {
  * Routes DOM Events, enabling native event integration.
  */
 export class NativeEvent extends FrameworkEvent {
-    constructor(target, nativeEventName, defaultListener) {
+    constructor(targetElement, nativeEventName, defaultListener) {
         super(defaultListener);
 
-        this._target = target;
-
-        target.addEventListener(nativeEventName, this._nativeEvent_handler.bind(this));
+        overrideWorker(this, NativeEventWorker, targetElement, nativeEventName, defaultListener);
     }
 
-    _nativeEvent_handler(evt) {
-        this.invoke(this, evt);
+    get targetElement() { return this._targetElement; }
+}
+
+class BroadcastFrameworkEventWorker extends FrameworkEventWorker {
+    static EventBroadcastEvent = new FrameworkEvent();
+
+    initialize(name, defaultListener) {
+        super.initialize(defaultListener);
+
+        this.name = name;
+
+        BroadcastFrameworkEventWorker.EventBroadcastEvent.attach(this.bound_onEventBroadcast);
     }
 
-    get target() { return this._target; }
+    finalize() {
+        BroadcastFrameworkEventWorker.EventBroadcastEvent.detach(this.bound_onEventBroadcast);
+
+        this.unrouteAll();
+
+        super.finalize();
+    }
+
+    onEventBroadcast(sender, args) {
+        let senderEventWorker = args.senderEventWorker;
+
+        if (senderEventWorker.name === this.name)
+            this.invoke(sender, args.originalArgs);
+    }
+
+    bound_onEventBroadcast = this.onEventBroadcast.bind(this);
+
+    broadcast(sender, args) {
+        this.invoke(sender, args);
+
+        BroadcastFrameworkEventWorker.EventBroadcastEvent.invoke(sender, {
+            originalArgs: args,
+            senderEventWorker: this
+        });
+    }
+
+    onRoutedEvent(sender, args) {
+        this.broadcast(sender, args);
+    }
+
+    bound_onRoutedEvent = this.onRoutedEvent.bind(this);
+
+    route(baseEvent) {
+        if (this.routedEvents.includes(baseEvent)) return;
+
+        if (!(baseEvent instanceof FrameworkEvent)) throw new ArgumentTypeException("baseEvent");
+        baseEvent.attach(this.bound_onRoutedEvent);
+
+        this.routedEvents.add(baseEvent);
+    }
+
+    unroute(baseEvent) {
+        if (!(baseEvent instanceof FrameworkEvent)) throw new ArgumentTypeException("baseEvent");
+
+        if (!this.routedEvents.includes(baseEvent)) return;
+
+        baseEvent.detach(this.bound_onRoutedEvent);
+
+        this.routedEvents.remove(baseEvent);
+    }
+
+    unrouteAll() {
+        for (let routedEvent of this.routedEvents)
+            this.unroute(routedEvent);
+    }
+
+    routedEvents = new Collection();
 }
 
 /**
  * BroadcastFrameworkEvent Class
  * Enables the broadcasting of framework events.*/
 export class BroadcastFrameworkEvent extends FrameworkEvent {
-    static _transmitEvent(senderEvent, sender, args) {
-        for (let registeredEvent of this._registeredEvents)
-            registeredEvent._handleEvent(senderEvent, sender, args);
-    }
-
-    static _register(event) {
-        this._registeredEvents.add(event);
-    }
-
-    static _registeredEvents = new Collection();
 
     constructor(name, defaultListener) {
         super(defaultListener);
 
         this._name = name;
 
-        BroadcastFrameworkEvent._register(this);
+        overrideWorker(this, BroadcastFrameworkEventWorker, name, defaultListener);
     }
-
-    _handleEvent(senderEvent, sender, args) {
-        if (senderEvent._name === this._name)
-            super.invoke(sender, args);
-    }
-
-    _routedEventsMap = new WeakMap();
 
     broadcast(sender, args) {
-        this.invoke(sender, args);
+        const worker = retrieveWorker(this, BroadcastFrameworkEventWorker);
+        if (!worker) return;
 
-        BroadcastFrameworkEvent._transmitEvent(this, sender, args);
+        worker.broadcast(sender, args);
     }
 
     route(baseEvent) {
-        let routedEventsMap = this._routedEventsMap;
-        let self = this;
+        const worker = retrieveWorker(this, BroadcastFrameworkEventWorker);
+        if (!worker) return;
 
-        if (routedEventsMap.has(baseEvent)) return;
-
-        function listener(sender, args) {
-            self.broadcast(sender, args);
-        }
-
-        baseEvent.attach(listener);
-
-        let data = {
-            listener: listener
-        };
-
-        routedEventsMap.set(baseEvent, data);
+        worker.route(baseEvent);
     }
 
     unroute(baseEvent) {
-        let routedEventsMap = this._routedEventsMap;
+        const worker = retrieveWorker(this, BroadcastFrameworkEventWorker);
+        if (!worker) return;
 
-        if (!routedEventsMap.has(baseEvent)) return;
-
-        let data = routedEvents.get(baseEvent);
-
-        baseEvent.detach(data.listener);
-
-        routedEventsMap.delete(baseEvent);
+        worker.unroute(baseEvent);
     }
+}
+
+class FrameworkCustomEventWorker extends FrameworkEventWorker {
+
 }
 
 /**

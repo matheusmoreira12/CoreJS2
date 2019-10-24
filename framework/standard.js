@@ -1,6 +1,6 @@
-import { ArgumentTypeException, InvalidTypeException, InvalidOperationException, FormatException, IndexOutOfRangeException } from "./exceptions.js";
-import { FrameworkEvent } from "./Standard.Events.js";
+import { ArgumentTypeException, FormatException } from "./exceptions.js";
 import { Enumeration } from "./Standard.Enumeration.js";
+import { BroadcastFrameworkEvent } from "./Standard.Events.js";
 
 /**
  * ReverseIterator class
@@ -111,7 +111,7 @@ export class ServerTaskError {
 const DEFAULT_SERVER_TASK_OPTIONS = {
     timeout: 60 * 1000,
     maxRetries: 0
-}
+};
 
 export const ServerTaskStatus = Enumeration.create([
     "Pending",
@@ -119,7 +119,7 @@ export const ServerTaskStatus = Enumeration.create([
     "Retried",
     "Failed",
     "TimedOut",
-    "Success",
+    "Success"
 ]);
 
 //Keys for ServerTask
@@ -140,8 +140,8 @@ export class ServerTask extends Promise {
         });
 
         options = Object.assign({}, DEFAULT_SERVER_TASK_OPTIONS, options);
-        this._maxRetries = options.maxRetries;
-        this._timeout = options.timeout;
+
+        this._options = options;
 
         this._execute(promise, _resolve, _reject);
     }
@@ -199,8 +199,7 @@ export class ServerTask extends Promise {
         }
 
         function failed(error) {
-            if (retries > this.maxRetries ||
-                error instanceof ServerTaskError)
+            if (retries > this._options.maxRetries || error instanceof ServerTaskError)
                 abort.call(this, error);
             else
                 retry.call(this, error);
@@ -225,7 +224,7 @@ export class ServerTask extends Promise {
         }
 
         function retry(error) {
-            timeoutHandle = setTimeout(timedOut.bind(this), this.timeout);
+            /*timeoutHandle = setTimeout(timedOut.bind(this), this._options.timeout);*/
 
             promise.then(value => { //Fulfilled
                 succeeded.call(this, value);

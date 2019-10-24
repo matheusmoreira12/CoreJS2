@@ -1,25 +1,28 @@
 import { InvalidOperationException, NotImplementedException } from "./exceptions.js";
 
-let metadataMap = new WeakMap();
+let workerMap = new WeakMap();
 
-function createDestructibleMetadata(destructible) {
-    let metadata = {
-        isDestructed: false
-    };
+class DestructibleWorker {
+    constructor(destructible) {
+        this.destructible = destructible;
+    }
 
-    metadataMap.set(destructible, metadata);
+    destruct() {
+        if (this.isDestructed)
+            throw new InvalidOperationException("Object has already been destructed.");
+
+        this.destructible.destructor();
+
+        this.isDestructed = true;
+    }
+
+    isDestructed = false;
 }
 
-function getDestructibleMetadata(destructible) {
-    let metadata = metadataMap.get(destructible);
+function createDestructibleWorker(destructible) {
+    let worker = new DestructibleWorker(destructible);
 
-    return metadata || {};
-}
-
-function markDestructableAsDestructed(destructible) {
-    const metadata = getDestructibleMetadata(this);
-
-    metadata.isDestructed = true;
+    workerMap.set(destructible, worker);
 }
 
 export class Destructible {
@@ -27,26 +30,24 @@ export class Destructible {
         if (this.constructor === Destructible)
             throw new InvalidOperationException("Invalid constructor.");
 
-        createDestructibleMetadata(this);
+        createDestructibleWorker(this);
     }
 
-    destructor = null;
+    destructor() {
+        throw new NotImplementedException("Destructor has not been implemented.");
+    }
 
     destruct() {
-        if (this.isDestructed)
-            throw new InvalidOperationException("Object has already been destructed.");
+        let worker = workerMap.get(this);
+        if (!worker) return;
 
-        if (!this.destructor)
-            throw new NotImplementedException("Destructor has not been implemented.");
-
-        this.destructor();
-
-        markDestructableAsDestructed(this);
+        worker.destruct();
     }
 
     get isDestructed() {
-        const metadata = getDestructibleMetadata(this);
+        let worker = workerMap.get(this);
+        if (!worker) return undefined;
 
-        return metadata.isDestructed;
+        return worker.isDestructed;
     }
 }

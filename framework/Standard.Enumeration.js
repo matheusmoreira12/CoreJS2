@@ -25,7 +25,11 @@ export class Enumeration {
     }
 
     static isSet(enumeration, flag) {
-        return (flag & enumeration) == flag;
+        return (flag & enumeration) === flag;
+    }
+
+    static contains(enum1, enum2) {
+        return (enum1 & enum2) === enum1;
     }
 
     static create(map) {

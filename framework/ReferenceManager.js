@@ -38,7 +38,7 @@ class ReferenceRetrievalRequest extends Promise {
 
 class Declaration {
     constructor(name, context, value) {
-        if (typeof name != "string") throw new ArgumentTypeException("name", name, String);
+        if (typeof name !== "string") throw new ArgumentTypeException("name", name, String);
 
         if (!(context instanceof ReferenceManagerContext)) throw new ArgumentTypeException("parentContext", parentContext,
             ReferenceManagerContext);
@@ -51,7 +51,7 @@ class Declaration {
 
 export class ReferenceManagerContext {
     constructor(target = null, parentContext = null) {
-        if (name && typeof name != "string") throw new ArgumentTypeException("name", name, String);
+        if (name && typeof name !== "string") throw new ArgumentTypeException("name", name, String);
 
         if (parentContext && !(parentContext instanceof ReferenceManagerContext)) throw new ArgumentTypeException("parentContext",
             parentContext, ReferenceManagerContext);
@@ -85,7 +85,7 @@ export class ReferenceManagerContext {
 
 function clearResolvedRequests() {
     for (let request of new ReverseIterator(requests)) {
-        if (request.status == ReferenceRetrievalRequestStatus.Resolved)
+        if (request.status === ReferenceRetrievalRequestStatus.Resolved)
             requests.remove(request);
     }
 }
@@ -101,7 +101,7 @@ function requestMatchesDeclaration(request, declaration) {
 
 function* getMatchingPendingRequests(declaration) {
     for (let request of requests) {
-        if (request.status != ReferenceRetrievalRequestStatus.Pending) continue;
+        if (request.status !== ReferenceRetrievalRequestStatus.Pending) continue;
 
         if (!requestMatchesDeclaration(request, declaration)) continue;
 

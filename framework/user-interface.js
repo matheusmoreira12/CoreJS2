@@ -422,7 +422,7 @@ export class GroupAction extends FrameworkAction {
 let $action = Symbol("action");
 
 export class Trigger {
-    constructor(action) {
+    constructor(...actions) {
         if (this.constructor === Trigger) throw new InvalidOperationException("Invalid constructor");
 
         if (!(this.action instanceof FrameworkAction)) throw new ArgumentTypeException("action", action,
@@ -431,7 +431,7 @@ export class Trigger {
         this._actions = new Collection(actions);
     }
 
-    get action() { return this._action; }
+    get actions() { return this._actions; }
 }
 
 /**
