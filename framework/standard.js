@@ -1,6 +1,7 @@
 import { ArgumentTypeException, FormatException } from "./exceptions.js";
 import { Enumeration } from "./Standard.Enumeration.js";
 import { BroadcastFrameworkEvent } from "./Standard.Events.js";
+import { Interface } from "./Standard.Types.js";
 
 /**
  * ReverseIterator class
@@ -268,6 +269,11 @@ export class ServerTask extends Promise {
     get retries() { return this._retries; }
     get timeout() { return this._timeout; }
 }
+
+export const IValueConverter = new Interface({
+    "convert": { type: Type.get(Function) },
+    "convertBack": { type: Type.get(Function) }
+});
 
 /**
  * ValueConverter Class 

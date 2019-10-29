@@ -1,8 +1,9 @@
-import { ValueConverter, ContextSelectionFlags } from "./standard.js";
+import { ValueConverter, ContextSelectionFlags, IValueConverter } from "./standard.js";
 import { Collection } from "./Standard.Collections.js";
 import { ArgumentTypeException, InvalidOperationException, ArgumentNullException } from "./exceptions.js";
 import { FrameworkEvent, BroadcastFrameworkEvent } from "./Standard.Events.js";
 import { Enumeration } from "./Standard.Enumeration.js";
+import { MemberAttributes, Type, Interface } from "./Standard.Types.js";
 
 export class BooleanAttributeValueConverter extends ValueConverter {
     convertBack(value) {
@@ -171,6 +172,11 @@ export const BindingDirection = Enumeration.create({
     ToSource: 2
 });
 
+export const IBindingOptions = new Interface({
+    "direction": { type: Type.get(Number), isOptional: true },
+    "valueConverter": { type: IValueConverter, isOptional: true }
+});
+
 const DEFAULT_BINDING_OPTIONS = {
     direction: BindingDirection.Both,
     valueConverter: null
@@ -178,7 +184,11 @@ const DEFAULT_BINDING_OPTIONS = {
 
 export class Binding {
     constructor(options) {
-        if (this.constructor === Binding) throw new InvalidOperationException("Invalid constructor");
+        if (this.constructor === Binding)
+            throw new InvalidOperationException("Invalid constructor");
+
+        if (!Type.of(options).implements(IBindingOptions))
+            throw new ArgumentTypeException("options", Type.of(options), IBindingOptions);
 
         options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
 

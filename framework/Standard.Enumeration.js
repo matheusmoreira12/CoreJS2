@@ -25,11 +25,11 @@ export class Enumeration {
     }
 
     static isSet(enumeration, flag) {
-        return (flag & enumeration) === flag;
+        return (enumeration & flag) === flag;
     }
 
-    static contains(enum1, enum2) {
-        return (enum1 & enum2) === enum1;
+    static intersect(enum1, enum2) {
+        return !!(enum1 & enum2);
     }
 
     static create(map) {
