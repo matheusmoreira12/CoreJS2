@@ -1,3 +1,6 @@
+import { Dictionary } from "./Standard.Collections.js";
+import { FormatException, ArgumentTypeException } from "./exceptions.js";
+
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
 /**
@@ -5,61 +8,115 @@ const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
  * Represents an enumeration of options.
  */
 export class Enumeration {
-    static getName(enumeration, flag) {
-        for (let flagPair of this.getAllFlags(enumeration))
-            if (flagPair.value == flag)
-                return flagPair.key;
+    static parse(value) {
+        if (typeof value !== "string")
+            throw new ArgumentTypeException("value");
 
-        return null;
-    }
+        let flagStrs = value.split(/\s*,\s*/);
 
-    static *getAllFlags(enumeration) {
-        for (let key of Object.getOwnPropertyNames(enumeration)) {
-            let flag = enumeration[key];
+        let dictionary = this.getAsDictionary();
 
-            if (!key.match(ENUMERATION_FLAG_NAME_PATTERN)) continue;
-
-            if (typeof flag === "number")
-                yield new KeyValuePair(key, flag);
+        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
+            if (value === flagKeyValuePair.value)
+                return flagKeyValuePair.key;
         }
+
+        let result = 0;
+
+        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
+            if (flagStrs.includes(flagKeyValuePair))
+                result |= flagKeyValuePair.value;
+        }
+
+        return result;
     }
 
-    static isSet(enumeration, flag) {
-        return (enumeration & flag) === flag;
+    static toString(value) {
+        if (typeof value !== "number")
+            throw new ArgumentTypeException("value");
+
+        let dictionary = this.getAsDictionary();
+
+        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
+            if (flagKeyValuePair.value === value)
+                return flag.key;
+        }
+
+        let flagStrs = [];
+
+        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
+            if (Enumeration.isFlagSet(value, flagKeyValuePair.value))
+                flagStrs.push(flag.key);
+        }
+
+        return flagStrs.join(", ");
     }
 
-    static intersect(enum1, enum2) {
-        return !!(enum1 & enum2);
+    static intersect(value1, value2) {
+        if (typeof value1 !== "number")
+            throw new ArgumentTypeException("value1");
+        if (typeof value2 !== "number")
+            throw new ArgumentTypeException("value2");
+
+        return value1 & value2;
     }
 
-    static create(map) {
-        let customEnum = class CustomEnumeration extends Enumeration { };
+    static valuesIntersect(value1, value2) {
+        return !!this.intersect(value1, value2);
+    }
 
+    static isFlagSet(flag, value) {
+        if (typeof flag !== "number")
+            throw new ArgumentTypeException("flag");
+        if (typeof value !== "number")
+            throw new ArgumentTypeException("value");
+
+        return this.intersect(value, flag) === flag;
+    }
+
+    static contains(value1, value2) {
+        return this.intersect(value1, value2) === value1;
+    }
+
+    constructor(descriptorMap) {
         function addFlag(name, value) {
-            Object.defineProperty(customEnum, name, {
+            Object.defineProperty(this, name, {
                 get() { return value; }
             });
         }
 
-        if (map instanceof Array) {
-            for (let i = 0; i < map.length; i++)
-                addFlag(map[i], i);
+        if (descriptorMap instanceof Array) {
+            for (let i = 0; i < descriptorMap.length; i++)
+                addFlag.call(this, descriptorMap[i], i);
         }
-        else if (typeof map === "object")
-            for (let key in map) {
+        else if (descriptorMap instanceof Object)
+            for (let key in descriptorMap) {
                 if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
-                    throw new FormatException("EnumerationName", key);
+                    throw new FormatException("FlagName", key);
 
-                let value = map[key];
+                let value = descriptorMap[key];
 
-                if (typeof value != "number")
+                if (typeof value !== "number")
                     throw new InvalidTypeException("value", Number);
 
-                addFlag(key, value);
+                addFlag.call(this, key, value);
             }
         else
             throw new ArgumentTypeException("map", [Array, Object]);
+    }
 
-        return customEnum;
+    getAsDictionary() {
+        function* createFlagKeyValuePairs() {
+            for (let key of Object.getOwnPropertyNames(this)) {
+                let flag = this[key];
+
+                if (!key.match(ENUMERATION_FLAG_NAME_PATTERN)) continue;
+
+                if (typeof flag === "number")
+                    yield new KeyValuePair(key, flag);
+            }
+        }
+
+        return new Dictionary(...createFlagKeyValuePairs.call(this));
     }
 }

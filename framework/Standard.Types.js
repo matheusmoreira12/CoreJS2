@@ -1,9 +1,9 @@
 import { Dictionary, Collection } from "./Standard.Collections.js";
 import { Enumeration } from "./Standard.Enumeration.js";
-import { ArgumentTypeException, InvalidTypeException, InvalidOperationException } from "./exceptions.js";
+import { ArgumentTypeException, InvalidTypeException, InvalidOperationException, FormatException } from "./exceptions.js";
 import { Closure, Shell } from "./Standard.Closures.js";
 
-export const InterfaceDifferenceType = Enumeration.create([
+export const InterfaceDifferenceType = new Enumeration([
     "MissingProperty",
     "IncorrectType"
 ]);
@@ -14,7 +14,7 @@ class InterfaceDifferenceClosure extends Closure {
             throw new InvalidOperationException("InterfaceDifferingAnalysis not initialized.");
     }
 
-    initialize(analizedType, analizedInterface, propertyName) {
+    initialize(analizedType, analizedInterface, propertyName, differenceType) {
         this.analizedType = analizedType;
         this.analizedInterface = analizedInterface;
         this.propertyName = propertyName;
@@ -85,8 +85,9 @@ class InterfaceMemberClosure extends Closure {
 }
 
 export class InterfaceMember extends Shell {
-    constructor(name, type = null, attributes = 0, isOptional = false) {
-        super(InterfaceMemberClosure, type, attributes, isOptional);
+    constructor(name, memberType, type, attributes, isOptional) {
+        if (this.constructor === InterfaceMember)
+            throw new InvalidOperationException("Invalid constructor.");
 
         if (!Type.of(name).equals(Type.get(String)))
             throw new ArgumentTypeException(`name`, Type.of(name));
@@ -96,14 +97,12 @@ export class InterfaceMember extends Shell {
             throw new ArgumentTypeException(`attributes`, Type.of(attributes));
         if (!Type.of(isOptional).equalsOrExtends(Type.get(Boolean)))
             throw new ArgumentTypeException(`isOptional`, Type.of(isOptional));
+
+        super(InterfaceMemberClosure, type, memberType, attributes, isOptional);
     }
 
     get name() {
         return Closure.doIfExists(this, c => c.name);
-    }
-
-    get type() {
-        return Closure.doIfExists(this, c => c.type);
     }
 
     get attributes() {
@@ -115,58 +114,55 @@ export class InterfaceMember extends Shell {
     }
 }
 
+export class InterfaceProperty extends InterfaceMember {
+    constructor(name, type = null, attributes = 0, isOptional = false) {
+        super(name, MemberType.Property, type, attributes, isOptional);
+    }
+
+    get type() {
+        return Closure.doIfExists(this, c => c.type);
+    }
+}
+
+export class InterfaceFunction extends InterfaceMember {
+    constructor(name, attributes = 0, isOptional = false) {
+        super(name, MemberType.Function, type, attributes, isOptional);
+    }
+}
+
+export class InterfaceFunctionArgumentClosure extends Closure {
+    initialize(name, argumentType, isOptional) {
+
+    }
+}
+
+export const InterfaceFunctionArgumentType = new Enumeration({
+
+});
+
+export class InterfaceFunctionArgument extends Shell {
+    constructor(name, argumentType = ArgumentType.Any, isOptional = false) {
+
+    }
+}
+
 class InterfaceClosure extends Closure {
     static extractFromType(type) {
-        function extractMemberMapFromType() {
-            let memberMap = {};
-
-            function getMemberType(member) {
-                if (Enumeration.isSet(member.memberType, MemberType.Function)) return Type.get(Function);
-
-                const instance = getTypeInstance(member.parentType);
-                const memberValue = member.getValue(instance);
-
-                return Type.of(memberValue);
-            }
-
+        function* createMembersFromType() {
             const nonStaticMembers = type.getMembers(MemberSelectionType.Any & ~MemberSelectionType.Static);
 
             for (let member of nonStaticMembers) {
-                memberMap[member.name] = {
-                    type: getMemberType(member),
-                    attributes: member.attributes
-                };
-            }
+                const type = getMemberType(member);
 
-            return memberMap;
-        }
-
-        return new Interface(extractMemberMapFromType());
-    }
-
-    static create(descriptorMap) {
-        function* createInterfaceMembers() {
-            for (let name of Object.getOwnPropertyNames(descriptorMap)) {
-                let descriptor = descriptorMap[name];
-
-                let type = descriptor.type === undefined ? null : descriptor.type,
-                    attributes = descriptor.attributes === undefined ? MemberAttributes.Any : descriptor.attributes,
-                    isOptional = descriptor.isOptional === undefined ? false : descriptor.isOptional;
-
-                yield new InterfaceMember(name, type, attributes, isOptional);
+                yield new InterfaceMember(member.name, type, member.attributes);
             }
         }
 
-        let result = new Interface();
-
-        let closure = getClosureFromShell(result);
-        closure.initialize(...createInterfaceMembers());
-
-        return result;
+        return new Interface(...createMembersFromType());
     }
 
-    initialize(map) {
-        this.members = [...InterfaceClosure.createMembers(map)];
+    initialize(...members) {
+        this.members = members;
     }
 
     members = null;
@@ -184,11 +180,11 @@ export class Interface extends Shell {
         if (!Type.of(map).equalsOrExtends(Type.get(Object)))
             throw new ArgumentTypeException("map", Type.of(map), Type.get(Object));
 
-
+        return InterfaceClosure;
     }
 
-    constructor() {
-        super(InterfaceDifferAnalysisClosure, map);
+    constructor(descriptorMap) {
+        super(InterfaceDifferAnalysisClosure, descriptorMap);
     }
 
     get members() {
@@ -199,18 +195,19 @@ export class Interface extends Shell {
     }
 }
 
-export const MemberSelectionAttributes = Enumeration.create({
+export const MemberSelectionAttributes = new Enumeration({
     Configurable: 1,
     Enumerable: 2,
     Writable: 4,
     Any: 7
 });
 
-export const MemberSelectionType = Enumeration.create({
+export const MemberSelectionType = new Enumeration({
     Property: 1,
     Function: 2,
     Static: 4,
-    Any: 7
+    Any: 3,
+    AnyStatic: 7
 });
 
 export class TypeClosure extends Closure {
@@ -271,15 +268,22 @@ export class TypeClosure extends Closure {
         }
 
         function* selectMembers(members, selectionType, selectionAttributes) {
+            function memberTypeMatches(memberType) {
+                if (Enumeration.isFlagSet(MemberSelectionType.Static, selectionType) ^ Enumeration.isFlagSet(MemberType.Static, memberType)) return false;
+
+                if (!Enumeration.contains(Enumeration.intersect(~MemberType.Static, memberType), selectionType)) return false;
+
+                return true;
+            }
+
+            function memberAttributesMatch(memberAttributes) {
+                return Enumeration.contains(memberAttributes, selectionAttributes);
+            }
+
             for (let member of members) {
-                if ((member instanceof StaticPropertyMember || member instanceof StaticFunctionMember) &&
-                    !Enumeration.isSet(selectionType, MemberSelectionType.Static)) continue;
+                if (!memberTypeMatches(member.memberType)) continue;
 
-                if (member instanceof PropertyMember && !Enumeration.isSet(selectionType, MemberSelectionType.Property)) continue;
-
-                if (member instanceof FunctionMember && !Enumeration.isSet(selectionType, MemberSelectionType.Function)) continue;
-
-                if (!Enumeration.isSet(member.attributes, selectionAttributes));
+                if (!memberAttributesMatch(member.attributes)) continue;
 
                 yield member;
             }
@@ -289,7 +293,7 @@ export class TypeClosure extends Closure {
 
         if (!this.hasClass) return;
 
-        let members = createMembers(this.target, this._class, this.hasClass, this.instance, this.hasInstance);
+        let members = createMembers(this.shell, this._class, this.hasClass, this.instance, this.hasInstance);
 
         let selectedMembers = selectMembers(members, selectionType, selectionAttributes);
 
@@ -359,7 +363,7 @@ export class TypeClosure extends Closure {
         }
 
         function attributesMatch(memberAttributes, interfaceMemberAttributes) {
-            return Enumeration.isSet(memberAttributes, interfaceMemberAttributes);
+            return Enumeration.isFlagSet(interfaceMemberAttributes, memberAttributes);
         }
 
         function membersMatch(member, interfaceMember) {
@@ -510,17 +514,23 @@ export class Type extends Shell {
     }
 }
 
-export const MemberAttributes = Enumeration.create({
+export const MemberAttributes = new Enumeration({
     Configurable: 1,
     Enumerable: 2,
     Writable: 4
 });
 
-export const MemberType = Enumeration.create({
+export const MemberType = new Enumeration({
     Property: 1,
     Function: 2,
     Static: 4
 });
+
+const IDENTIFIER_PATTERN = "[A-Za-z_$]\\w*";
+const ANY_VALUE_PATTERN = ".*?";
+const WHITESPACE_PATTERN = "\\s*";
+const SEPARATOR_PATTERN = "\\s*,\\s*";
+const FUNCTION_PATTERN = `^function${WHITESPACE_PATTERN}(?<name>${IDENTIFIER_PATTERN})${WHITESPACE_PATTERN}\\((?<arguments>${ANY_VALUE_PATTERN})\\)${WHITESPACE_PATTERN}{(?<body>${ANY_VALUE_PATTERN})}$`;
 
 class MemberClosure extends Closure {
     static createFromPropertyDescriptor(parentType, name, descriptor, isStatic) {
@@ -530,6 +540,24 @@ class MemberClosure extends Closure {
                 (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
 
+        function* parseFunctionArguments(argumentsStr) {
+            const SEPARATOR_REGEX = new RegExp(SEPARATOR_PATTERN);
+
+            const argumentStrs = argumentsStr.split(SEPARATOR_REGEX);
+            for (let argumentStr of argumentStrs) {
+                if (argumentStr === "") continue;
+
+                yield FunctionArgument.parse(argumentStr);
+            }
+        }
+
+        function parseFunctionBody(bodyStr) {
+            if (bodyStr.match("native"))
+                return null;
+
+            return bodyStr;
+        }
+
         let attributes = getAttributesFromDescriptor(descriptor);
 
         const value = descriptor.value;
@@ -537,10 +565,23 @@ class MemberClosure extends Closure {
 
         const isFunction = type.equals(Type.get(Function));
         if (isFunction) {
+            let _arguments = null,
+                body = null;
+
+            const functionStr = value.toString();
+            let matches = new RegExp(FUNCTION_PATTERN).exec(functionStr);
+            if (matches) {
+                const argumentsStr = matches.groups["arguments"];
+                _arguments = [...parseFunctionArguments(argumentsStr)];
+
+                const bodyStr = matches.groups["body"];
+                body = parseFunctionBody(bodyStr);
+            }
+
             if (isStatic)
-                return new StaticFunctionMember(name, type, parentType, attributes);
+                return new StaticFunctionMember(name, type, parentType, attributes, _arguments, body);
             else
-                return new FunctionMember(name, type, parentType, attributes);
+                return new FunctionMember(name, type, parentType, attributes, _arguments, body);
         }
         else {
             if (isStatic)
@@ -550,12 +591,26 @@ class MemberClosure extends Closure {
         }
     }
 
-    initialize(parentType, type, memberType, name, attributes) {
+    initialize(parentType, type, memberType, name, attributes, _arguments, body) {
         this.parentType = parentType;
         this.type = type;
         this.memberType = memberType;
         this.name = name;
         this.attributes = attributes;
+        this.body = body;
+        this._arguments = _arguments;
+    }
+
+    getInvokable() {
+        function *getArgumentStrings(_arguments) {
+            for (let argument of _arguments)
+                yield argument.toString();
+        }
+
+        if (this.body !== null)
+            return new Function(...getArgumentStrings(), this.body);
+
+        return null;
     }
 
     isSame(other) {
@@ -568,6 +623,13 @@ class MemberClosure extends Closure {
 
     setValue(instance, value) {
         instance[this.name] = value;
+    }
+
+    invoke(instance, ...args) {
+        let invokable = this.getInvokable();
+        if (!invokable) return undefined;
+
+        return invokable.call(instance, ...args);
     }
 
     getValueStatic() {
@@ -583,18 +645,25 @@ class MemberClosure extends Closure {
 
         this.setValue(_class, value);
     }
+
+    invokeStatic(...args) {
+        let _class = Closure.doIfExists(this.parentType, c => c._class);
+        if (!_class) return;
+
+        return this.invoke(_class, ...args);
+    }
 }
 
 export class Member extends Shell {
-    constructor(parentType, type, memberType, name, attributes) {
-        super(MemberClosure, parentType, type, memberType, name, attributes);
+    constructor(name, type, parentType, memberType, attributes, _arguments = null, body = null) {
+        super(MemberClosure, parentType, type, memberType, name, attributes, _arguments, body);
 
         if (this.constructor === Member)
             throw new InvalidOperationException("Invalid constructor");
     }
 
     isSame(other) {
-        return Closure.doIfExists(this, c=> c.isSame(other));
+        return Closure.doIfExists(this, c => c.isSame(other));
     }
 
     get parentType() {
@@ -619,7 +688,7 @@ export class Member extends Shell {
 }
 
 export class PropertyMember extends Member {
-    constructor(name, type, parentType,attributes) {
+    constructor(name, type, parentType, attributes) {
         super(name, type, parentType, MemberType.Property, attributes);
     }
 
@@ -647,8 +716,24 @@ export class StaticPropertyMember extends Member {
 }
 
 export class FunctionMember extends Member {
-    constructor(name, type, parentType, attributes) {
-        super(parentType, type, MemberType.Function, name, attributes);
+    static parse(value) {
+        return MemberClosure.parseFunctionMember(value);
+    }
+
+    constructor(name, type, parentType, attributes, _arguments, body) {
+        super(name, type, parentType, MemberType.Function, attributes, _arguments, body);
+    }
+
+    getInvokable() {
+        return Closure.doIfExists(this, c => getInvokable());
+    }
+
+    get arguments() {
+        return Closure.doIfExists(this, c => c._arguments);
+    }
+
+    get body() {
+        return Closure.doIfExists(this, c => c.body);
     }
 
     invoke(instance, ...args) {
@@ -657,14 +742,149 @@ export class FunctionMember extends Member {
 }
 
 export class StaticFunctionMember extends Member {
-    constructor(name, type, parentType, attributes) {
-        super(parentType, type, MemberType.Function | MemberType.Static, name, attributes);
+    constructor(name, type, parentType, attributes, _arguments, body) {
+        super(name, type, parentType, MemberType.Function | MemberType.Static, attributes, _arguments, body);
+    }
+
+    getInvokable() {
+        return Closure.doIfExists(this, c => getInvokable());
+    }
+
+    get arguments() {
+        return Closure.doIfExists(this, c => c._arguments);
+    }
+
+    get body() {
+        return Closure.doIfExists(this, c => c.body);
     }
 
     invoke(...args) {
-        return Closure.doIfExists(this, c => c.invokeStatic(instance, ...args));
+        let _class = Closure.doIfExists(c => c._class);
+        if (!_class) return undefined;
+
+        return Closure.doIfExists(this, c => c.invoke(_class, ...args));
     }
 }
 
-window.Interface = Interface;
-window.Type = Type;
+const ASSIGNMENT_PATTERN = "\\s*=\\s*";
+const DESTRUCTURING_PATTERN = "\\.\\.\\.";
+
+const FUNCTION_SIMPLE_ARGUMENT_PATTERN = `^(?<name>${IDENTIFIER_PATTERN})$`;
+const FUNCTION_OPTIONAL_ARGUMENT_PATTERN = `^(?<name>${IDENTIFIER_PATTERN})${ASSIGNMENT_PATTERN}(?<defaultValue>${ANY_VALUE_PATTERN})$`;
+const FUNCTION_ARRAY_ARGUMENT_PATTERN = `^${DESTRUCTURING_PATTERN}(?<name>${IDENTIFIER_PATTERN})$`;
+const FUNCTION_DESTRUCTURING_ARRAY_ARGUMENT_PATTERN = `^\\[(?<name>${IDENTIFIER_PATTERN})\\]$`;
+
+export const FunctionArgumentType = new Enumeration([
+    "Simple",
+    "Optional",
+    "Array",
+    "ArrayDestructuring"
+]);
+
+class FunctionArgumentClosure extends Closure {
+    static parseFromString(value) {
+        let name = null,
+            defaultValue = null;
+
+        function parseSimpleArgument() {
+            let matches = new RegExp(FUNCTION_SIMPLE_ARGUMENT_PATTERN).exec(value);
+
+            if (matches) {
+                name = matches.groups["name"];
+                return true;
+            }
+
+            return false;
+        }
+
+        function parseOptionalArgument() {
+            let matches = new RegExp(FUNCTION_OPTIONAL_ARGUMENT_PATTERN).exec(value);
+
+            if (matches) {
+                name = matches.groups["name"];
+                defaultValue = matches.groups["defaultValue"];
+                return true;
+            }
+
+            return false;
+        }
+
+        function parseArrayArgument() {
+            let matches = new RegExp(FUNCTION_ARRAY_ARGUMENT_PATTERN).exec(value);
+
+            if (matches) {
+                name = matches.groups["name"];
+                return true;
+            }
+
+            return false;
+        }
+
+        function parseDestructuringArrayArgument() {
+            let matches = new RegExp(FUNCTION_DESTRUCTURING_ARRAY_ARGUMENT_PATTERN).exec(value);
+
+            if (matches) {
+                name = matches.groups["name"];
+                return true;
+            }
+
+            return false;
+        }
+
+        if (parseSimpleArgument())
+            return new FunctionArgument(name, FunctionArgumentType.Simple);
+        else if (parseOptionalArgument())
+            return new FunctionArgument(name, FunctionArgumentType.Optional, eval(defaultValue));
+        else if (parseArrayArgument())
+            return new FunctionArgument(name, FunctionArgumentType.Array);
+        else if (parseDestructuringArrayArgument())
+            return new FunctionArgument(name, FunctionArgumentType.ArrayDestructuring);
+
+        throw new FormatException("argumentName[= value]|[...argumentName]", value);
+    }
+
+    initialize(name, argumentType, defaultValue) {
+        this.name = name;
+        this.argumentType = argumentType;
+        this.defaultValue = defaultValue;
+    }
+
+    convertToString() {
+        switch (this.argumentType) {
+            case Simple:
+                return `${this.name}`;
+            case Optional:
+                return `${this.name} = ${this.defaultValue}`;
+            case Array:
+                return `[${this.name}]`;
+            case ArrayDestructuring:
+                return `...${this.name}`;
+        }
+    }
+}
+
+export class FunctionArgument extends Shell {
+    static parse(value) {
+        return FunctionArgumentClosure.parseFromString(value);
+    }
+
+    constructor(name, argumentType, defaultValue = null) {
+        super(FunctionArgumentClosure, name, argumentType, defaultValue);
+    }
+
+    toString() {
+        return Closure.doIfExists(c => c.convertToString());
+    }
+
+    get name() {
+        return Closure.doIfExists(this, c => c.name);
+    }
+
+    get argumentType() {
+        return Closure.doIfExists(this, c => c.argumentType);
+    }
+
+    get defaultValue() {
+        return Closure.doIfExists(this, c => c.defaultValue);
+    }
+}

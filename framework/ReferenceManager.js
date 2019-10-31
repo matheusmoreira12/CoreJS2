@@ -3,7 +3,7 @@ import { ObservableCollection, ObservableCollectionChangeAction } from "./Standa
 import { ArgumentTypeException } from "./exceptions.js";
 import { Enumeration } from "./Standard.Enumeration.js";
 
-const ReferenceRetrievalRequestStatus = Enumeration.create([
+const ReferenceRetrievalRequestStatus = new Enumeration([
     "Pending",
     "Resolved"
 ]);
@@ -137,7 +137,7 @@ function resolvePendingRequestIfValueAvailable(request) {
 const requests = new ObservableCollection();
 
 function requests_onChange(sender, args) {
-    if (Enumeration.isSet(args.action, ObservableCollectionChangeAction.Add)) {
+    if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Add, args.action)) {
         for (let request of args.newItems)
             resolvePendingRequestIfValueAvailable(request);
     }
@@ -147,7 +147,7 @@ requests.ChangeEvent.attach(requests_onChange);
 const declarations = new ObservableCollection();
 
 function declarations_onChange(sender, args) {
-    if (Enumeration.isSet(args.action, ObservableCollectionChangeAction.Add)) {
+    if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Add, args.action)) {
         for (let declaration of args.newItems)
             resolveMatchingPendingRequests(declaration);
     }

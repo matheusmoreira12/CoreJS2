@@ -53,45 +53,13 @@ export class EnumerationAttributeValueConverter extends ValueConverter {
     convertBack(value) {
         if (value === null) return null;
 
-        let flagStrs = value.split(/\s*,\s*/);
-
-        let flag = Enumeration.getAllFlags(enumeration);
-
-        for (let flag of flags) { //Search for exact enum values first
-            if (value === flag.value)
-                return flag.key;
-        }
-
-        let result = 0;
-
-        for (let flag of flags) { //Then proceed to a more detailed look 
-            if (flagStrs.includes(flag.key))
-                result |= flag.value;
-        }
-
-        return result;
+        return this._enumeration.parse(value);
     }
 
     convert(value) {
         if (value === null) return null;
 
-        let enumeration = this._enumeration;
-
-        let flags = Enumeration.getAllFlags(enumeration);
-
-        for (let flag of flags) { //Search for exact enum values first
-            if (value == flag.value)
-                return flag.key;
-        }
-
-        let flagStrs = [];
-
-        for (let flag of flags) { //Then proceed to a more detailed look 
-            if (value.contains(flag.value))
-                flagStrs.push(flag.key);
-        }
-
-        return flagStrs.join(", ");
+        return this._enumeration.toString(value);
     }
 }
 
@@ -166,7 +134,7 @@ export class FrameworkProperty {
  * Binding base class
  * 
  */
-export const BindingDirection = Enumeration.create({
+export const BindingDirection = new Enumeration({
     Both: 3,
     ToTarget: 1,
     ToSource: 2
@@ -235,7 +203,7 @@ export class PropertyBinding extends Binding {
     _sourceProperty_onChange(sender, args) {
         if (!Object.is(args.target, this.source)) return;
 
-        if (!Enumeration.isSet(this.options.direction, BindingDirection.ToTarget)) return;
+        if (!Enumeration.isFlagSet(BindingDirection.ToTarget, this.options.direction)) return;
 
         this.updateTargetProperty(args.newValue);
     }
@@ -252,7 +220,7 @@ export class PropertyBinding extends Binding {
     _targetProperty_onChange(sender, args) {
         if (!Object.is(args.target, this.target)) return;
 
-        if (!Enumeration.isSet(this.options.direction, BindingDirection.ToSource)) return;
+        if (!Enumeration.isFlagSet(BindingDirection.ToSource, this.options.direction)) return;
 
         this.updateSourceProperty(args.newValue);
     }
@@ -333,7 +301,7 @@ export class PropertyAttributeBinding extends Binding {
     _sourceProperty_onChange(sender, args) {
         if (!Object.is(args.target, this.source)) return;
 
-        if (!Enumeration.isSet(this.options.direction, BindingDirection.ToTarget)) return;
+        if (!Enumeration.isFlagSet(BindingDirection.ToTarget, this.options.direction)) return;
 
         this._updateTargetAttribute(args.newValue);
     }
@@ -364,7 +332,7 @@ export class PropertyAttributeBinding extends Binding {
     }
 
     _onTargetAttributeSet() {
-        if (!Enumeration.isSet(this.options.direction, BindingDirection.ToSource)) return;
+        if (!Enumeration.isFlagSet(BindingDirection.ToSource, this.options.direction)) return;
 
         this._updateSourceProperty();
     }
@@ -727,18 +695,18 @@ export class Timer {
  * AutoScroller Class
  * Enables automatic scrolling for the framework widgets.
  */
-export const AutoScrollerOrientation = Enumeration.create([
+export const AutoScrollerOrientation = new Enumeration([
     "Horizontal",
     "Vertical"
 ]);
 
-export const AutoScrollerDirection = Enumeration.create([
+export const AutoScrollerDirection = new Enumeration([
     "None",
     "Forward",
     "Backward"
 ]);
 
-const AutoScrollerState = Enumeration.create([
+const AutoScrollerState = new Enumeration([
     "Ready",
     "ScrollNotified",
     "ScrollActive",
@@ -1089,7 +1057,7 @@ const DEFAULT_DRAG_HANDLER_OPTIONS = {
     touchDragStartDelay: 1000
 };
 
-const DragDropHandlerState = Enumeration.create([
+const DragDropHandlerState = new Enumeration([
     "Ready",
     "DragStartRequested",
     "DragDragging",

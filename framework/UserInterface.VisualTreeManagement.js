@@ -40,7 +40,7 @@ export class VisualTreeNode {
     }
 
     _childNodes_onChange(sender, args) {
-        if (Enumeration.isSet(args.action, ObservableCollectionChangeAction.Remove)) {
+        if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
                 if (item instanceof VisualTreeNode) {
                     if (item instanceof VisualTreeElement)
@@ -53,7 +53,7 @@ export class VisualTreeNode {
             }
         }
 
-        if (Enumeration.isSet(args.action, ObservableCollectionChangeAction.Add)) {
+        if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Add, args.action)) {
             let index = args.newIndex;
 
             for (let item of args.newItems) {

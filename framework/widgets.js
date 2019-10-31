@@ -295,7 +295,7 @@ customElements.define("j-scroll-container", JScrollContainer);
 /**
  * Banner Widget Definition
  */
-export const JBannerType = Enumeration.create([
+export const JBannerType = new Enumeration([
     "None",
     "Info",
     "Success",
@@ -475,7 +475,7 @@ window.customElements.define("j-progress-bar", JProgressBar);
 /*
  * Button Widget Definition
  */
-export const ButtonIconPosition = Enumeration.create([
+export const ButtonIconPosition = new Enumeration([
     "Top",
     "Right",
     "Bottom",

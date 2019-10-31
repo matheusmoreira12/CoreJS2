@@ -114,7 +114,7 @@ const DEFAULT_SERVER_TASK_OPTIONS = {
     maxRetries: 0
 };
 
-export const ServerTaskStatus = Enumeration.create([
+export const ServerTaskStatus = new Enumeration([
     "Pending",
     "Started",
     "Retried",

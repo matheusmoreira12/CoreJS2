@@ -58,7 +58,7 @@ export class Collection extends Array {
  * ObservableCollection class
  * Creates a collection observable via the "change" event.
  */
-export const ObservableCollectionChangeAction = Enumeration.create({ Add: 1, Remove: 2 });
+export const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove: 2 });
 
 export class ObservableCollection extends Collection {
     _notifySplice(start, deleteCount, ...items) {
@@ -202,7 +202,7 @@ window.Dictionary = Dictionary;
  * ObservableDictionary class
  * Creates a dictionary observable via the "change" event.
  */
-export const ObservableDictionaryChangeAction = Enumeration.create([
+export const ObservableDictionaryChangeAction = new Enumeration([
     "Add",
     "Change",
     "Delete"

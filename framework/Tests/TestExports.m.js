@@ -1,6 +1,6 @@
 import {
     Interface, InterfaceMember, Type, Member, FunctionMember, StaticFunctionMember, PropertyMember, StaticPropertyMember, MemberAttributes, MemberSelectionAttributes,
-    MemberType, MemberSelectionType
+    MemberType, MemberSelectionType, FunctionArgument, FunctionArgumentType
 } from "../Standard.Types.js";
 
 window.Interface = Interface;
@@ -15,4 +15,5 @@ window.MemberAttributes = MemberAttributes;
 window.MemberSelectionAttributes = MemberSelectionAttributes;
 window.MemberType = MemberType;
 window.MemberSelectionType = MemberSelectionType;
-
+window.FunctionArgument = FunctionArgument;
+window.FunctionArgumentType = FunctionArgumentType;
