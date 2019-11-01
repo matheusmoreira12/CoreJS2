@@ -7,7 +7,7 @@ export class FrameworkException extends Error {
         for (let field of this.data) {
             let [fieldName, fieldValue] = field;
 
-            result += `\n     ${fieldName.padEnd(16)} : ${fieldValue}`;
+            result += `\n     ${fieldName.padEnd(20)} : ${fieldValue}`;
         }
 
         result += `\nStack trace: ${this.stack}`;
@@ -59,7 +59,7 @@ export class InvalidOperationException extends FrameworkException {
 export class InvalidTypeException extends FrameworkException {
     constructor(name = null, type = null, expectedType = null, message = null, innerException = null) {
         message = message || "Variable has an invalid type.";
-        type = type instanceof Function ? type : (type ? type.constructor : null);
+        type = type instanceof Function ? type : type ? type.constructor : null;
 
         super(message, innerException);
 
@@ -90,7 +90,7 @@ export class ArgumentException extends FrameworkException {
 export class ArgumentTypeException extends ArgumentException {
     constructor(argumentName = null, type = null, expectedType = null, message = null, innerException = null) {
         message = message || "Argument is of incorrect type.";
-        type = type instanceof Function ? type : (type ? type.constructor : null);
+        type = type instanceof Function ? type : type ? type.constructor : null;
 
         super(argumentName, message, innerException);
 

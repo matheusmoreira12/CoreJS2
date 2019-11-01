@@ -1,6 +1,6 @@
 import {
     Interface, InterfaceMember, Type, Member, FunctionMember, StaticFunctionMember, PropertyMember, StaticPropertyMember, MemberAttributes, MemberSelectionAttributes,
-    MemberType, MemberSelectionType, FunctionArgument, FunctionArgumentType
+    MemberType, MemberSelectionType
 } from "../Standard.Types.js";
 
 window.Interface = Interface;
@@ -15,5 +15,17 @@ window.MemberAttributes = MemberAttributes;
 window.MemberSelectionAttributes = MemberSelectionAttributes;
 window.MemberType = MemberType;
 window.MemberSelectionType = MemberSelectionType;
-window.FunctionArgument = FunctionArgument;
-window.FunctionArgumentType = FunctionArgumentType;
+
+import {
+    DestructuringExpression, DestructuringExpressionArgument, FunctionParameterModel, FunctionParameterType, FunctionDestructuringParameterModel,
+    FunctionModel, FunctionSimpleParameterModel, FunctionSpreadParameterModel
+} from "../Standard.Types.Models.js";
+
+window.DestructuringExpression = DestructuringExpression;
+window.DestructuringExpressionArgument = DestructuringExpressionArgument;
+window.FunctionParameterModel = FunctionParameterModel;
+window.FunctionParameterType = FunctionParameterType;
+window.FunctionModel = FunctionModel;
+window.FunctionSimpleParameterModel = FunctionSimpleParameterModel;
+window.FunctionDestructuringParameterModel = FunctionDestructuringParameterModel;
+window.FunctionSpreadParameterModel = FunctionSpreadParameterModel;

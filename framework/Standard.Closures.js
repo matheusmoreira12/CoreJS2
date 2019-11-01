@@ -29,7 +29,7 @@ export class Closure {
 
 export class Shell {
     constructor(closureClass, ...args) {
-        let closure = new closureClass();
+        let closure = new closureClass(this);
         closure.initialize(...args);
 
         closureMap.set(this, closure);
