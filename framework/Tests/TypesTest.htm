@@ -1,10 +1,137 @@
 <html>
 <head>
     <script type="module" src="TestExports.m.js"></script>
-    <script>
 
+    <script>
+        const Consolify = new function () {
+            const TAB_SPACING = 5;
+
+            let text = "";
+
+            let tabCount = 0;
+            let relativeTabCount = 0;
+
+            function advanceTab(count = 1) {
+                tabCount++;
+            }
+
+            function retrocedeTab(count = 1) {
+                tabCount--;
+            }
+
+            function advanceLineTab(count = 1) {
+                const column = getColumn();
+                const nextTab = Math.trunc((column + TAB_SPACING * count) / TAB_SPACING);
+
+                lineTabCount = nextTab;
+            }
+
+            this.tabFwd = function (count = 1, relative = true) {
+                if (relative)
+                    relativeTabCount += count;
+                else
+                    tabCount += count;
+            }
+
+            function resetRelativeTabCount() {
+                relativeTabCount = 0;
+            }
+
+            function insertLineBreak() {
+                text += "\n";
+            }
+
+            this.brkLn = function () {
+                insertLineBreak();
+                resetRelativeTabCount();
+            }
+
+            function getColumn() {
+                let c = text.length - 1;
+                while (text[c] !== "\n" && c > 0)
+                    c--;
+
+                return c;
+            }
+
+            function insertTabulation() {
+                const column = getColumn();
+                const tabulation = TAB_SPACING * (relativeTabCount + tabCount);
+
+                text += " ".repeat(tabulation - column);
+            }
+
+            this.clr = function () {
+                text = "";
+            }
+
+            this.write = function (value) {
+                text += value;
+            }
+
+            this.writeLn = function (value) {
+                insertLineBreak();
+                insertTabulation();
+                write(value);
+            }
+        };
+
+        function listMemberInfo(member) {
+            advanceTab();
+
+            retrocedeTab();
+        }
+
+        function listInfo(type) {
+            advanceTab();
+
+            let result = "";
+
+            writeLine(`Type "${type}":`);
+
+            let parentTypes = [...type.getParentTypes()];
+            writeLine(`- Has ${parentTypes.length} parent types:`);
+
+            for (let parentType of parentTypes)
+                listInfo(parentType);
+
+            let staticMembers = [...type.getMembers(MemberSelectionType.AnyStatic)];
+            writeLine(`- Has ${staticMembers.length} static members:`);
+
+            for (let staticMember of staticMembers) {
+                writeLine(`- Member "${staticMember.name}"`);
+
+                listMemberInfo(staticMember);
+            }
+
+            let members = [...type.getMembers(MemberSelectionType.Any)]
+            writeLine(`- Has ${members.length} members:`);
+
+            for (let member of members) {
+                writeLine(`- Member "${member.name}"`);
+
+                listMemberInfo(member);
+            }
+
+            retrocedeTab();
+        }
     </script>
+
+    <style type="text/css">
+        textarea {
+            display: block;
+            width: 100%;
+            height: 700px;
+        }
+    </style>
 </head>
 <body>
+    <h1>Framework Standards.Types.js module Test</h1>
+    <br />
+    <label>Enter a type or object name: <input type="text" id="typeNameText" pattern="[$_A-Za-z]\w*"></label>
+    <button click="listTypeInfo()">get()</button>
+    <button>of()</button>
+    <br />
+    <textarea id="typeDataOutputText"></textarea>
 </body>
 </html>
