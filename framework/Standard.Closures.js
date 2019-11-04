@@ -35,8 +35,6 @@ class ClosureMethod {
 
     constructor(name) {
         this.name = name;
-        this.shell = shell;
-        this.closure = closure;
     }
 }
 
