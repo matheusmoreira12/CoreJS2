@@ -29,3 +29,9 @@ window.FunctionModel = FunctionModel;
 window.FunctionSimpleParameterModel = FunctionSimpleParameterModel;
 window.FunctionDestructuringParameterModel = FunctionDestructuringParameterModel;
 window.FunctionSpreadParameterModel = FunctionSpreadParameterModel;
+
+import {
+    Enumeration
+} from "../Standard.Enumeration.js";
+
+window.Enumeration = Enumeration;

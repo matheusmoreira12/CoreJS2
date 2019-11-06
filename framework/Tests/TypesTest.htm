@@ -8,33 +8,31 @@
 
             let text = "";
 
-            let tabCount = 0;
-            let relativeTabCount = 0;
+            let tabulationCount = 0;
 
-            function advanceTab(count = 1) {
-                tabCount++;
+            function resetTabulation() {
+                tabulationCount = 0;
             }
 
-            function retrocedeTab(count = 1) {
-                tabCount--;
-            }
-
-            function advanceLineTab(count = 1) {
+            this.tab = function (count = 1) {
                 const column = getColumn();
                 const nextTab = Math.trunc((column + TAB_SPACING * count) / TAB_SPACING);
 
-                lineTabCount = nextTab;
+                tabulationCount = nextTab;
             }
 
-            this.tabFwd = function (count = 1, relative = true) {
-                if (relative)
-                    relativeTabCount += count;
-                else
-                    tabCount += count;
+            let indentationCount = 0;
+
+            function resetIndentation() {
+                indentationCount = 0;
             }
 
-            function resetRelativeTabCount() {
-                relativeTabCount = 0;
+            this.indent = function (count = 1) {
+                indentationCount += count;
+            }
+
+            this.indentBk = function (count = 1) {
+                indentationCount -= count;
             }
 
             function insertLineBreak() {
@@ -43,77 +41,144 @@
 
             this.brkLn = function () {
                 insertLineBreak();
-                resetRelativeTabCount();
+                resetTabulation();
             }
 
             function getColumn() {
-                let c = text.length - 1;
-                while (text[c] !== "\n" && c > 0)
-                    c--;
+                let i = text.length - 1;
+                while (text[i] !== "\n" && c > 0)
+                    i--;
 
-                return c;
+                return text.length - 1 - i;
             }
 
             function insertTabulation() {
                 const column = getColumn();
-                const tabulation = TAB_SPACING * (relativeTabCount + tabCount);
+                const tabulation = TAB_SPACING * (indentationCount + tabulationCount);
 
-                text += " ".repeat(tabulation - column);
+                if (tabulation > column)
+                    text += " ".repeat(tabulation - column);
             }
 
             this.clr = function () {
                 text = "";
+                resetIndentation();
             }
 
             this.write = function (value) {
+                insertTabulation();
                 text += value;
             }
 
             this.writeLn = function (value) {
-                insertLineBreak();
-                insertTabulation();
-                write(value);
+                this.brkLn();
+                this.write(value);
+            }
+
+            this.dump = function (element, propertyName) {
+                element[propertyName] = text;
             }
         };
 
-        function listMemberInfo(member) {
-            advanceTab();
+        let itemsCount = 0;
 
-            retrocedeTab();
+        function listMemberInfo(member) {
+            Consolify.indent();
+
+            Consolify.writeLn(`Member "${member.name}":`);
+
+            Consolify.writeLn(`- Type: ${MemberType.convertToString(member.memberType)}`);
+
+            if (Enumeration.isFlagSet(MemberType.Property, member.memberType)) {
+                Consolify.writeLn(`- Value type: "${member.type.name}"`);
+            }
+
+            Consolify.writeLn(`(End of member "${member.name}")`)
+
+            Consolify.indentBk();
+
+            itemsCount++;
         }
 
-        function listInfo(type) {
-            advanceTab();
+        function listTypeInfo(type) {
+            Consolify.indent();
 
-            let result = "";
-
-            writeLine(`Type "${type}":`);
+            Consolify.writeLn(`Type "${type.name}":`);
 
             let parentTypes = [...type.getParentTypes()];
-            writeLine(`- Has ${parentTypes.length} parent types:`);
+            Consolify.writeLn(`- ${parentTypes.length} parent type(s):`);
 
             for (let parentType of parentTypes)
-                listInfo(parentType);
+                listTypeInfo(parentType);
 
             let staticMembers = [...type.getMembers(MemberSelectionType.AnyStatic)];
-            writeLine(`- Has ${staticMembers.length} static members:`);
+            Consolify.writeLn(`- ${staticMembers.length} static member(s):`);
 
             for (let staticMember of staticMembers) {
-                writeLine(`- Member "${staticMember.name}"`);
-
                 listMemberInfo(staticMember);
             }
 
             let members = [...type.getMembers(MemberSelectionType.Any)]
-            writeLine(`- Has ${members.length} members:`);
+            Consolify.writeLn(`- ${members.length} member(s):`);
 
-            for (let member of members) {
-                writeLine(`- Member "${member.name}"`);
-
+            for (let member of members)
                 listMemberInfo(member);
+
+            Consolify.writeLn(`(End of type "${type.name}")`)
+
+            Consolify.indentBk();
+
+            itemsCount++;
+        }
+
+        function doListTypeInfo(method) {
+            Consolify.clr();
+
+            itemsCount = 0;
+
+            const startTime = Date.now();
+
+            Consolify.indentBk();
+
+            let classOrInstanceName = typeNameText.value;
+            let classOrInstance = eval(classOrInstanceName);
+
+            if (classOrInstance === undefined)
+                Consolify.writeLn(`The specified class "${classOrInstanceName}" does not exist or has not been exported to the root context.`);
+
+            let type = null;
+
+            try {
+                switch (method) {
+                    case "of":
+                        type = Type.of(classOrInstance);
+                        break;
+
+                    case "get":
+                        type = Type.get(classOrInstance);
+                        break;
+                }
+            }
+            catch (e) {
+                Consolify.writeLn(`Test failed with error:`);
+
+                Consolify.indent();
+
+                Consolify.writeLn(e.toString());
+
+                Consolify.indentBk();
             }
 
-            retrocedeTab();
+            if (type !== null)
+                listTypeInfo(type);
+
+            let secs = (Date.now() - startTime) / 1000,
+                speed = Math.round(itemsCount / secs);
+
+            Consolify.writeLn("-".repeat(20));
+            Consolify.writeLn(`Total items: ${itemsCount}; total time: ${secs}s; ${speed}item(s)/s.`)
+
+            Consolify.dump(typeDataOutputText, "value");
         }
     </script>
 
@@ -129,8 +194,8 @@
     <h1>Framework Standards.Types.js module Test</h1>
     <br />
     <label>Enter a type or object name: <input type="text" id="typeNameText" pattern="[$_A-Za-z]\w*"></label>
-    <button click="listTypeInfo()">get()</button>
-    <button>of()</button>
+    <button onclick="doListTypeInfo('get')">get()</button>
+    <button onclick="doListTypeInfo('of')">of()</button>
     <br />
     <textarea id="typeDataOutputText"></textarea>
 </body>

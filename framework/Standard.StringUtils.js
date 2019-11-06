@@ -64,7 +64,7 @@ class StringReaderContextClosure extends Closure {
 
 export class StringReaderContext extends Shell {
     constructor() {
-        super(StringReaderClosure);
+        super(StringReaderContextClosure);
     }
 }
 

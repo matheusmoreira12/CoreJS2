@@ -406,22 +406,11 @@ export class TypeClosure extends Closure {
     }
 
     * getParentTypes() {
-        function* getParentClasses(_class) {
-            while (_class instanceof Function) {
-                yield _class;
-                _class = Object.getPrototypeOf(_class);
-            }
-        }
+        let parentType = this.getParentType();
+        if (parentType === null) return;
 
-        function* createParentTypes(_class) {
-            for (let parentClass of getParentClasses(_class))
-                yield Type.get(parentClass);
-        }
-
-        if (!this.hasClass)
-            return;
-
-        yield* createParentTypes(this._class);
+        yield parentType;
+        yield* parentType.getParentTypes();
     }
 
     getParentType() {

@@ -59,7 +59,7 @@ export class EnumerationAttributeValueConverter extends ValueConverter {
     convert(value) {
         if (value === null) return null;
 
-        return this._enumeration.toString(value);
+        return this._enumeration.convertToString(value);
     }
 }
 

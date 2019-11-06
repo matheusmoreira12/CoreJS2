@@ -1,11 +1,18 @@
 import { ArgumentTypeException, FormatException } from "./exceptions.js";
 import { Type } from "./Standard.Types.js";
+import { Enumeration } from "./Standard.Enumeration.js";
 
 let closureMap = new WeakMap();
 
 const CLOSURE_GETTER_NAME_REGEX = /^get(?<name>[A-Z]\w*)$/;
 const CLOSURE_SETTER_NAME_REGEX = /^set(?<name>[A-Z]\w*)$/;
 const CLOSURE_ACTION_NAME_REGEX = /^do(?<name>[A-Z]\w*)$/;
+
+const ClosureMethodType = new Enumeration([
+    "Getter",
+    "Setter",
+    "Action"
+]);
 
 class ClosureMethod {
     static parse(value) {
@@ -33,23 +40,32 @@ class ClosureMethod {
         }
     }
 
-    constructor(name) {
+    constructor(name, type) {
         this.name = name;
+        this.type = type;
     }
 }
 
-function transformClosureMethodName(original) {
+function decapitalizeFirst(original) {
     return original.replace(/^[A-Z]/, s => s.toLowerCase());
 }
 
+function capitalizeFirst(original) {
+    return original.replace(/^[A-Z]/, s => s.toUpperCase());
+}
+
 class ClosureGetter extends ClosureMethod {
+    constructor(name) {
+        super(name, ClosureMethodType.Getter);
+    }
+
     static parse(value) {
         if (typeof value !== "string")
             throw new ArgumentTypeException("value", Type.of(value), Type.get(String));
 
         const matches = CLOSURE_GETTER_NAME_REGEX.exec(value);
         if (matches) {
-            const name = transformClosureMethodName(matches.groups["name"]);
+            const name = decapitalizeFirst(matches.groups["name"]);
             return new ClosureGetter(name);
         }
 
@@ -58,6 +74,10 @@ class ClosureGetter extends ClosureMethod {
 }
 
 class ClosureSetter extends ClosureMethod {
+    constructor(name) {
+        super(name, ClosureMethodType.Setter);
+    }
+
     static parse(value) {
         if (typeof value !== "string")
             throw new ArgumentTypeException("value", Type.of(value), Type.get(String));
@@ -73,6 +93,10 @@ class ClosureSetter extends ClosureMethod {
 }
 
 class ClosureAction extends ClosureMethod {
+    constructor(name) {
+        super(name, ClosureMethodType.Action);
+    }
+
     static parse(value) {
         if (typeof value !== "string")
             throw new ArgumentTypeException("value", Type.of(value), Type.get(String));
@@ -97,7 +121,58 @@ function* getClosureMethods(closure) {
 }
 
 function applyClosureMethods(methods, shell, closure) {
+    let appliedNames = [];
 
+    function getSetterByName(name) {
+        return methods.find(m => m.type === ClosureMethodType.Setter && m.name === name);
+    }
+
+    function getGetterByName(name) {
+        return methods.find(m => m.type === ClosureMethodType.Setter && m.name === name);
+    }
+
+    function applyGetterAndSetter(getter, setter) {
+        const hasGetter = !!getter,
+            hasSetter = !!setter;
+
+        const name = (getter || setter).name;
+
+        const closureGetterName = "get" + capitalizeFirst(name),
+            closureSetterName = "set" + capitalizeFirst(name);
+
+        Object.defineProperty(shell, name, {
+            get: hasGetter ? closure[closureGetterName].bind(closure) : null,
+            set: hasSetter ? closure[closureSetterName].bind(closure) : null
+        });
+    }
+
+    function applyAction(action) {
+        const closureName = "do" + capitalizeFirst(action.name);
+
+        shell[action.name] = closure[closureName].bind(closure);
+    }
+
+    for (let method of methods) {
+        if (appliedNames.includes(method.name)) continue;
+
+        switch (method.type) {
+            case ClosureMethodType.Getter:
+                let setter = getSetterByName(method.name);
+                applyGetterAndSetter(method, setter);
+                break;
+
+            case ClosureMethodType.Setter:
+                let getter = getGetterByName(method.name);
+                applyGetterAndSetter(getter, method);
+                break;
+
+            case ClosureMethodType.Action:
+                applyAction(method);
+                break;
+        }
+
+        appliedNames.push(method.name);
+    }
 }
 
 export class Closure {
@@ -120,6 +195,8 @@ export class Closure {
 
     constructor(shell) {
         this.shell = shell;
+
+        //applyClosureMethods([...getClosureMethods(this)], shell, this);
     }
 
     initialize(...args) { }

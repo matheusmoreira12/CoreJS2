@@ -1,4 +1,4 @@
-import { Dictionary } from "./Standard.Collections.js";
+import { Dictionary, KeyValuePair } from "./Standard.Collections.js";
 import { FormatException, ArgumentTypeException } from "./exceptions.js";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
@@ -8,50 +8,6 @@ const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
  * Represents an enumeration of options.
  */
 export class Enumeration {
-    static parse(value) {
-        if (typeof value !== "string")
-            throw new ArgumentTypeException("value");
-
-        let flagStrs = value.split(/\s*,\s*/);
-
-        let dictionary = this.getAsDictionary();
-
-        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
-            if (value === flagKeyValuePair.value)
-                return flagKeyValuePair.key;
-        }
-
-        let result = 0;
-
-        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
-            if (flagStrs.includes(flagKeyValuePair))
-                result |= flagKeyValuePair.value;
-        }
-
-        return result;
-    }
-
-    static toString(value) {
-        if (typeof value !== "number")
-            throw new ArgumentTypeException("value");
-
-        let dictionary = this.getAsDictionary();
-
-        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
-            if (flagKeyValuePair.value === value)
-                return flag.key;
-        }
-
-        let flagStrs = [];
-
-        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
-            if (Enumeration.isFlagSet(value, flagKeyValuePair.value))
-                flagStrs.push(flag.key);
-        }
-
-        return flagStrs.join(", ");
-    }
-
     static intersect(value1, value2) {
         if (typeof value1 !== "number")
             throw new ArgumentTypeException("value1");
@@ -103,6 +59,50 @@ export class Enumeration {
             }
         else
             throw new ArgumentTypeException("map", [Array, Object]);
+    }
+
+    convertToString(value) {
+        if (typeof value !== "number")
+            throw new ArgumentTypeException("value");
+
+        let dictionary = this.getAsDictionary();
+
+        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
+            if (flagKeyValuePair.value === value)
+                return flagKeyValuePair.key;
+        }
+
+        let flagStrs = [];
+
+        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
+            if (Enumeration.isFlagSet(flagKeyValuePair.value, value))
+                flagStrs.push(flagKeyValuePair.key);
+        }
+
+        return flagStrs.join(", ");
+    }
+
+    convertFromString(value) {
+        if (typeof value !== "string")
+            throw new ArgumentTypeException("value");
+
+        let flagStrs = value.split(/\s*,\s*/);
+
+        let dictionary = this.getAsDictionary();
+
+        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
+            if (value === flagKeyValuePair.key)
+                return flagKeyValuePair.value;
+        }
+
+        let result = 0;
+
+        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
+            if (flagStrs.includes(flagKeyValuePair.key))
+                result |= flagKeyValuePair.value;
+        }
+
+        return result;
     }
 
     getAsDictionary() {
