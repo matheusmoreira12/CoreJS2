@@ -2,7 +2,7 @@ import { Collection } from "./Standard.Collections.js";
 import { ArgumentTypeException, InvalidOperationException, ArgumentException } from "./exceptions.js";
 import { Type } from "./Standard.Types.js";
 import { Destructible } from "./Standard.Destructible.js";
-import { Worker, createWorker, retrieveWorker, overrideWorker } from "./Standard.Workers.js";
+import { Worker } from "./Standard.Workers.js";
 
 class FrameworkEventWorker extends Worker {
     initialize(defaultListener) {
@@ -83,23 +83,23 @@ export class FrameworkEvent extends Destructible {
 
         this._isPropagationStopped = false;
 
-        createWorker(this, FrameworkEventWorker, defaultListener);
+        Worker.create(this, FrameworkEventWorker, defaultListener);
     }
 
     destructor() {
-        let worker = retrieveWorker(this);
+        let worker = Worker.retrieve(this);
         if (!worker) return;
 
         worker.detachAll();
 
-        deleteWorker(this);
+        Worker.delete(this);
     }
 
     attach(listener) {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
-        let worker = retrieveWorker(this, FrameworkEventWorker);
+        let worker = Worker.retrieve(this, FrameworkEventWorker);
         if (!worker) return;
 
         worker.attach(listener);
@@ -109,14 +109,14 @@ export class FrameworkEvent extends Destructible {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
-        let worker = retrieveWorker(this, FrameworkEventWorker);
+        let worker = Worker.retrieve(this, FrameworkEventWorker);
         if (!worker) return;
 
         worker.detach(listener);
     }
 
     invoke(sender, args) {
-        let worker = retrieveWorker(this, FrameworkEventWorker);
+        let worker = Worker.retrieve(this, FrameworkEventWorker);
         if (!worker) return;
 
         worker.invoke(sender, args);
@@ -155,7 +155,7 @@ export class NativeEvent extends FrameworkEvent {
     constructor(targetElement, nativeEventName, defaultListener) {
         super(defaultListener);
 
-        overrideWorker(this, NativeEventWorker, targetElement, nativeEventName, defaultListener);
+        Worker.override(this, NativeEventWorker, targetElement, nativeEventName, defaultListener);
     }
 
     get targetElement() { return this._targetElement; }
@@ -241,25 +241,25 @@ export class BroadcastFrameworkEvent extends FrameworkEvent {
 
         this._name = name;
 
-        overrideWorker(this, BroadcastFrameworkEventWorker, name, defaultListener);
+        Worker.override(this, BroadcastFrameworkEventWorker, name, defaultListener);
     }
 
     broadcast(sender, args) {
-        const worker = retrieveWorker(this, BroadcastFrameworkEventWorker);
+        const worker = Worker.retrieve(this, BroadcastFrameworkEventWorker);
         if (!worker) return;
 
         worker.broadcast(sender, args);
     }
 
     route(baseEvent) {
-        const worker = retrieveWorker(this, BroadcastFrameworkEventWorker);
+        const worker = Worker.retrieve(this, BroadcastFrameworkEventWorker);
         if (!worker) return;
 
         worker.route(baseEvent);
     }
 
     unroute(baseEvent) {
-        const worker = retrieveWorker(this, BroadcastFrameworkEventWorker);
+        const worker = Worker.retrieve(this, BroadcastFrameworkEventWorker);
         if (!worker) return;
 
         worker.unroute(baseEvent);

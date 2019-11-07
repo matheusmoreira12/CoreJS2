@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="Framework/ObjectiveXML/MarkupExtension"
+    elementFormDefault="qualified"
+    xmlns="Framework/ObjectiveXML/MarkupExtension"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="URI" type="xs:anyURI"/>
+  <xs:element name="String" type="xs:string"/>
+  <xs:element name="Number" type="xs:decimal"/>
+  <xs:element name="Boolean" type="xs:boolean"/>
+  <xs:element name="True" type="xs:boolean" fixed="true"/>
+  <xs:element name="False" type="xs:boolean" fixed="false"/>
+  <xs:element name="Undefined" fixed="undefined"/>
+  <xs:element name="Null" fixed="null"/>
+  <xs:element name="Array">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,7 +1,7 @@
 import { ArgumentTypeException, FormatException } from "./exceptions.js";
 import { Enumeration } from "./Standard.Enumeration.js";
 import { BroadcastFrameworkEvent } from "./Standard.Events.js";
-import { Interface } from "./Standard.Types.js";
+import { Interface, InterfaceFunction } from "./Standard.Types.js";
 
 /**
  * ReverseIterator class
@@ -35,7 +35,7 @@ export class ContextSelectionFlags {
     static get none() { return new ContextSelectionFlags(null, null, ["*"]) }
 
     static parse(str) {
-        if (typeof str != "string") throw new ArgumentTypeException(str, String);
+        if (typeof str !== "string") throw new ArgumentTypeException(str, String);
 
         const MEMBER_PATTERN = "(\\w+(\\s+)?|\\*)+";
         const FORMAT_PATTERN = `^(?<include>${MEMBER_PATTERN})?(!(?<require>${MEMBER_PATTERN}))?(-(?<exclude>${MEMBER_PATTERN}))?$`;
@@ -270,10 +270,10 @@ export class ServerTask extends Promise {
     get timeout() { return this._timeout; }
 }
 
-export const IValueConverter = new Interface({
-    "convert": { type: Type.get(Function) },
-    "convertBack": { type: Type.get(Function) }
-});
+export const IValueConverter = new Interface(
+    new InterfaceFunction("convert"),
+    new InterfaceFunction("convertBack")
+);
 
 /**
  * ValueConverter Class 

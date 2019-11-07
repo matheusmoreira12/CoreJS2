@@ -74,21 +74,21 @@ export class InterfaceDifferAnalysis extends Shell {
 }
 
 class InterfaceMemberClosure extends Closure {
-    constructor(target, name, type, attributes, isOptional) {
-        this.target = target;
-
+    initialize(name, type, attributes, isOptional) {
         this.name = name;
         this.type = type;
         this.attributes = attributes;
         this.isOptional = isOptional;
     }
+
+    name = null;
+    type = null;
+    attributes = null;
+    isOptional = null;
 }
 
 export class InterfaceMember extends Shell {
     constructor(name, memberType, type, attributes, isOptional) {
-        if (this.constructor === InterfaceMember)
-            throw new InvalidOperationException("Invalid constructor.");
-
         if (!Type.of(name).equals(Type.get(String)))
             throw new ArgumentTypeException(`name`, Type.of(name));
         if (type !== null && !Type.of(type).equals(Type.get(Type)) && !Type.of(type).equals(Type.get(Interface)))
@@ -99,6 +99,9 @@ export class InterfaceMember extends Shell {
             throw new ArgumentTypeException(`isOptional`, Type.of(isOptional));
 
         super(InterfaceMemberClosure, type, memberType, attributes, isOptional);
+
+        if (this.constructor === InterfaceMember)
+            throw new InvalidOperationException("Invalid constructor.");
     }
 
     get name() {
@@ -115,7 +118,7 @@ export class InterfaceMember extends Shell {
 }
 
 export class InterfaceProperty extends InterfaceMember {
-    constructor(name, type = null, attributes = 0, isOptional = false) {
+    constructor(name, type = null, attributes = MemberSelectionAttributes.Any, isOptional = false) {
         super(name, MemberType.Property, type, attributes, isOptional);
     }
 
@@ -125,8 +128,8 @@ export class InterfaceProperty extends InterfaceMember {
 }
 
 export class InterfaceFunction extends InterfaceMember {
-    constructor(name, attributes = 0, isOptional = false) {
-        super(name, MemberType.Function, type, attributes, isOptional);
+    constructor(name, attributes = MemberSelectionAttributes.Any, isOptional = false) {
+        super(name, MemberType.Function, null, attributes, isOptional);
     }
 }
 
@@ -176,22 +179,12 @@ export class Interface extends Shell {
         return InterfaceClosure.extractFromType(type);
     }
 
-    static create(map) {
-        if (!Type.of(map).equalsOrExtends(Type.get(Object)))
-            throw new ArgumentTypeException("map", Type.of(map), Type.get(Object));
-
-        return InterfaceClosure;
-    }
-
     constructor(descriptorMap) {
-        super(InterfaceDifferAnalysisClosure, descriptorMap);
+        super(InterfaceClosure, descriptorMap);
     }
 
     get members() {
-        let closure = getClosureFromShell(this);
-        if (!closure) return undefined;
-
-        return closure.members;
+        return Closure.doIfExists(this, c => c.members);
     }
 }
 
@@ -330,7 +323,7 @@ export class TypeClosure extends Closure {
         this.checkInitializedStatus();
 
         if (!this.hasClass)
-            return typeof this.instance;
+            return this.instance;
 
         return this._class;
     }
@@ -552,7 +545,7 @@ class MemberClosure extends Closure {
     }
 
     getInvokable() {
-        function *getArgumentStrings(_arguments) {
+        function* getArgumentStrings(_arguments) {
             for (let argument of _arguments)
                 yield argument.toString();
         }

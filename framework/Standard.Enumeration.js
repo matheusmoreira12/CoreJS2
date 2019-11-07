@@ -1,4 +1,3 @@
-import { Dictionary, KeyValuePair } from "./Standard.Collections.js";
 import { FormatException, ArgumentTypeException } from "./exceptions.js";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
@@ -62,50 +61,70 @@ export class Enumeration {
     }
 
     convertToString(value) {
+        function tryConvertExact(tryConvertResult) {
+            let result = map.get(value);
+            if (result === undefined)
+                return false;
+
+            tryConvertResult.result = result;
+            return true;
+        }
+
+        function tryConvertMultiple(tryConvertResult) {
+            let flagStrs = [];
+
+            for (let entry of map) { //Then proceed to a more detailed look 
+                if (Enumeration.isFlagSet(entry[1], value))
+                    flagStrs.push(entry[0]);
+            }
+
+            let result = flagStrs.join(", ");
+            tryConvertResult.result = result;
+            return true;
+        }
+
         if (typeof value !== "number")
             throw new ArgumentTypeException("value");
 
-        let dictionary = this.getAsDictionary();
+        let map = this.getAsMap();
 
-        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
-            if (flagKeyValuePair.value === value)
-                return flagKeyValuePair.key;
-        }
-
-        let flagStrs = [];
-
-        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
-            if (Enumeration.isFlagSet(flagKeyValuePair.value, value))
-                flagStrs.push(flagKeyValuePair.key);
-        }
-
-        return flagStrs.join(", ");
+        let tryConvertResult = {};
+        if (tryConvertExact(tryConvertResult) ||
+            tryConvertMultiple(tryConvertResult))
+            return tryConvertResult.result;
     }
 
     convertFromString(value) {
+        function tryConvertMultiple(tryConvertResult) {
+            let flagNames = value.split(/\s*,\s*/);
+
+            let result = 0;
+
+            for (let flagName of flagNames) {
+                let flagValue = map.get(flagStr);
+                if (flagName === undefined)
+                    return false;
+
+                result |= flagValue;
+            }
+
+            tryConvertResult.result = result;
+            return true;
+        }
+
         if (typeof value !== "string")
             throw new ArgumentTypeException("value");
 
-        let flagStrs = value.split(/\s*,\s*/);
+        let map = this.getAsMap();
 
-        let dictionary = this.getAsDictionary();
+        let tryConvertResult = {};
+        if (tryConvertMultiple(tryConvertResult))
+            return tryConvertResult.result;
 
-        for (let flagKeyValuePair of dictionary) { //Search for exact enum values first
-            if (value === flagKeyValuePair.key)
-                return flagKeyValuePair.value;
-        }
-
-        let result = 0;
-
-        for (let flagKeyValuePair of dictionary) { //Then proceed to a more detailed look 
-            if (flagStrs.includes(flagKeyValuePair.key))
-                result |= flagKeyValuePair.value;
-        }
-
-        return result;
+        throw new FormatException(`[FlagName1]["," ...FlagNameN]`);
     }
 
-    getAsDictionary() {
+    getAsMap() {
         function* createFlagKeyValuePairs() {
             for (let key of Object.getOwnPropertyNames(this)) {
                 let flag = this[key];
@@ -113,10 +132,10 @@ export class Enumeration {
                 if (!key.match(ENUMERATION_FLAG_NAME_PATTERN)) continue;
 
                 if (typeof flag === "number")
-                    yield new KeyValuePair(key, flag);
+                    yield [key, flag];
             }
         }
 
-        return new Dictionary(...createFlagKeyValuePairs.call(this));
+        return new Map(createFlagKeyValuePairs.call(this));
     }
 }

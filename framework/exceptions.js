@@ -40,6 +40,14 @@ export class FormatException extends FrameworkException {
     }
 }
 
+export class NotFoundException extends FrameworkException {
+    constructor(message = null, innerException = null) {
+        message = message || "The requested value could not be found.";
+
+        super(message, innerException);
+    }
+}
+
 export class IndexOutOfRangeException extends FrameworkException {
     constructor(message = null, innerException = null) {
         message = message || "The specified value was out of the collection bounds.";

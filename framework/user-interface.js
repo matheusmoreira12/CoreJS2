@@ -3,7 +3,7 @@ import { Collection } from "./Standard.Collections.js";
 import { ArgumentTypeException, InvalidOperationException, ArgumentNullException } from "./exceptions.js";
 import { FrameworkEvent, BroadcastFrameworkEvent } from "./Standard.Events.js";
 import { Enumeration } from "./Standard.Enumeration.js";
-import { MemberAttributes, Type, Interface } from "./Standard.Types.js";
+import { MemberAttributes, Type, Interface, InterfaceProperty, MemberSelectionAttributes } from "./Standard.Types.js";
 
 export class BooleanAttributeValueConverter extends ValueConverter {
     convertBack(value) {
@@ -140,10 +140,10 @@ export const BindingDirection = new Enumeration({
     ToSource: 2
 });
 
-export const IBindingOptions = new Interface({
-    "direction": { type: Type.get(Number), isOptional: true },
-    "valueConverter": { type: IValueConverter, isOptional: true }
-});
+export const IBindingOptions = new Interface(
+    new InterfaceProperty("direction", Type.get(Number), MemberSelectionAttributes.Any, true),
+    new InterfaceProperty("valueConverter", IValueConverter, MemberSelectionAttributes.Any, true)
+);
 
 const DEFAULT_BINDING_OPTIONS = {
     direction: BindingDirection.Both,

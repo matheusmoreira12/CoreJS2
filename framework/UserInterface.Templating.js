@@ -1,7 +1,7 @@
 import { InvalidOperationException, ArgumentTypeException } from "./exceptions.js";
 import { Collection, ObservableDictionary } from "./Standard.Collections.js";
 import { Type } from "./Standard.Types.js";
-import { createWorker, retrieveWorker, Worker } from "./Standard.Workers.js";
+import { Worker } from "./Standard.Workers.js";
 
 class VisualTemplateNodeWorker extends Worker {
     initialize() {
@@ -20,11 +20,11 @@ export class VisualTemplateNode {
         if (this.constructor === VisualTemplateNode)
             throw new InvalidOperationException("Invalid constructor.");
 
-        createWorker(this, VisualTemplateNodeWorker);
+        Worker.create(this, VisualTemplateNodeWorker);
     }
 
     get childNodes() {
-        let worker = retrieveWorker(this, VisualTemplateElementWorker);
+        let worker = Worker.retrieve(this, VisualTemplateElementWorker);
         if (!worker) return undefined;
 
         return worker.childNodes;
@@ -53,25 +53,25 @@ export class VisualTemplateElement extends VisualTemplateNode {
         if (namespaceUri && !Type.of(namespaceUri).equals(Type.get(String)))
             throw new ArgumentTypeException("namespaceUri", Type.of(namespaceUri), Type.get(String));
 
-        overrideWorker(this, VisualTemplateElementWorker, qualifiedName, namespaceUri);
+        Worker.override(this, VisualTemplateElementWorker, qualifiedName, namespaceUri);
     }
 
     get qualifiedName() {
-        let worker = retrieveWorker(this, VisualTemplateElementWorker);
+        let worker = Worker.retrieve(this, VisualTemplateElementWorker);
         if (!worker) return undefined;
 
         return worker.qualifiedName;
     }
 
     get namespaceUri() {
-        let worker = retrieveWorker(this, VisualTemplateElementWorker);
+        let worker = Worker.retrieve(this, VisualTemplateElementWorker);
         if (!worker) return undefined;
 
         return worker.namespaceUri;
     }
 
     get properties() {
-        let worker = retrieveWorker(this, VisualTemplateElementWorker);
+        let worker = Worker.retrieve(this, VisualTemplateElementWorker);
         if (!worker) return undefined;
 
         return worker.properties;
@@ -134,9 +134,3 @@ export class VisualTemplatePropertyAttributeBinding extends VisualTemplateBindin
         this.targetAttributeName = targetAttributeName;
     }
 }
-
-///TODO: remove test lines exposing to main context
-window.VisualTemplate = VisualTemplate;
-window.VisualTemplateElement = VisualTemplateElement;
-window.VisualTemplatePropertyBinding = VisualTemplatePropertyBinding;
-window.VisualTemplatePropertyAttributeBinding = VisualTemplatePropertyAttributeBinding;
