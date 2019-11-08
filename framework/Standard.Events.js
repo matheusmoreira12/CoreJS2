@@ -6,6 +6,8 @@ import { Worker } from "./Standard.Workers.js";
 
 class FrameworkEventWorker extends Worker {
     initialize(defaultListener) {
+        super.initialize();
+
         if (defaultListener) {
             if (defaultListener instanceof Function)
                 this.attach(defaultListener);
@@ -29,7 +31,7 @@ class FrameworkEventWorker extends Worker {
     }
 
     detachAll() {
-        for (let listener of listeners)
+        for (let listener of this.listeners)
             this.detach(listener);
     }
 
@@ -87,11 +89,6 @@ export class FrameworkEvent extends Destructible {
     }
 
     destructor() {
-        let worker = Worker.retrieve(this);
-        if (!worker) return;
-
-        worker.detachAll();
-
         Worker.delete(this);
     }
 

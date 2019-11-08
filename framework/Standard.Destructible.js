@@ -1,9 +1,15 @@
 import { InvalidOperationException, NotImplementedException, InvalidTypeException } from "./exceptions.js";
 import { Closure, Shell } from "./Standard.Closures.js";
 
-let workerMap = new WeakMap();
+const allDestructibles = [];
 
 class DestructibleClosure extends Closure {
+    initialize() {
+        super.initialize();
+
+        allDestructibles.push(this.shell);
+    }
+
     destruct() {
         if (!this.shell.destructor)
             throw new NotImplementedException("Destructor has not been implemented.");
@@ -21,27 +27,30 @@ class DestructibleClosure extends Closure {
     isDestructed = false;
 }
 
-function createDestructibleWorker(destructible) {
-    let worker = new DestructibleWorker(destructible);
-
-    workerMap.set(destructible, worker);
-}
-
 export class Destructible extends Shell {
     constructor() {
         super(DestructibleClosure);
 
         if (this.constructor === Destructible)
             throw new InvalidOperationException("Invalid constructor.");
-
-        createDestructibleWorker(this);
     }
 
     destruct() {
-        Closure.doIfExists(c => c.destruct());
+        Closure.doIfExists(this, c => c.destruct());
     }
 
     get isDestructed() {
-        return Closure.doIfExists(c => c.isDestructed);
+        return Closure.doIfExists(this, c => c.isDestructed);
     }
 }
+
+function beforeUnload() {
+    window.removeEventListener("beforeunload", beforeUnload);
+
+    for (let destructible of allDestructibles) {
+        if (!destructible.isDestructed)
+            destructible.destruct();
+    }
+}
+
+window.addEventListener("beforeunload", beforeUnload);

@@ -1,7 +1,9 @@
 import { Worker } from "./Standard.Workers.js";
 import { Destructible } from "./Standard.Destructible.js";
 import { Enumeration } from "./Standard.Enumeration.js";
-import { Interface, Type } from "./Standard.Types.js";
+import { Interface, Type, InterfaceProperty, MemberSelectionAttributes } from "./Standard.Types.js";
+import { IValueConverter } from "./standard.js";
+import { FrameworkProperty } from "./user-interface.js";
 
 export const BindingDirection = new Enumeration({
     Both: 3,
@@ -27,7 +29,7 @@ class BindingWorker extends Worker {
     }
 
     getComputedOptions() {
-        return Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
+        return Object.assign({}, DEFAULT_BINDING_OPTIONS, this.options);
     }
 }
 
@@ -37,15 +39,15 @@ class BindingWorker extends Worker {
  */
 export class Binding extends Destructible {
     constructor(options = null) {
-        if (this.constructor === Binding)
-            throw new InvalidOperationException("Invalid constructor.");
-
         if (options !== null && !Type.of(options).implements(IBindingOptions))
             throw new ArgumentTypeException("options", Type.of(options), IBindingOptions);
 
-        Worker.create(this, BindingWorker, options);
-
         super(options);
+
+        if (this.constructor === Binding)
+            throw new InvalidOperationException("Invalid constructor.");
+
+        Worker.create(this, BindingWorker, options);
     }
 
     destruct() {
@@ -163,13 +165,13 @@ class PropertyAttributeBindingWorker extends BindingWorker {
     observeAttributeChanges() {
         const self = this;
 
-        this.attributeObserver = new MutationObserver(mutations => {
+        let attributeObserver = new MutationObserver(mutations => {
             for (let mutation of mutations)
                 if (mutation.attributeName === self.targetAttributeName)
                     self.onTargetAttributeSet();
         });
-
-        observer.observe(this.targetElement, { attributes: true, attributeOldValue: true });
+        attributeObserver.observe(this.targetElement, { attributes: true, attributeOldValue: true });
+        this.attributeObserver = attributeObserver;
     }
 
     doInitialUpdate() {
@@ -182,7 +184,6 @@ class PropertyAttributeBindingWorker extends BindingWorker {
         if (!Enumeration.isFlagSet(BindingDirection.ToTarget, options.direction)) return;
 
         if (this.isUpdadingFlag) return;
-
         this.isUpdadingFlag = true;
 
         let valueConverter = options.valueConverter;
@@ -200,7 +201,7 @@ class PropertyAttributeBindingWorker extends BindingWorker {
     sourceProperty_onChange(sender, args) {
         if (!Object.is(args.target, this.source)) return;
 
-        this._updateTargetAttribute(args.newValue);
+        this.updateTargetAttribute(args.newValue);
     }
 
     updateSourceProperty() {
@@ -208,13 +209,17 @@ class PropertyAttributeBindingWorker extends BindingWorker {
         if (!Enumeration.isFlagSet(BindingDirection.ToSource, options.direction)) return;
 
         if (this.isUpdadingFlag) return;
-
         this.isUpdadingFlag = true;
 
         let value = null;
-
         if (this.targetElement.hasAttribute(this.targetAttributeName))
             value = this.targetElement.getAttribute(this.targetAttributeName);
+
+        ///TODO: once angularjs is OUT, remove the following block:
+        if (value.startsWith("{{")) {
+            this.isUpdadingFlag = false;
+            return;
+        }
 
         let valueConverter = options.valueConverter;
         if (valueConverter !== null)
@@ -226,7 +231,7 @@ class PropertyAttributeBindingWorker extends BindingWorker {
     }
 
     onTargetAttributeSet() {
-        this._updateSourceProperty();
+        this.updateSourceProperty();
     }
 
     isUpdadingFlag = false;

@@ -1,5 +1,6 @@
 import { ArgumentException, InvalidOperationException, NotFoundException } from "./exceptions.js";
 import { Type } from "./Standard.Types.js";
+import { Enumeration } from "./Standard.Enumeration.js";
 
 const WORKER_GETTER_PREFIX = "get_";
 const WORKER_SETTER_PREFIX = "set_";
@@ -206,9 +207,7 @@ export class Worker {
         applyWorkerMethods(getWorkerMethods(this), this.self, this);
     }
 
-    finalize() {
-        for (let key in this) delete this[key];
-    }
+    finalize() { }
 }
 
 const workerMap = new WeakMap();
@@ -229,14 +228,3 @@ function createWorker(self, workerClass, ...args) {
 
     workerMap.set(self, worker);
 }
-
-function beforeUnload() {
-    let selfs = [...workerMap].map(e => e[0]);
-
-    for (let self of selfs)
-        Worker.delete(self);
-
-    window.removeEventListener("beforeunload", beforeUnload);
-}
-
-window.addEventListener("beforeunload", beforeUnload);
