@@ -1,17 +1,19 @@
-import { InvalidOperationException, NotImplementedException } from "./exceptions.js";
+import { InvalidOperationException, NotImplementedException, InvalidTypeException } from "./exceptions.js";
+import { Closure, Shell } from "./Standard.Closures.js";
 
 let workerMap = new WeakMap();
 
-class DestructibleWorker {
-    constructor(destructible) {
-        this.destructible = destructible;
-    }
-
+class DestructibleClosure extends Closure {
     destruct() {
+        if (!this.shell.destructor)
+            throw new NotImplementedException("Destructor has not been implemented.");
+        if (!(this.shell.destructor instanceof Function))
+            throw new InvalidTypeException("this.destructor");
+
         if (this.isDestructed)
             throw new InvalidOperationException("Object has already been destructed.");
 
-        this.destructible.destructor();
+        this.shell.destructor();
 
         this.isDestructed = true;
     }
@@ -25,29 +27,21 @@ function createDestructibleWorker(destructible) {
     workerMap.set(destructible, worker);
 }
 
-export class Destructible {
+export class Destructible extends Shell {
     constructor() {
+        super(DestructibleClosure);
+
         if (this.constructor === Destructible)
             throw new InvalidOperationException("Invalid constructor.");
 
         createDestructibleWorker(this);
     }
 
-    destructor() {
-        throw new NotImplementedException("Destructor has not been implemented.");
-    }
-
     destruct() {
-        let worker = workerMap.get(this);
-        if (!worker) return;
-
-        worker.destruct();
+        Closure.doIfExists(c => c.destruct());
     }
 
     get isDestructed() {
-        let worker = workerMap.get(this);
-        if (!worker) return undefined;
-
-        return worker.isDestructed;
+        return Closure.doIfExists(c => c.isDestructed);
     }
 }

@@ -131,222 +131,6 @@ export class FrameworkProperty {
 }
 
 /**
- * Binding base class
- * 
- */
-export const BindingDirection = new Enumeration({
-    Both: 3,
-    ToTarget: 1,
-    ToSource: 2
-});
-
-export const IBindingOptions = new Interface(
-    new InterfaceProperty("direction", Type.get(Number), MemberSelectionAttributes.Any, true),
-    new InterfaceProperty("valueConverter", IValueConverter, MemberSelectionAttributes.Any, true)
-);
-
-const DEFAULT_BINDING_OPTIONS = {
-    direction: BindingDirection.Both,
-    valueConverter: null
-};
-
-export class Binding {
-    constructor(options) {
-        if (this.constructor === Binding)
-            throw new InvalidOperationException("Invalid constructor");
-
-        if (!Type.of(options).implements(IBindingOptions))
-            throw new ArgumentTypeException("options", Type.of(options), IBindingOptions);
-
-        options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
-
-        this._options = options;
-    }
-}
-
-/**
- * PropertyBinding class
- * Allows the binding of two framework properties.
- */
-export class PropertyBinding extends Binding {
-    constructor(source, sourceProperty, target, targetProperty, options = null) {
-        if (!(source instanceof Object)) throw new ArgumentTypeException("source", source, Object);
-
-        if (!(sourceProperty instanceof FrameworkProperty)) throw new ArgumentTypeException("sourceProperty",
-            sourceProperty, FrameworkProperty);
-
-        if (!(target instanceof Object)) throw new ArgumentTypeException("target", target, Object);
-
-        if (!(targetProperty instanceof FrameworkProperty)) throw new ArgumentTypeException("targetProperty",
-            targetProperty, Object);
-
-        super(options);
-
-        this._source = source;
-        this._sourceProperty = sourceProperty;
-        this._target = target;
-        this._targetProperty = targetProperty;
-
-        sourceProperty.ChangeEvent.attach(this._sourceProperty_onChange.bind(this));
-        targetProperty.ChangeEvent.attach(this._targetProperty_onChange.bind(this));
-    }
-
-    updateTargetProperty(value) {
-        let valueConverter = this.options.valueConverter;
-
-        if (valueConverter !== null)
-            value = valueConverter.convert(value);
-
-        this.targetProperty.set(this.target, value);
-    }
-
-    _sourceProperty_onChange(sender, args) {
-        if (!Object.is(args.target, this.source)) return;
-
-        if (!Enumeration.isFlagSet(BindingDirection.ToTarget, this.options.direction)) return;
-
-        this.updateTargetProperty(args.newValue);
-    }
-
-    updateSourceProperty(value) {
-        let valueConverter = this.options.valueConverter;
-
-        if (valueConverter !== null)
-            value = valueConverter.convertBack(value);
-
-        this.sourceProperty.set(this.source, value);
-    }
-
-    _targetProperty_onChange(sender, args) {
-        if (!Object.is(args.target, this.target)) return;
-
-        if (!Enumeration.isFlagSet(BindingDirection.ToSource, this.options.direction)) return;
-
-        this.updateSourceProperty(args.newValue);
-    }
-
-    get source() { return this._source; }
-    get sourceProperty() { return this._sourceProperty; }
-    get target() { return this._target; }
-    get targetProperty() { return this._targetProperty; }
-    get options() { return this._options; }
-}
-
-
-/**
- * PropertyAttributeBinding class
- * Allows the binding of an attribute to a framework property.
- */
-export class PropertyAttributeBinding extends Binding {
-    constructor(source, sourceProperty, targetElement, targetAttributeName, options) {
-        if (!(source instanceof Object)) throw new ArgumentTypeException("source", source, Object);
-
-        if (!(sourceProperty instanceof FrameworkProperty)) throw new ArgumentTypeException("sourceProperty",
-            sourceProperty, FrameworkProperty);
-
-        if (!(targetElement instanceof Element)) throw new ArgumentTypeException("targetElement",
-            targetElement, Element);
-
-        if (typeof targetAttributeName !== "string") new ArgumentTypeException("targetAttributeName",
-            targetAttributeName, String);
-
-        super(options);
-
-        this._source = source;
-        this._sourceProperty = sourceProperty;
-        this._targetElement = targetElement;
-        this._targetAttributeName = targetAttributeName;
-
-        sourceProperty.ChangeEvent.attach(this._sourceProperty_onChange.bind(this));
-
-        this._observeAttributeChanges();
-        this._doInitialUpdate();
-    }
-
-    _observeAttributeChanges() {
-        let self = this;
-
-        let observer = new MutationObserver(mutations => {
-            for (let mutation of mutations)
-                if (mutation.attributeName === self.targetAttributeName)
-                    self._onTargetAttributeSet();
-        });
-
-        observer.observe(this.targetElement, { attributes: true, attributeOldValue: true });
-    }
-
-    _doInitialUpdate() {
-        if (this.targetElement.hasAttribute(this.targetAttributeName))
-            this._updateSourceProperty();
-    }
-
-    _updateTargetAttribute(value) {
-        if (this.isUpdadingFlag) return;
-
-        this.isUpdadingFlag = true;
-
-        let valueConverter = this.options.valueConverter;
-
-        if (valueConverter !== null)
-            value = valueConverter.convert(value);
-
-        if (value === null)
-            this.targetElement.removeAttribute(this.targetAttributeName);
-        else
-            this.targetElement.setAttribute(this.targetAttributeName, value);
-
-        this.isUpdadingFlag = false;
-    }
-
-    _sourceProperty_onChange(sender, args) {
-        if (!Object.is(args.target, this.source)) return;
-
-        if (!Enumeration.isFlagSet(BindingDirection.ToTarget, this.options.direction)) return;
-
-        this._updateTargetAttribute(args.newValue);
-    }
-
-    _updateSourceProperty() {
-        if (this.isUpdadingFlag) return;
-
-        this.isUpdadingFlag = true;
-
-        let value = null;
-
-        if (this.targetElement.hasAttribute(this.targetAttributeName))
-            value = this.targetElement.getAttribute(this.targetAttributeName);
-
-        if (value !== null && value.startsWith('{{')) { ///REMOVE SOON: Ignore AngularJS strings
-            this.isUpdadingFlag = false;
-            return;
-        }
-
-        let valueConverter = this.options.valueConverter;
-
-        if (valueConverter !== null)
-            value = valueConverter.convertBack(value);
-
-        this.sourceProperty.set(this.source, value);
-
-        this.isUpdadingFlag = false;
-    }
-
-    _onTargetAttributeSet() {
-        if (!Enumeration.isFlagSet(BindingDirection.ToSource, this.options.direction)) return;
-
-        this._updateSourceProperty();
-    }
-
-    isUpdadingFlag = false;
-
-    get source() { return this._source; }
-    get sourceProperty() { return this._sourceProperty; }
-    get targetElement() { return this._targetElement; }
-    get targetAttributeName() { return this._targetAttributeName; }
-    get options() { return this._options; }
-}
-
-/**
  * FrameworkAction base class
  * Represents an user-initiated action.
  */
@@ -367,37 +151,13 @@ export class FrameworkAction {
 /**
  * 
  */
-let $subActions = Symbol("subActions");
+export class Setter {
 
-export class GroupAction extends FrameworkAction {
-    constructor(...subActions) {
-        this._subActions = subActions;
-    }
-
-    execute() {
-        super.execute();
-
-        let errors = [];
-
-        for (let subAction of this.subActions) {
-            try {
-                subAction.execute();
-            }
-            catch (e) {
-                errors.push(e);
-            }
-        }
-
-        for (let e of errors) throw e;
-    }
-
-    get subActions() { return [...this._subActions]; }
 }
 
 /**
  * Trigger base class
  */
-let $action = Symbol("action");
 
 export class Trigger {
     constructor(...actions) {
@@ -416,7 +176,6 @@ export class Trigger {
  * PropertyTrigger class
  * Triggers a group of action when the specified property matches the specified value.
  */
-let $value = Symbol("value");
 
 export class PropertyTrigger extends Trigger {
     constructor(target, targetProperty, value, ...actions) {
