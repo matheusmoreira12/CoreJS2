@@ -1,5 +1,5 @@
 import { ArgumentException, InvalidOperationException, NotFoundException } from "./exceptions.js";
-import { Type } from "./Standard.Types.js";
+import { Type, MemberSelectionType } from "./Standard.Types.js";
 import { Enumeration } from "./Standard.Enumeration.js";
 
 const WORKER_GETTER_PREFIX = "get_";
@@ -61,11 +61,11 @@ class WorkerGetter extends WorkerMethod {
 
         const matches = new RegExp(WORKER_GETTER_NAME_PATTERN).exec(value);
         if (matches) {
-            const name = decapitalizeFirst(matches.groups["name"]);
+            const name = matches.groups["name"];
             return new WorkerGetter(name);
         }
 
-        throw new FormatException(`"get"GetterName`, value);
+        throw new FormatException(`"get"[Gg]etterName`, value);
     }
 }
 
@@ -80,11 +80,11 @@ class WorkerSetter extends WorkerMethod {
 
         const matches = new RegExp(WORKER_SETTER_NAME_PATTERN).exec(value);
         if (matches) {
-            const name = transformWorkerMethodName(matches.groups["name"]);
+            const name = matches.groups["name"];
             return new WorkerSetter(name);
         }
 
-        throw new FormatException(`"set"SetterName`, value);
+        throw new FormatException(`"set"[Ss]etterName`, value);
     }
 }
 
@@ -99,24 +99,26 @@ class WorkerAction extends WorkerMethod {
 
         const matches = new RegExp(WORKER_ACTION_NAME_PATTERN).exec(value);
         if (matches) {
-            const name = transformWorkerMethodName(matches.groups["name"]);
+            const name = matches.groups["name"];
             return new WorkerAction(name);
         }
 
-        throw new FormatException(`"do"ActionName`, value);
+        throw new FormatException(`"do"[Aa]ctionName`, value);
     }
 }
 
 function* getWorkerMethods(worker) {
-    for (let name of Object.getOwnPropertyNames(worker)) {
+    let functionMembers = Type.of(worker).getMembers(MemberSelectionType.Function);
+
+    for (let functionMember of functionMembers) {
         let tryParseData = {};
 
-        if (WorkerMethod.tryParse(name, tryParseData))
+        if (WorkerMethod.tryParse(functionMember.name, tryParseData))
             yield tryParseData.result;
     }
 }
 
-function applyWorkerMethods(methods, self, worker) {
+function applyWorkerMethods(self, worker, ...methods) {
     let appliedNames = [];
 
     function getSetterByName(name) {
@@ -131,19 +133,21 @@ function applyWorkerMethods(methods, self, worker) {
         const hasGetter = !!getter,
             hasSetter = !!setter;
 
-        const name = (getter || setter).name;
+        const name = (getter || setter).name,
+            workerGetterName = WORKER_GETTER_PREFIX + name,
+            workerSetterName = WORKER_SETTER_PREFIX + name;
 
-        const workerGetterName = "get" + capitalizeFirst(name),
-            workerSetterName = "set" + capitalizeFirst(name);
+        const propertyDescriptor = {};
+        if (hasGetter)
+            propertyDescriptor.get = worker[workerGetterName].bind(worker);
+        if (hasSetter)
+            propertyDescriptor.set = worker[workerSetterName].bind(worker);
 
-        Object.defineProperty(self, name, {
-            get: hasGetter ? worker[workerGetterName].bind(worker) : null,
-            set: hasSetter ? worker[workerSetterName].bind(worker) : null
-        });
+        Object.defineProperty(self, name, propertyDescriptor);
     }
 
     function applyAction(action) {
-        const workerName = "do" + capitalizeFirst(action.name);
+        const workerName = WORKER_ACTION_PREFIX + action.name;
 
         self[action.name] = worker[workerName].bind(worker);
     }
@@ -204,7 +208,7 @@ export class Worker {
     }
 
     initialize() {
-        applyWorkerMethods(getWorkerMethods(this), this.self, this);
+        applyWorkerMethods(this.self, this, ...getWorkerMethods(this));
     }
 
     finalize() { }
@@ -223,7 +227,7 @@ function getWorker(self) {
 function createWorker(self, workerClass, ...args) {
     if (!Type.get(workerClass).extends(Type.get(Worker))) throw new ArgumentException("workerClass", "The specified value must be a class extending the Worker class.");
 
-    let worker = new workerClass(self, ...args);
+    let worker = new workerClass(self);
     worker.initialize(...args);
 
     workerMap.set(self, worker);

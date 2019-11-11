@@ -3,6 +3,22 @@ import { Enumeration } from "./Standard.Enumeration.js";
 import { ArgumentTypeException, InvalidOperationException } from "./exceptions.js";
 import { Closure, Shell } from "./Standard.Closures.js";
 
+class TypeCache {
+    static cachedTypes = new Dictionary();
+
+    static exists(key) {
+        return this.cachedTypes.has(key);
+    }
+
+    static store(key) {
+        return this.cachedTypes.set(key);
+    }
+
+    static retrieve(key) {
+        return this.cachedTypes.get(key);
+    }
+}
+
 export const InterfaceDifferenceType = new Enumeration([
     "MissingProperty",
     "IncorrectType"
@@ -204,6 +220,53 @@ export const MemberSelectionType = new Enumeration({
 });
 
 export class TypeClosure extends Closure {
+    static getInstanceHasConstructor(instance) {
+        if (instance === undefined)
+            return false;
+        if (instance === null)
+            return false;
+
+        return true;
+    }
+
+    static createTypeFromClass(_class) {
+        let result = new Type();
+
+        Closure.doIfExists(result, c => {
+            c.initializeWithClass(_class);
+        });
+
+        return result;
+    }
+
+    static createTypeFromInstance(instance) {
+        let result = new Type();
+
+        Closure.doIfExists(result, c => {
+            c.initializeWithInstance(instance);
+        });
+
+        return result;
+    }
+
+    static getTypeForClass(_class) {
+        if (TypeCache.exists(_class))
+            return TypeCache.retrieve(_class);
+
+        let type = this.createTypeFromClass(_class);
+        TypeCache.store(_class, type);
+        return type;
+    }
+
+    static getTypeForInstance(instance) {
+        if (TypeCache.exists(instance))
+            return TypeCache.retrieve(instance);
+
+        let type = this.createTypeFromInstance(instance);
+        TypeCache.store(instance, type);
+        return type;
+    }
+
     instance = null;
     hasInstance = false;
     _class = null;
@@ -214,7 +277,9 @@ export class TypeClosure extends Closure {
 
     initializeWithInstance(instance) {
         this.instance = instance;
-        if (instance !== null && instance !== undefined)
+
+        let instanceHasConstructor = TypeClosure.getInstanceHasConstructor(instance);
+        if (instanceHasConstructor)
             this.initializeWithClass(instance.constructor);
 
         this.hasInstance = true;
@@ -222,10 +287,8 @@ export class TypeClosure extends Closure {
     }
 
     initializeWithClass(_class) {
-        if (!(_class instanceof Function))
-            throw new ArgumentTypeException("_class");
-
         this._class = _class;
+
         this.hasClass = true;
         this.initialized = true;
     }
@@ -240,7 +303,7 @@ export class TypeClosure extends Closure {
         this.checkInitializedStatus();
 
         if (!this.hasClass)
-            return typeof this.instance;
+            return String(this.instance);
 
         return this._class.name;
     }
@@ -398,61 +461,64 @@ export class TypeClosure extends Closure {
         return true;
     }
 
+    * _getParentClasses(_class) {
+        let parentClass = this._getParentClass(this._class);
+
+        while (parentClass !== null) {
+            yield parentClass;
+            parentClass = this._getParentClass(parentClass);
+        }
+    }
+
     * getParentTypes() {
         let parentType = this.getParentType();
-        if (parentType === null) return;
+        if (parentType === null)
+            return;
 
         yield parentType;
         yield* parentType.getParentTypes();
     }
 
+    _getParentInstance(instance) {
+        let parentInstance = Object.getPrototypeOf(instance);
+        return parentInstance;
+    }
+
+    _getParentClass(_class) {
+        let parentClass = Object.getPrototypeOf(_class);
+        if (parentClass instanceof Function)
+            return parentClass;
+
+        return null;
+    }
+
     getParentType() {
-        function getParentClass(_class) {
-            let parentClass = Object.getPrototypeOf(_class);
-            if (parentClass instanceof Function)
-                return parentClass;
-
-            return null;
+        if (this.hasClass) {
+            if (this.hasInstance) {
+                let parentInstance = this._getParentInstance(this.instance);
+                return Type.of(parentInstance);
+            }
+            else {
+                let parentClass = this._getParentClass(this._class);
+                if (parentClass !== null)
+                    return Type.get(parentClass);
+            }
         }
 
-        function createParentType(_class) {
-            let parentClass = getParentClass(_class);
-            if (parentClass !== null)
-                return Type.get(parentClass);
-
-            return null;
-        }
-
-        if (!this.hasClass)
-            return null;
-
-        return createParentType(this._class);
+        return null;
     }
 }
 
 export class Type extends Shell {
     static get(_class) {
-        function createAndInitializeType(_class) {
-            let result = new Type();
+        if (!(_class instanceof Function))
+            throw new ArgumentTypeException("_class");
 
-            Closure.doIfExists(result, c => c.initializeWithClass(_class));
-
-            return result;
-        }
-
-        return createAndInitializeType(_class);
+        return TypeClosure.getTypeForClass(_class);
     }
 
     static of(instance) {
-        function createAndInitializeType(instance) {
-            let result = new Type();
-
-            Closure.doIfExists(result, c => c.initializeWithInstance(instance));
-
-            return result;
-        }
-
-        return createAndInitializeType(instance);
+        return TypeClosure.getTypeForInstance(instance);
     }
 
     constructor() {
@@ -560,7 +626,6 @@ class MemberClosure extends Closure {
         if (this.name !== other.name) return false;
 
         if (this.memberType !== other.memberType) return false;
-
         if (this.memberType === MemberType.Property && this.type !== other.type) return false;
 
         return true;

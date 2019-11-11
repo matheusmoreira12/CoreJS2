@@ -287,7 +287,7 @@ let JScrollContainer = class JScrollContainer extends Widget {
 
     get isAutoScrollEnabled() { return JScrollContainer.isAutoScrollEnabledProperty.get(this); }
     set isAutoScrollEnabled(value) { JScrollContainer.isAutoScrollEnabledProperty.set(this, value); }
-}
+};
 
 customElements.define("j-scroll-container", JScrollContainer);
 
@@ -467,7 +467,7 @@ class JProgressBar extends Widget {
 
     get maximum() { return JProgressBar.maximumProperty.get(this); }
     set maximum(value) { JProgressBar.maximumProperty.set(this, value); }
-};
+}
 
 window.customElements.define("j-progress-bar", JProgressBar);
 
@@ -607,7 +607,7 @@ class JButtonBar extends Widget {
     _invokeOnSubmit(value) {
         this.SubmitEvent.invoke({ value: value });
     }
-};
+}
 
 window.customElements.define("j-button-bar", JButtonBar);
 
@@ -792,7 +792,7 @@ class JDialog extends Widget {
 
     get options() { return JDialog.optionsProperty.get(this); }
     set options(value) { JDialog.optionsProperty.set(this, value); }
-};
+}
 
 window.customElements.define("j-dialog", JDialog);
 
@@ -879,7 +879,7 @@ class JBoard extends Widget {
 
     get acceptsDrop() { return JBoard.acceptsDropProperty.get(this); }
     set acceptsDrop(value) { JBoard.acceptsDropProperty.set(this, value); }
-};
+}
 
 customElements.define("j-board", JBoard);
 
@@ -940,7 +940,7 @@ class JCard extends Widget {
 
     get data() { return JCard.dataProperty.get(this); }
     set data(value) { JCard.dataProperty.set(this, value); }
-};
+}
 
 window.customElements.define("j-card", JCard);
 
@@ -1058,7 +1058,7 @@ class JEditableLabel extends Widget {
 
     get isEditing() { return JEditableLabel.isEditingProperty.get(this); }
     set isEditing(value) { JEditableLabel.isEditingProperty.set(this, value); }
-};
+}
 
 customElements.define("j-editable-label", JEditableLabel);
 
@@ -1092,6 +1092,6 @@ class JSpinner extends Widget {
 
     get isOpen() { return JBanner.isOpenProperty.get(this); }
     set isOpen(value) { JBanner.isOpenProperty.set(this, value); }
-};
+}
 
 customElements.define("j-spinner", JSpinner);
