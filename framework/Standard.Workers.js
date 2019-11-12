@@ -1,6 +1,7 @@
 import { ArgumentException, InvalidOperationException, NotFoundException } from "./exceptions.js";
 import { Type, MemberSelectionType } from "./Standard.Types.js";
 import { Enumeration } from "./Standard.Enumeration.js";
+import { TokenReader } from "./Standard.Tokens.js";
 
 const WORKER_GETTER_PREFIX = "get_";
 const WORKER_SETTER_PREFIX = "set_";
@@ -119,14 +120,32 @@ function* getWorkerMethods(worker) {
 }
 
 function applyWorkerMethods(self, worker, ...methods) {
-    let appliedNames = [];
+    let reader = new TokenReader(methods);
 
-    function getSetterByName(name) {
-        return methods.find(m => m.type === WorkerMethodType.Setter && m.name === name);
+    function findSetter(name) {
+        let context = reader.derive();
+        while (context.isWithinBounds) {
+            let method = context.currentToken;
+            context.increment();
+
+            if (method.type === WorkerMethodType.Setter && method.name === name)
+                return method;
+        }
+
+        return null;
     }
 
-    function getGetterByName(name) {
-        return methods.find(m => m.type === WorkerMethodType.Setter && m.name === name);
+    function findGetter(name) {
+        let context = reader.derive();
+        while (context.isWithinBounds) {
+            let method = context.currentToken;
+            context.decrement();
+
+            if (method.type === WorkerMethodType.Getter && method.name === name)
+                return method;
+        }
+
+        return null;
     }
 
     function applyGetterAndSetter(getter, setter) {
@@ -137,13 +156,13 @@ function applyWorkerMethods(self, worker, ...methods) {
             workerGetterName = WORKER_GETTER_PREFIX + name,
             workerSetterName = WORKER_SETTER_PREFIX + name;
 
-        const propertyDescriptor = {};
+        const attributes = {};
         if (hasGetter)
-            propertyDescriptor.get = worker[workerGetterName].bind(worker);
+            attributes.get = worker[workerGetterName].bind(worker);
         if (hasSetter)
-            propertyDescriptor.set = worker[workerSetterName].bind(worker);
+            attributes.set = worker[workerSetterName].bind(worker);
 
-        Object.defineProperty(self, name, propertyDescriptor);
+        Object.defineProperty(self, name, attributes);
     }
 
     function applyAction(action) {
@@ -152,17 +171,22 @@ function applyWorkerMethods(self, worker, ...methods) {
         self[action.name] = worker[workerName].bind(worker);
     }
 
-    for (let method of methods) {
+    let appliedNames = [];
+
+    while (reader.isWithinBounds) {
+        const method = reader.currentToken;
+        reader.increment();
+
         if (appliedNames.includes(method.name)) continue;
 
         switch (method.type) {
             case WorkerMethodType.Getter:
-                let setter = getSetterByName(method.name);
+                let setter = findSetter(method.name);
                 applyGetterAndSetter(method, setter);
                 break;
 
             case WorkerMethodType.Setter:
-                let getter = getGetterByName(method.name);
+                let getter = findGetter(method.name);
                 applyGetterAndSetter(getter, method);
                 break;
 
@@ -172,6 +196,8 @@ function applyWorkerMethods(self, worker, ...methods) {
         }
 
         appliedNames.push(method.name);
+
+
     }
 }
 

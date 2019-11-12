@@ -73,6 +73,11 @@ export class InterfaceDifferAnalysis extends Shell {
     }
 }
 
+export const InterfaceMemberType = new Enumeration([
+    "Property",
+    "Function"
+]);
+
 class InterfaceMemberClosure extends Closure {
     initialize(name, type, attributes, isOptional) {
         this.name = name;
@@ -119,7 +124,7 @@ export class InterfaceMember extends Shell {
 
 export class InterfaceProperty extends InterfaceMember {
     constructor(name, type = null, attributes = MemberSelectionAttributes.Any, isOptional = false) {
-        super(name, MemberType.Property, type, attributes, isOptional);
+        super(name, InterfaceMemberType.Property, type, attributes, isOptional);
     }
 
     get type() {
@@ -129,7 +134,7 @@ export class InterfaceProperty extends InterfaceMember {
 
 export class InterfaceFunction extends InterfaceMember {
     constructor(name, attributes = MemberSelectionAttributes.Any, isOptional = false) {
-        super(name, MemberType.Function, null, attributes, isOptional);
+        super(name, InterfaceMemberType.Function, null, attributes, isOptional);
     }
 }
 

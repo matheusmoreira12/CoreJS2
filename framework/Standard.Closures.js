@@ -12,14 +12,14 @@ export class Closure {
         return closureMap.get(shell);
     }
 
-    static doIfExists(shell, predicate) {
+    static doIfExists(shell, predicate, thisArg = undefined) {
         if (!(predicate instanceof Function))
             throw new ArgumentTypeException("predicate");
 
         let closure = this.getFor(shell);
         if (!closure) return undefined;
 
-        return predicate(closure);
+        return predicate.call(thisArg, closure);
     }
 
     constructor(shell) {
