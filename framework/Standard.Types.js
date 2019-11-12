@@ -3,22 +3,6 @@ import { Enumeration } from "./Standard.Enumeration.js";
 import { ArgumentTypeException, InvalidOperationException } from "./exceptions.js";
 import { Closure, Shell } from "./Standard.Closures.js";
 
-class TypeCache {
-    static cachedTypes = new Dictionary();
-
-    static exists(key) {
-        return this.cachedTypes.has(key);
-    }
-
-    static store(key) {
-        return this.cachedTypes.set(key);
-    }
-
-    static retrieve(key) {
-        return this.cachedTypes.get(key);
-    }
-}
-
 export const InterfaceDifferenceType = new Enumeration([
     "MissingProperty",
     "IncorrectType"
@@ -247,24 +231,6 @@ export class TypeClosure extends Closure {
         });
 
         return result;
-    }
-
-    static getTypeForClass(_class) {
-        if (TypeCache.exists(_class))
-            return TypeCache.retrieve(_class);
-
-        let type = this.createTypeFromClass(_class);
-        TypeCache.store(_class, type);
-        return type;
-    }
-
-    static getTypeForInstance(instance) {
-        if (TypeCache.exists(instance))
-            return TypeCache.retrieve(instance);
-
-        let type = this.createTypeFromInstance(instance);
-        TypeCache.store(instance, type);
-        return type;
     }
 
     instance = null;
@@ -514,11 +480,11 @@ export class Type extends Shell {
         if (!(_class instanceof Function))
             throw new ArgumentTypeException("_class");
 
-        return TypeClosure.getTypeForClass(_class);
+        return TypeClosure.createTypeFromClass(_class);
     }
 
     static of(instance) {
-        return TypeClosure.getTypeForInstance(instance);
+        return TypeClosure.createTypeFromInstance(instance);
     }
 
     constructor() {
