@@ -187,7 +187,7 @@ export class PropertyTrigger extends Trigger {
         this._targetProperty = targetProperty;
         this._value = value;
 
-        targetProperty.ChangeEvent.attach(this._targetProperty_onChange.bind(this));
+        targetProperty.ChangeEvent.attach(this._targetProperty_onChange, this);
     }
 
     _targetProperty_onChange(sender, args) {
@@ -216,7 +216,7 @@ export class EventTrigger {
 
         this._targetEvent = targetEvent;
 
-        targetEvent.attach(this._targetEvent_handler.bind(this));
+        targetEvent.attach(this._targetEvent_handler, this);
     }
 
     _targetEvent_handler() {
@@ -234,14 +234,14 @@ class VisualStateManager {
     constructor() {
     }
 
-    serverTaskStartedEvent = new BroadcastFrameworkEvent("ServerTask_started", this._onServerTaskStarted);
-    serverTaskFinishedEvent = new BroadcastFrameworkEvent("ServerTask_finished", this._onServerTaskFinished);
+    serverTaskStartedEvent = new BroadcastFrameworkEvent("ServerTask_started", this._onServerTaskStarted, this);
+    serverTaskFinishedEvent = new BroadcastFrameworkEvent("ServerTask_finished", this._onServerTaskFinished, this);
 
-    _onServerTaskStarted(sender) {
+    _onServerTaskStarted() {
         mainSpinner.hidden = false;
     }
 
-    _onServerTaskFinished(sender) {
+    _onServerTaskFinished() {
         mainSpinner.hidden = true;
     }
 }
@@ -478,7 +478,7 @@ export class AutoScroller {
 
         this._target = target;
 
-        this._scrollTimer.TickEvent.attach(this._scrollTimer_onTick.bind(this));
+        this._scrollTimer.TickEvent.attach(this._scrollTimer_onTick, this);
         this._scrollTimer.start();
 
         window.addEventListener("mousemove", this._window_onMouseMove.bind(this));
@@ -829,7 +829,7 @@ export class DragDropHandler {
         this._target = target;
 
         let touchDragDelayTimer = new Timer(1000, false);
-        touchDragDelayTimer.TickEvent.attach(this._touchDragDelayTimer_onTick.bind(this));
+        touchDragDelayTimer.TickEvent.attach(this._touchDragDelayTimer_onTick, this);
 
         this._touchDragDelayTimer = touchDragDelayTimer;
 

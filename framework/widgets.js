@@ -37,15 +37,15 @@ export class Widget extends HTMLElement {
 
         //Attach Event Handlers
         //  Drag/Drop Handler Events
-        this._dragDropHandler.RequestDragStartEvent.attach(this._dragDropHandler_onRequestDragStart.bind(this));
-        this._dragDropHandler.DragStartEvent.attach(this._dragDropHandler_onDragStart.bind(this));
-        this._dragDropHandler.DragMoveEvent.attach(this._dragDropHandler_onDragMove.bind(this));
-        this._dragDropHandler.DragEndEvent.attach(this._dragDropHandler_onDragEnd.bind(this));
-        this._dragDropHandler.DragCancelEvent.attach(this._dragDropHandler_onDragCancel.bind(this));
-        this._dragDropHandler.DragEnterEvent.attach(this._dragDropHandler_onDragEnter.bind(this));
-        this._dragDropHandler.DragOverEvent.attach(this._dragDropHandler_onDragOver.bind(this));
-        this._dragDropHandler.DragLeaveEvent.attach(this._dragDropHandler_onDragLeave.bind(this));
-        this._dragDropHandler.DragDropEvent.attach(this._dragDropHandler_onDragDrop.bind(this));
+        this._dragDropHandler.RequestDragStartEvent.attach(this._dragDropHandler_onRequestDragStart, this);
+        this._dragDropHandler.DragStartEvent.attach(this._dragDropHandler_onDragStart, this);
+        this._dragDropHandler.DragMoveEvent.attach(this._dragDropHandler_onDragMove, this);
+        this._dragDropHandler.DragEndEvent.attach(this._dragDropHandler_onDragEnd, this);
+        this._dragDropHandler.DragCancelEvent.attach(this._dragDropHandler_onDragCancel, this);
+        this._dragDropHandler.DragEnterEvent.attach(this._dragDropHandler_onDragEnter, this);
+        this._dragDropHandler.DragOverEvent.attach(this._dragDropHandler_onDragOver, this);
+        this._dragDropHandler.DragLeaveEvent.attach(this._dragDropHandler_onDragLeave, this);
+        this._dragDropHandler.DragDropEvent.attach(this._dragDropHandler_onDragDrop, this);
     }
 
     //Helper Class Instances
@@ -221,7 +221,7 @@ let JScrollContainer = class JScrollContainer extends Widget {
         super();
 
         //Attach Event Listeners
-        this._autoScroller.ScrollRequestStartEvent.attach(this._autoScroller_onScrollRequestStart.bind(this));
+        this._autoScroller.ScrollRequestStartEvent.attach(this._autoScroller_onScrollRequestStart, this);
 
         //Create Bindings
         new PropertyAttributeBinding(this, JScrollContainer.isAutoScrollEnabledProperty, this,
@@ -306,7 +306,7 @@ let JBanner = class JBanner extends Widget {
     constructor() {
         super();
 
-        JBanner.isOpenProperty.ChangeEvent.attach(this._isOpenProperty_onChange.bind(this));
+        JBanner.isOpenProperty.ChangeEvent.attach(this._isOpenProperty_onChange, this);
 
         new PropertyAttributeBinding(this, JBanner.typeProperty, this, "type", { valueConverter: new EnumerationAttributeValueConverter(JBannerType) });
         new PropertyAttributeBinding(this, JBanner.isOpenProperty, this, "open", { valueConverter: new BooleanAttributeValueConverter() });
@@ -534,7 +534,7 @@ class JButtonBar extends Widget {
     constructor() {
         super();
 
-        JButtonBar.buttonsProperty.ChangeEvent.attach(this._buttonsProperty_onChange.bind(this));
+        JButtonBar.buttonsProperty.ChangeEvent.attach(this._buttonsProperty_onChange, this);
     }
 
     _fillVisualTree(manager) {
@@ -662,9 +662,9 @@ class JDialog extends Widget {
     constructor() {
         super();
 
-        JDialog.titleProperty.ChangeEvent.attach(this._titleProperty_onChange.bind(this));
-        JDialog.contentProperty.ChangeEvent.attach(this._contentProperty_onChange.bind(this));
-        JDialog.isOpenProperty.ChangeEvent.attach(this._isOpenProperty_onChange.bind(this));
+        JDialog.titleProperty.ChangeEvent.attach(this._titleProperty_onChange, this);
+        JDialog.contentProperty.ChangeEvent.attach(this._contentProperty_onChange, this);
+        JDialog.isOpenProperty.ChangeEvent.attach(this._isOpenProperty_onChange, this);
 
         new PropertyAttributeBinding(this, JDialog.isOpenProperty, this, "open", { valueConverter: new BooleanAttributeValueConverter() });
         new PropertyAttributeBinding(this, JDialog.optionsProperty, this, "options", { valueConverter: new JSONAttributeValueConverter() });
@@ -716,7 +716,7 @@ class JDialog extends Widget {
 
         this._buttonBar = document.createElement("j-button-bar");
         this._dialogWindowLayoutPanel.appendChild(this._buttonBar);
-        this._buttonBar.SubmitEvent.attach(this._buttonBar_onSubmit.bind(this));
+        this._buttonBar.SubmitEvent.attach(this._buttonBar_onSubmit, this);
     }
 
     _buttonBar_onSubmit(args) {
@@ -821,7 +821,7 @@ class JBoard extends Widget {
     }
 
     _onDragEnter(sender, args) {
-        let { acceptDrop, getContext } = args;
+        let { acceptDrop } = args;
 
         let sourceContextStr = args.getContext();
         if (!sourceContextStr) return;
@@ -953,7 +953,7 @@ class JEditableLabel extends Widget {
         this.onblur = this._blur_handler;
         this.onkeydown = this._keydown_handler;
 
-        JEditableLabel.isEditingProperty.ChangeEvent.attach(this._isEditing_onChange.bind(this));
+        JEditableLabel.isEditingProperty.ChangeEvent.attach(this._isEditing_onChange, this);
 
         new PropertyAttributeBinding(this, JEditableLabel.isEditingProperty, this, "editing", { valueConverter: new BooleanAttributeValueConverter() });
     }

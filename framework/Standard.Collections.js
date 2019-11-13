@@ -184,9 +184,19 @@ export class Dictionary extends Collection {
         if (value === undefined) return;
 
         if (this.has(key))
-            this.remove(key);
+            this.delete(key);
 
-        this.add(key);
+        this.add(new KeyValuePair(key, value));
+    }
+
+    *keys() {
+        for (let pair of this)
+            yield pair.key;
+    }
+
+    *values() {
+        for (let pair of this)
+            yield pair.value;
     }
 
     delete(key) {

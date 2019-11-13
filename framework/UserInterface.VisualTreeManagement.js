@@ -12,7 +12,7 @@ export class VisualTreeNode {
 
         this.domNode = domNode;
 
-        this.childNodes.ChangeEvent.attach(this._childNodes_onChange.bind(this));
+        this.childNodes.ChangeEvent.attach(this._childNodes_onChange, this);
     }
 
     _insertElement(treeNode, index) {

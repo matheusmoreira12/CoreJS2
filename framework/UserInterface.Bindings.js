@@ -66,8 +66,8 @@ class PropertyBindingWorker extends BindingWorker {
         this.target = target;
         this.targetProperty = targetProperty;
 
-        sourceProperty.ChangeEvent.attach(this.sourceProperty_onChange.bind(this.target));
-        targetProperty.ChangeEvent.attach(this.targetProperty_onChange.bind(this.target));
+        sourceProperty.ChangeEvent.attach(this.sourceProperty_onChange, this);
+        targetProperty.ChangeEvent.attach(this.targetProperty_onChange, this);
     }
 
     finalize() {
@@ -149,7 +149,7 @@ class PropertyAttributeBindingWorker extends BindingWorker {
         this.targetElement = targetElement;
         this.targetAttributeName = targetAttributeName;
 
-        sourceProperty.ChangeEvent.attach(this.sourceProperty_onChange.bind(this));
+        sourceProperty.ChangeEvent.attach(this.sourceProperty_onChange, this);
 
         this.observeAttributeChanges();
         this.doInitialUpdate();

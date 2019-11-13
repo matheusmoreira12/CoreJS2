@@ -5,7 +5,8 @@ import { Interface, InterfaceFunction } from "./Standard.Types.js";
 
 /**
  * ReverseIterator class
- * Iterates backwards through an Iterable.*/
+ * Iterates backwards through an Iterable.
+ */
 export class ReverseIterator {
     constructor(iterable) {
         this._iterable = iterable;
@@ -45,7 +46,8 @@ export class ContextSelectionFlags {
 
         let matches = FORMAT_REGEX.exec(str);
 
-        if (!matches) throw new FormatException("[includeFlag, ...][!requireFlag, ...][-excludeFlag, ...]", str);
+        if (!matches)
+            return null;
 
         let { include: includeFlagsStr, require: requireFlagsStr, exclude: excludeFlagsStr } = matches.groups;
 

@@ -21,28 +21,7 @@ const WorkerMethodType = new Enumeration([
 
 class WorkerMethod {
     static parse(value) {
-        if (typeof value !== "string")
-            throw new ArgumentTypeException("value", Type.of(value), Type.get(String));
-
-        let tryParseData = {};
-
-        if (WorkerGetter.tryParse(value, tryParseData) ||
-            WorkerSetter.tryParse(value, tryParseData) ||
-            WorkerAction.tryParse(value, tryParseData))
-            return tryParseData.result;
-
-        throw new FormatException(`"${WORKER_GETTER_PREFIX}"[Gg]etterName | "${WORKER_SETTER_PREFIX}"[Ss]etterName | "${WORKER_ACTION_PREFIX}"[Aa]ctionName`, value);
-    }
-
-    static tryParse(value, tryParseData) {
-        try {
-            tryParseData.result = this.parse(value);
-            return true;
-        }
-        catch (e) {
-            tryParseData.error = e;
-            return false;
-        }
+        return WorkerGetter.parse(value) || WorkerSetter.parse(value) || WorkerAction.parse(value);
     }
 
     constructor(name, type) {
@@ -66,7 +45,7 @@ class WorkerGetter extends WorkerMethod {
             return new WorkerGetter(name);
         }
 
-        throw new FormatException(`"get"[Gg]etterName`, value);
+        return null;
     }
 }
 
@@ -85,7 +64,7 @@ class WorkerSetter extends WorkerMethod {
             return new WorkerSetter(name);
         }
 
-        throw new FormatException(`"set"[Ss]etterName`, value);
+        return null;
     }
 }
 
@@ -104,7 +83,7 @@ class WorkerAction extends WorkerMethod {
             return new WorkerAction(name);
         }
 
-        throw new FormatException(`"do"[Aa]ctionName`, value);
+        return null;
     }
 }
 
@@ -112,10 +91,10 @@ function* getWorkerMethods(worker) {
     let functionMembers = Type.of(worker).getMembers(MemberSelectionType.Function);
 
     for (let functionMember of functionMembers) {
-        let tryParseData = {};
+        let method = WorkerMethod.parse(functionMember.name);
 
-        if (WorkerMethod.tryParse(functionMember.name, tryParseData))
-            yield tryParseData.result;
+        if (method !== null)
+            yield method;
     }
 }
 
@@ -196,8 +175,6 @@ function applyWorkerMethods(self, worker, ...methods) {
         }
 
         appliedNames.push(method.name);
-
-
     }
 }
 

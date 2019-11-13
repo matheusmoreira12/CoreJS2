@@ -328,29 +328,10 @@ export class TypeClosure extends Closure {
     }
 
     * getMembers(selectionType, selectionAttributes) {
-        function* getAllMembers() {
-            yield* this.getOwnMembers(selectionType, selectionAttributes);
+        yield* this.getOwnMembers(selectionType, selectionAttributes);
 
-            for (let parentType of this.getParentTypes())
-                yield* parentType.getOwnMembers(selectionType, selectionAttributes);
-        }
-
-        function* hideRereocurringMembers(members) {
-            let reocurringMembers = [];
-
-            for (let member of members) {
-                if (reocurringMembers.find(m => m.isSame(member)))
-                    continue;
-
-                yield member;
-
-                reocurringMembers.push(member);
-            }
-        }
-
-        let allMembers = getAllMembers.call(this);
-
-        yield* hideRereocurringMembers(allMembers);
+        for (let parentType of this.getParentTypes())
+            yield* parentType.getOwnMembers(selectionType, selectionAttributes);
     }
 
     getEffectiveValue() {
@@ -467,7 +448,8 @@ export class TypeClosure extends Closure {
         if (this.hasClass) {
             if (this.hasInstance) {
                 let parentInstance = this._getParentInstance(this.instance);
-                return Type.of(parentInstance);
+                if (parentInstance !== null)
+                    return Type.of(parentInstance);
             }
             else {
                 let parentClass = this._getParentClass(this._class);
@@ -704,10 +686,6 @@ export class StaticPropertyMember extends Member {
 }
 
 export class FunctionMember extends Member {
-    static parse(value) {
-        return MemberClosure.parseFunctionMember(value);
-    }
-
     constructor(name, type, parentType, attributes) {
         super(name, type, parentType, MemberType.Function, attributes);
     }

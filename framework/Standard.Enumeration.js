@@ -61,26 +61,23 @@ export class Enumeration {
     }
 
     convertToString(value) {
-        function tryConvertExact(tryConvertResult) {
+        function convertExact() {
             let result = map.get(value);
-            if (result === undefined)
-                return false;
+            if (result !== undefined)
+                return result;
 
-            tryConvertResult.result = result;
-            return true;
+            return null;
         }
 
-        function tryConvertMultiple(tryConvertResult) {
+        function convertMultiple() {
             let flagStrs = [];
 
-            for (let entry of map) { //Then proceed to a more detailed look 
+            for (let entry of map) {
                 if (Enumeration.isFlagSet(entry[1], value))
                     flagStrs.push(entry[0]);
             }
 
-            let result = flagStrs.join(", ");
-            tryConvertResult.result = result;
-            return true;
+            return flagStrs.join(", ");
         }
 
         if (typeof value !== "number")
@@ -88,14 +85,11 @@ export class Enumeration {
 
         let map = this.getAsMap();
 
-        let tryConvertResult = {};
-        if (tryConvertExact(tryConvertResult) ||
-            tryConvertMultiple(tryConvertResult))
-            return tryConvertResult.result;
+        return convertExact() || convertMultiple();
     }
 
     convertFromString(value) {
-        function tryConvertMultiple(tryConvertResult) {
+        function convertMultiple() {
             let flagNames = value.split(/\s*,\s*/);
 
             let result = 0;
@@ -103,13 +97,12 @@ export class Enumeration {
             for (let flagName of flagNames) {
                 let flagValue = map.get(flagStr);
                 if (flagName === undefined)
-                    return false;
+                    return null;
 
                 result |= flagValue;
             }
 
-            tryConvertResult.result = result;
-            return true;
+            return result;
         }
 
         if (typeof value !== "string")
@@ -117,15 +110,15 @@ export class Enumeration {
 
         let map = this.getAsMap();
 
-        let tryConvertResult = {};
-        if (tryConvertMultiple(tryConvertResult))
-            return tryConvertResult.result;
+        let result = convertMultiple();
+        if (result !== null)
+            return result;
 
-        throw new FormatException(`[FlagName1]["," ...FlagNameN]`);
+        throw new FormatException(`[FlagName1]["," ...FlagNameN]`, value);
     }
 
     getAsMap() {
-        function* createFlagKeyValuePairs() {
+        function* createMapEntries() {
             for (let key of Object.getOwnPropertyNames(this)) {
                 let flag = this[key];
 
@@ -136,6 +129,6 @@ export class Enumeration {
             }
         }
 
-        return new Map(createFlagKeyValuePairs.call(this));
+        return new Map(createMapEntries.call(this));
     }
 }
