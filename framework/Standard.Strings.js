@@ -6,7 +6,11 @@ export const StringUtils = {
 
 };
 
-class RegExpXContext {
+export class RegExpXContext {
+    constructor() {
+        return Object.freeze(this);
+    }
+
     declareNamedPattern(name, pattern) {
         if (namedPatterns.has(name))
             return false;
@@ -18,6 +22,8 @@ class RegExpXContext {
     deleteNamedPattern(name) {
         return namedPatterns.delete(name);
     }
+
+    namedPatterns = new Dictionary();
 }
 
 function computeFinalPattern(pattern, context) {
@@ -32,26 +38,13 @@ function computeFinalPattern(pattern, context) {
     if (context === null)
         return pattern;
 
-    //Replace escaped named patterns
-    pattern = pattern.replace(/\$[A-Za-z]\w*?;/g, replaceEscapedPattern);
-    //Replace $$ with $
-    pattern = pattern.replace(/\${2}/g, "$");
+    pattern = pattern.replace(/(?:[^$]|^)\$[A-Za-z]\w*?;/g, replaceEscapedPattern);
 
+    pattern = pattern.replace(/\${2}/g, "$");
     return pattern;
 }
 
 export class RegExpX extends RegExp {
-    static getNewContext() {
-        let context = new RegExpXContext();
-
-        let namedPatterns = new Dictionary();
-        Object.defineProperty(context, {
-            get namedPatterns() { return namedPatterns; }
-        });
-
-        return context;
-    }
-
     constructor(pattern, flags = "", context = null) {
         if (context !== null && !(context instanceof RegExpXContext))
             throw new ArgumentTypeException("context", Type.of(context), Type.get(RegExpXContext));
