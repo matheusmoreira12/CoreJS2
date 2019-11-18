@@ -200,9 +200,10 @@ export class Dictionary extends Collection {
     }
 
     delete(key) {
-        if (!this.has(key)) return;
+        if (!this.has(key)) return false;
 
         this.remove(item);
+        return true;
     }
 }
 
