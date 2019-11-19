@@ -9,8 +9,8 @@ const REGEXPX_CONTEXT = new RegExpXContext();
 REGEXPX_CONTEXT.declareNamedPattern("namespaceSeparator", `::`);
 REGEXPX_CONTEXT.declareNamedPattern("identifier", `[A-Za-z_$]\\w+`);
 
-const SEPARATOR_REGEXPX = new RegExpX(`$separator;`, "g", REGEXPX_CONTEXT);
-const IDENTIFIER_REGEXPX = new RegExpX(`^($identifier;$namespaceSeparator;)*$identifier;$$`, "", REGEXPX_CONTEXT);
+const SEPARATOR_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`$separator;`, "g");
+const IDENTIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`^($identifier;$namespaceSeparator;)*$identifier;$$`, "");
 
 export class Identifier {
     static parse(value) {

@@ -7,8 +7,15 @@ export const StringUtils = {
 };
 
 export class RegExpXContext {
-    constructor() {
+    constructor(namedPatterns) {
+        this.namedPatterns = new Dictionary(namedPatterns);
+
         return Object.freeze(this);
+    }
+
+    derive() {
+        let result = new RegExpXContext(this.namedPatterns);
+        return result;
     }
 
     declareNamedPattern(name, pattern) {
@@ -23,7 +30,10 @@ export class RegExpXContext {
         return namedPatterns.delete(name);
     }
 
-    namedPatterns = new Dictionary();
+    createRegExpX(pattern, flags = "") {
+        let result = new RegExpX(pattern, flags, this);
+        return result;
+    }
 }
 
 function computeFinalPattern(pattern, context) {
@@ -38,7 +48,7 @@ function computeFinalPattern(pattern, context) {
     if (context === null)
         return pattern;
 
-    pattern = pattern.replace(/(?:[^$]|^)\$[A-Za-z]\w*?;/g, replaceEscapedPattern);
+    pattern = pattern.replace(/(?<!\$)\$[A-Za-z]\w*?;/g, replaceEscapedPattern);
 
     pattern = pattern.replace(/\${2}/g, "$");
     return pattern;
