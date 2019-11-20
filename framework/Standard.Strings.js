@@ -1,6 +1,6 @@
-import { Dictionary } from "./Standard.Collections";
-import { ArgumentTypeException, IndexOutOfRangeException } from "./exceptions";
-import { Type } from "./Standard.Types";
+import { Dictionary } from "./Standard.Collections.js";
+import { ArgumentTypeException, IndexOutOfRangeException } from "./exceptions.js";
+import { Type } from "./Standard.Types.js";
 
 export const StringUtils = {
 
@@ -19,15 +19,15 @@ export class RegExpXContext {
     }
 
     declareNamedPattern(name, pattern) {
-        if (namedPatterns.has(name))
+        if (this.namedPatterns.has(name))
             return false;
 
-        namedPatterns.set(name, pattern);
+        this.namedPatterns.set(name, pattern);
         return true;
     }
 
     deleteNamedPattern(name) {
-        return namedPatterns.delete(name);
+        return this.namedPatterns.delete(name);
     }
 
     createRegExpX(pattern, flags = "") {

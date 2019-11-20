@@ -40,7 +40,7 @@ export class FormatException extends FrameworkException {
     }
 }
 
-export class NotFoundException extends FrameworkException {
+export class KeyNotFoundException extends FrameworkException {
     constructor(message = null, innerException = null) {
         message = message || "The requested value could not be found.";
 
@@ -108,8 +108,16 @@ export class ArgumentTypeException extends ArgumentException {
     }
 }
 
+export class ArgumentOutOfRangeException extends ArgumentException {
+    constructor(argumentName = null, message = null, innerException = null) {
+        message = message || "Argument was out of the expected range.";
+
+        super(argumentName, message, innerException);
+    }
+}
+
 export class ArgumentNullException extends ArgumentException {
-    constructor(argumentName, message = null, innerException = null) {
+    constructor(argumentName = null, message = null, innerException = null) {
         message = message || "Argument is null or null-like.";
 
         super(argumentName, message, innerException);

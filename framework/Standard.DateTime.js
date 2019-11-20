@@ -1,7 +1,7 @@
-import { RegExpXContext, RegExpX } from "./Standard.Strings";
-import { MathX } from "./Standard.MathX";
-import { FormatException } from "./exceptions";
-import { Enumeration } from "./Standard.Enumeration";
+import { RegExpXContext, RegExpX } from "./Standard.Strings.js";
+import { MathX } from "./Standard.MathX.js";
+import { FormatException } from "./exceptions.js";
+import { Enumeration } from "./Standard.Enumeration.js";
 
 const REGEXPX_CONTEXT = new RegExpXContext();
 REGEXPX_CONTEXT.declareNamedPattern("day", `d{1,4}`);

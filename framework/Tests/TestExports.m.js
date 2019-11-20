@@ -35,3 +35,11 @@ import {
 } from "../Standard.Enumeration.js";
 
 window.Enumeration = Enumeration;
+
+import {
+    TimeSpan, DateTime, DateTimeEra
+} from "../Standard.DateTime.js";
+
+window.TimeSpan = TimeSpan;
+window.DateTime = DateTime;
+window.DateTimeEra = DateTimeEra;

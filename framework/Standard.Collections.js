@@ -1,4 +1,5 @@
 import { Enumeration } from "./Standard.Enumeration.js";
+import { ArgumentOutOfRangeException, KeyNotFoundException, InvalidTypeException, ArgumentTypeException } from "./exceptions.js";
 
 /**
  * Collection Class
@@ -11,44 +12,56 @@ export class Collection extends Array {
     get last() { return this[this.length - 1]; }
 
     * getRange(index, itemCount) {
-        if (index < 0 || index > this.length - 1) throw new IndexOutOfRangeException();
-
-        if (itemCount < 0 || itemCount > this.length - index) throw new IndexOutOfRangeException();
+        if (index < 0 || index >= this.length) throw new ArgumentOutOfRangeException("index");
+        if (itemCount < 0 || itemCount + index >= this.length) throw new ArgumentOutOfRangeException("itemCount");
 
         for (let i = index; i < index + itemCount; i++)
             yield this[i];
     }
 
-    add(item) { this.push(item); }
+    add(item) {
+        this.push(item);
+    }
 
-    insert(index, item) { this.splice(index, 0, item); }
+    insert(index, item) {
+        this.splice(index, 0, item);
+    }
 
     move(oldIndex, newIndex) {
+        if (oldIndex < 0 || oldIndex >= this.length) throw new ArgumentOutOfRangeException("oldIndex");
+        if (newIndex < 0 || newIndex >= this.length) throw new ArgumentOutOfRangeException("newIndex");
+
         let item = this.removeAt(oldIndex);
 
-        if (newIndex > oldIndex) newIndex--;
+        if (newIndex > oldIndex)
+            newIndex--; //Compensate for the item removal
 
         this.insert(newIndex, item);
     }
 
     swap(index1, index2) {
+        if (index1 < 0 || index1 >= this.length) throw ArgumentOutOfRangeException("index1");
+        if (index2 < 0 || index2 >= this.length) throw ArgumentOutOfRangeException("index2");
+
         [this[index1], this[index2]] = [this[index2], this[index1]];
     }
 
     replace(oldItem, newItem) {
         let index = this.indexOf(oldItem);
-
-        if (index === -1) throw new InvalidOperationException("Cannot replace item. Item not found.");
+        if (index === -1) throw KeyNotFoundException();
 
         this[index] = newItem;
     }
 
-    removeAt(index) { return this.splice(index, 1)[0]; }
+    removeAt(index) {
+        if (index < 0 || index >= this.length) throw ArgumentOutOfRangeException("index");
+
+        return this.splice(index, 1)[0];
+    }
 
     remove(item) {
         let index = this.indexOf(item);
-
-        if (index === -1) throw new InvalidOperationException("Cannot remove item. Item not found.");
+        if (index === -1) throw KeyNotFoundException();
 
         this.removeAt(index);
     }
@@ -65,7 +78,7 @@ export class ObservableCollection extends Collection {
         let action = (items.length > 0 ? ObservableCollectionChangeAction.Add : 0) |
             (deleteCount > 0 ? ObservableCollectionChangeAction.Remove : 0);
 
-        if (action == 0) return;
+        if (action === 0) return;
 
         action = new ObservableCollectionChangeAction(action);
 
@@ -168,20 +181,27 @@ export class Dictionary extends Collection {
     }
 
     get(key) {
-        for (let item of this) {
-            if (item.key === key)
-                return item;
-        }
+        let item = this.find(item => item.key === key);
+        if (item === undefined)
+            return undefined;
 
-        return undefined;
+        return item.value;
     }
 
     has(key) {
         return this.get(key) !== undefined;
     }
 
+    add(item) {
+        if (!(item instanceof KeyValuePair)) throw new ArgumentTypeException("item");
+
+        super.add(item);
+        return true;
+    }
+
     set(key, value) {
-        if (value === undefined) return;
+        if (key === undefined) throw new ArgumentOutOfRangeException("key");
+        if (value === undefined) throw new ArgumentOutOfRangeException("value");
 
         if (this.has(key))
             this.delete(key);
@@ -200,10 +220,10 @@ export class Dictionary extends Collection {
     }
 
     delete(key) {
-        if (!this.has(key)) return false;
+        const item = this.find(item => item.key === key);
+        if (item === undefined) throw new KeyNotFoundException("key");
 
         this.remove(item);
-        return true;
     }
 }
 
