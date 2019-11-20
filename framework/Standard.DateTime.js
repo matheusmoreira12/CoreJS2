@@ -13,17 +13,17 @@ REGEXPX_CONTEXT.declareNamedPattern("second", `s{1,2}`);
 REGEXPX_CONTEXT.declareNamedPattern("amPm", `t{1,2}`);
 REGEXPX_CONTEXT.declareNamedPattern("year", `y{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("timeZone", `z{1,3}`);
-REGEXPX_CONTEXT.declareNamedPattern("fraction", `f{1,6}`);
+REGEXPX_CONTEXT.declareNamedPattern("fraction", `f{1,7}`);
 
-const FORMAT_SPECIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`\b($day;|$hour12;|$hour24;|$minute;|$second;|$amPm;|$year;)\b`, "g");
+const FORMAT_SPECIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`\\b($day;|$hour12;|$hour24;|$minute;|$second;|$amPm;|$year;$fraction)\\b`, "g");
 
 const TICKS_IN_MILLISECOND = 10;
 const MILLISECONDS_IN_SECOND = 1000;
 const SECONDS_IN_MINUTE = 60;
 const MINUTES_IN_HOUR = 60;
 const HOURS_IN_DAY = 24;
-const DAYS_IN_MONTH = 30.4368499;
-const MONTHS_IN_YEAR = 12;
+
+const DEFAULT_TIMESPAN_FORMAT = "d.hh:mm:ss.fffffff";
 
 export class TimeSpan {
     static fromMilliseconds(millis) {
@@ -51,20 +51,61 @@ export class TimeSpan {
         return this.fromHours(hours);
     }
 
-    static fromMonths(months) {
-        let days = months * DAYS_IN_MONTH;
-        return this.fromDays(days);
-    }
-
-    static fromYears(years) {
-        let months = years * MONTHS_IN_YEAR;
-        return this.fromMonths(months);
-    }
-
     constructor(ticks) {
         this.ticks = ticks;
 
         return Object.freeze(this);
+    }
+
+    toString(format = DEFAULT_TIMESPAN_FORMAT) {
+        const getPaddedValue = (value, quantifier) => {
+            return String(value).padStart(quantifier, "0");
+        };
+
+        const getDaysString = quantifier => {
+            if (quantifier > 1)
+                throw "";
+
+            return String(this.days);
+        };
+
+        const getHoursString = quantifier => {
+            return getPaddedValue(this.hours, quantifier);
+        };
+
+        const getMinutesString = quantifier => {
+            return getPaddedValue(this.minutes, quantifier);
+        };
+
+        const getSecondsString = quantifier => {
+            return getPaddedValue(this.seconds, quantifier);
+        };
+
+        const getYearsString = quantifier => {
+            let years = this.years;
+            if (quantifier)
+                years = years % 100;
+
+            return getPaddedValue(this.days, quantifier);
+        };
+
+        const formatSpecifierReplacer = match => {
+            switch (match[0]) {
+                case "d":
+                    return getDaysString(match.length);
+                case "h":
+                    return getHoursString(match.length);
+                case "m":
+                    return getMinutesString(match.length);
+                case "s":
+                    return getSecondsString(match.length);
+                case "y":
+                    return getYearsString(match.length);
+            }
+        };
+
+        let result = format.replace(FORMAT_SPECIFIER_REGEXPX, formatSpecifierReplacer);
+        return result;
     }
 
     multiply(value) {
@@ -107,40 +148,37 @@ export class TimeSpan {
         return this.totalHours / HOURS_IN_DAY;
     }
 
-    get totalMonths() {
-        return this.totalDays / DAYS_IN_MONTH;
-    }
-
-    get totalYears() {
-        return this.totalMonths / MONTHS_IN_YEAR;
-    }
-
     get years() {
         return this.totalYears;
     }
 
     get months() {
-        return Math.round(this.totalMonths % MONTHS_IN_YEAR);
+        return Math.trunc(this.totalMonths % MONTHS_IN_YEAR);
     }
 
     get days() {
-        return Math.round(this.totalDays % DAYS_IN_MONTH);
+        return Math.trunc(this.totalDays);
     }
 
     get hours() {
-        return Math.round(this.totalHours % HOURS_IN_DAY);
+        return Math.trunc(this.totalHours % HOURS_IN_DAY);
     }
 
     get minutes() {
-        return Math.round(this.totalMinutes % MINUTES_IN_HOUR);
+        return Math.trunc(this.totalMinutes % MINUTES_IN_HOUR);
     }
 
     get seconds() {
-        return Math.round(this.totalSeconds % SECONDS_IN_MINUTE);
+        return Math.trunc(this.totalSeconds % SECONDS_IN_MINUTE);
     }
 
     get milliseconds() {
-        return Math.round(this.totalMilliseconds % MILLISECONDS_IN_SECOND);
+        return Math.trunc(this.totalMilliseconds % MILLISECONDS_IN_SECOND);
+    }
+
+    get fractions() {
+        let magnitude = MathX.magnitude(this.seconds);
+        return 0;
     }
 }
 
@@ -175,7 +213,7 @@ function getDaysInYear(year) {
 
 function convertTicksToDate(ticks) {
     function getYear() {
-        let year = EPOCH_YEAR - 1;
+        let year = 0;
         for (let d = day; d < daysFromEpoch; d += getDaysInYear(year)) { //Loop through the years, until the number of days overshoots
             day = d;
             year++;
@@ -184,7 +222,7 @@ function convertTicksToDate(ticks) {
     }
 
     function getMonth() {
-        let month = 1;
+        let month = 0;
         for (let d = day; d < daysFromEpoch; d += getDaysInMonth(month)) { //Loop back through the months, until the number of days undershoots
             day = d;
             month++;
@@ -197,7 +235,7 @@ function convertTicksToDate(ticks) {
 
     return {
         year: getYear(),
-        month: getMonth(),
+        month: getMonth() + 1,
         day: Math.round(daysFromEpoch - day)
     };
 }
@@ -227,8 +265,13 @@ export const DateTimeEra = new Enumeration([
     "AnnoDomini"
 ]);
 
-const EPOCH_YEAR = 1970;
-const EPOCH_TO_NATIVE = Date.UTC(EPOCH_YEAR, 1, 1);
+function getYearOne() {
+    let date = new Date(1, 1, 1, 0, 0, 0, 0);
+    date = date.setUTCFullYear(1);
+    return date;
+}
+
+const EPOCH_TO_NATIVE = getYearOne();
 
 export class DateTime {
     static fromNativeDateTimeStamp(dateTimeStamp) {
