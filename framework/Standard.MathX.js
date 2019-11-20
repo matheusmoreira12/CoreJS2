@@ -1,8 +1,8 @@
 export const MathX = {
-    magnitude(value) {
+    orderMag(value) {
         const exponent = Math.log10(value),
-            magnitude = Math.pow(10, Math.trunc(exponent));
-        return magnitude;
+            order = Math.trunc(exponent);
+        return order;
     },
 
     round(value, decimalPlaces = 0) {
