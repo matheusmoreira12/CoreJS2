@@ -1,7 +1,8 @@
 import { RegExpXContext, RegExpX } from "./Standard.Strings.js";
 import { MathX } from "./Standard.MathX.js";
-import { FormatException } from "./exceptions.js";
+import { FormatException, ArgumentTypeException } from "./exceptions.js";
 import { Enumeration } from "./Standard.Enumeration.js";
+import { Type } from "./Standard.Types.js";
 
 const REGEXPX_CONTEXT = new RegExpXContext();
 REGEXPX_CONTEXT.declareNamedPattern("day", `d{1,4}`);
@@ -24,12 +25,10 @@ const HOURS_IN_DAY = 24;
 const DAYS_IN_MONTH = 30.4368499;
 const MONTHS_IN_YEAR = 12;
 
-const EPOCH_TO_NATIVE = Date.UTC(1, 1, 1, 0, 0, 0, 0);
-
 export class TimeSpan {
     static fromMilliseconds(millis) {
         let ticks = millis * TICKS_IN_MILLISECOND;
-        return new DateTime(ticks);
+        return new TimeSpan(ticks);
     }
 
     static fromSeconds(secs) {
@@ -66,6 +65,26 @@ export class TimeSpan {
         this.ticks = ticks;
 
         return Object.freeze(this);
+    }
+
+    multiply(value) {
+        const multiplyTimeSpanByNumber = (a, b) => new TimeSpan(a.ticks * b);
+
+        if (typeof value === "number")
+            return multiplyTimeSpanByNumber(this, value);
+
+        throw new ArgumentTypeException("value", Type.of(value), Type.get(Number));
+    }
+
+    add(value) {
+        const addTimeSpans = (a, b) => new TimeSpan(a.ticks + b.ticks);
+
+        if (value instanceof DateTime)
+            return value.add(this);
+        else if (value instanceof TimeSpan)
+            return addTimeSpans(this, value);
+
+        throw new ArgumentTypeException("value", Type.of(value), Type.get(DateTime));
     }
 
     get totalMilliseconds() {
@@ -154,48 +173,77 @@ function getDaysInYear(year) {
     return days;
 }
 
-function getDateAsTuple(ticks) {
-    const daysSinceEpoch = new TimeSpan(ticks).totalDays;
-    let d = 1;
+function convertTicksToDate(ticks) {
+    function getYear() {
+        let year = EPOCH_YEAR - 1;
+        for (let d = day; d < daysFromEpoch; d += getDaysInYear(year)) { //Loop through the years, until the number of days overshoots
+            day = d;
+            year++;
+        }
+        return year;
+    }
 
-    let year = 1;
-    for (; d <= daysSinceEpoch; d += getDaysInYear(year)) //Loop through the years, until the number of days overshoots
-        year++;
+    function getMonth() {
+        let month = 1;
+        for (let d = day; d < daysFromEpoch; d += getDaysInMonth(month)) { //Loop back through the months, until the number of days undershoots
+            day = d;
+            month++;
+        }
+        return month;
+    }
 
-    let month = MONTHS_IN_YEAR;
-    for (; d >= daysSinceEpoch; d -= getDaysInMonth(month)) //Loop back through the months, until the number of days undershoots
-        month--;
+    const daysFromEpoch = new DateTime(ticks).subtract(new DateTime(0)).totalDays;
+    let day = 0;
 
-    let date = daysSinceEpoch - d; //Store the number of days undershot as the current date
+    return {
+        year: getYear(),
+        month: getMonth(),
+        day: Math.round(daysFromEpoch - day)
+    };
+}
 
-    return { date, month, year };
+function convertTicksToTime(ticks) {
+    const timeFromEpoch = new DateTime(ticks).subtract(new DateTime(0)),
+        millisFromEpoch = timeFromEpoch.milliseconds,
+        secsFromEpoch = timeFromEpoch.totalSeconds,
+        minsFromEpoch = timeFromEpoch.totalMinutes,
+        hoursFromEpoch = timeFromEpoch.totalHours;
+
+    const milli = Math.round(millisFromEpoch % MILLISECONDS_IN_SECOND),
+        sec = Math.round(secsFromEpoch % SECONDS_IN_MINUTE),
+        min = Math.round(minsFromEpoch % MINUTES_IN_HOUR),
+        hour = Math.round(hoursFromEpoch % HOURS_IN_DAY);
+
+    return {
+        millisecond: milli,
+        second: sec,
+        minute: min,
+        hour
+    };
 }
 
 export const DateTimeEra = new Enumeration([
-    BeforeChrist,
-    AnnoDomini
+    "BeforeChrist",
+    "AnnoDomini"
 ]);
 
-export class DateTime {
-    static subtract(dateA, dateB) {
-        let diffTicks = Number(dateA) - Number(dateB);
-        return new TimeSpan(diffTicks);
-    }
+const EPOCH_YEAR = 1970;
+const EPOCH_TO_NATIVE = Date.UTC(EPOCH_YEAR, 1, 1);
 
-    static sum(date, span) {
-        let sumTicks = Number(date) + Number(span);
-        return new DateTime(sumTicks);
+export class DateTime {
+    static fromNativeDateTimeStamp(dateTimeStamp) {
+        const ticks = (dateTimeStamp - EPOCH_TO_NATIVE) * TICKS_IN_MILLISECOND;
+        return new DateTime(ticks);
     }
 
     static fromUTC(year, month, date, hours = 0, minutes = 0, seconds = 0, millis = 0) {
-        const nativeDate = Date.UTC(year, month, date, hours, minutes, seconds, millis);
-        const ticks = (nativeDate - EPOCH_TO_NATIVE) * TICKS_IN_MILLISECOND;
-        return new DateTime(ticks);
+        const dateTimeStamp = Date.UTC(year, month, date, hours, minutes, seconds, millis);
+        return DateTime.fromNativeDateTimeStamp(dateTimeStamp);
     }
 
     static get now() {
-        let ticks = (Date.now() - EPOCH_TO_NATIVE) * TICKS_IN_MILLISECOND;
-        return new DateTime(ticks);
+        let dateTimeStamp = Date.now();
+        return DateTime.fromNativeDateTimeStamp(dateTimeStamp);
     }
 
     constructor(ticks) {
@@ -204,28 +252,56 @@ export class DateTime {
         return Object.freeze(this);
     }
 
+    subtract(value) {
+        const subtractDateTimes = (a, b) => new TimeSpan(a.ticks - b.ticks);
+        const subtractTimeSpanFromDateTime = (a, b) => new DateTime(a.ticks - b.ticks);
+
+        if (value instanceof DateTime)
+            return subtractDateTimes(this, value);
+        else if (value instanceof TimeSpan)
+            return subtractTimeSpanFromDateTime(this, value);
+
+        throw new ArgumentTypeException("value", Type.of(value), Type.get(DateTime));
+    }
+
+    add(value) {
+        const addDateTimeWithTimeSpan = (a, b) => new DateTime(a.ticks - b.ticks);
+
+        if (value instanceof TimeSpan)
+            return addDateTimeWithTimeSpan(this, value);
+
+        throw new ArgumentTypeException("value", Type.of(value), Type.get(TimeSpan));
+    }
+
     get era() {
         return this.ticks > 0 ? CalendarEra.AnnoDomini : CalendarEra.BeforeChrist;
     }
 
     get year() {
+        return convertTicksToDate(this.ticks).year;
     }
 
     get month() {
+        return convertTicksToDate(this.ticks).month;
     }
 
-    get date() {
+    get day() {
+        return convertTicksToDate(this.ticks).day;
     }
 
-    get hours() {
+    get hour() {
+        return convertTicksToTime(this.ticks).hour;
     }
 
-    get minutes() {
+    get minute() {
+        return convertTicksToTime(this.ticks).minute;
     }
 
-    get seconds() {
+    get second() {
+        return convertTicksToTime(this.ticks).second;
     }
 
-    get millis() {
+    get millisecond() {
+        return convertTicksToTime(this.ticks).millisecond;
     }
 }

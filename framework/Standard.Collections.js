@@ -23,8 +23,16 @@ export class Collection extends Array {
         this.push(item);
     }
 
+    addMultiple(items) {
+        this.push(...items);
+    }
+
     insert(index, item) {
         this.splice(index, 0, item);
+    }
+
+    insertMultiple(index, items) {
+        this.splice(index, 0, ...items);
     }
 
     move(oldIndex, newIndex) {
@@ -190,13 +198,6 @@ export class Dictionary extends Collection {
 
     has(key) {
         return this.get(key) !== undefined;
-    }
-
-    add(item) {
-        if (!(item instanceof KeyValuePair)) throw new ArgumentTypeException("item");
-
-        super.add(item);
-        return true;
     }
 
     set(key, value) {

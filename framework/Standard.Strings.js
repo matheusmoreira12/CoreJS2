@@ -7,14 +7,16 @@ export const StringUtils = {
 };
 
 export class RegExpXContext {
-    constructor(namedPatterns) {
-        this.namedPatterns = new Dictionary(namedPatterns);
+    constructor() {
+        this.namedPatterns = new Dictionary();
 
         return Object.freeze(this);
     }
 
     derive() {
-        let result = new RegExpXContext(this.namedPatterns);
+        let result = new RegExpXContext();
+        result.addMultiple(this.namedPatterns);
+
         return result;
     }
 
