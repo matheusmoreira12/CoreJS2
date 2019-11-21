@@ -131,7 +131,7 @@ export class TimeSpan {
 
     add(value) {
         if (value instanceof DateTime)
-            return value.add(this);
+            return addTimeSpanToDateTime(value, this);
         else if (value instanceof TimeSpan)
             return addTimeSpans(value, this);
 
