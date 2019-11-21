@@ -89,6 +89,12 @@ export class TimeSpan {
             return getPaddedValue(this.days, quantifier);
         };
 
+        const getFractionsString = quantifier => {
+            const secs = MathX.round(this.seconds, quantifier),
+                secsStr = String(secs);
+            return secsStr.slice(secsStr.indexOf(".") + 1).padEnd(quantifier, "0");
+        }
+
         const formatSpecifierReplacer = match => {
             switch (match[0]) {
                 case "d":
@@ -101,6 +107,8 @@ export class TimeSpan {
                     return getSecondsString(match.length);
                 case "y":
                     return getYearsString(match.length);
+                case "f":
+                    return getFractionsString(match.length);
             }
         };
 
