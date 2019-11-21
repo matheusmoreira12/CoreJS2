@@ -25,6 +25,13 @@ const HOURS_IN_DAY = 24;
 
 const DEFAULT_TIMESPAN_FORMAT = "d.hh:mm:ss.fffffff";
 
+const addTimeSpans = (a, b) => new TimeSpan(a.ticks + b.ticks);
+const subtractTimeSpans = (a, b) => new TimeSpan(a.ticks - b.ticks);
+const multiplyTimeSpanByNumber = (a, b) => new TimeSpan(a.ticks * b);
+const subtractDateTimes = (a, b) => new TimeSpan(a.ticks - b.ticks);
+const addTimeSpanToDateTime = (a, b) => new DateTime(a.ticks + b.ticks);
+const subtractTimeSpanFromDateTime = (a, b) => new DateTime(a.ticks - b.ticks);
+
 export class TimeSpan {
     static fromMilliseconds(millis) {
         let ticks = millis * TICKS_IN_MILLISECOND;
@@ -116,8 +123,6 @@ export class TimeSpan {
     }
 
     multiply(value) {
-        const multiplyTimeSpanByNumber = (a, b) => new TimeSpan(a.ticks * b);
-
         if (typeof value === "number")
             return multiplyTimeSpanByNumber(this, value);
 
@@ -125,14 +130,19 @@ export class TimeSpan {
     }
 
     add(value) {
-        const addTimeSpans = (a, b) => new TimeSpan(a.ticks + b.ticks);
-
         if (value instanceof DateTime)
             return value.add(this);
         else if (value instanceof TimeSpan)
-            return addTimeSpans(this, value);
+            return addTimeSpans(value, this);
 
         throw new ArgumentTypeException("value", Type.of(value), Type.get(DateTime));
+    }
+
+    subtract(value) {
+        if (value instanceof TimeSpan)
+            return subtractTimeSpans(this, value);
+
+        throw new ArgumentTypeException("value", Type.of(value), Type.get(TimeSpan));
     }
 
     get totalMilliseconds() {
@@ -303,9 +313,6 @@ export class DateTime {
     }
 
     subtract(value) {
-        const subtractDateTimes = (a, b) => new TimeSpan(a.ticks - b.ticks);
-        const subtractTimeSpanFromDateTime = (a, b) => new DateTime(a.ticks - b.ticks);
-
         if (value instanceof DateTime)
             return subtractDateTimes(this, value);
         else if (value instanceof TimeSpan)
@@ -315,10 +322,8 @@ export class DateTime {
     }
 
     add(value) {
-        const addDateTimeWithTimeSpan = (a, b) => new DateTime(a.ticks - b.ticks);
-
         if (value instanceof TimeSpan)
-            return addDateTimeWithTimeSpan(this, value);
+            return addTimeSpanToDateTime(this, value);
 
         throw new ArgumentTypeException("value", Type.of(value), Type.get(TimeSpan));
     }
