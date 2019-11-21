@@ -15,7 +15,7 @@ REGEXPX_CONTEXT.declareNamedPattern("year", `y{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("timeZone", `z{1,3}`);
 REGEXPX_CONTEXT.declareNamedPattern("fraction", `f{1,7}`);
 
-const FORMAT_SPECIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`\\b($day;|$hour12;|$hour24;|$minute;|$second;|$amPm;|$year;$fraction)\\b`, "g");
+const FORMAT_SPECIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`\\b($day;|$hour12;|$hour24;|$minute;|$second;|$amPm;|$year;|$fraction;)\\b`, "g");
 
 const TICKS_IN_MILLISECOND = 10;
 const MILLISECONDS_IN_SECOND = 1000;
@@ -90,9 +90,8 @@ export class TimeSpan {
         };
 
         const getFractionsString = quantifier => {
-            const secs = MathX.round(this.seconds, quantifier),
-                secsStr = String(secs);
-            return secsStr.slice(secsStr.indexOf(".") + 1).padEnd(quantifier, "0");
+            const fractions = this.getFractions(quantifier);
+            return getPaddedValue(fractions, quantifier);
         }
 
         const formatSpecifierReplacer = match => {
@@ -184,9 +183,8 @@ export class TimeSpan {
         return Math.trunc(this.totalMilliseconds % MILLISECONDS_IN_SECOND);
     }
 
-    get fractions() {
-        let magnitude = MathX.magnitude(this.seconds);
-        return 0;
+    getFractions(precision = 1) {
+        return Math.trunc(x % 1 * Math.pow(10, precision));
     }
 }
 
