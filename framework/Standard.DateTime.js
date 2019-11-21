@@ -23,14 +23,14 @@ const SECONDS_IN_MINUTE = 60;
 const MINUTES_IN_HOUR = 60;
 const HOURS_IN_DAY = 24;
 
-const DEFAULT_TIMESPAN_FORMAT = "d.hh:mm:ss.fffffff";
-
 const addTimeSpans = (a, b) => new TimeSpan(a.ticks + b.ticks);
 const subtractTimeSpans = (a, b) => new TimeSpan(a.ticks - b.ticks);
 const multiplyTimeSpanByNumber = (a, b) => new TimeSpan(a.ticks * b);
 const subtractDateTimes = (a, b) => new TimeSpan(a.ticks - b.ticks);
 const addTimeSpanToDateTime = (a, b) => new DateTime(a.ticks + b.ticks);
 const subtractTimeSpanFromDateTime = (a, b) => new DateTime(a.ticks - b.ticks);
+
+const DEFAULT_TIMESPAN_FORMAT = "d.hh:mm:ss.fffffff";
 
 export class TimeSpan {
     static fromMilliseconds(millis) {
