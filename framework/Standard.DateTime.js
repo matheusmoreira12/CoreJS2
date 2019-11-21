@@ -184,7 +184,8 @@ export class TimeSpan {
     }
 
     getFractions(precision = 1) {
-        return Math.trunc(x % 1 * Math.pow(10, precision));
+        const secs = this.totalSeconds;
+        return Math.trunc(secs % 1 * Math.pow(10, precision));
     }
 }
 
