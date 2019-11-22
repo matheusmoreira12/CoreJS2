@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ResourceDictionary>
+  <Language Key="en-US"
+            Name="English(US)">
+    <Language.WeekDayNames>
+      <x:Table>
+        1 |sun|sunday
+        2 |mon|monday
+        3 |tue|tuesday
+        4 |wed|wednesday
+        5 |thu|thursday
+        6 |fri|friday
+        7 |sat|saturday
+      </x:Table>
+    </Language.WeekDayNames>
+    <Language.MonthNames>
+      <x:Table>
+        1 |jan|january,
+        2 |feb|february,
+        3 |mar|march,
+        4 |apr|april,
+        5 |may|may,
+        6 |jun|jun,
+        7 |jul|july,
+        8 |aug|august,
+        9 |sep|september,
+        10|oct|october,
+        11|nov|november,
+        12|dec|december,
+      </x:Table>
+    </Language.MonthNames>
+  </Language>
+</ResourceDictionary>

@@ -1,12 +1,15 @@
 import { Enumeration } from "./Standard.Enumeration";
-import { Dictionary } from "./Standard.Collections";
-import { RegExpX } from "./Standard.String";
+import { Collection } from "./Standard.Collections";
 import { RegExpXContext } from "./Standard.Strings";
+import { ArgumentTypeException } from "./exceptions";
+import { Type } from "./Standard.Types";
 
 let exports = new Collection();
 
+const NAMESPACE_SEPARATOR = "::";
+
 const REGEXPX_CONTEXT = new RegExpXContext();
-REGEXPX_CONTEXT.declareNamedPattern("namespaceSeparator", `::`);
+REGEXPX_CONTEXT.declareNamedPattern("namespaceSeparator", `${NAMESPACE_SEPARATOR}`);
 REGEXPX_CONTEXT.declareNamedPattern("identifier", `[A-Za-z_$]\\w+`);
 
 const SEPARATOR_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`$separator;`, "g");
@@ -14,50 +17,99 @@ const IDENTIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`^($identifier;$namespa
 
 export class Identifier {
     static parse(value) {
-        function getNames() {
+        function getItems() {
+            if (typeof value !== "string")
+                throw "Invalid argument type. A value of type String was expected.";
+
             let matches = IDENTIFIER_REGEXPX.exec(value);
             if (!matches)
                 return null;
 
-            return names = value.split(SEPARATOR_REGEXPX);
+            return items = value.split(SEPARATOR_REGEXPX);
         }
 
-        const names = getNames();
-        return new Identifier(names);
+        const items = getItems();
+        return new Identifier(items);
     }
 
-    constructor(names) {
-        this.names = names;
+    constructor(items) {
+        this.items = items;
 
         return Object.freeze(this);
     }
+
+    toString() {
+        return this.items.join(itemsPACE_SEPARATOR);
+    }
+
+    combine(value) {
+        if (!(value instanceof Identifier))
+            throw new ArgumentTypeException("value", Type.of(value), Type.get(Identifier));
+
+        return new Identifier([...this.items, ...valie.items]);
+    }
 }
 
-export const ModuleSystem = {
+const modules = new Collection();
+const declarations = new Collection();
 
-};
 
-export const ModuleMemberType = new Enumeration([
-    Class,
-    Function,
-    Const
+
+export class ModuleContext extends Proxy {
+    static export(identifier, value) {
+
+    }
+
+    static import(identifier) {
+    }
+
+    constructor(module) {
+        this.module = module;
+
+        function set(target, p, value, receiver) {
+            ModuleContext.export(p, value);
+        }
+
+        function get(target, p, receiver) {
+            ModuleContext.import(p);
+        }
+
+        return new Proxy(this, {
+            get,
+            set
+        });
+    }
+}
+
+export const ModuleStatus = new Enumeration([
+    "Pending",
+    "Initializing",
+    "Done"
 ]);
 
-export class ModuleInitializationContext {
-    export(name, memberType) {
-
-    }
-
-    import(name) {
-    }
-}
-
 export class Module {
-    constructor(namespace) {
-        this.namespace = namespace;
+    static create(namespace, initializer) {
+        const namespaceIdentifier = Identifier.parse(namespace);
+        const module = new Module(initializer);
+        modules.add(namespaceIdentifier, module);
+        return module;
+    }
+
+    constructor(namespaceIdentifier, initializer) {
+        this.namespaceIdentifier = namespaceIdentifier;
+        this.initializer = initializer;
+        this.moduleContext = new ModuleContext(this);
     }
 
     async initialize(context) {
+        this.status = ModuleStatus.Initializing;
 
+        const context = new ModuleContext(this);
+        await this.initializer(context);
+
+        this.status = ModuleStatus.Done;
     }
+
+    context = new ModuleInitializationContext();
+    status = ModuleStatus.Pending;
 }

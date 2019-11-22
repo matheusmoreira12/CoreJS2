@@ -1,21 +1,22 @@
 import { RegExpXContext, RegExpX } from "./Standard.Strings.js";
 import { MathX } from "./Standard.MathX.js";
-import { FormatException, ArgumentTypeException } from "./exceptions.js";
+import { FormatException, ArgumentTypeException, ArgumentOutOfRangeException } from "./exceptions.js";
 import { Enumeration } from "./Standard.Enumeration.js";
 import { Type } from "./Standard.Types.js";
 
 const REGEXPX_CONTEXT = new RegExpXContext();
+REGEXPX_CONTEXT.declareNamedPattern("year", `y{1,4}`);
+REGEXPX_CONTEXT.declareNamedPattern("month", `M{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("day", `d{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("hour12", `h{1,2}`);
+REGEXPX_CONTEXT.declareNamedPattern("amPm", `t{1,2}`);
 REGEXPX_CONTEXT.declareNamedPattern("hour24", `H{1,2}`);
 REGEXPX_CONTEXT.declareNamedPattern("minute", `m{1,2}`);
 REGEXPX_CONTEXT.declareNamedPattern("second", `s{1,2}`);
-REGEXPX_CONTEXT.declareNamedPattern("amPm", `t{1,2}`);
-REGEXPX_CONTEXT.declareNamedPattern("year", `y{1,4}`);
-REGEXPX_CONTEXT.declareNamedPattern("timeZone", `z{1,3}`);
 REGEXPX_CONTEXT.declareNamedPattern("fraction", `f{1,7}`);
+REGEXPX_CONTEXT.declareNamedPattern("timeZone", `z{1,3}`);
 
-const FORMAT_SPECIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`\\b($day;|$hour12;|$hour24;|$minute;|$second;|$amPm;|$year;|$fraction;)\\b`, "g");
+const FORMAT_SPECIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`\\b($year;|$month;|$day;|$hour12;|$amPm;|$hour24;|$minute;|$second;|$fraction;|$timeZone;)\\b`, "g");
 
 const MONTHS_IN_YEAR = 12;
 
@@ -90,14 +91,6 @@ export class TimeSpan {
             return getPaddedValue(this.seconds, quantifier);
         };
 
-        const getYearsString = quantifier => {
-            let years = this.years;
-            if (quantifier)
-                years = years % 100;
-
-            return getPaddedValue(this.days, quantifier);
-        };
-
         const getFractionsString = quantifier => {
             const fractions = this.getFractions(quantifier);
             return getPaddedValue(fractions, quantifier);
@@ -113,10 +106,10 @@ export class TimeSpan {
                     return getMinutesString(match.length);
                 case "s":
                     return getSecondsString(match.length);
-                case "y":
-                    return getYearsString(match.length);
                 case "f":
                     return getFractionsString(match.length);
+                default:
+                    return match;
             }
         };
 
@@ -211,6 +204,9 @@ const GregorianCalendar = {
     },
 
     getDaysInMonth(month, year) {
+        if (month <= 0 || month > MONTHS_IN_YEAR)
+            throw new ArgumentOutOfRangeException("month");
+
         switch (month) {
             case 2:
                 return this.getIsLeapYear(year) ? 29 : 28;
@@ -250,13 +246,13 @@ const GregorianCalendar = {
 
     getTime(ticks) {
         const timeFromEpoch = new DateTime(ticks).subtract(new DateTime(0)),
-            millisFromEpoch = timeFromEpoch.milliseconds,
+            millisFromEpoch = timeFromEpoch.totalMilliseconds,
             secsFromEpoch = timeFromEpoch.totalSeconds,
             minsFromEpoch = timeFromEpoch.totalMinutes,
             hoursFromEpoch = timeFromEpoch.totalHours;
 
         const milli = Math.round(millisFromEpoch % MILLISECONDS_IN_SECOND),
-            sec = Math.round(secsFromEpoch % SECONDS_IN_MINUTE),
+            sec = secsFromEpoch % SECONDS_IN_MINUTE,
             min = Math.round(minsFromEpoch % MINUTES_IN_HOUR),
             hour = Math.round(hoursFromEpoch % HOURS_IN_DAY);
 
@@ -269,7 +265,7 @@ const GregorianCalendar = {
     },
 
     getEra(ticks) {
-        return this.ticks > 0 ? CalendarEra.AnnoDomini : CalendarEra.BeforeChrist;
+        return ticks > 0 ? DateTimeEra.AnnoDomini : DateTimeEra.BeforeChrist;
     }
 };
 
@@ -278,13 +274,9 @@ export const DateTimeEra = new Enumeration([
     "AnnoDomini"
 ]);
 
-function getYearOne() {
-    let date = new Date(1, 1, 1, 0, 0, 0, 0);
-    date = date.setUTCFullYear(1);
-    return date;
-}
+const EPOCH_TO_NATIVE = new Date(Date.UTC(1, 0, 1, 0, 0, 0, 0)).setUTCFullYear(1);
 
-const EPOCH_TO_NATIVE = getYearOne();
+const DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.fffffff z";
 
 export class DateTime {
     static fromNativeDateTimeStamp(dateTimeStamp) {
@@ -293,7 +285,7 @@ export class DateTime {
     }
 
     static fromUTC(year, month, date, hours = 0, minutes = 0, seconds = 0, millis = 0) {
-        const dateTimeStamp = Date.UTC(year, month, date, hours, minutes, seconds, millis);
+        const dateTimeStamp = Date.UTC(year, month - 1, date, hours, minutes, seconds, millis);
         return DateTime.fromNativeDateTimeStamp(dateTimeStamp);
     }
 
@@ -306,6 +298,86 @@ export class DateTime {
         this.ticks = ticks;
 
         return Object.freeze(this);
+    }
+
+    toString(format = DEFAULT_DATETIME_FORMAT) {
+        const getPaddedValue = (value, quantifier) => {
+            return String(value).padStart(quantifier, "0");
+        };
+
+        const getYearString = quantifier => {
+            let year = this.year;
+            switch (quantifier) {
+                case 2:
+                    year = year % 100;
+                    break;
+                case 3:
+                    year = year % 1000;
+                    break;
+            }
+
+            return getPaddedValue(year, quantifier);
+        };
+
+        const getMonthString = quantifier => {
+            return getPaddedValue(this.month, quantifier);
+        };
+
+        const getDayString = quantifier => {
+            return getPaddedValue(this.day, quantifier);
+        };
+
+        const getHourString = quantifier => {
+            return getPaddedValue(this.hour, quantifier);
+        };
+
+        const getHour12String = quantifier => {
+            const hours = this.hour % 12;
+            return getPaddedValue(hours, quantifier);
+        };
+
+        const getMinuteString = quantifier => {
+            return getPaddedValue(this.minute, quantifier);
+        };
+
+        const getSecondString = quantifier => {
+            return getPaddedValue(this.second, quantifier);
+        };
+
+        const getFractionString = quantifier => {
+            const fraction = this.getFraction(quantifier);
+            return getPaddedValue(fraction, quantifier);
+        }
+
+        const formatSpecifierReplacer = match => {
+            switch (match[0]) {
+                case "y":
+                    return getYearString(match.length);
+                case "M":
+                    return getMonthString(match.length);
+                case "d":
+                    return getDayString(match.length);
+                case "h":
+                    return getHour12String(match.length);
+                case "t":
+                    return getTimeOfDayString(match.length);
+                case "H":
+                    return getHourString(match.length);
+                case "m":
+                    return getMinuteString(match.length);
+                case "s":
+                    return getSecondString(match.length);
+                case "f":
+                    return getFractionString(match.length);
+                case "z":
+                    return getTimeZoneString(match.length);
+                default:
+                    return match;
+            }
+        };
+
+        let result = format.replace(FORMAT_SPECIFIER_REGEXPX, formatSpecifierReplacer);
+        return result;
     }
 
     subtract(value) {
@@ -349,10 +421,16 @@ export class DateTime {
     }
 
     get second() {
-        return GregorianCalendar.getTime(this.ticks).second;
+        let sec = GregorianCalendar.getTime(this.ticks).second;
+        return Math.trunc(sec);
     }
 
     get millisecond() {
         return GregorianCalendar.getTime(this.ticks).millisecond;
+    }
+
+    getFraction(precision = 1) {
+        const secs = this.second;
+        return Math.trunc(secs % 1 * Math.pow(10, precision));
     }
 }
