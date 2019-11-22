@@ -17,6 +17,8 @@ REGEXPX_CONTEXT.declareNamedPattern("fraction", `f{1,7}`);
 
 const FORMAT_SPECIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`\\b($day;|$hour12;|$hour24;|$minute;|$second;|$amPm;|$year;|$fraction;)\\b`, "g");
 
+const MONTHS_IN_YEAR = 12;
+
 const TICKS_IN_MILLISECOND = 10;
 const MILLISECONDS_IN_SECOND = 1000;
 const SECONDS_IN_MINUTE = 60;
@@ -199,83 +201,77 @@ export class TimeSpan {
     }
 }
 
-function isCenturialYear(year) {
-    return year % 100 === 0;
-}
+const GregorianCalendar = {
+    getIsCenturialYear(year) {
+        return year % 100 === 0;
+    },
 
-function isLeapYear(year) {
-    return year % 400 === 0 || year % 4 === 0 && !isCenturialYear(year);
-}
+    getIsLeapYear(year) {
+        return year % 400 === 0 || year % 4 === 0 && !this.getIsCenturialYear(year);
+    },
 
-function getDaysInMonth(month, year) {
-    switch (month) {
-        case 2:
-            return isLeapYear(year) ? 29 : 28;
-        case 4:
-        case 6:
-        case 9:
-        case 11:
-            return 30;
-        default:
-            return 31;
-    }
-}
-
-function getDaysInYear(year) {
-    let days = 0;
-    for (let month = 1; month <= 12; month++)
-        days += getDaysInMonth(month, year);
-    return days;
-}
-
-function convertTicksToDate(ticks) {
-    function getYear() {
-        let year = 0;
-        for (let d = day; d < daysFromEpoch; d += getDaysInYear(year)) { //Loop through the years, until the number of days overshoots
-            day = d;
-            year++;
+    getDaysInMonth(month, year) {
+        switch (month) {
+            case 2:
+                return this.getIsLeapYear(year) ? 29 : 28;
+            case 4:
+            case 6:
+            case 9:
+            case 11:
+                return 30;
+            default:
+                return 31;
         }
-        return year;
-    }
+    },
 
-    function getMonth() {
-        let month = 0;
-        for (let d = day; d < daysFromEpoch; d += getDaysInMonth(month)) { //Loop back through the months, until the number of days undershoots
-            day = d;
-            month++;
+    getDate(ticks) {
+        const daysFromEpoch = new DateTime(ticks).subtract(new DateTime(0)).totalDays;
+        let days = 0;
+
+        for (let year = 1; ; year++) {
+            for (let month = 1; month <= MONTHS_IN_YEAR; month++) {
+                const daysInMonth = this.getDaysInMonth(month, year);
+                if (days + daysInMonth > daysFromEpoch)
+                    return {
+                        day: Math.trunc(daysFromEpoch - days) + 1,
+                        month,
+                        year
+                    };
+                days += daysInMonth;
+            }
         }
-        return month;
+
+        return {
+            day: null,
+            month: null,
+            year: null
+        }
+    },
+
+    getTime(ticks) {
+        const timeFromEpoch = new DateTime(ticks).subtract(new DateTime(0)),
+            millisFromEpoch = timeFromEpoch.milliseconds,
+            secsFromEpoch = timeFromEpoch.totalSeconds,
+            minsFromEpoch = timeFromEpoch.totalMinutes,
+            hoursFromEpoch = timeFromEpoch.totalHours;
+
+        const milli = Math.round(millisFromEpoch % MILLISECONDS_IN_SECOND),
+            sec = Math.round(secsFromEpoch % SECONDS_IN_MINUTE),
+            min = Math.round(minsFromEpoch % MINUTES_IN_HOUR),
+            hour = Math.round(hoursFromEpoch % HOURS_IN_DAY);
+
+        return {
+            millisecond: milli,
+            second: sec,
+            minute: min,
+            hour
+        };
+    },
+
+    getEra(ticks) {
+        return this.ticks > 0 ? CalendarEra.AnnoDomini : CalendarEra.BeforeChrist;
     }
-
-    const daysFromEpoch = new DateTime(ticks).subtract(new DateTime(0)).totalDays;
-    let day = 0;
-
-    return {
-        year: getYear(),
-        month: getMonth() + 1,
-        day: Math.round(daysFromEpoch - day)
-    };
-}
-
-function convertTicksToTime(ticks) {
-    const timeFromEpoch = new DateTime(ticks).subtract(new DateTime(0)),
-        millisFromEpoch = timeFromEpoch.milliseconds,
-        secsFromEpoch = timeFromEpoch.totalSeconds,
-        minsFromEpoch = timeFromEpoch.totalMinutes,
-        hoursFromEpoch = timeFromEpoch.totalHours;
-
-    const milli = Math.round(millisFromEpoch % MILLISECONDS_IN_SECOND),
-        sec = Math.round(secsFromEpoch % SECONDS_IN_MINUTE),
-        min = Math.round(minsFromEpoch % MINUTES_IN_HOUR),
-        hour = Math.round(hoursFromEpoch % HOURS_IN_DAY);
-
-    return {
-        millisecond: milli,
-        second: sec,
-        minute: min,
-        hour
-    };
-}
+};
 
 export const DateTimeEra = new Enumeration([
     "BeforeChrist",
@@ -329,34 +325,34 @@ export class DateTime {
     }
 
     get era() {
-        return this.ticks > 0 ? CalendarEra.AnnoDomini : CalendarEra.BeforeChrist;
+        return GregorianCalendar.getEra(this.ticks);
     }
 
     get year() {
-        return convertTicksToDate(this.ticks).year;
+        return GregorianCalendar.getDate(this.ticks).year;
     }
 
     get month() {
-        return convertTicksToDate(this.ticks).month;
+        return GregorianCalendar.getDate(this.ticks).month;
     }
 
     get day() {
-        return convertTicksToDate(this.ticks).day;
+        return GregorianCalendar.getDate(this.ticks).day;
     }
 
     get hour() {
-        return convertTicksToTime(this.ticks).hour;
+        return GregorianCalendar.getTime(this.ticks).hour;
     }
 
     get minute() {
-        return convertTicksToTime(this.ticks).minute;
+        return GregorianCalendar.getTime(this.ticks).minute;
     }
 
     get second() {
-        return convertTicksToTime(this.ticks).second;
+        return GregorianCalendar.getTime(this.ticks).second;
     }
 
     get millisecond() {
-        return convertTicksToTime(this.ticks).millisecond;
+        return GregorianCalendar.getTime(this.ticks).millisecond;
     }
 }
