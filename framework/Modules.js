@@ -1,8 +1,8 @@
-import { Enumeration } from "./Standard.Enumeration";
-import { Collection } from "./Standard.Collections";
-import { RegExpXContext } from "./Standard.Strings";
-import { ArgumentTypeException, InvalidOperationException } from "./exceptions";
-import { Type } from "./Standard.Types";
+import { Enumeration } from "./Standard.Enumeration.js";
+import { Collection } from "./Standard.Collections.js";
+import { RegExpXContext } from "./Standard.Strings.js";
+import { ArgumentTypeException } from "./exceptions.js";
+import { Type } from "./Standard.Types.js";
 
 let exports = new Collection();
 
@@ -22,7 +22,7 @@ export class Identifier {
     static parse(value) {
         function getItems() {
             if (typeof value !== "string")
-                throw "Invalid argument type. A value of type String was expected.";
+                throw ArgumentTypeException("value", Type.of(value), Type.get(String));
 
             let matches = IDENTIFIER_REGEXPX.exec(value);
             if (!matches)
@@ -63,42 +63,18 @@ export class Identifier {
     }
 }
 
-class ModuleCollection extends Collection {
-    constructor(parentModule) {
-        this.parentModule = parentModule;
-    }
-
-    add(module) {
-        module.parentModule = this.parentModule;
-        this.add(module);
-    }
-}
-
-const rootModule = new Module(Identifier.empty, function () { });
-
-class ExportedMemberCollection extends Collection {
-    constructor(parentModule) {
-        this.parentModule = parentModule;
-    }
-
-    add(member) {
-        member.parentModule = this.parentModule;
-    }
-}
-
-class ExportedMember {
-    constructor(identifier, value) {
+class Export {
+    constructor(identifier, value, parentModule = null) {
         if (typeof identifier === "string")
             this.identifier = new Identifier(identifier);
         else if (identifier instanceof Identifier)
             this.identifier = identifier;
+        else
+            throw new ArgumentTypeException("identifier", Type.of(identifier), Type.get(Identifier));
 
         this.value = value;
-
-        return Object.freeze(this);
+        this.parentModule = parentModule;
     }
-
-    parentModule = null;
 
     get fullIdentifier() {
         if (this.isOrphanMember)
@@ -121,28 +97,37 @@ export class ModuleContext {
 
     export(map) {
         function exportMember(identifier, value) {
-            const exportedMember = new ExportedMember(identifier, value);
-            this.exportedMembers.add(exportedMember);
+            const _export = new Export(identifier, value, this.module);
+            this.module.exportedMembers.add(_export);
         }
 
         for (let key in map)
             exportMember.call(this, new Identifier(key), map[key]);
     }
 
-    async module(namespace, initializer) {
-        let module = new Module(namespace, initializer);
-        this.subModules.add(module);
+    async exportModule(namespace, initializer) {
+        let module = new Module(namespace, initializer, this.module);
+        this.module.subModules.add(module);
 
         await module.initialize();
     }
 
     async import(identifier) {
+        function importRelative() {
+            const absoluteIdentifier = this.module.namespace.combine(identifier);
+            return this.module.getMemberByIdentifierRecursive(absoluteIdentifier);
+        }
+
+        function importAbsolute() {
+            return this.module.getMemberByIdentifierRecursive(identifier);
+        }
+
         let member = null;
 
         while (!member)
-            member = this.module.getMemberByIdentifierRecursive(identifier);
+            member = importRelative | importAbsolute;
 
-        return member;
+        return member.value;
     }
 }
 
@@ -154,24 +139,25 @@ export const ModuleStatus = new Enumeration([
 
 export class Module {
     static async declare(namespace, initializer) {
-        if (typeof namespace !== "string" && (namespace instanceof Identifier))
-            throw new ArgumentTypeException("namespace", Type.of(namespace), Type.get(Identifier));
-
-        const module = new Module(namespace, initializer);
+        const module = new Module(namespace, initializer, rootModule);
         rootModule.subModules.add(module);
 
         await module.initialize();
     }
 
-    constructor(namespace, initializer) {
+    constructor(namespace, initializer, parentModule = null) {
         if (typeof namespace === "string")
             this.namespace = new Identifier(namespace);
         else if (namespace instanceof Identifier)
             this.namespace = namespace;
+        else
+            throw new ArgumentTypeException("namespace", Type.of(namespace), Type.get(Identifier));
 
         this.initializer = initializer;
+        this.parentModule = parentModule;
 
-        return Object.freeze(this);
+        this.exportedMembers = new Collection();
+        this.subModules = new Collection();
     }
 
     async initialize() {
@@ -209,14 +195,12 @@ export class Module {
         return this.parentModule === null;
     }
 
-    exportedMembers = new ExportedMemberCollection(this);
-
-    subModules = new ModuleDeclarationCollection(this);
-
     parentModule = null;
 
     status = ModuleStatus.Pending;
 }
+
+const rootModule = new Module(Identifier.empty, function () { });
 
 /**Module Demonstration:
  * - Each module must be given its own namespace identifier. Keep in mind that module identifiers are RELATIVE.
