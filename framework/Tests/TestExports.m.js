@@ -43,3 +43,9 @@ import {
 window.TimeSpan = TimeSpan;
 window.DateTime = DateTime;
 window.DateTimeEra = DateTimeEra;
+
+import {
+    Module
+} from "../Modules.js";
+
+window.Module = Module;
