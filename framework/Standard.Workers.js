@@ -1,4 +1,4 @@
-import { ArgumentException, InvalidOperationException, NotFoundException, KeyNotFoundException, ArgumentNullException } from "./exceptions.js";
+import { ArgumentException, InvalidOperationException, KeyNotFoundException, ArgumentNullException } from "./exceptions.js";
 import { Type, MemberSelectionType } from "./Standard.Types.js";
 import { Enumeration } from "./Standard.Enumeration.js";
 import { TokenReader } from "./Standard.Tokens.js";
@@ -229,9 +229,8 @@ function createWorker(self, workerClass, ...args) {
         throw new ArgumentException("workerClass", "The specified value must be a class extending the Worker class.");
 
     const worker = new workerClass(self);
-    workers.add(worker);
-
     worker.initialize(...args);
+    workers.add(worker);
 
     return worker;
 }
@@ -239,6 +238,7 @@ function createWorker(self, workerClass, ...args) {
 function deleteWorker(self, workerClass) {
     let worker = getWorker(self, workerClass);
     worker.finalize();
+    workers.remove(worker);
 }
 
 function overrideWorker(self, workerClass, ...args) {

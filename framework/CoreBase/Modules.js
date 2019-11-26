@@ -1,19 +1,6 @@
-import { Enumeration } from "./Standard.Enumeration.js";
-import { Collection } from "./Standard.Collections.js";
-import { RegExpXContext } from "./Standard.Strings.js";
-import { ArgumentTypeException } from "./exceptions.js";
-import { Type } from "./Standard.Types.js";
-import { ReferenceManager } from "./ReferenceManager.js";
-import { AsynchronousResolver } from "./Standard.AsynchronousResolvers.js";
-import { Worker } from "./Standard.Workers.js";
+import { AsynchronousResolver } from "./Standard.Resolvers.js";
 
 const NAMESPACE_SEPARATOR = "::";
-
-const REGEXPX_CONTEXT = new RegExpXContext();
-REGEXPX_CONTEXT.declareNamedPattern("namespaceSeparator", `${NAMESPACE_SEPARATOR}`);
-REGEXPX_CONTEXT.declareNamedPattern("identifier", `[A-Za-z_$]\\w+`);
-
-const IDENTIFIER_REGEXPX = REGEXPX_CONTEXT.createRegExpX(`^($identifier;$namespaceSeparator;)*$identifier;$$`, "");
 
 export class Identifier {
     static get empty() {
@@ -21,19 +8,7 @@ export class Identifier {
     }
 
     static parse(value) {
-        function getItems() {
-            if (typeof value !== "string")
-                throw ArgumentTypeException("value", Type.of(value), Type.get(String));
-
-            let matches = IDENTIFIER_REGEXPX.exec(value);
-            if (!matches)
-                return null;
-
-            return items = value.split(NAMESPACE_SEPARATOR);
-        }
-
-        const items = getItems();
-        return new Identifier(items);
+        return new Identifier(value.split(NAMESPACE_SEPARATOR));
     }
 
     constructor(...items) {
@@ -54,7 +29,7 @@ export class Identifier {
 
     combine(value) {
         if (!(value instanceof Identifier))
-            throw new ArgumentTypeException("value", Type.of(value), Type.get(Identifier));
+            throw `Invalid value for argument "value".`;
 
         return new Identifier([...this.items, ...value.items]);
     }
@@ -71,7 +46,7 @@ class Export {
         else if (identifier instanceof Identifier)
             this.identifier = identifier;
         else
-            throw new ArgumentTypeException("identifier", Type.of(identifier), Type.get(Identifier));
+            throw `Invalid value for argument "identifier".`;
 
         this.value = value;
         this.parentModule = parentModule;
@@ -89,17 +64,13 @@ class Export {
     }
 }
 
-export class ExportResolverWorker extends Worker {
-
-}
-
-export class ExportResolver extends AsynchronousResolver {
+class ExportResolver extends AsynchronousResolver {
     constructor(identifier) {
-        Worker.override(this, ExportResolverWorker, identifier);
+        this.identifier = identifier;
     }
 }
 
-export class ModuleContext {
+class ModuleContext {
     constructor(module) {
         this.module = module;
 
@@ -109,9 +80,7 @@ export class ModuleContext {
     export(map) {
         function exportMember(identifier, value) {
             const _export = new Export(identifier, value, this.module);
-            this.module.exportedMembers.add(_export);
-
-            ReferenceManager.declare(_export.fullIdentifier.toString(), _export);
+            this.module.exportedMembers.push(_export);
         }
 
         for (let key in map)
@@ -120,7 +89,7 @@ export class ModuleContext {
 
     async exportModule(namespace, initializer) {
         let module = new Module(namespace, initializer, this.module);
-        this.module.subModules.add(module);
+        this.module.subModules.push(module);
 
         await module.initialize();
     }
@@ -144,16 +113,14 @@ export class ModuleContext {
     }
 }
 
-export const ModuleStatus = new Enumeration([
-    "Pending",
-    "Initializing",
-    "Done"
-]);
-
 export class Module {
+    static get STATUS_PENDING() { return 0; }
+    static get STATUS_INITIALIZING() { return 1; }
+    static get STATUS_DONE() { return 2; }
+
     static async declare(namespace, initializer) {
         const module = new Module(namespace, initializer, rootModule);
-        rootModule.subModules.add(module);
+        rootModule.subModules.push(module);
 
         await module.initialize();
     }
@@ -164,22 +131,22 @@ export class Module {
         else if (namespace instanceof Identifier)
             this.namespace = namespace;
         else
-            throw new ArgumentTypeException("namespace", Type.of(namespace), Type.get(Identifier));
+            throw `Invalid value for argument "namespace".`;
 
         this.initializer = initializer;
         this.parentModule = parentModule;
 
-        this.exportedMembers = new Collection();
-        this.subModules = new Collection();
+        this.exportedMembers = [];
+        this.subModules = [];
     }
 
     async initialize() {
-        this.status = ModuleStatus.Initializing;
+        this.status = Module.STATUS_INITIALIZING;
 
         const context = new ModuleContext(this);
         await this.initializer.call(globalThis, context);
 
-        this.status = ModuleStatus.Done;
+        this.status = Module.STATUS_DONE;
     }
 
     *listMembersRecursive() {
@@ -210,7 +177,7 @@ export class Module {
 
     parentModule = null;
 
-    status = ModuleStatus.Pending;
+    status = Module.STATUS_PENDING;
 }
 
 const rootModule = new Module(Identifier.empty, function () { });

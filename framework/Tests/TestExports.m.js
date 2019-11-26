@@ -46,6 +46,6 @@ window.DateTimeEra = DateTimeEra;
 
 import {
     Module
-} from "../Modules.js";
+} from "../CoreBase/Modules.js";
 
 window.Module = Module;

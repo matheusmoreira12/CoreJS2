@@ -1,5 +1,6 @@
 import { Enumeration } from "./Standard.Enumeration.js";
-import { ArgumentOutOfRangeException, KeyNotFoundException, InvalidTypeException, ArgumentTypeException } from "./exceptions.js";
+import { ArgumentOutOfRangeException, KeyNotFoundException } from "./exceptions.js";
+import { FrameworkEvent } from "./Standard.Events.js";
 
 /**
  * Collection Class
