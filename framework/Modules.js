@@ -3,8 +3,9 @@ import { Collection } from "./Standard.Collections.js";
 import { RegExpXContext } from "./Standard.Strings.js";
 import { ArgumentTypeException } from "./exceptions.js";
 import { Type } from "./Standard.Types.js";
-
-let exports = new Collection();
+import { ReferenceManager } from "./ReferenceManager.js";
+import { AsynchronousResolver } from "./Standard.AsynchronousResolvers.js";
+import { Worker } from "./Standard.Workers.js";
 
 const NAMESPACE_SEPARATOR = "::";
 
@@ -88,6 +89,16 @@ class Export {
     }
 }
 
+export class ExportResolverWorker extends Worker {
+
+}
+
+export class ExportResolver extends AsynchronousResolver {
+    constructor(identifier) {
+        Worker.override(this, ExportResolverWorker, identifier);
+    }
+}
+
 export class ModuleContext {
     constructor(module) {
         this.module = module;
@@ -99,6 +110,8 @@ export class ModuleContext {
         function exportMember(identifier, value) {
             const _export = new Export(identifier, value, this.module);
             this.module.exportedMembers.add(_export);
+
+            ReferenceManager.declare(_export.fullIdentifier.toString(), _export);
         }
 
         for (let key in map)

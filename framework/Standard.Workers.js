@@ -1,7 +1,8 @@
-import { ArgumentException, InvalidOperationException, NotFoundException } from "./exceptions.js";
+import { ArgumentException, InvalidOperationException, NotFoundException, KeyNotFoundException, ArgumentNullException } from "./exceptions.js";
 import { Type, MemberSelectionType } from "./Standard.Types.js";
 import { Enumeration } from "./Standard.Enumeration.js";
 import { TokenReader } from "./Standard.Tokens.js";
+import { Collection } from "./Standard.Collections.js";
 
 const WORKER_GETTER_PREFIX = "get_";
 const WORKER_SETTER_PREFIX = "set_";
@@ -180,30 +181,19 @@ function applyWorkerMethods(self, worker, ...methods) {
 
 export class Worker {
     static create(self, workerClass, ...args) {
-        if (workerMap.has(self)) throw new InvalidOperationException("A Worker for the specified Object has already been created. If an override is intended, use the function Worker.override(self, workerClass, [argument, ...]) instead.");
-
         createWorker(self, workerClass, ...args);
     }
 
     static override(self, workerClass, ...args) {
-        if (!workerMap.has(self)) throw new InvalidOperationException("No Worker has been created for the specified Object. If a creation is intended, use the function Worker.create(self, workerClass, [argument, ...]) instead.");
-
-        createWorker(self, workerClass, ...args);
+        overrideWorker(self, workerClass, ...args);
     }
 
     static retrieve(self, workerClass) {
-        const worker = getWorker(self);
-        if (!Type.get(workerClass).equalsOrExtends(Type.get(worker.constructor)))
-            throw new InvalidOperationException("Cannot retrieve Worker. Ownership must be proved by providing the original Worker class, or a class extending it.");
-
-        return worker;
+        return getWorker(self, workerClass);
     }
 
-    static delete(self) {
-        const worker = getWorker(self);
-        worker.finalize();
-
-        workerMap.delete(self);
+    static delete(self, workerClass) {
+        deleteWorker(self, workerClass);
     }
 
     constructor(self) {
@@ -217,21 +207,46 @@ export class Worker {
     finalize() { }
 }
 
-const workerMap = new WeakMap();
+const workers = new Collection();
 
-function getWorker(self) {
-    let worker = workerMap.get(self);
-    if (!worker)
-        throw new NotFoundException("A Worker for the specified self has not been found.");
+function getWorker(self, workerClass) {
+    if (!self === null || self === undefined)
+        throw ArgumentNullException("self");
+    if (workerClass === null || workerClass === undefined)
+        throw ArgumentNullException("workerClass");
+    if (!Type.get(workerClass).extends(Type.get(Worker)))
+        throw new ArgumentException("workerClass", "The specified value must be a class extending the Worker class.");
+
+    const worker = workers.find(w => w.self === self && Type.get(workerClass).equalsOrExtends(Type.of(w)));
+    if (worker === undefined)
+        throw new KeyNotFoundException("No created or overridden worker was found for the specified self and worker class.");
 
     return worker;
 }
 
 function createWorker(self, workerClass, ...args) {
-    if (!Type.get(workerClass).extends(Type.get(Worker))) throw new ArgumentException("workerClass", "The specified value must be a class extending the Worker class.");
+    if (!Type.get(workerClass).extends(Type.get(Worker)))
+        throw new ArgumentException("workerClass", "The specified value must be a class extending the Worker class.");
 
-    let worker = new workerClass(self);
+    const worker = new workerClass(self);
+    workers.add(worker);
+
     worker.initialize(...args);
 
-    workerMap.set(self, worker);
+    return worker;
+}
+
+function deleteWorker(self, workerClass) {
+    let worker = getWorker(self, workerClass);
+    worker.finalize();
+}
+
+function overrideWorker(self, workerClass, ...args) {
+    let oldWorker = getWorker(self);
+    if (!Type.get(workerClass).extends(Type.of(oldWorker)))
+        throw new InvalidOperationException("Cannot override worker. The new worker class must extend a worker class already in use.");
+
+    deleteWorker(self, workerClass);
+
+    createWorker(self, workerClass);
 }
