@@ -1,4 +1,4 @@
-export class AsynchronousResolver extends Promise {
+export class AsynchronousResolver {
     static get STATUS_PENDING() { return 0; }
     static get STATUS_RESOLVED() { return 1; }
     static get STATUS_REJECTED() { return 2; }
@@ -9,8 +9,6 @@ export class AsynchronousResolver extends Promise {
             self.resolve = resolve;
             self.reject = reject;
         });
-
-        Workers.Worker.create(this, AsynchronousResolverWorker);
     }
 
     resolve(value) {

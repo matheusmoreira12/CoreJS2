@@ -1,4 +1,4 @@
-import { AsynchronousResolver } from "./Standard.Resolvers.js";
+import { AsynchronousResolver } from "./Resolvers.js";
 
 const NAMESPACE_SEPARATOR = "::";
 
@@ -53,20 +53,69 @@ class Export {
     }
 
     get fullIdentifier() {
-        if (this.isOrphanMember)
+        if (this.isOrphan)
             return this.identifier;
 
         return this.parentModule.namespace.combine(this.identifier);
     }
 
-    get isOrphanMember() {
+    get isOrphan() {
         return this.parentModule === null;
     }
 }
 
-class ExportResolver extends AsynchronousResolver {
-    constructor(identifier) {
+class ImportResolver extends AsynchronousResolver {
+    static pending = [];
+
+    static clearResolved() {
+        for (let i = this.pending.length; i > 0; i--) {
+            let resolver = this.pending[i];
+            if (resolver.status === ImportResolver.STATUS_RESOLVED ||
+                resolver.status === ImportResolver.STATUS_REJECTED)
+                this.pending.splice(i, 1);
+        }
+    }
+
+    static resolve(_export, value) {
+        for (let resolver of this.pending) {
+            if (resolver.fullIdentifier.equals(_export.fullIdentifier))
+                resolver.resolve(value);
+        }
+
+        this.clearResolved();
+    }
+
+    static resolveAll() {
+        const allExports = rootModule.listMembersRecursive();
+        for (let _export of allExports)
+            this.resolve(_export.fullIdentifier, _export.value);
+    }
+
+    static rejectAll(error) {
+        for (let resolver of this.pending)
+            resolver.reject(error);
+
+        this.clearResolved();
+    }
+
+    constructor(identifier, parentModule = null) {
+        super();
+
         this.identifier = identifier;
+        this.parentModule = parentModule;
+
+        ImportResolver.pending.push(this);
+    }
+
+    get isOrphan() {
+        return this.parentModule === null;
+    }
+
+    get fullIdentifier() {
+        if (this.isOrphan)
+            return this.identifier;
+
+        return this.parentModule.namespace.combine(this.identifier);
     }
 }
 
@@ -81,6 +130,8 @@ class ModuleContext {
         function exportMember(identifier, value) {
             const _export = new Export(identifier, value, this.module);
             this.module.exportedMembers.push(_export);
+
+            ImportResolver.resolveAll();
         }
 
         for (let key in map)
@@ -95,21 +146,11 @@ class ModuleContext {
     }
 
     async import(identifier) {
-        function importRelative() {
-            const absoluteIdentifier = this.module.namespace.combine(identifier);
-            return this.module.getMemberByIdentifierRecursive(absoluteIdentifier);
-        }
+        const importResolver = new ImportResolver(identifier, this.module);
 
-        function importAbsolute() {
-            return this.module.getMemberByIdentifierRecursive(identifier);
-        }
+        ImportResolver.resolveAll();
 
-        let member = null;
-
-        while (!member)
-            member = importRelative | importAbsolute;
-
-        return member.value;
+        return await importResolver.resolved;
     }
 }
 
@@ -156,26 +197,16 @@ export class Module {
             yield* subModule.exportedMembers;
     }
 
-    getMemberByIdentifierRecursive(identifier) {
-        for (let member of this.listMembersRecursive())
-            if (member.fullIdentifier.equals(identifier))
-                return member;
-
-        return undefined;
-    }
-
     get fullNamespace() {
-        if (this.isOrphanModule)
+        if (this.isOrphan)
             return this.namespace;
 
         return this.parentModule.namespace.combine(this.namespace);
     }
 
-    get isOrphanModule() {
+    get isOrphan() {
         return this.parentModule === null;
     }
-
-    parentModule = null;
 
     status = Module.STATUS_PENDING;
 }
