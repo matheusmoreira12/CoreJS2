@@ -3,12 +3,22 @@ import { AsynchronousResolver } from "./Resolvers.js";
 const NAMESPACE_SEPARATOR = "::";
 
 export class Identifier {
+    static get(value) {
+        if (typeof value === "string")
+            return Identifier.parse(value);
+
+        if (value instanceof Identifier)
+            return value;
+
+        return null;
+    }
+
     static get empty() {
         return new Identifier();
     }
 
     static parse(value) {
-        return new Identifier(value.split(NAMESPACE_SEPARATOR));
+        return new Identifier(...value.split(NAMESPACE_SEPARATOR));
     }
 
     constructor(...items) {
@@ -33,21 +43,15 @@ export class Identifier {
 
         return new Identifier([...this.items, ...value.items]);
     }
-
-    pop() {
-        return new Identifier([...this.items].pop());
-    }
 }
 
 class Export {
     constructor(identifier, value, parentModule = null) {
-        if (typeof identifier === "string")
-            this.identifier = new Identifier(identifier);
-        else if (identifier instanceof Identifier)
-            this.identifier = identifier;
-        else
+        identifier = Identifier.get(identifier);
+        if (!identifier)
             throw `Invalid value for argument "identifier".`;
 
+        this.identifier = identifier;
         this.value = value;
         this.parentModule = parentModule;
     }
@@ -68,7 +72,7 @@ class ImportResolver extends AsynchronousResolver {
     static pending = [];
 
     static clearResolved() {
-        for (let i = this.pending.length; i > 0; i--) {
+        for (let i = this.pending.length - 1; i > 0; i--) {
             let resolver = this.pending[i];
             if (resolver.status === ImportResolver.STATUS_RESOLVED ||
                 resolver.status === ImportResolver.STATUS_REJECTED)
@@ -77,18 +81,34 @@ class ImportResolver extends AsynchronousResolver {
     }
 
     static resolve(_export, value) {
-        for (let resolver of this.pending) {
-            if (resolver.fullIdentifier.equals(_export.fullIdentifier))
-                resolver.resolve(value);
+        function resolveRelative() {
+            for (let resolver of this.pending) {
+                if (resolver.status !== ImportResolver.STATUS_PENDING)
+                    continue;
+                if (resolver.fullIdentifier.equals(_export.fullIdentifier))
+                    resolver.resolve(value);
+            }
         }
+
+        function resolveAbsolute() {
+            for (let resolver of this.pending) {
+                if (resolver.status !== ImportResolver.STATUS_PENDING)
+                    continue;
+                if (resolver.identifier.equals(_export.fullIdentifier))
+                    resolver.resolve(value);
+            }
+        }
+
+        resolveRelative.call(this);
+        resolveAbsolute.call(this);
 
         this.clearResolved();
     }
 
     static resolveAll() {
-        const allExports = rootModule.listMembersRecursive();
+        const allExports = rootModule.listExportsRecursive();
         for (let _export of allExports)
-            this.resolve(_export.fullIdentifier, _export.value);
+            this.resolve(_export, _export.value);
     }
 
     static rejectAll(error) {
@@ -99,6 +119,10 @@ class ImportResolver extends AsynchronousResolver {
     }
 
     constructor(identifier, parentModule = null) {
+        identifier = Identifier.get(identifier);
+        if (!identifier)
+            throw `Invalid value for argument "identifier".`;
+
         super();
 
         this.identifier = identifier;
@@ -129,7 +153,7 @@ class ModuleContext {
     export(map) {
         function exportMember(identifier, value) {
             const _export = new Export(identifier, value, this.module);
-            this.module.exportedMembers.push(_export);
+            this.module.exports.push(_export);
 
             ImportResolver.resolveAll();
         }
@@ -167,17 +191,15 @@ export class Module {
     }
 
     constructor(namespace, initializer, parentModule = null) {
-        if (typeof namespace === "string")
-            this.namespace = new Identifier(namespace);
-        else if (namespace instanceof Identifier)
-            this.namespace = namespace;
-        else
+        namespace = Identifier.get(namespace);
+        if (!namespace)
             throw `Invalid value for argument "namespace".`;
 
+        this.namespace = new Identifier(namespace);
         this.initializer = initializer;
         this.parentModule = parentModule;
 
-        this.exportedMembers = [];
+        this.exports = [];
         this.subModules = [];
     }
 
@@ -190,11 +212,11 @@ export class Module {
         this.status = Module.STATUS_DONE;
     }
 
-    *listMembersRecursive() {
-        yield* this.exportedMembers;
+    *listExportsRecursive() {
+        yield* this.exports;
 
         for (let subModule of this.subModules)
-            yield* subModule.exportedMembers;
+            yield* subModule.exports;
     }
 
     get fullNamespace() {
