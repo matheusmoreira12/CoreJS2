@@ -1,4 +1,5 @@
 import { AsynchronousResolver } from "./Resolvers.js";
+import { ArrayUtils } from "./ArrayUtils.js";
 
 const NAMESPACE_SEPARATOR = "::";
 
@@ -46,6 +47,32 @@ export class Identifier {
 
         return new Identifier(...this.items, ...value.items);
     }
+
+    getCommon(value) {
+        const items = ArrayUtils.compareSelect(this.items, value.items, (a, b, { quit }) => {
+            if (a === b)
+                return a;
+            else
+                quit();
+        });
+
+        return new Identifier(...items);
+    }
+
+    getExclusion(value) {
+
+    }
+
+    popNamespace() {
+        let items = this.items;
+        items.splice(items.length - 2, 1);
+
+        return new Identifier(items);
+    }
+
+    get isEmpty() {
+        return this.items.length === 0;
+    }
 }
 
 class Export {
@@ -84,26 +111,12 @@ class ImportResolver extends AsynchronousResolver {
     }
 
     static resolve(_export, value) {
-        function resolveRelative() {
-            for (let resolver of this.pending) {
-                if (resolver.status !== ImportResolver.STATUS_PENDING)
-                    continue;
-                if (resolver.fullIdentifier.equals(_export.fullIdentifier))
-                    resolver.resolve(value);
-            }
+        for (let resolver of this.pending) {
+            const commonIdentifier = resolver.parentModule.fullNamespace.getCommon(_export.parentModule.fullNamespace),
+                finalIdentifier = commonIdentifier.combine(_export.identifier);
+            if (finalIdentifier.equals(resolver.fullIdentifier))
+                resolver.resolve(value);
         }
-
-        function resolveAbsolute() {
-            for (let resolver of this.pending) {
-                if (resolver.status !== ImportResolver.STATUS_PENDING)
-                    continue;
-                if (resolver.identifier.equals(_export.fullIdentifier))
-                    resolver.resolve(value);
-            }
-        }
-
-        resolveRelative.call(this);
-        resolveAbsolute.call(this);
 
         this.clearResolved();
     }

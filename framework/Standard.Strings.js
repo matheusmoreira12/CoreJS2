@@ -1,69 +1,70 @@
-import { Dictionary } from "./Standard.Collections.js";
-import { ArgumentTypeException, IndexOutOfRangeException } from "./exceptions.js";
-import { Type } from "./Standard.Types.js";
+Module.declare("Core::Strings", async function (context) {
+    const StringUtils = {
 
-export const StringUtils = {
+    };
+    context.export({ StringUtils });
 
-};
+    class RegExpXContext {
+        constructor() {
+            this.namedPatterns = new Dictionary();
 
-export class RegExpXContext {
-    constructor() {
-        this.namedPatterns = new Dictionary();
+            return Object.freeze(this);
+        }
 
-        return Object.freeze(this);
+        derive() {
+            let result = new RegExpXContext();
+            result.addMultiple(this.namedPatterns);
+
+            return result;
+        }
+
+        declareNamedPattern(name, pattern) {
+            if (this.namedPatterns.has(name))
+                return false;
+
+            this.namedPatterns.set(name, pattern);
+            return true;
+        }
+
+        deleteNamedPattern(name) {
+            return this.namedPatterns.delete(name);
+        }
+
+        createRegExpX(pattern, flags = "") {
+            let result = new RegExpX(pattern, flags, this);
+            return result;
+        }
     }
+    context.export({ RegExpXContext });
 
-    derive() {
-        let result = new RegExpXContext();
-        result.addMultiple(this.namedPatterns);
+    function computeFinalPattern(pattern, context) {
+        function replaceEscapedPattern(match) {
+            const name = match.slice(1, match.length - 1); //Performatically extract name from escaped string
+            let pattern = context.namedPatterns.get(name);
+            if (pattern === undefined)
+                throw new IndexOutOfRangeException(`No declared named pattern matches name "${name}".`);
+            return pattern;
+        }
 
-        return result;
-    }
+        if (context === null)
+            return pattern;
 
-    declareNamedPattern(name, pattern) {
-        if (this.namedPatterns.has(name))
-            return false;
+        pattern = pattern.replace(/(?<!\$)\$[A-Za-z]\w*?;/g, replaceEscapedPattern);
 
-        this.namedPatterns.set(name, pattern);
-        return true;
-    }
-
-    deleteNamedPattern(name) {
-        return this.namedPatterns.delete(name);
-    }
-
-    createRegExpX(pattern, flags = "") {
-        let result = new RegExpX(pattern, flags, this);
-        return result;
-    }
-}
-
-function computeFinalPattern(pattern, context) {
-    function replaceEscapedPattern(match) {
-        const name = match.slice(1, match.length - 1); //Performatically extract name from escaped string
-        let pattern = context.namedPatterns.get(name);
-        if (pattern === undefined)
-            throw new IndexOutOfRangeException(`No declared named pattern matches name "${name}".`);
+        pattern = pattern.replace(/\${2}/g, "$");
         return pattern;
     }
 
-    if (context === null)
-        return pattern;
+    class RegExpX extends RegExp {
+        constructor(pattern, flags = "", context = null) {
+            if (context !== null && !(context instanceof RegExpXContext))
+                throw new ArgumentTypeException("context", Type.of(context), Type.get(RegExpXContext));
 
-    pattern = pattern.replace(/(?<!\$)\$[A-Za-z]\w*?;/g, replaceEscapedPattern);
+            const finalPattern = computeFinalPattern(pattern, context);
+            super(finalPattern, flags);
 
-    pattern = pattern.replace(/\${2}/g, "$");
-    return pattern;
-}
-
-export class RegExpX extends RegExp {
-    constructor(pattern, flags = "", context = null) {
-        if (context !== null && !(context instanceof RegExpXContext))
-            throw new ArgumentTypeException("context", Type.of(context), Type.get(RegExpXContext));
-
-        const finalPattern = computeFinalPattern(pattern, context);
-        super(finalPattern, flags);
-
-        this.context = context;
+            this.context = context;
+        }
     }
-}
+    context.export({ RegExpX });
+});
