@@ -18,6 +18,9 @@ export class Identifier {
     }
 
     static parse(value) {
+        if (typeof value != "string")
+            throw `Invalid value for argument "value".`;
+
         return new Identifier(...value.split(NAMESPACE_SEPARATOR));
     }
 
@@ -41,7 +44,7 @@ export class Identifier {
         if (!(value instanceof Identifier))
             throw `Invalid value for argument "value".`;
 
-        return new Identifier([...this.items, ...value.items]);
+        return new Identifier(...this.items, ...value.items);
     }
 }
 
@@ -60,7 +63,7 @@ class Export {
         if (this.isOrphan)
             return this.identifier;
 
-        return this.parentModule.namespace.combine(this.identifier);
+        return this.parentModule.fullNamespace.combine(this.identifier);
     }
 
     get isOrphan() {
@@ -112,8 +115,11 @@ class ImportResolver extends AsynchronousResolver {
     }
 
     static rejectAll(error) {
-        for (let resolver of this.pending)
+        for (let resolver of this.pending) {
+            if (resolver.status !== ImportResolver.STATUS_PENDING)
+                continue;
             resolver.reject(error);
+        }
 
         this.clearResolved();
     }
@@ -139,38 +145,38 @@ class ImportResolver extends AsynchronousResolver {
         if (this.isOrphan)
             return this.identifier;
 
-        return this.parentModule.namespace.combine(this.identifier);
+        return this.parentModule.fullNamespace.combine(this.identifier);
     }
 }
 
 class ModuleContext {
-    constructor(module) {
-        this.module = module;
+    constructor(target) {
+        this.target = target;
 
         return Object.freeze(this);
     }
 
     export(map) {
         function exportMember(identifier, value) {
-            const _export = new Export(identifier, value, this.module);
-            this.module.exports.push(_export);
+            const _export = new Export(identifier, value, this.target);
+            this.target.exports.push(_export);
 
             ImportResolver.resolveAll();
         }
 
         for (let key in map)
-            exportMember.call(this, new Identifier(key), map[key]);
+            exportMember.call(this, Identifier.parse(key), map[key]);
     }
 
-    async exportModule(namespace, initializer) {
-        let module = new Module(namespace, initializer, this.module);
-        this.module.subModules.push(module);
+    async module(namespace, initializer) {
+        let target = new Module(namespace, initializer, this.target);
+        this.target.subModules.push(target);
 
-        await module.initialize();
+        await target.initialize();
     }
 
     async import(identifier) {
-        const importResolver = new ImportResolver(identifier, this.module);
+        const importResolver = new ImportResolver(identifier, this.target);
 
         ImportResolver.resolveAll();
 
@@ -195,7 +201,7 @@ export class Module {
         if (!namespace)
             throw `Invalid value for argument "namespace".`;
 
-        this.namespace = new Identifier(namespace);
+        this.namespace = namespace;
         this.initializer = initializer;
         this.parentModule = parentModule;
 
@@ -216,14 +222,14 @@ export class Module {
         yield* this.exports;
 
         for (let subModule of this.subModules)
-            yield* subModule.exports;
+            yield* subModule.listExportsRecursive();
     }
 
     get fullNamespace() {
         if (this.isOrphan)
             return this.namespace;
 
-        return this.parentModule.namespace.combine(this.namespace);
+        return this.parentModule.fullNamespace.combine(this.namespace);
     }
 
     get isOrphan() {
@@ -235,35 +241,43 @@ export class Module {
 
 const rootModule = new Module(Identifier.empty, function () { });
 
+
+function unload_handler() {
+    window.removeEventListener("unload", unload_handler);
+
+    ImportResolver.rejectAll(null);
+}
+window.addEventListener("unload", unload_handler);
+
 /**Module Demonstration:
  * - Each module must be given its own namespace identifier. Keep in mind that module identifiers are RELATIVE.
  * - Sub-modules must be instantiated BEFORE any exports or imports, as well as any constant.
  * - Imports are solved asynchronously. Once the requested resource is exported, its import promise resolves. Please note that: if a resource is never
  * exported, its promise will never be resolved.
  *
- * import { Module } from "<relative path to Modules.js>";
+ *  import { Module } from "<relative path to Modules.js>";
  *
  *  Module.declare("Demo", async function (context) {
  *      context.module("SubModule1", async function (context) {
- *          Module.create("SubSubModule1", async function (context) {
+ *          context.module("SubSubModule1", async function (context) {
  *              const CONST_A = "Some constant value.";
  *              context.export({ CONST_A })
  *
  *              class ClassA {
  *              }
  *              context.export({ ClassA });
- *          }
- *      }
+ *          });
+ *      });
  *
  *      context.module("SubModule2", async function (context) {
  *
- *      }
+ *      });
  *
  *      context.module("SubModule3", async function (context) {
  *
- *      }
+ *      });
  *
- *      class ClassB extends (await this.import("SubModule1::SubSubModule1::ClassA")) {
+ *      class ClassB extends (await context.import("SubModule1::SubSubModule1::ClassA")) {
  *      }
  *      context.export({ ClassB });
  *  });
