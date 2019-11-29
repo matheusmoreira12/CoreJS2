@@ -3,7 +3,7 @@ import { Module } from "./CoreBase/Modules.js";
 Module.declare("Core::Standard::Collections", function (context) {
 
     const { Enumeration } = context.importFrom();
-    const { ArgumentOutOfRangeException, KeyNotFoundException } = await context.importFrom("Exceptions");
+    const { ArgumentOutOfRangeException, KeyNotFoundException } = context.importFrom("Exceptions");
     const { FrameworkEvent } = context.importFrom("Events");
 
     /**
