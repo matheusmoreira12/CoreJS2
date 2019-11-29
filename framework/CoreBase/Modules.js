@@ -63,9 +63,7 @@ class Export {
         this.parentModule = parentModule;
     }
 
-    get fullIdentifier() {
-        return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier);
-    }
+    get fullIdentifier() { return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier); }
 
     get isOrphan() {
         return this.parentModule === null;
@@ -134,17 +132,15 @@ class ImportResolver extends AsynchronousResolver {
         return this.parentModule === null;
     }
 
-    get fullIdentifier() {
-        return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier);
-    }
+    get fullIdentifier() { return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier); }
 }
 
-class ImportAsContext {
+class ImportFromContext {
     constructor(namespace, moduleContext) {
-        const proxy = new Proxy({}, { get: this.get });
+        const proxy = new Proxy({}, { get: this.get.bind(this) });
 
         this.proxy = proxy;
-        this.namespace = namespace;
+        this.namespace = Identifier.get(namespace);
         this.moduleContext = moduleContext;
 
         return proxy;
@@ -192,8 +188,10 @@ class ModuleContext {
         return await importResolver.resolved;
     }
 
-    async importAs(namespace) {
-        return new ImportAsContext(namespace, this);
+    importFrom(namespace = null) {
+        namespace = namespace || this.targetModule.namespace;
+
+        return new ImportFromContext(namespace, this);
     }
 }
 
@@ -238,9 +236,7 @@ export class Module {
             yield* subModule.listExportsRecursive();
     }
 
-    get fullNamespace() {
-        this.isOrphan ? this.namespace : this.parentModule.fullNamespace.combine(this.namespace);
-    }
+    get fullNamespace() { return this.isOrphan ? this.namespace : this.parentModule.fullNamespace.combine(this.namespace); }
 
     get isOrphan() {
         return this.parentModule === null;
