@@ -1,5 +1,4 @@
 import { AsynchronousResolver } from "./Resolvers.js";
-import { ArrayUtils } from "./ArrayUtils.js";
 
 const NAMESPACE_SEPARATOR = "::";
 
@@ -48,28 +47,6 @@ export class Identifier {
         return new Identifier(...this.items, ...value.items);
     }
 
-    getCommon(value) {
-        const items = ArrayUtils.compareSelect(this.items, value.items, (a, b, { quit }) => {
-            if (a === b)
-                return a;
-            else
-                quit();
-        });
-
-        return new Identifier(...items);
-    }
-
-    getExclusion(value) {
-
-    }
-
-    popNamespace() {
-        let items = this.items;
-        items.splice(items.length - 2, 1);
-
-        return new Identifier(items);
-    }
-
     get isEmpty() {
         return this.items.length === 0;
     }
@@ -110,21 +87,27 @@ class ImportResolver extends AsynchronousResolver {
         }
     }
 
-    static resolve(_export, value) {
-        for (let resolver of this.pending) {
-            const commonIdentifier = resolver.parentModule.fullNamespace.getCommon(_export.parentModule.fullNamespace),
-                finalIdentifier = commonIdentifier.combine(_export.identifier);
-            if (finalIdentifier.equals(resolver.fullIdentifier))
-                resolver.resolve(value);
-        }
+    static resolve(resolver) {
+        const allExports = rootModule.listExportsRecursive();
 
-        this.clearResolved();
+        let module = resolver.parentModule;
+        while (module != null) {
+            const finaldentifier = module.fullNamespace.combine(resolver.identifier);
+
+            for (let _export of allExports) {
+                if (finaldentifier.equals(_export.fullIdentifier))
+                    resolver.resolve(_export.value);
+            }
+
+            module = module.parentModule;
+        }
     }
 
     static resolveAll() {
-        const allExports = rootModule.listExportsRecursive();
-        for (let _export of allExports)
-            this.resolve(_export, _export.value);
+        for (let resolver of this.pending)
+            this.resolve(resolver);
+
+        this.clearResolved();
     }
 
     static rejectAll(error) {
