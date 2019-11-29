@@ -135,28 +135,6 @@ class ImportResolver extends AsynchronousResolver {
     get fullIdentifier() { return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier); }
 }
 
-class ImportFromContext {
-    constructor(namespace, moduleContext) {
-        const proxy = new Proxy({}, { get: this.get.bind(this) });
-
-        this.proxy = proxy;
-        this.namespace = Identifier.get(namespace);
-        this.moduleContext = moduleContext;
-
-        return proxy;
-    }
-
-    get(_target, prop) {
-        return this.import(prop);
-    }
-
-    async import(name) {
-        const identifier = Identifier.parse(name),
-            fullIdentifier = this.namespace.combine(identifier);
-        return await this.moduleContext.import(fullIdentifier);
-    }
-}
-
 class ModuleContext {
     constructor(targetModule) {
         this.targetModule = targetModule;
@@ -188,10 +166,15 @@ class ModuleContext {
         return await importResolver.resolved;
     }
 
-    importFrom(namespace = null) {
-        namespace = namespace || this.targetModule.namespace;
+    async importFrom(namespace = "", ...identifiers) {
+        namespace = Identifier.get(namespace);
 
-        return new ImportFromContext(namespace, this);
+        let map = {};
+        for (let identifier of identifiers) {
+            const key = identifier.toString();
+            map[key] = await this.import(identifier);
+        }
+        return map;
     }
 }
 
