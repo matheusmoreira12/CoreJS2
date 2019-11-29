@@ -64,10 +64,7 @@ class Export {
     }
 
     get fullIdentifier() {
-        if (this.isOrphan)
-            return this.identifier;
-
-        return this.parentModule.fullNamespace.combine(this.identifier);
+        return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier);
     }
 
     get isOrphan() {
@@ -138,24 +135,43 @@ class ImportResolver extends AsynchronousResolver {
     }
 
     get fullIdentifier() {
-        if (this.isOrphan)
-            return this.identifier;
+        return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier);
+    }
+}
 
-        return this.parentModule.fullNamespace.combine(this.identifier);
+class ImportAsContext {
+    constructor(namespace, moduleContext) {
+        const proxy = new Proxy({}, { get: this.get });
+
+        this.proxy = proxy;
+        this.namespace = namespace;
+        this.moduleContext = moduleContext;
+
+        return proxy;
+    }
+
+    get(_target, prop) {
+        return this.import(prop);
+    }
+
+    async import(name) {
+        const identifier = Identifier.parse(name),
+            fullIdentifier = this.namespace.combine(identifier);
+        return await this.moduleContext.import(fullIdentifier);
     }
 }
 
 class ModuleContext {
-    constructor(target) {
-        this.target = target;
+    constructor(targetModule) {
+        this.targetModule = targetModule;
 
         return Object.freeze(this);
     }
 
     export(map) {
         function exportMember(identifier, value) {
-            const _export = new Export(identifier, value, this.target);
-            this.target.exports.push(_export);
+            const _export = new Export(identifier, value, this.targetModule);
+            this.targetModule.exports.push(_export);
 
             ImportResolver.resolveAll();
         }
@@ -165,18 +181,19 @@ class ModuleContext {
     }
 
     async module(namespace, initializer) {
-        let target = new Module(namespace, initializer, this.target);
-        this.target.subModules.push(target);
-
-        await target.initialize();
+        await Module.declare(namespace, initializer, this.targetModule);
     }
 
     async import(identifier) {
-        const importResolver = new ImportResolver(identifier, this.target);
+        const importResolver = new ImportResolver(identifier, this.targetModule);
 
         ImportResolver.resolveAll();
 
         return await importResolver.resolved;
+    }
+
+    async importAs(namespace) {
+        return new ImportAsContext(namespace, this);
     }
 }
 
@@ -185,9 +202,9 @@ export class Module {
     static get STATUS_INITIALIZING() { return 1; }
     static get STATUS_DONE() { return 2; }
 
-    static async declare(namespace, initializer) {
-        const module = new Module(namespace, initializer, rootModule);
-        rootModule.subModules.push(module);
+    static async declare(namespace, initializer, parentModule = rootModule) {
+        const module = new Module(namespace, initializer, parentModule);
+        parentModule.subModules.push(module);
 
         await module.initialize();
     }
@@ -222,10 +239,7 @@ export class Module {
     }
 
     get fullNamespace() {
-        if (this.isOrphan)
-            return this.namespace;
-
-        return this.parentModule.fullNamespace.combine(this.namespace);
+        this.isOrphan ? this.namespace : this.parentModule.fullNamespace.combine(this.namespace);
     }
 
     get isOrphan() {
