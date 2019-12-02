@@ -1,31 +1,41 @@
-const pendingModuleLoaders = [];
+const pendingLoaders = [];
+const resolvedLoaders = [];
 
 export const Loader = {
     async load(url) {
         let moduleLoader = new ModuleLoader(url);
-        await pendingModuleLoaders.push(moduleLoader);
+        pendingLoaders.push(moduleLoader);
+
+        await moduleLoader.load();
     }
 };
 
+function clearResolved() {
+    for (let i = pendingLoaders.length - 1; i > 0; i--) {
+        const loader = pendingLoaders[i];
+        if (loader.status === ModuleLoader.STATUS_PENDING ||
+            loader.status === ModuleLoader.STATUS_LOADING)
+            continue;
+        pendingLoaders.splice(i, 1);
+    }
+}
+
 const MODULE_EXTENSION = ".m.js";
-const TAG_ID_SEPARATOR = "_";
 
-function createModuleScriptTag(namespace) {
-    function namespaceToTagId() {
-        return namespace.items.join(TAG_ID_SEPARATOR);
-    }
+const moduleScriptIdCount = 0;
+function getNewModuleScriptId() {
+    return "module" + moduleScriptIdCount;
+    moduleScriptIdCount++;
+}
 
-    function namespaceToUrl() {
-        return namespace.ToString() + MODULE_EXTENSION;
-    }
-
+function loadModuleScript(url) {
     return new Promise((resolve, reject) => {
-        const url = namespaceToUrl();
         const id = namespaceToTagId();
 
         const script = document.createElement("script");
         script.id = id;
         script.type = module;
+        script.src = url;
 
         function load_handler() {
             resolve(script);
@@ -36,8 +46,6 @@ function createModuleScriptTag(namespace) {
             reject(`Error loading script "${url}".`);
         }
         script.onerror = error_handler;
-
-        script.src = url;
     });
 }
 
@@ -47,17 +55,18 @@ class ModuleLoader {
     get STATUS_LOADING() { return 1; }
     get STATUS_LOADED() { return 2; }
 
-    load(url) {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async load() {
         this.status = ModuleLoader.STATUS_LOADING;
 
-        if (!url.endsWith(".m.js"))
-            throw `Cannot load module. Module URL must have extension "*.m.js".`;
-
         try {
-            const blob = await loadResource(url);
-            const script = createModuleScriptTag(blob);
-            document.head.appendChild(script);
+            const scriptTag = await loadModuleScript(this.url);
+            document.head.appendChild(scriptTag);
 
+            this.scriptTag = script;
             this.status = ModuleLoader.STATUS_LOADED;
         }
         catch (e) {
@@ -68,4 +77,5 @@ class ModuleLoader {
     }
 
     status = ModuleLoader.STATUS_PENDING;
+    scriptTag = null;
 }
