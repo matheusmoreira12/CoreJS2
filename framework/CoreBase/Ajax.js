@@ -1,12 +1,14 @@
-export const READY_STATE = {
+import { ObjectUtils } from "./ObjectUtils";
+
+export const READY_STATE = ObjectUtils.deepFreeze({
     UNSENT: 0,
     OPENED: 1,
     HEADERS_RECEIVED: 2,
     LOADING: 3,
     DONE: 4
-};
+});
 
-export const STATUS = {
+export const STATUS = ObjectUtils.deepFreeze({
     INFORMATIONAL: {
         CONTINUE: 100,
         SWITCHING_PROTOCOL: 101,
@@ -79,26 +81,23 @@ export const STATUS = {
         LOOP_DETECTED: 508,
         NOT_EXTENDED: 510,
         NETWORK_AUTHENTICATION_REQUIRED: 511
-    }
-}
+    },
+});
 
-export class Ajax {
+export class Ajax extends XMLHttpRequest {
     static get READYSTATE_DONE() { return 4; }
 
-    async static get(url, options = {}) {
-        let ajax = new Ajax(url, options);
-        return ajax.done;
+    static get(url, options = {}) {
+        return new Promise((resolve, reject) => {
+            let ajax = new Ajax("GET", url, options);
+
+        })
     }
 
     constructor(method, url, { body = null, onabort = null, onerror = null, onload = null, onloadend = null, onloadstart = null,
         onprogress = null, onreadystatechange = null, ontimeout = null }) {
 
-        let xhr = new XMLHttpRequest();
-        this.xhr = request;
-        xhr.open(method, url);
-
         this.url = url;
-
         this.onabort = onabort;
         this.onerror = onerror;
         this.onload = onload;
@@ -108,28 +107,7 @@ export class Ajax {
         this.onreadystatechange = onreadystatechange;
         this.ontimeout = ontimeout;
 
-        xhr.addEventListener("readystatechange", this.readystatechange_handler.bind(this));
-        xhr.send(body);
+        this.open(method, url);
+        this.send(body);
     }
-
-    readystatechange_handler(event) {
-        switch (event.status) {
-
-        }
-    }
-
-    get response() { return this.xhr.response; }
-
-    get responseText() { return xhr.responseText; }
-
-    get responseType() { return xhr.responseType; }
-    set responseType(value) { xhr.responseType = value; }
-
-    get responseURL() { return xhr.responseURL; }
-
-    get responseXML() { return xhr.responseXML; }
-
-    get status() { return xhr.status; }
-
-    get readyState() { return xhr.readyState; }
 };
