@@ -248,32 +248,6 @@ class VisualStateManager {
 
 export const visualStateManager = new VisualStateManager();
 
-export class IdentifierGenerator {
-    constructor(prefix) {
-
-        this._usedNumbers = new Set();
-        this._prefix = prefix;
-    }
-
-    create() {
-        let number = 0;
-
-        while (this._usedNumbers.has(number)) number++;
-
-        this._usedNumbers.add(number);
-
-        return `${this._prefix}${number}`;
-    }
-
-    delete(id) {
-        if (!id.startsWith(this._prefix)) return;
-
-        let number = id.replace(this._prefix, "") * 1;
-
-        this._usedNumbers.delete(number);
-    }
-}
-
 /**
  * 
  */

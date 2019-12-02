@@ -49,3 +49,8 @@ import {
 } from "../CoreBase/Modules.js";
 
 window.Module = Module;
+
+import {
+    ScriptLoader
+} from "../CoreBase/ScriptLoader.js"
+window.ScriptLoader = ScriptLoader;

@@ -1,4 +1,4 @@
-import { ObjectUtils } from "./ObjectUtils";
+import { ObjectUtils } from "./ObjectUtils.js";
 
 export const READY_STATE = ObjectUtils.deepFreeze({
     UNSENT: 0,
@@ -137,8 +137,9 @@ export class Ajax extends XMLHttpRequest {
         return this.send("PATCH", url, options);
     }
 
-    constructor(method, url, { body = null, onabort = null, onerror = null, onload = null, onloadend = null, onloadstart = null,
-        onprogress = null, onreadystatechange = null, ontimeout = null }) {
+    constructor(method, url, { mimeType = null, responseType = null, body = null, onabort = null, onerror = null, onload = null,
+        onloadend = null, onloadstart = null, onprogress = null, onreadystatechange = null, ontimeout = null }) {
+        super();
 
         this.url = url;
         this.onabort = onabort;
@@ -151,6 +152,12 @@ export class Ajax extends XMLHttpRequest {
         this.ontimeout = ontimeout;
 
         this.open(method, url);
+
+        if (responseType !== null)
+            this.responseType = responseType;
+        if (mimeType !== null)
+            this.overrideMimeType(mimeType);
+
         this.send(body);
     }
 };

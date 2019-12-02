@@ -1,4 +1,5 @@
 import { AsynchronousResolver } from "./Resolvers.js";
+import { Immediate } from "./Immediate.js";
 
 const NAMESPACE_SEPARATOR = "::";
 
@@ -115,6 +116,12 @@ class ImportResolver extends AsynchronousResolver {
         this.clearResolved();
     }
 
+    static _resolveAllImmediate = new Immediate(this.resolveAll, this);
+
+    static safeResolveAll() {
+        this._resolveAllImmediate.start();
+    }
+
     constructor(identifier, parentModule = null) {
         identifier = Identifier.get(identifier);
         if (!identifier)
@@ -147,7 +154,7 @@ class ModuleContext {
             const _export = new Export(identifier, value, this.targetModule);
             this.targetModule.exports.push(_export);
 
-            ImportResolver.resolveAll();
+            ImportResolver.safeResolveAll();
         }
 
         for (let key in map)
@@ -161,18 +168,18 @@ class ModuleContext {
     async import(identifier) {
         const importResolver = new ImportResolver(identifier, this.targetModule);
 
-        ImportResolver.resolveAll();
+        ImportResolver.safeResolveAll();
 
         return await importResolver.resolved;
     }
 
-    async importFrom(namespace = "", ...identifiers) {
+    async importFrom(namespace = "", ...names) {
         namespace = Identifier.get(namespace);
 
         let map = {};
-        for (let identifier of identifiers) {
-            const key = identifier.toString();
-            map[key] = await this.import(identifier);
+        for (let name of names) {
+            const identifier = Identifier.get(name);
+            map[name] = await this.import(namespace.combine(identifier));
         }
         return map;
     }
