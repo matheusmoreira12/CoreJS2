@@ -6,7 +6,7 @@ export const ObjectUtils = {
 
             let readonlyObj = {};
             for (let key in obj)
-                readonlyObj = getFrozen(obj[key]);
+                readonlyObj[key] = getFrozen(obj[key]);
 
             return Object.freeze(readonlyObj);
         }

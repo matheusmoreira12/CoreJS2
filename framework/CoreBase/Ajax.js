@@ -87,11 +87,54 @@ export const STATUS = ObjectUtils.deepFreeze({
 export class Ajax extends XMLHttpRequest {
     static get READYSTATE_DONE() { return 4; }
 
-    static get(url, options = {}) {
+    static send(method, url, options = {}) {
         return new Promise((resolve, reject) => {
             let ajax = new Ajax("GET", url, options);
 
-        })
+            ajax.onload = function () {
+                resolve(ajax.response);
+            }
+
+            ajax.onerror = function () {
+                reject(`Server returned status ${this.status} (${this.statusText})`);
+            }
+        });
+    }
+
+    static get(url, options = {}) {
+        return this.send("GET", url, options);
+    }
+
+    static head(url, options = {}) {
+        return this.send("HEAD", url, options);
+    }
+
+    static post(url, options = {}) {
+        return this.send("POST", url, options);
+    }
+
+    static put(url, options = {}) {
+        return this.send("PUT", url, options);
+    }
+
+    static delete(url, options = {}) {
+        return this.send("DELETE", url, options);
+    }
+
+    static connect(url, options = {}) {
+        return this.send("CONNECT", url, options);
+    }
+
+    static options(url, options = {}) {
+        return this.send("OPTIONS", url, options);
+    }
+
+    static trace(url, options = {}) {
+        return this.send("TRACE", url, options);
+    }
+
+    static patch(url, options = {}) {
+        return this.send("PATCH", url, options);
     }
 
     constructor(method, url, { body = null, onabort = null, onerror = null, onload = null, onloadend = null, onloadstart = null,
