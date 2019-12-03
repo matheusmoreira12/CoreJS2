@@ -1,5 +1,5 @@
 const URL_SCHEME_PATTERN = `(?<scheme>[a-z]+):\\/\\/`;
-const URL_HOSTNAME_PATTERN = `(?<hostkey>[a-zA-Z0-9.]+)`; //The pattern for the whole domain
+const URL_HOSTNAME_PATTERN = `(?<domain>[a-zA-Z0-9.]+)`; //The pattern for the whole domain
 const URL_PORT_PATTERN = ":(?<port>[0-9]+)";
 const URL_ALLOWED_CHARS = "a-zA-Z0-9$\\-_.+!*'(),";
 const URL_PATH_PATTERN = `(?<path>[${URL_ALLOWED_CHARS}\\/]+)`; //The pattern for the whole path
@@ -15,19 +15,35 @@ const DEFAULT_PORT_HTTPS = 443;
 const DEFAULT_PROTOCOL = "http";
 
 class URLPath {
+    static parse(value) {
+        if (typeof value !== "string")
+            throw `Invalid value for parameter "value". A value of type String was expected.`;
+        const segments = value.split("/");
+        return new URLPath(segments);
+    }
+
     constructor(segments) {
+        if (segments === null)
+            segments = [];
         if (!(segments instanceof Array))
             throw `Invalid value for parameter "segments". A value of type Array was expected.`;
+
         this.segments = segments;
+    }
+
+    toString() {
+        return this.segments.join("/");
     }
 }
 
 class URLQueryParameter {
     static parse(value) {
-        const members = value.split("=");
-        if (members != 2)
+        if (typeof value !== "string")
+            throw `Invalid value for parameter "value". A value of type String was expected.`;
+        const memberStrs = value.split("=");
+        if (memberStrs != 2)
             return null;
-        return new URLQueryParameter(members[0], members[1]);
+        return new URLQueryParameter(memberStrs[0], memberStrs[1]);
     }
 
     constructor(key, value) {
@@ -46,13 +62,19 @@ class URLQueryParameter {
 
 class URLQuery {
     static parse(value) {
-        const members = value.split("&");
-        return members.map(m => URLQueryParameter.parse(m));
+        if (typeof value !== "string")
+            throw `Invalid value for parameter "value". A value of type String was expected.`;
+        const memberStrs = value.split("&"),
+            parameters = memberStrs.map(s => URLQueryParameter.parse(s));
+        return new URLQuery(parameters);
     }
 
-    constructor(parameters) {
+    constructor(parameters = null) {
+        if (parameters === null)
+            parameters = [];
         if (!(parameters instanceof Array))
             throw `Invalid value for parameter "parameters". A value of type Array was expected.`;
+
         this.parameters = parameters;
     }
 
@@ -63,6 +85,8 @@ class URLQuery {
 
 export class URLDomain {
     static parse(value) {
+        if (typeof value !== "string")
+            throw `Invalid value for parameter "value". A value of type String was expected.`;
         const labels = value.split(".");
         return new URLDomain(labels);
     }
@@ -90,14 +114,16 @@ function getDefaultPort(protocol) {
 
 export class URLData {
     static parse(value) {
+        if (typeof value !== "string")
+            throw `Invalid value for parameter "value". A value of type String was expected.`;
         const urlRegex = new RegExp(URL_PATTERN);
-        const { protocol, domnain: domainStr, port: portStr, path: pathStr, query: queryStr, hash }
-            = urlRegex.exec(value);
+        const { protocol, domain: domainStr, port: portStr, path: pathStr, query: queryStr, hash }
+            = urlRegex.exec(value).groups;
         const domain = URLDomain.parse(domainStr),
-            port = Number(portStr),
-            path = URLPath.parse(pathStr),
-            query = URLQuery.parse(queryStr);
-        return new URLData(protocol, domain, port, path, query);
+            port = (portStr === undefined ? null : Number(portStr)),
+            path = (pathStr === undefined ? null : URLPath.parse(pathStr)),
+            query = (queryStr === undefined ? null : URLQuery.parse(queryStr));
+        return new URLData(domain, path, protocol, port, query, hash);
     }
 
     constructor(domain, path, protocol = null, port = null, query = null, hash = null) {
@@ -106,8 +132,8 @@ export class URLData {
         if (typeof protocol !== "string")
             throw `Invalid value for parameter "key". A value of type String was expected.`;
 
-        if (typeof domain !== "string")
-            throw `Invalid value for parameter "domain". A value of type String was expected.`;
+        if (!(domain instanceof URLDomain))
+            throw `Invalid value for parameter "domain". A value of type URLDomain was expected.`;
 
         if (!(path instanceof URLPath))
             throw `Invalid value for parameter "path". A value of type URLPath was expected.`;
@@ -126,6 +152,13 @@ export class URLData {
             hash = "";
         if (typeof hash !== "string")
             throw `Invalid value for parameter "hash". A value of type String was expected.`;
+
+        this.protocol = protocol;
+        this.domain = domain;
+        this.path = path;
+        this.port = port;
+        this.query = query;
+        this.hash = hash;
     }
 
     toString() {
@@ -139,7 +172,7 @@ export class URLData {
 
 export const URLUtils = {
     levelUp(url) {
-        let members = url.split("/");
-        return members.slice(0, members.length - 2).join("/");
+        let memberStrs = url.split("/");
+        return memberStrs.slice(0, memberStrs.length - 2).join("/");
     }
 };
