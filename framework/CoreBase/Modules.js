@@ -64,7 +64,9 @@ class Export {
         this.parentModule = parentModule;
     }
 
-    get fullIdentifier() { return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier); }
+    get fullIdentifier() {
+        return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier);
+    }
 
     get isOrphan() {
         return this.parentModule === null;
@@ -116,12 +118,6 @@ class ImportResolver extends AsynchronousResolver {
         this.clearResolved();
     }
 
-    static _resolveAllImmediate = new Immediate(this.resolveAll, this);
-
-    static safeResolveAll() {
-        this._resolveAllImmediate.start();
-    }
-
     constructor(identifier, parentModule = null) {
         identifier = Identifier.get(identifier);
         if (!identifier)
@@ -139,7 +135,9 @@ class ImportResolver extends AsynchronousResolver {
         return this.parentModule === null;
     }
 
-    get fullIdentifier() { return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier); }
+    get fullIdentifier() {
+        return this.isOrphan ? this.identifier : this.parentModule.fullNamespace.combine(this.identifier);
+    }
 }
 
 class ModuleContext {
@@ -154,7 +152,7 @@ class ModuleContext {
             const _export = new Export(identifier, value, this.targetModule);
             this.targetModule.exports.push(_export);
 
-            ImportResolver.safeResolveAll();
+            ImportResolver.resolveAll();
         }
 
         for (let key in map)
@@ -168,7 +166,7 @@ class ModuleContext {
     async import(identifier) {
         const importResolver = new ImportResolver(identifier, this.targetModule);
 
-        ImportResolver.safeResolveAll();
+        ImportResolver.resolveAll();
 
         return await importResolver.resolved;
     }
@@ -226,7 +224,9 @@ export class Module {
             yield* subModule.listExportsRecursive();
     }
 
-    get fullNamespace() { return this.isOrphan ? this.namespace : this.parentModule.fullNamespace.combine(this.namespace); }
+    get fullNamespace() {
+        return this.isOrphan ? this.namespace : this.parentModule.fullNamespace.combine(this.namespace);
+    }
 
     get isOrphan() {
         return this.parentModule === null;
