@@ -46,14 +46,10 @@ function read(str) {
             }
 
             function readDot() {
-                const j = i;
                 if (str[i] === ".") {
                     i++;
-                    return {
-                        type: "dot"
-                    };
+                    return { type: "dot" };
                 }
-                i = j;
                 return null;
             }
 
@@ -108,18 +104,14 @@ function read(str) {
                 }
 
                 function readSlash() {
-                    const j = i;
                     if (str[i] === "/") {
                         i++;
-                        return {
-                            type: "slash"
-                        };
+                        return { type: "slash" };
                     }
-                    i = j;
                     return null;
                 }
 
-                return readPathSegment() || readSlash();
+                return readSlash() || readPathSegment();
             }
 
             let item;
@@ -137,7 +129,40 @@ function read(str) {
     }
 
     function readQuery() {
+        function* readQueryItems() {
+            function readAmp() {
+                if (str[i] === "&") {
+                    i++;
+                    return { type: "amp" };
+                }
+                return null;
+            }
+
+            function readParameter() {
+
+            }
+
+            function readQueryItem() {
+                return readAmp() || readParameter();
+            }
+
+            let item;
+            while ((item = readQueryItem()) !== null)
+                yield item;
+        }
+
         const j = i;
+        if (str[i] === "?") {
+            i++;
+            const items = [...readQueryItems()];
+            if (items.length > 0)
+                return {
+                    type: "query",
+                    items
+                };
+        }
+        i = j;
+        return null;
     }
 
     function readFragment() {
