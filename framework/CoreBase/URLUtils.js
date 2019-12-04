@@ -12,7 +12,7 @@ function read(str) {
 
     function readScheme() {
         const j = i;
-        while (isLowerCaseLetter(str[k]))
+        while (/[a-z]/.exec(str[k]))
             i++;
         if (str[i] === ":") {
             i++;
@@ -31,42 +31,41 @@ function read(str) {
         return null;
     }
 
-    function readHostnameLabel() {
-        const j = i;
-        while (isLetter(str[i]) || isNumber(str[i]))
-            i++;
-        if (i > j)
-            return {
-                type: "label",
-                value: str.slice(j, i)
-            }
-        i = j;
-        return null;
-    }
-
-    function readDot() {
-        const j = i;
-        if (str[i] === ".") {
-            i++;
-            return {
-                type: "dot"
-            };
-        }
-        i = j;
-        return null;
-    }
-
-    function readHostnameItem() {
-        return readHostnameLabel() || readDot();
-    }
-
-    function* readHostnameItems() {
-        let item;
-        while ((item = readHostnameItem()) !== null)
-            yield item;
-    }
-
     function readHostname() {
+        function* readHostnameItems() {
+            function readHostnameLabel() {
+                const j = i;
+                while (/\w/.exec(str[i]))
+                    i++;
+                if (i > j)
+                    return {
+                        type: "label",
+                        value: str.slice(j, i)
+                    }
+                return null;
+            }
+
+            function readDot() {
+                const j = i;
+                if (str[i] === ".") {
+                    i++;
+                    return {
+                        type: "dot"
+                    };
+                }
+                i = j;
+                return null;
+            }
+
+            function readHostnameItem() {
+                return readHostnameLabel() || readDot();
+            }
+
+            let item;
+            while ((item = readHostnameItem()) !== null)
+                yield item;
+        }
+
         const items = [...readHostnameItems()];
         if (items.length > 0)
             return {
@@ -80,7 +79,7 @@ function read(str) {
         const j = i;
         if (str[i] === ":") {
             const k = i;
-            while (isNumber(str[i]))
+            while (/[0-9]/.exec(str[i]))
                 i++;
             if (i > k)
                 return {
@@ -92,42 +91,42 @@ function read(str) {
         return null;
     }
 
-    function readPathSegment() {
-        const j = i;
-        while (isValidChar(str[i]))
-            i++;
-        if (i > j) {
-            return {
-                type: "segment",
-                value: str.slice(j, i)
-            }
-        }
-        return null;
-    }
-
-    function readSlash() {
-        const j = i;
-        if (str[i] === "/") {
-            i++;
-            return {
-                type: "slash"
-            };
-        }
-        i = j;
-        return null;
-    }
-
-    function readPathItem() {
-        return readPathSegment() || readSlash();
-    }
-
-    function readPathItems() {
-        let item;
-        while ((item = readPathItem()) !== null)
-            yield item;
-    }
-
     function readPath() {
+        function readPathItems() {
+            function readPathItem() {
+                function readPathSegment() {
+                    const j = i;
+                    while (!/[!*'();:@&=+$,/?#\[\]]/.exec(str[i]))
+                        i++;
+                    if (i > j) {
+                        return {
+                            type: "segment",
+                            value: str.slice(j, i)
+                        }
+                    }
+                    return null;
+                }
+
+                function readSlash() {
+                    const j = i;
+                    if (str[i] === "/") {
+                        i++;
+                        return {
+                            type: "slash"
+                        };
+                    }
+                    i = j;
+                    return null;
+                }
+
+                return readPathSegment() || readSlash();
+            }
+
+            let item;
+            while ((item = readPathItem()) !== null)
+                yield item;
+        }
+
         const items = [...readPathItems];
         if (items.length > 0)
             return {
@@ -143,6 +142,19 @@ function read(str) {
 
     function readFragment() {
         const j = i;
+        if (str[i] === "#") {
+            i++;
+            const k = i;
+            while (!/[!*'();:@&=+$,/?#\[\]]/.exec(str[i]))
+                i++;
+            if (i > k)
+                return {
+                    type: "fragment",
+                    value: str.slice(k, i)
+                };
+        }
+        i = j;
+        return null;
     }
 
     function* readAll() {
@@ -152,6 +164,7 @@ function read(str) {
     }
 
     let i = 0;
+    return [...readAll()];
 }
 
 class URLPath {
