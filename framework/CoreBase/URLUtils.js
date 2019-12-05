@@ -326,7 +326,7 @@ class URLQuery {
     }
 
     toToken() {
-        function* getTokens() {
+        function* getItems() {
             for (let i = 0; i < this.parameters.length; i++) {
                 if (i > 0)
                     yield {
@@ -337,9 +337,10 @@ class URLQuery {
             }
         }
 
+        const items = [...getItems()];
         return {
             type: "query",
-            items: this.parameters.map(p => p.toToken())
+            items
         }
     }
 }
