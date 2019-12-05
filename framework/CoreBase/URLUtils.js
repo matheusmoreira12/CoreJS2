@@ -73,8 +73,6 @@ export class URLTokenifier {
         }
 
         function readPort() {
-            console.log(str[i]);
-
             const j = i;
             if (str[i] === ":") {
                 i++;
@@ -303,29 +301,30 @@ export class URLTokenifier {
         if (!token || token.type !== "url")
             return null;
 
-        let str = 0;
+        let str = "";
         for (let item of token.items) {
             switch (item.type) {
                 case "protocol":
-                    writeProtocol(token);
+                    writeProtocol(item);
                     break;
                 case "hostname":
-                    writeHostname(token);
+                    writeHostname(item);
                     break;
                 case "port":
-                    writePort(token)
+                    writePort(item)
                     break;
                 case "path":
-                    writePath(token)
+                    writePath(item)
                     break;
                 case "query":
-                    writeQuery(token)
+                    writeQuery(item)
                     break;
                 case "fragment":
-                    writeFragment(token)
+                    writeFragment(item)
                     break;
             }
         }
+        return str;
     }
 }
 
@@ -575,13 +574,13 @@ export class URLData {
 
             yield this.hostname.toToken();
 
-            yield this.path.toToken();
-
             if (this.port)
                 yield {
                     type: "port",
                     value: this.port
                 };
+
+            yield this.path.toToken();
 
             if (this.query)
                 yield this.query.toToken();
@@ -598,6 +597,12 @@ export class URLData {
             type: "url",
             items
         }
+    }
+
+    toString() {
+        const token = this.toToken(),
+            tokenifier = new URLTokenifier();
+        return tokenifier.detokenify(token);
     }
 }
 
