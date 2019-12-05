@@ -239,8 +239,87 @@ export class URLTokenifier {
         };
     }
 
-    detokenify() {
+    detokenify(token) {
+        function writeProtocol(token) {
+            str += `${token.value}://`;
+        }
 
+        function writeHostname(token) {
+            function writeLabel(token) {
+                str += token.value;
+            }
+
+            function writeDot() {
+                str += ".";
+            }
+
+            switch (token.type) {
+                case ("label"):
+                    writeLabel(token);
+                    break;
+                case ("dot"):
+                    writeDot();
+                    break;
+            }
+        }
+
+        function writePort(token) {
+            str += token.value;
+        }
+
+        function writePath(token) {
+            function writeSegment(token) {
+                str += token.value;
+            }
+
+            function writeSlash() {
+                str += "/";
+            }
+
+            for (let item of token.items)
+                switch (item.type) {
+                    case "segment":
+                        writeSegment(token);
+                        break;
+                    case "slash":
+                        writeSlash();
+                }
+        }
+
+        function writeQuery(token) {
+
+        }
+
+        function writeFragment(token) {
+
+        }
+
+        if (!token || token.type !== "url")
+            return null;
+
+        let str = 0;
+        for (let item of token.items) {
+            switch (item.type) {
+                case "protocol":
+                    writeProtocol(token);
+                    break;
+                case "hostname":
+                    writeHostname(token);
+                    break;
+                case "port":
+                    writePort(token)
+                    break;
+                case "path":
+                    writePath(token)
+                    break;
+                case "query":
+                    writeQuery(token)
+                    break;
+                case "fragment":
+                    writeFragment(token)
+                    break;
+            }
+        }
     }
 }
 
