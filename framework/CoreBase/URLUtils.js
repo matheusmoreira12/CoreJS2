@@ -249,22 +249,19 @@ export class URLTokenifier {
                 str += token.value;
             }
 
-            function writeDot() {
-                str += ".";
-            }
-
-            switch (token.type) {
-                case ("label"):
-                    writeLabel(token);
-                    break;
-                case ("dot"):
-                    writeDot();
-                    break;
-            }
+            for (let item of token.items)
+                switch (item.type) {
+                    case "label":
+                        writeLabel(item);
+                        break;
+                    case "dot":
+                        str += ".";
+                        break;
+                }
         }
 
         function writePort(token) {
-            str += token.value;
+            str += `:${token.value}`;
         }
 
         function writePath(token) {
@@ -272,26 +269,35 @@ export class URLTokenifier {
                 str += token.value;
             }
 
-            function writeSlash() {
-                str += "/";
-            }
-
             for (let item of token.items)
                 switch (item.type) {
                     case "segment":
-                        writeSegment(token);
+                        writeSegment(item);
                         break;
                     case "slash":
-                        writeSlash();
+                        str += "/";
+                        break;
                 }
         }
 
         function writeQuery(token) {
+            function writeParameter(token) {
+                str += `${token.key}=${token.value}`;
+            }
 
+            for (let item of token.items)
+                switch (item.type) {
+                    case "parameter":
+                        writeParameter(item);
+                        break;
+                    case "amp":
+                        str += "&";
+                        break;
+                }
         }
 
         function writeFragment(token) {
-
+            str += `#${token.value}`;
         }
 
         if (!token || token.type !== "url")
