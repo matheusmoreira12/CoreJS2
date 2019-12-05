@@ -1,4 +1,4 @@
-const RESERVED_CHARS = [..."!*'();:@&=+$,/?#[]"];
+const RESERVED_CHARS = [..."!*'();:@&=$,/?#[]"];
 
 const DEFAULT_PORT_HTTP = 80;
 const DEFAULT_PORT_HTTPS = 443;
@@ -10,7 +10,7 @@ function isAllowedCharacter(char) {
 
 export class URLTokenifier {
     tokenify(str) {
-        function readScheme() {
+        function readProtocol() {
             const j = i;
             while (/[a-z]/.exec(str[i]))
                 i++;
@@ -21,7 +21,7 @@ export class URLTokenifier {
                     if (str[i] === "/") {
                         i++;
                         return {
-                            type: "scheme",
+                            type: "protocol",
                             value: str.slice(j, i - 3)
                         };
                     }
@@ -199,12 +199,27 @@ export class URLTokenifier {
         }
 
         function* readItems() {
-            if ((yield readScheme()) !== null) {
-                if ((yield readHostname()) !== null) {
-                    readPort();
-                    if ((yield readPath()) !== null) {
-                        yield readQuery();
-                        yield readFragment();
+            const protocol = readProtocol();
+            if (protocol !== null) {
+                yield protocol;
+
+                const hostname = readHostname();
+                if (hostname !== null) {
+                    yield hostname;
+
+                    const port = readPort();
+                    if (port !== null)
+                        yield port;
+
+                    const path = readPath();
+                    if (path !== null) {
+                        yield path;
+
+                        const query = readQuery();
+                        yield query;
+
+                        const fragment = readFragment();
+                        yield fragment;
                     }
                 }
             }
@@ -212,16 +227,18 @@ export class URLTokenifier {
 
         let i = 0;
 
-        return [...readItems()];
+        const items = [...readItems()];
+        return {
+            type: "url",
+            items
+        };
     }
 }
 
 class URLPath {
-    static parse(value) {
-        if (typeof value !== "string")
-            throw `Invalid value for parameter "value". A value of type String was expected.`;
-        const segments = value.split("/");
-        return new URLPath(segments);
+    static fromToken(token) {
+        if (!token || token.type !== "url")
+            return null;
     }
 
     constructor(segments) {
@@ -239,13 +256,11 @@ class URLPath {
 }
 
 class URLQueryParameter {
-    static parse(value) {
-        if (typeof value !== "string")
-            throw `Invalid value for parameter "value". A value of type String was expected.`;
-        const memberStrs = value.split("=");
-        if (memberStrs != 2)
+    static fromToken(token) {
+        if (!token || token.type !== "parameter")
             return null;
-        return new URLQueryParameter(memberStrs[0], memberStrs[1]);
+
+        return new URLQueryParameter(item.key, item.value);
     }
 
     constructor(key, value) {
@@ -263,11 +278,18 @@ class URLQueryParameter {
 }
 
 class URLQuery {
-    static parse(value) {
-        if (typeof value !== "string")
-            throw `Invalid value for parameter "value". A value of type String was expected.`;
-        const memberStrs = value.split("&"),
-            parameters = memberStrs.map(s => URLQueryParameter.parse(s));
+    static fromToken(token) {
+        function* getParameters(tokens) {
+            for (let token of tokens) {
+                if (token.type === "parameter")
+                    yield URLQueryParameter.fromToken(token);
+            }
+        }
+
+        if (!token || token.type !== "query")
+            return null;
+
+        const parameters = [...getParameters(token.items)]
         return new URLQuery(parameters);
     }
 
@@ -285,12 +307,20 @@ class URLQuery {
     }
 }
 
-export class URLDomain {
-    static parse(value) {
-        if (typeof value !== "string")
-            throw `Invalid value for parameter "value". A value of type String was expected.`;
-        const labels = value.split(".");
-        return new URLDomain(labels);
+export class URLHostname {
+    static fromToken(token) {
+        function* getLabels(tokens) {
+            for (let token of tokens) {
+                if (token.type === "label")
+                    yield token.value;
+            }
+        }
+
+        if (!token || token.type !== "hostname")
+            return null;
+
+        const labels = [...getLabels(token.items)];
+        return new URLHostname(labels)
     }
 
     constructor(labels) {
@@ -315,17 +345,48 @@ function getDefaultPort(protocol) {
 }
 
 export class URLData {
+    static fromToken(token) {
+        if (!token || token.type !== "url")
+            return null;
+
+        let protocol = null,
+            hostname = null,
+            port = null,
+            path = null,
+            query = null,
+            fragment = null;
+
+        for (let item of token.items) {
+            switch (item.type) {
+                case "protocol":
+                    protocol = item.value;
+                    break;
+                case "hostname":
+                    hostname = URLHostname.fromToken(item);
+                    break;
+                case "port":
+                    port = Number(item.value);
+                    break;
+                case "path":
+                    path = URLPath.fromToken(item);
+                    break;
+                case "query":
+                    query = URLQuery.fromToken(item);
+                    break;
+                case "fragment":
+                    fragment = item.value;
+                    break;
+            }
+        }
+
+        return new URLData(hostname, path, protocol, port, query, fragment)
+    }
+
     static parse(value) {
         if (typeof value !== "string")
             throw `Invalid value for parameter "value". A value of type String was expected.`;
-        const urlRegex = new RegExp(URL_PATTERN);
-        const { protocol, hostname: hostnameStr, port: portStr, path: pathStr, query: queryStr, fragment }
-            = urlRegex.exec(value).groups;
-        const hostname = URLDomain.parse(hostnameStr),
-            port = (portStr === undefined ? null : Number(portStr)),
-            path = (pathStr === undefined ? null : URLPath.parse(pathStr)),
-            query = (queryStr === undefined ? null : URLQuery.parse(queryStr));
-        return new URLData(hostname, path, protocol, port, query, fragment);
+        const token = new URLTokenifier().tokenify(value);
+        return this.fromToken(token);
     }
 
     constructor(hostname, path, protocol = null, port = null, query = null, fragment = null) {
@@ -334,8 +395,8 @@ export class URLData {
         if (typeof protocol !== "string")
             throw `Invalid value for parameter "key". A value of type String was expected.`;
 
-        if (!(hostname instanceof URLDomain))
-            throw `Invalid value for parameter "hostname". A value of type URLDomain was expected.`;
+        if (!(hostname instanceof URLHostname))
+            throw `Invalid value for parameter "hostname". A value of type URLHostname was expected.`;
 
         if (!(path instanceof URLPath))
             throw `Invalid value for parameter "path". A value of type URLPath was expected.`;
