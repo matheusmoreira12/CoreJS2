@@ -1,11 +1,12 @@
-const RESERVED_CHARS = [..."!*'();:@&=$,/?#[]"];
-
-const DEFAULT_PORT_HTTP = 80;
-const DEFAULT_PORT_HTTPS = 443;
-const DEFAULT_PROTOCOL = "http";
+const RESERVED_CHARS = "!*'();:@&=$,/?#[]";
+const NUMERIC_CHARS = "0-9";
 
 function isAllowedCharacter(char) {
-    return char && !RESERVED_CHARS.includes(char);
+    return new RegExp(`[^${RESERVED_CHARS}]`).exec(char);
+}
+
+function isNumericCharacter(char) {
+    return new RegExp(`[${NUMERIC_CHARS}]`).exec(char);
 }
 
 export class URLTokenifier {
@@ -72,10 +73,13 @@ export class URLTokenifier {
         }
 
         function readPort() {
+            console.log(str[i]);
+
             const j = i;
             if (str[i] === ":") {
+                i++;
                 const k = i;
-                while (/[0-9]/.exec(str[i]))
+                while (isNumericCharacter(str[i]))
                     i++;
                 if (i > k)
                     return {
@@ -200,27 +204,28 @@ export class URLTokenifier {
 
         function* readItems() {
             const protocol = readProtocol();
-            if (protocol !== null) {
+            if (protocol !== null)
                 yield protocol;
 
-                const hostname = readHostname();
-                if (hostname !== null) {
-                    yield hostname;
+            const hostname = readHostname();
+            if (hostname !== null) {
+                yield hostname;
 
-                    const port = readPort();
-                    if (port !== null)
-                        yield port;
+                const port = readPort();
+                if (port !== null)
+                    yield port;
 
-                    const path = readPath();
-                    if (path !== null) {
-                        yield path;
+                const path = readPath();
+                if (path !== null) {
+                    yield path;
 
-                        const query = readQuery();
+                    const query = readQuery();
+                    if (query !== null)
                         yield query;
 
-                        const fragment = readFragment();
+                    const fragment = readFragment();
+                    if (fragment !== null)
                         yield fragment;
-                    }
                 }
             }
         }
@@ -237,8 +242,18 @@ export class URLTokenifier {
 
 class URLPath {
     static fromToken(token) {
-        if (!token || token.type !== "url")
+        function* getSegments(tokens) {
+            for (let token of tokens) {
+                if (token.type === "segment")
+                    yield token.value;
+            }
+        }
+
+        if (!token || token.type !== "path")
             return null;
+
+        const segments = [...getSegments(token.items)];
+        return new URLPath(segments);
     }
 
     constructor(segments) {
@@ -250,17 +265,21 @@ class URLPath {
         this.segments = segments;
     }
 
-    toString() {
-        return this.segments.join("/");
+    toToken() {
+        return {
+            type: "path",
+            items: this.segments
+        };
     }
 }
+
 
 class URLQueryParameter {
     static fromToken(token) {
         if (!token || token.type !== "parameter")
             return null;
 
-        return new URLQueryParameter(item.key, item.value);
+        return new URLQueryParameter(token.key, token.value);
     }
 
     constructor(key, value) {
@@ -272,8 +291,12 @@ class URLQueryParameter {
         this.value = value;
     }
 
-    toString() {
-        return `${this.key}=${this.value}`;
+    toToken() {
+        return {
+            type: "parameter",
+            key: this.key,
+            value: this.value
+        };
     }
 }
 
@@ -302,8 +325,22 @@ class URLQuery {
         this.parameters = parameters;
     }
 
-    toString() {
-        return this.parameters.map(p => p.toString()).join("&");
+    toToken() {
+        function* getTokens() {
+            for (let i = 0; i < this.parameters.length; i++) {
+                if (i > 0)
+                    yield {
+                        type: "amp"
+                    };
+
+                yield this.parameters[i].toToken();
+            }
+        }
+
+        return {
+            type: "query",
+            items: this.parameters.map(p => p.toToken())
+        }
     }
 }
 
@@ -329,19 +366,27 @@ export class URLHostname {
         this.labels = labels;
     }
 
-    toString() {
-        return this.labels.join(".");
-    }
-}
+    toToken() {
+        function* getItems() {
+            for (let i = 0; i < this.labels.length; i++) {
+                if (i > 0)
+                    yield {
+                        type: "dot"
+                    };
 
-function getDefaultPort(protocol) {
-    switch (protocol) {
-        case "http":
-            return DEFAULT_PORT_HTTP;
-        case "https":
-            return DEFAULT_PORT_HTTPS;
+                yield {
+                    type: "label",
+                    value: this.labels[i]
+                };
+            }
+        }
+
+        const items = [...getItems()];
+        return {
+            type: "hostname",
+            items
+        }
     }
-    throw `Invalid protocol "${protocol}".`;
 }
 
 export class URLData {
@@ -390,30 +435,17 @@ export class URLData {
     }
 
     constructor(hostname, path, protocol = null, port = null, query = null, fragment = null) {
-        if (protocol === null)
-            protocol = DEFAULT_PROTOCOL;
-        if (typeof protocol !== "string")
-            throw `Invalid value for parameter "key". A value of type String was expected.`;
-
         if (!(hostname instanceof URLHostname))
             throw `Invalid value for parameter "hostname". A value of type URLHostname was expected.`;
-
         if (!(path instanceof URLPath))
             throw `Invalid value for parameter "path". A value of type URLPath was expected.`;
-
-        if (port === null)
-            port = getDefaultPort(protocol);
-        if (typeof port !== "number")
+        if (protocol !== null && typeof protocol !== "string")
+            throw `Invalid value for parameter "protocol". A value of type String was expected.`;
+        if (port !== null && typeof port !== "number")
             throw `Invalid value for parameter "port". A value of type String was expected.`;
-
-        if (query === null)
-            query = new URLQuery();
-        if (!(query instanceof URLQuery))
+        if (query !== null && !(query instanceof URLQuery))
             throw `Invalid value for parameter "query". A value of type URLQuery was expected.`;
-
-        if (fragment === null)
-            fragment = "";
-        if (typeof fragment !== "string")
+        if (fragment !== null && typeof fragment !== "string")
             throw `Invalid value for parameter "fragment". A value of type String was expected.`;
 
         this.protocol = protocol;
@@ -424,12 +456,39 @@ export class URLData {
         this.fragment = fragment;
     }
 
-    toString() {
-        const hostnameStr = this.hostname.toString(),
-            portStr = this.port.toString(),
-            pathStr = this.path.toString(),
-            queryStr = this.query.toString();
-        return `${this.protocol}://${hostnameStr}:${portStr}${pathStr}?${queryStr}#${this.fragment}`;
+    toToken() {
+        function* getItems() {
+            if (this.protocol)
+                yield {
+                    type: "protocol",
+                    value: this.protocol
+                };
+
+            yield this.hostname.toToken();
+
+            yield this.path.toToken();
+
+            if (this.port)
+                yield {
+                    type: "port",
+                    value: this.port
+                };
+
+            if (this.query)
+                yield this.query.toToken();
+
+            if (this.fragment)
+                yield {
+                    type: "fragment",
+                    value: this.fragment
+                };
+        }
+
+        const items = [...getItems.call(this)];
+        return {
+            type: "url",
+            items
+        }
     }
 }
 
