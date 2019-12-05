@@ -1,5 +1,4 @@
 const RESERVED_CHARS = [..."!*'();:@&=+$,/?#[]"];
-const URL_PATTERN = `(?<scheme>[a-z]+):\\/\\/(?<hostname>[\\w.]+)(?<port>:[0-9]+)?(?<path>([^${RESERVED_CHARS}]|\\/)+)(?<query>\\?([^${RESERVED_CHARS}]|[&=])+)?(?<fragment>#([^${RESERVED_CHARS}])+)?`; //The pattern for the whole URL
 
 const DEFAULT_PORT_HTTP = 80;
 const DEFAULT_PORT_HTTPS = 443;
@@ -9,210 +8,212 @@ function isAllowedCharacter(char) {
     return char && !RESERVED_CHARS.includes(char);
 }
 
-function read(str) {
-    function readScheme() {
-        const j = i;
-        while (/[a-z]/.exec(str[i]))
-            i++;
-        if (str[i] === ":") {
-            i++;
-            if (str[i] === "/") {
+export class URLTokenifier {
+    tokenify(str) {
+        function readScheme() {
+            const j = i;
+            while (/[a-z]/.exec(str[i]))
+                i++;
+            if (str[i] === ":") {
                 i++;
                 if (str[i] === "/") {
                     i++;
-                    return {
-                        type: "scheme",
-                        value: str.slice(j, i - 3)
-                    };
-                }
-            }
-        }
-        i = j;
-        return null;
-    }
-
-    function readHostname() {
-        function* readHostnameItems() {
-            function readHostnameLabel() {
-                const j = i;
-                while (/\w/.exec(str[i]))
-                    i++;
-                if (i > j)
-                    return {
-                        type: "label",
-                        value: str.slice(j, i)
+                    if (str[i] === "/") {
+                        i++;
+                        return {
+                            type: "scheme",
+                            value: str.slice(j, i - 3)
+                        };
                     }
-                return null;
-            }
-
-            function readDot() {
-                if (str[i] === ".") {
-                    i++;
-                    return { type: "dot" };
                 }
-                return null;
             }
-
-            function readHostnameItem() {
-                return readHostnameLabel() || readDot();
-            }
-
-            let item;
-            while ((item = readHostnameItem()) !== null)
-                yield item;
+            i = j;
+            return null;
         }
 
-        const items = [...readHostnameItems()];
-        if (items.length > 0)
-            return {
-                type: "hostname",
-                items
-            };
-        return null;
-    }
+        function readHostname() {
+            function* readHostnameItems() {
+                function readHostnameLabel() {
+                    const j = i;
+                    while (/\w/.exec(str[i]))
+                        i++;
+                    if (i > j)
+                        return {
+                            type: "label",
+                            value: str.slice(j, i)
+                        }
+                    return null;
+                }
 
-    function readPort() {
-        const j = i;
-        if (str[i] === ":") {
-            const k = i;
-            while (/[0-9]/.exec(str[i]))
-                i++;
-            if (i > k)
+                function readDot() {
+                    if (str[i] === ".") {
+                        i++;
+                        return { type: "dot" };
+                    }
+                    return null;
+                }
+
+                function readHostnameItem() {
+                    return readHostnameLabel() || readDot();
+                }
+
+                let item;
+                while ((item = readHostnameItem()) !== null)
+                    yield item;
+            }
+
+            const items = [...readHostnameItems()];
+            if (items.length > 0)
                 return {
-                    type: "port",
-                    value: str.slice(k, i)
+                    type: "hostname",
+                    items
                 };
+            return null;
         }
-        i = j;
-        return null;
-    }
 
-    function readPath() {
-        function* readPathItems() {
-            function readPathItem() {
-                function readPathSegment() {
+        function readPort() {
+            const j = i;
+            if (str[i] === ":") {
+                const k = i;
+                while (/[0-9]/.exec(str[i]))
+                    i++;
+                if (i > k)
+                    return {
+                        type: "port",
+                        value: str.slice(k, i)
+                    };
+            }
+            i = j;
+            return null;
+        }
+
+        function readPath() {
+            function* readPathItems() {
+                function readPathItem() {
+                    function readPathSegment() {
+                        const j = i;
+                        while (isAllowedCharacter(str[i]))
+                            i++;
+                        if (i > j) {
+                            return {
+                                type: "segment",
+                                value: str.slice(j, i)
+                            }
+                        }
+                        return null;
+                    }
+
+                    function readSlash() {
+                        if (str[i] === "/") {
+                            i++;
+                            return { type: "slash" };
+                        }
+                        return null;
+                    }
+
+                    return readSlash() || readPathSegment();
+                }
+
+                let item;
+                while ((item = readPathItem()) !== null)
+                    yield item;
+            }
+
+            const items = [...readPathItems()];
+            if (items.length > 0)
+                return {
+                    type: "path",
+                    items
+                }
+            return null;
+        }
+
+        function readQuery() {
+            function* readQueryItems() {
+                function readAmp() {
+                    if (str[i] === "&") {
+                        i++;
+                        return { type: "amp" };
+                    }
+                    return null;
+                }
+
+                function readParameter() {
                     const j = i;
                     while (isAllowedCharacter(str[i]))
                         i++;
-                    if (i > j) {
+                    const key = str.slice(j, i);
+                    if (str[i] === "=") {
+                        i++
+                        const k = i;
+                        while (isAllowedCharacter(str[i]))
+                            i++;
+                        const value = str.slice(k, i);
                         return {
-                            type: "segment",
-                            value: str.slice(j, i)
-                        }
+                            type: "parameter",
+                            key,
+                            value
+                        };
                     }
                     return null;
                 }
 
-                function readSlash() {
-                    if (str[i] === "/") {
-                        i++;
-                        return { type: "slash" };
-                    }
-                    return null;
+                function readQueryItem() {
+                    return readAmp() || readParameter();
                 }
 
-                return readSlash() || readPathSegment();
+                let item;
+                while ((item = readQueryItem()) !== null)
+                    yield item;
             }
 
-            let item;
-            while ((item = readPathItem()) !== null)
-                yield item;
+            const j = i;
+            if (str[i] === "?") {
+                i++;
+                const items = [...readQueryItems()];
+                if (items.length > 0)
+                    return {
+                        type: "query",
+                        items
+                    };
+            }
+            i = j;
+            return null;
         }
 
-        const items = [...readPathItems()];
-        if (items.length > 0)
-            return {
-                type: "path",
-                items
-            }
-        return null;
-    }
-
-    function readQuery() {
-        function* readQueryItems() {
-            function readAmp() {
-                if (str[i] === "&") {
-                    i++;
-                    return { type: "amp" };
-                }
-                return null;
-            }
-
-            function readParameter() {
-                const j = i;
+        function readFragment() {
+            const j = i;
+            if (str[i] === "#") {
+                i++;
+                const k = i;
                 while (isAllowedCharacter(str[i]))
                     i++;
-                const key = str.slice(j, i);
-                if (str[i] === "=") {
-                    i++
-                    const k = i;
-                    while (isAllowedCharacter(str[i]))
-                        i++;
-                    const value = str.slice(k, i);
+                if (i > k)
                     return {
-                        type: "parameter",
-                        key,
-                        value
+                        type: "fragment",
+                        value: str.slice(k, i)
                     };
-                }
-                return null;
             }
-
-            function readQueryItem() {
-                return readAmp() || readParameter();
-            }
-
-            let item;
-            while ((item = readQueryItem()) !== null)
-                yield item;
+            i = j;
+            return null;
         }
 
-        const j = i;
-        if (str[i] === "?") {
-            i++;
-            const items = [...readQueryItems()];
-            if (items.length > 0)
-                return {
-                    type: "query",
-                    items
-                };
-        }
-        i = j;
-        return null;
-    }
-
-    function readFragment() {
-        const j = i;
-        if (str[i] === "#") {
-            i++;
-            const k = i;
-            while (isAllowedCharacter(str[i]))
-                i++;
-            if (i > k)
-                return {
-                    type: "fragment",
-                    value: str.slice(k, i)
-                };
-        }
-        i = j;
-        return null;
-    }
-
-    function* readItems() {
-        if ((yield readScheme()) !== null) {
-            if ((yield readHostname()) !== null) {
-                readPort();
-                if ((yield readPath()) !== null) {
-                    yield readQuery();
-                    yield readFragment();
+        function* readItems() {
+            if ((yield readScheme()) !== null) {
+                if ((yield readHostname()) !== null) {
+                    readPort();
+                    if ((yield readPath()) !== null) {
+                        yield readQuery();
+                        yield readFragment();
+                    }
                 }
             }
         }
+
+        let i = 0;
+
+        return [...readItems()];
     }
-
-    let i = 0;
-
-    return [...readItems()];
 }
 
 class URLPath {
