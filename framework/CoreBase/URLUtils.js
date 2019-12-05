@@ -1,18 +1,18 @@
-const RESERVED_CHARS = "!*'();:@&=+$,/?#[]";
+const RESERVED_CHARS = [..."!*'();:@&=+$,/?#[]"];
 const URL_PATTERN = `(?<scheme>[a-z]+):\\/\\/(?<hostname>[\\w.]+)(?<port>:[0-9]+)?(?<path>([^${RESERVED_CHARS}]|\\/)+)(?<query>\\?([^${RESERVED_CHARS}]|[&=])+)?(?<fragment>#([^${RESERVED_CHARS}])+)?`; //The pattern for the whole URL
 
 const DEFAULT_PORT_HTTP = 80;
 const DEFAULT_PORT_HTTPS = 443;
 const DEFAULT_PROTOCOL = "http";
 
-function read(str) {
-    function readItem() {
-        return readScheme() || readHostname() || readPort() || readPath() || readQuery() || readFragment();
-    }
+function isAllowedCharacter(char) {
+    return char && !RESERVED_CHARS.includes(char);
+}
 
+function read(str) {
     function readScheme() {
         const j = i;
-        while (/[a-z]/.exec(str[k]))
+        while (/[a-z]/.exec(str[i]))
             i++;
         if (str[i] === ":") {
             i++;
@@ -20,9 +20,9 @@ function read(str) {
                 i++;
                 if (str[i] === "/") {
                     i++;
-                    return result = {
+                    return {
                         type: "scheme",
-                        value: str.slice(j, i)
+                        value: str.slice(j, i - 3)
                     };
                 }
             }
@@ -88,11 +88,11 @@ function read(str) {
     }
 
     function readPath() {
-        function readPathItems() {
+        function* readPathItems() {
             function readPathItem() {
                 function readPathSegment() {
                     const j = i;
-                    while (!/[!*'();:@&=+$,/?#\[\]]/.exec(str[i]))
+                    while (isAllowedCharacter(str[i]))
                         i++;
                     if (i > j) {
                         return {
@@ -119,7 +119,7 @@ function read(str) {
                 yield item;
         }
 
-        const items = [...readPathItems];
+        const items = [...readPathItems()];
         if (items.length > 0)
             return {
                 type: "path",
@@ -139,7 +139,23 @@ function read(str) {
             }
 
             function readParameter() {
-
+                const j = i;
+                while (isAllowedCharacter(str[i]))
+                    i++;
+                const key = str.slice(j, i);
+                if (str[i] === "=") {
+                    i++
+                    const k = i;
+                    while (isAllowedCharacter(str[i]))
+                        i++;
+                    const value = str.slice(k, i);
+                    return {
+                        type: "parameter",
+                        key,
+                        value
+                    };
+                }
+                return null;
             }
 
             function readQueryItem() {
@@ -170,7 +186,7 @@ function read(str) {
         if (str[i] === "#") {
             i++;
             const k = i;
-            while (!/[!*'();:@&=+$,/?#\[\]]/.exec(str[i]))
+            while (isAllowedCharacter(str[i]))
                 i++;
             if (i > k)
                 return {
@@ -182,14 +198,21 @@ function read(str) {
         return null;
     }
 
-    function* readAll() {
-        let item;
-        while (i < str.length && (item = readItem()) !== null)
-            yield item;
+    function* readItems() {
+        if ((yield readScheme()) !== null) {
+            if ((yield readHostname()) !== null) {
+                readPort();
+                if ((yield readPath()) !== null) {
+                    yield readQuery();
+                    yield readFragment();
+                }
+            }
+        }
     }
 
     let i = 0;
-    return [...readAll()];
+
+    return [...readItems()];
 }
 
 class URLPath {
