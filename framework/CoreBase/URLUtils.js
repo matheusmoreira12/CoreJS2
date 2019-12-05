@@ -238,6 +238,10 @@ export class URLTokenifier {
             items
         };
     }
+
+    detokenify() {
+
+    }
 }
 
 class URLPath {
@@ -266,9 +270,28 @@ class URLPath {
     }
 
     toToken() {
+        function* getItems() {
+            yield {
+                type: "slash"
+            };
+
+            for (let i = 0; i < this.segments.length; i++) {
+                if (i > 0)
+                    yield {
+                        type: "slash"
+                    };
+
+                yield {
+                    type: "segment",
+                    value: this.segments[i].value
+                };
+            }
+        }
+
+        const items = [...getItems.call(this)];
         return {
             type: "path",
-            items: this.segments
+            items
         };
     }
 }
@@ -382,7 +405,7 @@ export class URLHostname {
             }
         }
 
-        const items = [...getItems()];
+        const items = [...getItems.call(this)];
         return {
             type: "hostname",
             items
