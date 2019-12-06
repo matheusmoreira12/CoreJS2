@@ -1,19 +1,41 @@
-const RESERVED_CHARS = "!*'();:@&=$,/?#[]";
-const NUMERIC_CHARS = "0-9";
+import { StringUtils } from "./StringUtils.js";
 
-function isAllowedCharacter(char) {
-    return new RegExp(`[^${RESERVED_CHARS}]`).exec(char);
+const RESERVED_CHARS = [..."!*'();:@&=$,/?#[]"];
+const NUMERIC_CHARS = [...StringUtils.getCharRange("0", "9")];
+const LOWER_CASE_LETTER_CHARS = [...StringUtils.getCharRange("a", "z")];
+const UPPER_CASE_LETTER_CHARS = [...StringUtils.getCharRange("A", "Z")];
+const LETTER_CHARS = [...LOWER_CASE_LETTER_CHARS, ...UPPER_CASE_LETTER_CHARS];
+const WORD_CHARS = [...NUMERIC_CHARS, ...LETTER_CHARS, "_"];
+
+function isAllowedChar(char) {
+    return char && !RESERVED_CHARS.includes(char);
 }
 
-function isNumericCharacter(char) {
-    return new RegExp(`[${NUMERIC_CHARS}]`).exec(char);
+function isNumericChar(char) {
+    return char && NUMERIC_CHARS.includes(char);
+}
+
+function isLowerCaseLetter(char) {
+    return char && LOWER_CASE_LETTER_CHARS.includes(char);
+}
+
+function isUpperCaseLetter(char) {
+    return char && UPPER_CASE_LETTER_CHARS.includes(char);
+}
+
+function isLetter(char) {
+    return char && LETTER_CHARS.includes(char);
+}
+
+function isWordChar(char) {
+    return char && WORD_CHARS.includes(char);
 }
 
 export class URLTokenifier {
     tokenify(str) {
         function readProtocol() {
             const j = i;
-            while (/[a-z]/.exec(str[i]))
+            while (isLowerCaseLetter(str[i]))
                 i++;
             if (str[i] === ":") {
                 i++;
@@ -36,7 +58,7 @@ export class URLTokenifier {
             function* readHostnameItems() {
                 function readHostnameLabel() {
                     const j = i;
-                    while (/\w/.exec(str[i]))
+                    while (isWordChar(str[i]))
                         i++;
                     if (i > j)
                         return {
@@ -77,7 +99,7 @@ export class URLTokenifier {
             if (str[i] === ":") {
                 i++;
                 const k = i;
-                while (isNumericCharacter(str[i]))
+                while (isNumericChar(str[i]))
                     i++;
                 if (i > k)
                     return {
@@ -94,7 +116,7 @@ export class URLTokenifier {
                 function readPathItem() {
                     function readPathSegment() {
                         const j = i;
-                        while (isAllowedCharacter(str[i]))
+                        while (isAllowedChar(str[i]))
                             i++;
                         if (i > j) {
                             return {
@@ -142,13 +164,13 @@ export class URLTokenifier {
 
                 function readParameter() {
                     const j = i;
-                    while (isAllowedCharacter(str[i]))
+                    while (isAllowedChar(str[i]))
                         i++;
                     const key = str.slice(j, i);
                     if (str[i] === "=") {
                         i++
                         const k = i;
-                        while (isAllowedCharacter(str[i]))
+                        while (isAllowedChar(str[i]))
                             i++;
                         const value = str.slice(k, i);
                         return {
@@ -188,7 +210,7 @@ export class URLTokenifier {
             if (str[i] === "#") {
                 i++;
                 const k = i;
-                while (isAllowedCharacter(str[i]))
+                while (isAllowedChar(str[i]))
                     i++;
                 if (i > k)
                     return {
@@ -283,6 +305,8 @@ export class URLTokenifier {
                 str += `${token.key}=${token.value}`;
             }
 
+            str += "?";
+
             for (let item of token.items)
                 switch (item.type) {
                     case "parameter":
@@ -355,19 +379,13 @@ class URLPath {
 
     toToken() {
         function* getItems() {
-            yield {
-                type: "slash"
-            };
-
             for (let i = 0; i < this.segments.length; i++) {
-                if (i > 0)
-                    yield {
-                        type: "slash"
-                    };
-
+                yield {
+                    type: "slash"
+                };
                 yield {
                     type: "segment",
-                    value: this.segments[i].value
+                    value: this.segments[i]
                 };
             }
         }
@@ -444,7 +462,7 @@ class URLQuery {
             }
         }
 
-        const items = [...getItems()];
+        const items = [...getItems.call(this)];
         return {
             type: "query",
             items
