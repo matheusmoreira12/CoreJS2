@@ -1,41 +1,18 @@
-import { StringUtils } from "./StringUtils.js";
+import { StringUtils, WORD_CHARS } from "./StringUtils.js";
 
-const RESERVED_CHARS = [..."!*'();:@&=$,/?#[]"];
-const NUMERIC_CHARS = [...StringUtils.getCharRange("0", "9")];
-const LOWER_CASE_LETTER_CHARS = [...StringUtils.getCharRange("a", "z")];
-const UPPER_CASE_LETTER_CHARS = [...StringUtils.getCharRange("A", "Z")];
-const LETTER_CHARS = [...LOWER_CASE_LETTER_CHARS, ...UPPER_CASE_LETTER_CHARS];
-const WORD_CHARS = [...NUMERIC_CHARS, ...LETTER_CHARS, "_"];
+const GEN_DELIMS = [":", "/", "?", "#", "[", "]", "@"];
+const SUB_DELIMS = ["!", "$", "&", "’", "(", ")", "*", "+", ",", ";", "="];
+const RESERVED_CHARS = [..."!*'();:@&=$+,/?#[]"];
 
 function isAllowedChar(char) {
     return char && !RESERVED_CHARS.includes(char);
-}
-
-function isNumericChar(char) {
-    return char && NUMERIC_CHARS.includes(char);
-}
-
-function isLowerCaseLetter(char) {
-    return char && LOWER_CASE_LETTER_CHARS.includes(char);
-}
-
-function isUpperCaseLetter(char) {
-    return char && UPPER_CASE_LETTER_CHARS.includes(char);
-}
-
-function isLetter(char) {
-    return char && LETTER_CHARS.includes(char);
-}
-
-function isWordChar(char) {
-    return char && WORD_CHARS.includes(char);
 }
 
 export class URLTokenifier {
     tokenify(str) {
         function readProtocol() {
             const j = i;
-            while (isLowerCaseLetter(str[i]))
+            while (StringUtils.isLowerCaseLetter(str[i]))
                 i++;
             if (str[i] === ":") {
                 i++;
@@ -58,7 +35,7 @@ export class URLTokenifier {
             function* readHostnameItems() {
                 function readHostnameLabel() {
                     const j = i;
-                    while (isWordChar(str[i]))
+                    while (StringUtils.isWordChar(str[i]))
                         i++;
                     if (i > j)
                         return {
@@ -99,7 +76,7 @@ export class URLTokenifier {
             if (str[i] === ":") {
                 i++;
                 const k = i;
-                while (isNumericChar(str[i]))
+                while (StringUtils.isNumericChar(str[i]))
                     i++;
                 if (i > k)
                     return {
