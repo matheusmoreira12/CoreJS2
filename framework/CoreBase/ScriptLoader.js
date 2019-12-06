@@ -3,8 +3,8 @@ import { Ajax } from "./Ajax.js";
 import { URLUtils, URLData } from "./URLUtils.js";
 
 const CURRENT_MODULE_URL = URLData.parse(import.meta.url);
-const CORE_BASE_URL = URLData.parse(CURRENT_MODULE_URL + "/.").collapse().toString();
-const CORE_URL = URLData.parse(CURRENT_MODULE_URL + "/..").collapse().toString();
+const CORE_BASE_URL = URLData.parse(CURRENT_MODULE_URL + "/..").collapse().toString();
+const CORE_URL = URLData.parse(CORE_BASE_URL + "/..").collapse().toString();
 
 const MODULE_EXTENSION = ".m.js";
 
