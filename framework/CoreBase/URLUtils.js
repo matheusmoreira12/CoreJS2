@@ -376,11 +376,23 @@ class URLPath {
 
     collapse() {
         const resultSegments = [];
-        for (let segment of this.segments) {
+        function hasExtension(segment) {
+            return segment.includes(".");
+        }
+
+        for (let i = 0; i < this.segments.length; i++) {
+            const segment = this.segments[i],
+                lastSegment = this.segments[i - 1];
             switch (segment) {
                 case ".":
+                    if (lastSegment && hasExtension(lastSegment))
+                        resultSegments.splice(resultSegments.length - 1, 1);
+                    else
+                        throw `Cannot collapse URL. Unexpected token "${segment}" at this.segments[${i}].`;
                     break;
                 case "..":
+                    if (lastSegment && hasExtension(lastSegment))
+                        throw `Cannot collapse URL. Unexpected token "${segment}" at this.segments[${i}].`;
                     resultSegments.pop();
                     break;
                 default:
@@ -624,7 +636,6 @@ export class URLData {
 
 export const URLUtils = {
     levelUp(url) {
-        let memberStrs = url.split("/");
-        return memberStrs.slice(0, memberStrs.length - 2).join("/");
+        return URLData.parse(url + "/../").collapse().toString();
     }
 };

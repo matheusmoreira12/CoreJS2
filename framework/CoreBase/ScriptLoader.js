@@ -1,12 +1,10 @@
 import { IdentifierGenerator } from "./IdentifierGenerator.js";
 import { Ajax } from "./Ajax.js";
-import { URLUtils } from "./URLUtils.js";
+import { URLUtils, URLData } from "./URLUtils.js";
 
-const CURRENT_MODULE_URL = import.meta.url;
+const CURRENT_MODULE_URL = URLData.parse(import.meta.url);
 const CORE_BASE_URL = URLUtils.levelUp(CURRENT_MODULE_URL);
-const CORE_URL = new URL("../", CORE_BASE_URL);
-
-console.log();
+const CORE_URL = URLUtils.levelUp(CORE_BASE_URL);
 
 const MODULE_EXTENSION = ".m.js";
 
