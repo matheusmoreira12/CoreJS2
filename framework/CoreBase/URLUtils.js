@@ -373,6 +373,23 @@ class URLPath {
             items
         };
     }
+
+    collapse() {
+        const resultSegments = [];
+        for (let segment of this.segments) {
+            switch (segment) {
+                case ".":
+                    break;
+                case "..":
+                    resultSegments.pop();
+                    break;
+                default:
+                    resultSegments.push(segment);
+                    break;
+            }
+        }
+        return new URLPath(resultSegments);
+    }
 }
 
 
@@ -598,6 +615,10 @@ export class URLData {
         const token = this.toToken(),
             tokenifier = new URLTokenifier();
         return tokenifier.detokenify(token);
+    }
+
+    collapse() {
+        return new URLData(this.hostname, this.path.collapse(), this.protocol, this.port, this.query, this.fragment);
     }
 }
 
