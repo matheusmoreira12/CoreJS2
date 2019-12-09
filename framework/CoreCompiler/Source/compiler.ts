@@ -26,20 +26,26 @@ function* getDeclarations(node: ts.Node) {
     if (ts.isVariableDeclaration(node) ||
         ts.isEnumDeclaration(node) ||
         ts.isClassDeclaration(node) ||
-        ts.isFunctionDeclaration(node) ||
-        ts.isMethodDeclaration(node)) {
-        yield node.name;
+        ts.isFunctionDeclaration(node)) {
+            yield node.name;
+    }
+}
+
+function transformDoubleColon(node: ts.Node){
+    if (node.kind == ts.SyntaxKind.SemicolonToken)
+    {
+        console.log("colon!");
     }
 }
 
 function simpleTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
     return (context) => {
         const visit: ts.Visitor = (node) => {
+            transformDoubleColon(node);
+
             declarationContext.push(...getDeclarations(node));
             let result = ts.visitEachChild(node, (child) => visit(child), context);
             declarationContext.pop();
-
-            console.log(declarationContext);
 
             return result;
         };
@@ -49,16 +55,19 @@ function simpleTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
 }
 
 let input = `
-    let x;
-    let y;
+    let x: int;
 
     export class X::Y {
+    }
+
+    function f() {
+        
     }
 `;
 
 let result = ts.transpileModule(input, {
     compilerOptions: {
-        module: ts.ModuleKind.ESNext
+        module: ts.ModuleKind.ESNext,
     },
     transformers: {
         before: [simpleTransformer()]

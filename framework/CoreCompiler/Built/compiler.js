@@ -76,8 +76,7 @@ function getDeclarations(node) {
                 if (!(ts.isVariableDeclaration(node) ||
                     ts.isEnumDeclaration(node) ||
                     ts.isClassDeclaration(node) ||
-                    ts.isFunctionDeclaration(node) ||
-                    ts.isMethodDeclaration(node))) return [3 /*break*/, 2];
+                    ts.isFunctionDeclaration(node))) return [3 /*break*/, 2];
                 return [4 /*yield*/, node.name];
             case 1:
                 _a.sent();
@@ -86,19 +85,24 @@ function getDeclarations(node) {
         }
     });
 }
+function transformDoubleColon(node) {
+    if (node.kind == ts.SyntaxKind.SemicolonToken) {
+        console.log("colon!");
+    }
+}
 function simpleTransformer() {
     return function (context) {
         var visit = function (node) {
+            transformDoubleColon(node);
             declarationContext.push.apply(declarationContext, __spread(getDeclarations(node)));
             var result = ts.visitEachChild(node, function (child) { return visit(child); }, context);
             declarationContext.pop();
-            console.log(declarationContext);
             return result;
         };
         return function (node) { return ts.visitNode(node, visit); };
     };
 }
-var input = "\n    let x;\n    let y;\n\n    export class X::Y {\n    }\n";
+var input = "\n    let x: int;\n\n    export class X::Y {\n    }\n\n    function f() {\n        \n    }\n";
 var result = ts.transpileModule(input, {
     compilerOptions: {
         module: ts.ModuleKind.ESNext
