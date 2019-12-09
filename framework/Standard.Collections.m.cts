@@ -1,11 +1,7 @@
-import { Module } from "./CoreBase/Modules.js";
+using Core::Standard::Exceptions;
+using Core::Standard::Events;
 
-Module.declare("Core::Standard::Collections", function (context) {
-
-    const { Enumeration } = context.importFrom("", "Enumeration");
-    const { ArgumentOutOfRangeException, KeyNotFoundException } = context.importFrom("Exceptions", "ArgumentOutOfRangeException", "KeyNotFoundException");
-    const { FrameworkEvent } = context.importFrom("Events", "FrameworkEvent");
-
+namespace Core::Standard::Collections {
     /**
      * Collection Class
      * Represents a collection of values.
@@ -79,16 +75,14 @@ Module.declare("Core::Standard::Collections", function (context) {
             this.removeAt(index);
         }
     }
-    context.export({ Collection });
 
     /*
      * ObservableCollection class
      * Creates a collection observable via the "change" event.
      */
-    const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove: 2 });
-    context.export({ ObservableCollectionChangeAction });
+    export const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove: 2 });
 
-    class ObservableCollection extends Collection {
+    export class ObservableCollection extends Collection {
         _notifySplice(start, deleteCount, ...items) {
             let action = (items.length > 0 ? ObservableCollectionChangeAction.Add : 0) |
                 (deleteCount > 0 ? ObservableCollectionChangeAction.Remove : 0);
@@ -153,12 +147,11 @@ Module.declare("Core::Standard::Collections", function (context) {
 
         ChangeEvent = new FrameworkEvent();
     }
-    context.export({ ObservableCollection });
 
     /**
      * KeyValuePair class
      */
-    class KeyValuePair {
+    export class KeyValuePair {
         static fromMapItem(mapItem) {
             let { 0: key, 1: value } = mapItem;
 
@@ -170,13 +163,12 @@ Module.declare("Core::Standard::Collections", function (context) {
             this.value = value;
         }
     }
-    context.export({ KeyValuePair });
 
     /**
      * Dictionary class
      * 
      */
-    class Dictionary extends Collection {
+    export class Dictionary extends Collection {
         static fromMap(map) {
             function* getItems() {
                 for (let mapItem of map)
@@ -236,20 +228,18 @@ Module.declare("Core::Standard::Collections", function (context) {
             this.remove(item);
         }
     }
-    context.export({ Dictionary });
 
     /*
      * ObservableDictionary class
      * Creates a dictionary observable via the "change" event.
      */
-    const ObservableDictionaryChangeAction = new Enumeration([
+    export const ObservableDictionaryChangeAction = new Enumeration([
         "Add",
         "Change",
         "Delete"
     ]);
-    context.export({ ObservableCollectionChangeAction });
 
-    class ObservableDictionary extends Dictionary {
+    export class ObservableDictionary extends Dictionary {
         constructor(entries) {
             super(entries);
         }
@@ -301,5 +291,4 @@ Module.declare("Core::Standard::Collections", function (context) {
 
         ChangeEvent = new FrameworkEvent();
     }
-    context.export({ ObservableDictionary });
-});
+}

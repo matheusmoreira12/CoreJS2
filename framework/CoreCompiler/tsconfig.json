@@ -1,0 +1,9 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "lib": ["ES5"],
+        "rootDir": "Source/",
+        "outDir": "Built/",
+        "downlevelIteration": true
+    }
+}

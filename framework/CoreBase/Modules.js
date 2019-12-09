@@ -79,9 +79,9 @@ class ImportResolver extends AsynchronousResolver {
     static clearResolved() {
         for (let i = this.pending.length - 1; i > 0; i--) {
             let resolver = this.pending[i];
-            if (resolver.status === ImportResolver.STATUS_RESOLVED ||
-                resolver.status === ImportResolver.STATUS_REJECTED)
-                this.pending.splice(i, 1);
+            if (resolver.status === ImportResolver.STATUS_PENDING)
+                continue;
+            this.pending.splice(i, 1);
         }
     }
 
@@ -171,7 +171,7 @@ class ModuleContext {
         return await importResolver.resolved;
     }
 
-    async importFrom(namespace = "", ...names) {
+    async importMany(namespace = "", ...names) {
         namespace = Identifier.get(namespace);
 
         let map = {};
@@ -193,6 +193,8 @@ export class Module {
         parentModule.subModules.push(module);
 
         await module.initialize();
+
+        return module;
     }
 
     constructor(namespace, initializer, parentModule = null) {
