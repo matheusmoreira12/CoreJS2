@@ -3,7 +3,7 @@ import ts = require("typescript");
 function simpleTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
     return (context) => {
         const visitToken: ts.Visitor = (token) => {
-            console.log("token");
+            console.log(ts.SyntaxKind[token.kind]);
 
             const siblings = token.parent.getChildren();
             const lastToken = siblings[token.pos - 1];
@@ -17,9 +17,6 @@ function simpleTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
         }
 
         const visit: ts.Visitor = (node) => {
-            if (ts.isToken(node))
-                console.log(ts.SyntaxKind[node.kind]);
-
             return ts.visitEachChild(node, (child) => visit(child), context, undefined, (token) => visitToken(token));
         };
 
