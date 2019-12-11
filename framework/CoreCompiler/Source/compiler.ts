@@ -1,23 +1,28 @@
 import ts = require("typescript");
 
-function simpleTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
+let exportStatementCount = 0;
+
+function transformModuleDeclaration(node: ts.ModuleDeclaration): ts.Node | undefined {
+    const moduleName = node.name.text;
+    return ts.createArrowFunction(
+        [ts.createModifier(ts.SyntaxKind.AsyncKeyword)],
+        undefined,
+        [
+            ts.createParameter([], [], undefined, "__module_context")
+        ],
+        undefined,
+        ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+        ts.createBlock([])
+    );
+}
+
+function moduleSystemTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
     return (context) => {
-        const visitToken: ts.Visitor = (token) => {
-            console.log(ts.SyntaxKind[token.kind]);
-
-            const siblings = token.parent.getChildren();
-            const lastToken = siblings[token.pos - 1];
-
-            if (lastToken.kind == ts.SyntaxKind.ColonToken) {
-                if (token.kind == ts.SyntaxKind.ColonToken)
-                return undefined;
-            }
-
-            return token;
-        }
-
         const visit: ts.Visitor = (node) => {
-            return ts.visitEachChild(node, (child) => visit(child), context, undefined, (token) => visitToken(token));
+            if (ts.isModuleDeclaration(node))
+                return transformModuleDeclaration(node);
+
+            return ts.visitEachChild(node, visit, context);
         };
 
         return (node) => ts.visitNode(node, visit);
@@ -25,26 +30,30 @@ function simpleTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
 }
 
 let input = `
-    let x: int;
-    let y, z: int;
+let x: int;
+let y, z: int;
 
-    export namespace Test::Namespace {
-        export class X {
-        }
+export namespace Test__Namespace {
+    export class X {
     }
+}
 
-    function f() {
-        
-    }
+import Test__Namespace;
+
+function f() {
+    
+}
 `;
+
+console.log(input);
 
 let result = ts.transpileModule(input, {
     compilerOptions: {
-        module: ts.ModuleKind.ESNext,
+        module: ts.ModuleKind.None
     },
     transformers: {
-        before: [simpleTransformer()]
-    }
+        before: [moduleSystemTransformer()]
+    },
 });
 
-console.log(result);
+console.log(result.outputText);
