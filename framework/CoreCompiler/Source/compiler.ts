@@ -2,25 +2,62 @@ import ts = require("typescript");
 
 let exportStatementCount = 0;
 
-function transformModuleDeclaration(node: ts.ModuleDeclaration): ts.Node | undefined {
-    const moduleName = node.name.text;
-    return ts.createArrowFunction(
-        [ts.createModifier(ts.SyntaxKind.AsyncKeyword)],
-        undefined,
-        [
-            ts.createParameter([], [], undefined, "__module_context")
-        ],
-        undefined,
-        ts.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-        ts.createBlock([])
-    );
+const MODULE_CONTEXT_NAME = "__mod_context";
+
+function getModuleConstructor(moduleName: string, moduleBody: ts.ModuleBody) {
+    function getBody() {
+        return ts.createBlock(
+            [],
+            true
+        );
+    }
+
+    return ts.createAwait(
+        ts.createArrowFunction(
+            ts.createModifiersFromModifierFlags(ts.ModifierFlags.Async),
+            [],
+            [
+                ts.createParameter(
+                    [],
+                    [],
+                    undefined,
+                    MODULE_CONTEXT_NAME
+                )
+            ],
+            undefined,
+            undefined,
+            getBody()
+        ));
 }
 
-function moduleSystemTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
+function transformModuleDeclaration(node: ts.ModuleDeclaration): ts.Node | undefined {
+    const moduleName = node.name.text;
+    const moduleBody = node.body;
+    return getModuleConstructor(moduleName, moduleBody);
+}
+
+class NestedIdentifierHelper implements ts.EmitHelper {
+    constructor(namespace: string[]) {
+        this.namespace = namespace;
+    }
+
+    get name(): string { return "NestedIdentifier" }
+    get scoped(): boolean { return true; }
+    get priority(): number { return 0; };
+    get text(): string {
+        return this.namespace.join("::");
+    }
+
+    namespace: string[];
+}
+
+function nestedIdentifierTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
     return (context) => {
-        const visit: ts.Visitor = (node) => {
-            if (ts.isModuleDeclaration(node))
-                return transformModuleDeclaration(node);
+        function visit(node: ts.Node): ts.Node {
+            console.log(ts.SyntaxKind[node.kind]);
+
+            if (ts.isLabeledStatement(node))
+                console.log(node.label);
 
             return ts.visitEachChild(node, visit, context);
         };
@@ -33,27 +70,23 @@ let input = `
 let x: int;
 let y, z: int;
 
-export namespace Test__Namespace {
-    export class X {
+public namespace Test::Test::Namespace {
+    public class X {
     }
 }
 
-import Test__Namespace;
+using Test::Namespace;
 
 function f() {
     
 }
 `;
 
-console.log(input);
-
-let result = ts.transpileModule(input, {
-    compilerOptions: {
-        module: ts.ModuleKind.None
-    },
-    transformers: {
-        before: [moduleSystemTransformer()]
-    },
-});
-
-console.log(result.outputText);
+let source = ts.createSourceFile("test.d.ts", input, ts.ScriptTarget.ES2015);
+let transformResult = ts.transform(
+    source,
+    [nestedIdentifierTransformer()],
+    {
+        composite: true
+    }
+);
