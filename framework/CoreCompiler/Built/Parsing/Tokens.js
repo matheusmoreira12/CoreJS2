@@ -47,7 +47,7 @@ var Tokens;
         __extends(AbstractToken, _super);
         function AbstractToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "abstract";
             return _this;
         }
         return AbstractToken;
@@ -57,7 +57,7 @@ var Tokens;
         __extends(BreakToken, _super);
         function BreakToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "break";
             return _this;
         }
         return BreakToken;
@@ -67,7 +67,7 @@ var Tokens;
         __extends(CharToken, _super);
         function CharToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "char";
             return _this;
         }
         return CharToken;
@@ -77,7 +77,7 @@ var Tokens;
         __extends(DebuggerToken, _super);
         function DebuggerToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "debugger";
             return _this;
         }
         return DebuggerToken;
@@ -87,7 +87,7 @@ var Tokens;
         __extends(DoubleToken, _super);
         function DoubleToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "double";
             return _this;
         }
         return DoubleToken;
@@ -97,7 +97,7 @@ var Tokens;
         __extends(ExportToken, _super);
         function ExportToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "export";
             return _this;
         }
         return ExportToken;
@@ -107,7 +107,7 @@ var Tokens;
         __extends(FinallyToken, _super);
         function FinallyToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "finally";
             return _this;
         }
         return FinallyToken;
@@ -117,7 +117,7 @@ var Tokens;
         __extends(GotoToken, _super);
         function GotoToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "goto";
             return _this;
         }
         return GotoToken;
@@ -127,7 +127,7 @@ var Tokens;
         __extends(InToken, _super);
         function InToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "in";
             return _this;
         }
         return InToken;
@@ -137,7 +137,7 @@ var Tokens;
         __extends(LetToken, _super);
         function LetToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "let";
             return _this;
         }
         return LetToken;
@@ -147,7 +147,7 @@ var Tokens;
         __extends(NullToken, _super);
         function NullToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "null";
             return _this;
         }
         return NullToken;
@@ -157,7 +157,7 @@ var Tokens;
         __extends(PublicToken, _super);
         function PublicToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "public";
             return _this;
         }
         return PublicToken;
@@ -167,7 +167,7 @@ var Tokens;
         __extends(SuperToken, _super);
         function SuperToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "super";
             return _this;
         }
         return SuperToken;
@@ -177,7 +177,7 @@ var Tokens;
         __extends(ThrowToken, _super);
         function ThrowToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "throw";
             return _this;
         }
         return ThrowToken;
@@ -187,7 +187,7 @@ var Tokens;
         __extends(TryToken, _super);
         function TryToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "try";
             return _this;
         }
         return TryToken;
@@ -197,7 +197,7 @@ var Tokens;
         __extends(VolatileToken, _super);
         function VolatileToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "volatile";
             return _this;
         }
         return VolatileToken;
@@ -207,7 +207,7 @@ var Tokens;
         __extends(ArgumentsToken, _super);
         function ArgumentsToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "arguments";
             return _this;
         }
         return ArgumentsToken;
@@ -217,7 +217,7 @@ var Tokens;
         __extends(ByteToken, _super);
         function ByteToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "byte";
             return _this;
         }
         return ByteToken;
@@ -227,7 +227,7 @@ var Tokens;
         __extends(ClassToken, _super);
         function ClassToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "class";
             return _this;
         }
         return ClassToken;
@@ -237,7 +237,7 @@ var Tokens;
         __extends(DefaultToken, _super);
         function DefaultToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "default";
             return _this;
         }
         return DefaultToken;
@@ -247,7 +247,7 @@ var Tokens;
         __extends(ElseToken, _super);
         function ElseToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "else";
             return _this;
         }
         return ElseToken;
@@ -257,7 +257,7 @@ var Tokens;
         __extends(ExtendsToken, _super);
         function ExtendsToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "extends";
             return _this;
         }
         return ExtendsToken;
@@ -267,7 +267,7 @@ var Tokens;
         __extends(FloatToken, _super);
         function FloatToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "float";
             return _this;
         }
         return FloatToken;
@@ -277,7 +277,7 @@ var Tokens;
         __extends(IfToken, _super);
         function IfToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "if";
             return _this;
         }
         return IfToken;
@@ -287,7 +287,7 @@ var Tokens;
         __extends(InstanceofToken, _super);
         function InstanceofToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "instanceof";
             return _this;
         }
         return InstanceofToken;
@@ -297,7 +297,7 @@ var Tokens;
         __extends(LongToken, _super);
         function LongToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "long";
             return _this;
         }
         return LongToken;
@@ -307,7 +307,7 @@ var Tokens;
         __extends(PackageToken, _super);
         function PackageToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "package";
             return _this;
         }
         return PackageToken;
@@ -317,7 +317,7 @@ var Tokens;
         __extends(ReturnToken, _super);
         function ReturnToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "return";
             return _this;
         }
         return ReturnToken;
@@ -327,7 +327,7 @@ var Tokens;
         __extends(SwitchToken, _super);
         function SwitchToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "switch";
             return _this;
         }
         return SwitchToken;
@@ -337,7 +337,7 @@ var Tokens;
         __extends(ThrowsToken, _super);
         function ThrowsToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "throws";
             return _this;
         }
         return ThrowsToken;
@@ -347,7 +347,7 @@ var Tokens;
         __extends(TypeofToken, _super);
         function TypeofToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "typeof";
             return _this;
         }
         return TypeofToken;
@@ -357,7 +357,7 @@ var Tokens;
         __extends(WhileToken, _super);
         function WhileToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "while";
             return _this;
         }
         return WhileToken;
@@ -367,7 +367,7 @@ var Tokens;
         __extends(AwaitToken, _super);
         function AwaitToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "await";
             return _this;
         }
         return AwaitToken;
@@ -377,7 +377,7 @@ var Tokens;
         __extends(CaseToken, _super);
         function CaseToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "case";
             return _this;
         }
         return CaseToken;
@@ -387,7 +387,7 @@ var Tokens;
         __extends(ConstToken, _super);
         function ConstToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "const";
             return _this;
         }
         return ConstToken;
@@ -397,7 +397,7 @@ var Tokens;
         __extends(DeleteToken, _super);
         function DeleteToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "delete";
             return _this;
         }
         return DeleteToken;
@@ -407,7 +407,7 @@ var Tokens;
         __extends(EnumToken, _super);
         function EnumToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "enum";
             return _this;
         }
         return EnumToken;
@@ -417,7 +417,7 @@ var Tokens;
         __extends(FalseToken, _super);
         function FalseToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "false";
             return _this;
         }
         return FalseToken;
@@ -427,7 +427,7 @@ var Tokens;
         __extends(ForToken, _super);
         function ForToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "for";
             return _this;
         }
         return ForToken;
@@ -437,7 +437,7 @@ var Tokens;
         __extends(ImplementsToken, _super);
         function ImplementsToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "implements";
             return _this;
         }
         return ImplementsToken;
@@ -447,7 +447,7 @@ var Tokens;
         __extends(IntToken, _super);
         function IntToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "int";
             return _this;
         }
         return IntToken;
@@ -457,7 +457,7 @@ var Tokens;
         __extends(NativeToken, _super);
         function NativeToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "native";
             return _this;
         }
         return NativeToken;
@@ -467,7 +467,7 @@ var Tokens;
         __extends(PrivateToken, _super);
         function PrivateToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "private";
             return _this;
         }
         return PrivateToken;
@@ -477,7 +477,7 @@ var Tokens;
         __extends(ShortToken, _super);
         function ShortToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "short";
             return _this;
         }
         return ShortToken;
@@ -487,7 +487,7 @@ var Tokens;
         __extends(SynchronizedToken, _super);
         function SynchronizedToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "synchronized";
             return _this;
         }
         return SynchronizedToken;
@@ -497,7 +497,7 @@ var Tokens;
         __extends(TransientToken, _super);
         function TransientToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "transient";
             return _this;
         }
         return TransientToken;
@@ -507,7 +507,7 @@ var Tokens;
         __extends(VarToken, _super);
         function VarToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "var";
             return _this;
         }
         return VarToken;
@@ -517,7 +517,7 @@ var Tokens;
         __extends(WithToken, _super);
         function WithToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "with";
             return _this;
         }
         return WithToken;
@@ -527,7 +527,7 @@ var Tokens;
         __extends(BooleanToken, _super);
         function BooleanToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "boolean";
             return _this;
         }
         return BooleanToken;
@@ -537,7 +537,7 @@ var Tokens;
         __extends(CatchToken, _super);
         function CatchToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "catch";
             return _this;
         }
         return CatchToken;
@@ -547,7 +547,7 @@ var Tokens;
         __extends(ContinueToken, _super);
         function ContinueToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "continue";
             return _this;
         }
         return ContinueToken;
@@ -557,7 +557,7 @@ var Tokens;
         __extends(DoToken, _super);
         function DoToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "do";
             return _this;
         }
         return DoToken;
@@ -567,7 +567,7 @@ var Tokens;
         __extends(EvalToken, _super);
         function EvalToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "eval";
             return _this;
         }
         return EvalToken;
@@ -577,7 +577,7 @@ var Tokens;
         __extends(FinalToken, _super);
         function FinalToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "final";
             return _this;
         }
         return FinalToken;
@@ -587,7 +587,7 @@ var Tokens;
         __extends(FunctionToken, _super);
         function FunctionToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "function";
             return _this;
         }
         return FunctionToken;
@@ -597,7 +597,7 @@ var Tokens;
         __extends(ImportToken, _super);
         function ImportToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "import";
             return _this;
         }
         return ImportToken;
@@ -607,7 +607,7 @@ var Tokens;
         __extends(InterfaceToken, _super);
         function InterfaceToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "interface";
             return _this;
         }
         return InterfaceToken;
@@ -617,7 +617,7 @@ var Tokens;
         __extends(NewToken, _super);
         function NewToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "new";
             return _this;
         }
         return NewToken;
@@ -627,7 +627,7 @@ var Tokens;
         __extends(ProtectedToken, _super);
         function ProtectedToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "protected";
             return _this;
         }
         return ProtectedToken;
@@ -637,7 +637,7 @@ var Tokens;
         __extends(StaticToken, _super);
         function StaticToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "static";
             return _this;
         }
         return StaticToken;
@@ -647,7 +647,7 @@ var Tokens;
         __extends(ThisToken, _super);
         function ThisToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "this";
             return _this;
         }
         return ThisToken;
@@ -657,7 +657,7 @@ var Tokens;
         __extends(TrueToken, _super);
         function TrueToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "true";
             return _this;
         }
         return TrueToken;
@@ -667,7 +667,7 @@ var Tokens;
         __extends(VoidToken, _super);
         function VoidToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "void";
             return _this;
         }
         return VoidToken;
@@ -677,7 +677,7 @@ var Tokens;
         __extends(YieldToken, _super);
         function YieldToken() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
-            _this.text = "";
+            _this.text = "yield";
             return _this;
         }
         return YieldToken;
