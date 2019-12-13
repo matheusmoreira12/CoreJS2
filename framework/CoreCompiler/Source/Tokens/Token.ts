@@ -1,4 +1,3 @@
-import SourceFile from "./SourceFile";
 import Tokenizer from "./Tokenizer";
 
 export default interface Token {
