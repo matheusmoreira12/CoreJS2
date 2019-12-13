@@ -291,7 +291,43 @@ export namespace Tokens {
         text: string = "yield";
     }
 
-    export abstract class OperatorToken extends FixedTextToken {
-        abstract priority: number;
+    export class EqualsToken extends FixedTextToken {
+        text: string = "=";
+    }
+
+    export class PlusToken extends FixedTextToken {
+        text: string = "+";
+    }
+
+    export class DashToken extends FixedTextToken {
+        text: string = "-";
+    }
+
+    export class AsteriskToken extends FixedTextToken {
+        text: string = "*";
+    }
+
+    export class SlashToken extends FixedTextToken {
+        text: string = "/";
+    }
+
+    export class BackslashToken extends FixedTextToken {
+        text: string = "\\";
+    }
+
+    export class DotToken extends FixedTextToken {
+        text: string = ".";
+    }
+
+    export class CommaToken extends FixedTextToken {
+        text: string = ",";
+    }
+
+    export class ColonToken extends FixedTextToken {
+        text: string = ":";
+    }
+
+    export class SemicolonToken extends FixedTextToken {
+        text: string = ";";
     }
 }

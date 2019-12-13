@@ -3,6 +3,7 @@
     "compilerOptions": {
         "rootDir": "Source/",
         "outDir": "Built/",
-        "downlevelIteration": true
+      "downlevelIteration": true,
+      "experimentalDecorators": true
     }
 }

@@ -683,12 +683,104 @@ var Tokens;
         return YieldToken;
     }(ReservedWordToken));
     Tokens.YieldToken = YieldToken;
-    var OperatorToken = /** @class */ (function (_super) {
-        __extends(OperatorToken, _super);
-        function OperatorToken() {
-            return _super !== null && _super.apply(this, arguments) || this;
+    var EqualsToken = /** @class */ (function (_super) {
+        __extends(EqualsToken, _super);
+        function EqualsToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = "=";
+            return _this;
         }
-        return OperatorToken;
+        return EqualsToken;
     }(FixedTextToken));
-    Tokens.OperatorToken = OperatorToken;
+    Tokens.EqualsToken = EqualsToken;
+    var PlusToken = /** @class */ (function (_super) {
+        __extends(PlusToken, _super);
+        function PlusToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = "+";
+            return _this;
+        }
+        return PlusToken;
+    }(FixedTextToken));
+    Tokens.PlusToken = PlusToken;
+    var DashToken = /** @class */ (function (_super) {
+        __extends(DashToken, _super);
+        function DashToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = "-";
+            return _this;
+        }
+        return DashToken;
+    }(FixedTextToken));
+    Tokens.DashToken = DashToken;
+    var AsteriskToken = /** @class */ (function (_super) {
+        __extends(AsteriskToken, _super);
+        function AsteriskToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = "*";
+            return _this;
+        }
+        return AsteriskToken;
+    }(FixedTextToken));
+    Tokens.AsteriskToken = AsteriskToken;
+    var SlashToken = /** @class */ (function (_super) {
+        __extends(SlashToken, _super);
+        function SlashToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = "/";
+            return _this;
+        }
+        return SlashToken;
+    }(FixedTextToken));
+    Tokens.SlashToken = SlashToken;
+    var BackslashToken = /** @class */ (function (_super) {
+        __extends(BackslashToken, _super);
+        function BackslashToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = "\\";
+            return _this;
+        }
+        return BackslashToken;
+    }(FixedTextToken));
+    Tokens.BackslashToken = BackslashToken;
+    var DotToken = /** @class */ (function (_super) {
+        __extends(DotToken, _super);
+        function DotToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = ".";
+            return _this;
+        }
+        return DotToken;
+    }(FixedTextToken));
+    Tokens.DotToken = DotToken;
+    var CommaToken = /** @class */ (function (_super) {
+        __extends(CommaToken, _super);
+        function CommaToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = ",";
+            return _this;
+        }
+        return CommaToken;
+    }(FixedTextToken));
+    Tokens.CommaToken = CommaToken;
+    var ColonToken = /** @class */ (function (_super) {
+        __extends(ColonToken, _super);
+        function ColonToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = ":";
+            return _this;
+        }
+        return ColonToken;
+    }(FixedTextToken));
+    Tokens.ColonToken = ColonToken;
+    var SemicolonToken = /** @class */ (function (_super) {
+        __extends(SemicolonToken, _super);
+        function SemicolonToken() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.text = ";";
+            return _this;
+        }
+        return SemicolonToken;
+    }(FixedTextToken));
+    Tokens.SemicolonToken = SemicolonToken;
 })(Tokens = exports.Tokens || (exports.Tokens = {}));
