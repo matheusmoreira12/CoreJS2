@@ -1,8 +1,6 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
-        "target": "ESNext",
-        "lib": ["ESNext"],
         "rootDir": "Source/",
         "outDir": "Built/",
         "downlevelIteration": true

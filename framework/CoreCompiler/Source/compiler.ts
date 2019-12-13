@@ -12,22 +12,23 @@ function getModuleConstructor(moduleName: string, moduleBody: ts.ModuleBody) {
         );
     }
 
-    return ts.createAwait(
-        ts.createArrowFunction(
-            ts.createModifiersFromModifierFlags(ts.ModifierFlags.Async),
-            [],
-            [
-                ts.createParameter(
-                    [],
-                    [],
-                    undefined,
-                    MODULE_CONTEXT_NAME
-                )
-            ],
-            undefined,
-            undefined,
-            getBody()
-        ));
+    return ts.createFunctionDeclaration(
+        [],
+        ts.createModifiersFromModifierFlags(ts.ModifierFlags.Async),
+        undefined,
+        moduleName,
+        [],
+        [
+            ts.createParameter(
+                [],
+                [],
+                undefined,
+                MODULE_CONTEXT_NAME
+            )
+        ],
+        undefined,
+        getBody()
+    );
 }
 
 function transformModuleDeclaration(node: ts.ModuleDeclaration): ts.Node | undefined {
@@ -37,33 +38,40 @@ function transformModuleDeclaration(node: ts.ModuleDeclaration): ts.Node | undef
 }
 
 class NestedIdentifierHelper implements ts.EmitHelper {
-    constructor(namespace: string[]) {
-        this.namespace = namespace;
+    constructor(names: string[]) {
+        this._names = names;
     }
 
-    get name(): string { return "NestedIdentifier" }
-    get scoped(): boolean { return true; }
-    get priority(): number { return 0; };
-    get text(): string {
-        return this.namespace.join("::");
+    name: string = "NestedIdentifier";
+    scoped: boolean = true;
+    priority: number = 0;
+
+    text(): string {
+        return this._names.join("::");
     }
 
-    namespace: string[];
+    private _names: string[];
 }
 
-function nestedIdentifierTransformer<T extends ts.Node>(): ts.TransformerFactory<T> {
-    return (context) => {
-        function visit(node: ts.Node): ts.Node {
+function nestedIdentifierTransformer(/*opts?: Opts*/) {
+    function visitor(context: ts.TransformationContext, sourceFile: ts.SourceFile) {
+        function visitor(node: ts.Node): ts.VisitResult<ts.Node> {
+            // here we can check each node and potentially return 
+            // new nodes if we want to leave the node as is, and 
+            // continue searching through child nodes:
             console.log(ts.SyntaxKind[node.kind]);
 
             if (ts.isLabeledStatement(node))
-                console.log(node.label);
+                return ts.createNotEmittedStatement(node);
 
-            return ts.visitEachChild(node, visit, context);
-        };
+            return ts.visitEachChild(node, visitor, context)
+        }
+        return visitor
+    }
 
-        return (node) => ts.visitNode(node, visit);
-    };
+    return (context: ts.TransformationContext): ts.Transformer<ts.Node> => {
+        return (sourceFile: ts.SourceFile) => ts.visitNode(sourceFile, visitor(context, sourceFile));
+    }
 }
 
 let input = `
@@ -83,10 +91,12 @@ function f() {
 `;
 
 let source = ts.createSourceFile("test.d.ts", input, ts.ScriptTarget.ES2015);
+
 let transformResult = ts.transform(
     source,
-    [nestedIdentifierTransformer()],
-    {
-        composite: true
-    }
+    [nestedIdentifierTransformer()]
 );
+
+
+
+console.log(transformResult.transformed[0]);
