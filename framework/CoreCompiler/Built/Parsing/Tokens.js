@@ -99,9 +99,9 @@ var Tokens;
     Tokens.dollarToken = new Token_1.TokenModel("$");
     Tokens.tildeToken = new Token_1.TokenModel("~");
     Tokens.caretToken = new Token_1.TokenModel("^");
-    //  Dynamic
-    Tokens.singleQuoteStringToken = new Token_1.TokenModel();
-    Tokens.doubleQuoteStringToken = new Token_1.TokenModel();
+    //String
+    Tokens.singleQuoteStringToken = new Token_1.TokenModel([Tokens.singleQuoteToken, null, Tokens.singleQuoteToken]);
+    Tokens.doubleQuoteStringToken = new Token_1.TokenModel([Tokens.doubleQuoteToken, null, Tokens.doubleQuoteToken]);
     //Operators
     //  Arithmetic
     Tokens.additionOperatorToken = Tokens.plusToken;

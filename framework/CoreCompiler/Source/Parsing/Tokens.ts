@@ -1,4 +1,5 @@
-import { TokenModel } from "../Tokens/Token";
+import Token, { TokenModel } from "../Tokens/Token";
+import Tokenizer from "../Tokens/Tokenizer";
 
 export namespace Tokens {
     //Tokens
@@ -97,9 +98,9 @@ export namespace Tokens {
     export const dollarToken = new TokenModel("$");
     export const tildeToken = new TokenModel("~");
     export const caretToken = new TokenModel("^");
-    //  Dynamic
-    export const singleQuoteStringToken = new TokenModel();
-    export const doubleQuoteStringToken = new TokenModel();
+    //String
+    export const singleQuoteStringToken = new TokenModel([singleQuoteToken, null, singleQuoteToken]);
+    export const doubleQuoteStringToken = new TokenModel([doubleQuoteToken, null, doubleQuoteToken]);
     //Operators
     //  Arithmetic
     export const additionOperatorToken = plusToken;
