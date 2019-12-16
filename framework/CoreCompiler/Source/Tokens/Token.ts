@@ -30,7 +30,8 @@ export class TokenModel {
         if (args.length == 1) {
             if (typeof args[0] == "string")
                 this.text = args[0];
-            else throw "Invalid value for argument \"text\". A value of type String was expected.";
+            else
+                throw "Invalid value for argument \"text\". A value of type String was expected.";
         }
         else if (args.length == 2) {
             if (typeof args[0] == "function")
@@ -46,14 +47,8 @@ export class TokenModel {
             throw "The number of specified parameters is invalid.";
     }
 
-    emit(source: Tokenizer): Token {
-
-    }
-
-    take(token: Token) {
-
-    }
-
+    emit: (source: Tokenizer) => Token = null;
+    take: (token: Token) => void = null;
     text: string = null;
     children: TokenModel[] = [];
 }

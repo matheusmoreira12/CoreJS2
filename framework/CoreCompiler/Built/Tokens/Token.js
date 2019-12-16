@@ -21,6 +21,8 @@ var TokenModel = /** @class */ (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
+        this.emit = null;
+        this.take = null;
         this.text = null;
         this.children = [];
         if (args.length == 1) {
@@ -42,10 +44,6 @@ var TokenModel = /** @class */ (function () {
         else
             throw "The number of specified parameters is invalid.";
     }
-    TokenModel.prototype.emit = function (source) {
-    };
-    TokenModel.prototype.take = function (token) {
-    };
     return TokenModel;
 }());
 exports.TokenModel = TokenModel;
