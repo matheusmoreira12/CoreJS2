@@ -79,6 +79,7 @@ export namespace Tokens {
     export const semicolonToken = new TokenModel(";");
     export const colonToken = new TokenModel(":");
     export const dotToken = new TokenModel(".");
+    export const ampersandToken = new TokenModel("&");
     export const questionToken = new TokenModel("?");
     export const exclamationToken = new TokenModel("!");
     export const openParenToken = new TokenModel("(");
@@ -113,4 +114,21 @@ export namespace Tokens {
     export const equalsOperatorToken = new TokenModel([equalsToken, equalsToken]);
     export const notEqualsOperatorToken = new TokenModel([exclamationToken, equalsToken]);
     //  Logical
+    export const andOperatorToken = new TokenModel([ampersandToken, ampersandToken]);
+    export const orOperatorToken = new TokenModel([barToken, barToken]);
+    export const notOperatorToken = exclamationToken;
+    // Bitwise
+    export const bitwiseAndOperatorToken = exclamationToken;
+    export const bitwiseOrOperatorToken = exclamationToken;
+    export const bitwiseXorOperatorToken = exclamationToken;
+    export const bitwiseNotOperatorToken = exclamationToken;
+    export const leftShiftOperatorToken = new TokenModel([lesserThanToken, lesserThanToken]);
+    export const spRightShiftOperatorToken = new TokenModel([greaterThanToken, greaterThanToken]);
+    export const zfRightShiftOperatorToken = new TokenModel([greaterThanToken, greaterThanToken, greaterThanToken]);
+    // Assignment
+    export const simpleAssignOperatorToken = equalsToken;
+    export const addAssignOperatorToken = new TokenModel([plusToken, equalsToken]);
+    export const subtractAssignOperatorToken = new TokenModel([dashToken, equalsToken]);
+    export const multiplyAssignOperatorToken = new TokenModel([asteriskToken, equalsToken]);
+    export const divideAssignOperatorToken = new TokenModel([slashToken, equalsToken]);
 }

@@ -81,6 +81,7 @@ var Tokens;
     Tokens.semicolonToken = new Token_1.TokenModel(";");
     Tokens.colonToken = new Token_1.TokenModel(":");
     Tokens.dotToken = new Token_1.TokenModel(".");
+    Tokens.ampersandToken = new Token_1.TokenModel("&");
     Tokens.questionToken = new Token_1.TokenModel("?");
     Tokens.exclamationToken = new Token_1.TokenModel("!");
     Tokens.openParenToken = new Token_1.TokenModel("(");
@@ -115,4 +116,21 @@ var Tokens;
     Tokens.equalsOperatorToken = new Token_1.TokenModel([Tokens.equalsToken, Tokens.equalsToken]);
     Tokens.notEqualsOperatorToken = new Token_1.TokenModel([Tokens.exclamationToken, Tokens.equalsToken]);
     //  Logical
+    Tokens.andOperatorToken = new Token_1.TokenModel([Tokens.ampersandToken, Tokens.ampersandToken]);
+    Tokens.orOperatorToken = new Token_1.TokenModel([Tokens.barToken, Tokens.barToken]);
+    Tokens.notOperatorToken = Tokens.exclamationToken;
+    // Bitwise
+    Tokens.bitwiseAndOperatorToken = Tokens.exclamationToken;
+    Tokens.bitwiseOrOperatorToken = Tokens.exclamationToken;
+    Tokens.bitwiseXorOperatorToken = Tokens.exclamationToken;
+    Tokens.bitwiseNotOperatorToken = Tokens.exclamationToken;
+    Tokens.leftShiftOperatorToken = new Token_1.TokenModel([Tokens.lesserThanToken, Tokens.lesserThanToken]);
+    Tokens.spRightShiftOperatorToken = new Token_1.TokenModel([Tokens.greaterThanToken, Tokens.greaterThanToken]);
+    Tokens.zfRightShiftOperatorToken = new Token_1.TokenModel([Tokens.greaterThanToken, Tokens.greaterThanToken, Tokens.greaterThanToken]);
+    // Assignment
+    Tokens.simpleAssignOperatorToken = Tokens.equalsToken;
+    Tokens.addAssignOperatorToken = new Token_1.TokenModel([Tokens.plusToken, Tokens.equalsToken]);
+    Tokens.subtractAssignOperatorToken = new Token_1.TokenModel([Tokens.dashToken, Tokens.equalsToken]);
+    Tokens.multiplyAssignOperatorToken = new Token_1.TokenModel([Tokens.asteriskToken, Tokens.equalsToken]);
+    Tokens.divideAssignOperatorToken = new Token_1.TokenModel([Tokens.slashToken, Tokens.equalsToken]);
 })(Tokens = exports.Tokens || (exports.Tokens = {}));
