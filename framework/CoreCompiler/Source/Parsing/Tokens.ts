@@ -2,6 +2,7 @@ import { TokenModel } from "../Tokens/Token";
 
 export namespace Tokens {
     //Tokens
+    //  Fixed
     export const abstractToken = new TokenModel("abstract");
     export const breakToken = new TokenModel("break");
     export const charToken = new TokenModel("char");
@@ -96,6 +97,9 @@ export namespace Tokens {
     export const dollarToken = new TokenModel("$");
     export const tildeToken = new TokenModel("~");
     export const caretToken = new TokenModel("^");
+    //  Dynamic
+    export const singleQuoteStringToken = new TokenModel();
+    export const doubleQuoteStringToken = new TokenModel();
     //Operators
     //  Arithmetic
     export const additionOperatorToken = plusToken;
@@ -117,18 +121,26 @@ export namespace Tokens {
     export const andOperatorToken = new TokenModel([ampersandToken, ampersandToken]);
     export const orOperatorToken = new TokenModel([barToken, barToken]);
     export const notOperatorToken = exclamationToken;
-    // Bitwise
-    export const bitwiseAndOperatorToken = exclamationToken;
-    export const bitwiseOrOperatorToken = exclamationToken;
-    export const bitwiseXorOperatorToken = exclamationToken;
-    export const bitwiseNotOperatorToken = exclamationToken;
+    //  Bitwise
+    export const bitwiseAndOperatorToken = ampersandToken;
+    export const bitwiseOrOperatorToken = barToken;
+    export const bitwiseXorOperatorToken = caretToken;
+    export const bitwiseNotOperatorToken = tildeToken;
     export const leftShiftOperatorToken = new TokenModel([lesserThanToken, lesserThanToken]);
-    export const spRightShiftOperatorToken = new TokenModel([greaterThanToken, greaterThanToken]);
-    export const zfRightShiftOperatorToken = new TokenModel([greaterThanToken, greaterThanToken, greaterThanToken]);
-    // Assignment
+    export const signPropagatingRightShiftOperatorToken = new TokenModel([greaterThanToken, greaterThanToken]);
+    export const zeroFillRightShiftOperatorToken = new TokenModel([greaterThanToken, greaterThanToken, greaterThanToken]);
+    //  Assignment
     export const simpleAssignOperatorToken = equalsToken;
     export const addAssignOperatorToken = new TokenModel([plusToken, equalsToken]);
     export const subtractAssignOperatorToken = new TokenModel([dashToken, equalsToken]);
     export const multiplyAssignOperatorToken = new TokenModel([asteriskToken, equalsToken]);
     export const divideAssignOperatorToken = new TokenModel([slashToken, equalsToken]);
+    //  Miscellaneous
+    export const negationOperatorToken = dashToken;
+    //  String
+    export const concatenationOperatorToken = plusToken;
+    //  Conditional
+    export const conditionalOperatorToken = questionToken;
+    //  Type
+    export const typeofOperator = typeofToken;
 }

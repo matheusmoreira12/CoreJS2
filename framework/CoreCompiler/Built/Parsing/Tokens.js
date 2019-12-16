@@ -4,6 +4,7 @@ var Token_1 = require("../Tokens/Token");
 var Tokens;
 (function (Tokens) {
     //Tokens
+    //  Fixed
     Tokens.abstractToken = new Token_1.TokenModel("abstract");
     Tokens.breakToken = new Token_1.TokenModel("break");
     Tokens.charToken = new Token_1.TokenModel("char");
@@ -98,6 +99,9 @@ var Tokens;
     Tokens.dollarToken = new Token_1.TokenModel("$");
     Tokens.tildeToken = new Token_1.TokenModel("~");
     Tokens.caretToken = new Token_1.TokenModel("^");
+    //  Dynamic
+    Tokens.singleQuoteStringToken = new Token_1.TokenModel();
+    Tokens.doubleQuoteStringToken = new Token_1.TokenModel();
     //Operators
     //  Arithmetic
     Tokens.additionOperatorToken = Tokens.plusToken;
@@ -119,18 +123,26 @@ var Tokens;
     Tokens.andOperatorToken = new Token_1.TokenModel([Tokens.ampersandToken, Tokens.ampersandToken]);
     Tokens.orOperatorToken = new Token_1.TokenModel([Tokens.barToken, Tokens.barToken]);
     Tokens.notOperatorToken = Tokens.exclamationToken;
-    // Bitwise
-    Tokens.bitwiseAndOperatorToken = Tokens.exclamationToken;
-    Tokens.bitwiseOrOperatorToken = Tokens.exclamationToken;
-    Tokens.bitwiseXorOperatorToken = Tokens.exclamationToken;
-    Tokens.bitwiseNotOperatorToken = Tokens.exclamationToken;
+    //  Bitwise
+    Tokens.bitwiseAndOperatorToken = Tokens.ampersandToken;
+    Tokens.bitwiseOrOperatorToken = Tokens.barToken;
+    Tokens.bitwiseXorOperatorToken = Tokens.caretToken;
+    Tokens.bitwiseNotOperatorToken = Tokens.tildeToken;
     Tokens.leftShiftOperatorToken = new Token_1.TokenModel([Tokens.lesserThanToken, Tokens.lesserThanToken]);
-    Tokens.spRightShiftOperatorToken = new Token_1.TokenModel([Tokens.greaterThanToken, Tokens.greaterThanToken]);
-    Tokens.zfRightShiftOperatorToken = new Token_1.TokenModel([Tokens.greaterThanToken, Tokens.greaterThanToken, Tokens.greaterThanToken]);
-    // Assignment
+    Tokens.signPropagatingRightShiftOperatorToken = new Token_1.TokenModel([Tokens.greaterThanToken, Tokens.greaterThanToken]);
+    Tokens.zeroFillRightShiftOperatorToken = new Token_1.TokenModel([Tokens.greaterThanToken, Tokens.greaterThanToken, Tokens.greaterThanToken]);
+    //  Assignment
     Tokens.simpleAssignOperatorToken = Tokens.equalsToken;
     Tokens.addAssignOperatorToken = new Token_1.TokenModel([Tokens.plusToken, Tokens.equalsToken]);
     Tokens.subtractAssignOperatorToken = new Token_1.TokenModel([Tokens.dashToken, Tokens.equalsToken]);
     Tokens.multiplyAssignOperatorToken = new Token_1.TokenModel([Tokens.asteriskToken, Tokens.equalsToken]);
     Tokens.divideAssignOperatorToken = new Token_1.TokenModel([Tokens.slashToken, Tokens.equalsToken]);
+    //  Miscellaneous
+    Tokens.negationOperatorToken = Tokens.dashToken;
+    //  String
+    Tokens.concatenationOperatorToken = Tokens.plusToken;
+    //  Conditional
+    Tokens.conditionalOperatorToken = Tokens.questionToken;
+    //  Type
+    Tokens.typeofOperator = Tokens.typeofToken;
 })(Tokens = exports.Tokens || (exports.Tokens = {}));

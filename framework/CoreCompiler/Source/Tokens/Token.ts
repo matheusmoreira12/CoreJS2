@@ -25,13 +25,25 @@ export default class Token {
 export class TokenModel {
     constructor(text: string);
     constructor(children: TokenModel[]);
-    constructor(arg: string | TokenModel[]) {
-        if (typeof arg === "string")
-            this.text = arg;
-        else if (arg instanceof Array)
-            this.children = arg;
+    constructor(emit: (source: Tokenizer) => Token, take: (dest: Tokenizer) => void);
+    constructor(...args: any[]) {
+        if (args.length == 1) {
+            if (typeof args[0] == "string")
+                this.text = args[0];
+            else throw "Invalid value for argument \"text\". A value of type String was expected.";
+        }
+        else if (args.length == 2) {
+            if (typeof args[0] == "function")
+                this.emit = args[0];
+            else
+                throw "Invalid value for argument \"emit\". A value of type Function was expected.";
+            if (typeof args[1] == "function")
+                this.take = args[1];
+            else
+                throw "Invalid value for argument \"take\". A value of type Function was expected.";
+        }
         else
-            throw "The specified parameter value is invalid.";
+            throw "The number of specified parameters is invalid.";
     }
 
     emit(source: Tokenizer): Token {
