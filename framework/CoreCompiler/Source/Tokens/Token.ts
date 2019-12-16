@@ -25,7 +25,7 @@ export default class Token {
 export class TokenModel {
     constructor(text: string);
     constructor(children: TokenModel[]);
-    constructor(emit: (source: Tokenizer) => Token, take: (dest: Tokenizer) => void);
+    constructor(emit: (source: Tokenizer) => Token, take: (token: Token, dest: Tokenizer) => void);
     constructor(...args: any[]) {
         if (args.length == 1) {
             if (typeof args[0] == "string")
@@ -48,7 +48,7 @@ export class TokenModel {
     }
 
     emit: (source: Tokenizer) => Token = null;
-    take: (token: Token) => void = null;
+    take: (token: Token, dest: Tokenizer) => void = null;
     text: string = null;
     children: TokenModel[] = [];
 }
