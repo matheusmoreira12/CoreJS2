@@ -1,9 +1,3 @@
-import { ValueConverter, ContextSelectionFlags, IValueConverter } from "./standard.js";
-import { Collection } from "./Standard.Collections.js";
-import { ArgumentTypeException, InvalidOperationException, ArgumentNullException } from "./exceptions.js";
-import { FrameworkEvent, BroadcastFrameworkEvent } from "./Standard.Events.js";
-import { Enumeration } from "./Standard.Enumeration.js";
-
 export class BooleanAttributeValueConverter extends ValueConverter {
     convertBack(value) {
         if (value === null) return null;

@@ -1,7 +1,3 @@
-import { ObservableCollection, ObservableCollectionChangeAction } from "./Standard.Collections.js";
-import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "./exceptions.js";
-import { PropertyBinding, PropertyAttributeBinding } from "./UserInterface.Bindings.js";
-
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 
 export class VisualTreeNode {
