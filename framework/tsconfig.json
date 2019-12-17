@@ -1,0 +1,9 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "/Built",
+    "rootDir": "/Source",
+    "target": "ESNext"
+  }
+}

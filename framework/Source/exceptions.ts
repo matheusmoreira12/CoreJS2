@@ -16,9 +16,9 @@ export class FrameworkException extends Error {
     }
 
     constructor(message = null, innerException = null) {
-        message = message || "A non-specified exception has been encountered.";
-
         super();
+
+        message = message || "A non-specified exception has been encountered.";
 
         this.message = message;
         this._data.set("innerException", innerException);
