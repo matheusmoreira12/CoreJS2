@@ -1,12 +1,18 @@
-using Core::Standard::Exceptions;
-using Core::Standard::Events;
+import { ArgumentOutOfRangeException, KeyNotFoundException } from "./exceptions";
+import { Enumeration } from "./Standard.Enumeration";
+import { FrameworkEvent } from "./Standard.Events";
 
-namespace Core::Standard::Collections {
+namespace Core.Standard.Collections {
     /**
      * Collection Class
      * Represents a collection of values.
      */
-    class Collection extends Array {
+    class Collection<T> extends Array<T> {
+        constructor(length: number);
+        constructor(...items: T[]);
+        constructor(...args: any) {
+            super(...args);
+        }
 
         get first() { return this[0]; }
 
@@ -49,28 +55,28 @@ namespace Core::Standard::Collections {
         }
 
         swap(index1, index2) {
-            if (index1 < 0 || index1 >= this.length) throw ArgumentOutOfRangeException("index1");
-            if (index2 < 0 || index2 >= this.length) throw ArgumentOutOfRangeException("index2");
+            if (index1 < 0 || index1 >= this.length) throw new ArgumentOutOfRangeException("index1");
+            if (index2 < 0 || index2 >= this.length) throw new ArgumentOutOfRangeException("index2");
 
             [this[index1], this[index2]] = [this[index2], this[index1]];
         }
 
         replace(oldItem, newItem) {
             let index = this.indexOf(oldItem);
-            if (index === -1) throw KeyNotFoundException();
+            if (index === -1) throw new KeyNotFoundException();
 
             this[index] = newItem;
         }
 
         removeAt(index) {
-            if (index < 0 || index >= this.length) throw ArgumentOutOfRangeException("index");
+            if (index < 0 || index >= this.length) throw new ArgumentOutOfRangeException("index");
 
             return this.splice(index, 1)[0];
         }
 
         remove(item) {
             let index = this.indexOf(item);
-            if (index === -1) throw KeyNotFoundException();
+            if (index === -1) throw new KeyNotFoundException();
 
             this.removeAt(index);
         }
@@ -82,14 +88,12 @@ namespace Core::Standard::Collections {
      */
     export const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove: 2 });
 
-    export class ObservableCollection extends Collection {
+    export class ObservableCollection<T> extends Collection<T> {
         _notifySplice(start, deleteCount, ...items) {
             let action = (items.length > 0 ? ObservableCollectionChangeAction.Add : 0) |
                 (deleteCount > 0 ? ObservableCollectionChangeAction.Remove : 0);
 
             if (action === 0) return;
-
-            action = new ObservableCollectionChangeAction(action);
 
             const oldItems = Array.from(this.getRange(start, deleteCount));
 
@@ -168,7 +172,11 @@ namespace Core::Standard::Collections {
      * Dictionary class
      * 
      */
-    export class Dictionary extends Collection {
+    export class Dictionary extends Collection<KeyValuePair> {
+        constructor(...items) {
+            super(items);
+        }
+
         static fromMap(map) {
             function* getItems() {
                 for (let mapItem of map)

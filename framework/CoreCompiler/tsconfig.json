@@ -1,9 +1,0 @@
-{
-    "compileOnSave": true,
-    "compilerOptions": {
-        "rootDir": "Source/",
-        "outDir": "Built/",
-      "downlevelIteration": true,
-      "experimentalDecorators": true
-    }
-}
