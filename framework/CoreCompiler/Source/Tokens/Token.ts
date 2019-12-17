@@ -22,26 +22,39 @@ export default class Token {
     }
 }
 
+export enum TokenModelType {
+    Text,
+    Structured,
+    Custom
+}
+
 export class TokenModel {
     constructor(text: string);
     constructor(children: TokenModel[]);
     constructor(emit: (source: Tokenizer) => Token, take: (token: Token, dest: Tokenizer) => void);
     constructor(...args: any[]) {
         if (args.length == 1) {
-            if (typeof args[0] == "string")
+            if (typeof args[0] == "string") {
                 this.text = args[0];
+                this.type = TokenModelType.Text;
+            }
+            else if (args[0] instanceof Array) {
+                this.children = args[0];
+                this.type = TokenModelType.Structured;
+            }
             else
-                throw "Invalid value for argument \"text\". A value of type String was expected.";
+                throw "Invalid value for argument args[0]. A value of type String or Array was expected.";
         }
         else if (args.length == 2) {
             if (typeof args[0] == "function")
                 this.emit = args[0];
             else
-                throw "Invalid value for argument \"emit\". A value of type Function was expected.";
+                throw "Invalid value for argument args[0]. A value of type Function was expected.";
             if (typeof args[1] == "function")
                 this.take = args[1];
             else
-                throw "Invalid value for argument \"take\". A value of type Function was expected.";
+                throw "Invalid value for argument args[1]. A value of type Function was expected.";
+            this.type = TokenModelType.Custom;
         }
         else
             throw "The number of specified parameters is invalid.";
@@ -51,4 +64,5 @@ export class TokenModel {
     take: (token: Token, dest: Tokenizer) => void = null;
     text: string = null;
     children: TokenModel[] = [];
+    type: TokenModelType;
 }

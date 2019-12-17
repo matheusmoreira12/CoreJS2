@@ -15,6 +15,12 @@ var Token = /** @class */ (function () {
     return Token;
 }());
 exports["default"] = Token;
+var TokenModelType;
+(function (TokenModelType) {
+    TokenModelType[TokenModelType["Text"] = 0] = "Text";
+    TokenModelType[TokenModelType["Structured"] = 1] = "Structured";
+    TokenModelType[TokenModelType["Custom"] = 2] = "Custom";
+})(TokenModelType = exports.TokenModelType || (exports.TokenModelType = {}));
 var TokenModel = /** @class */ (function () {
     function TokenModel() {
         var args = [];
@@ -26,20 +32,27 @@ var TokenModel = /** @class */ (function () {
         this.text = null;
         this.children = [];
         if (args.length == 1) {
-            if (typeof args[0] == "string")
+            if (typeof args[0] == "string") {
                 this.text = args[0];
+                this.type = TokenModelType.Text;
+            }
+            else if (args[0] instanceof Array) {
+                this.children = args[0];
+                this.type = TokenModelType.Structured;
+            }
             else
-                throw "Invalid value for argument \"text\". A value of type String was expected.";
+                throw "Invalid value for argument args[0]. A value of type String or Array was expected.";
         }
         else if (args.length == 2) {
             if (typeof args[0] == "function")
                 this.emit = args[0];
             else
-                throw "Invalid value for argument \"emit\". A value of type Function was expected.";
+                throw "Invalid value for argument args[0]. A value of type Function was expected.";
             if (typeof args[1] == "function")
                 this.take = args[1];
             else
-                throw "Invalid value for argument \"take\". A value of type Function was expected.";
+                throw "Invalid value for argument args[1]. A value of type Function was expected.";
+            this.type = TokenModelType.Custom;
         }
         else
             throw "The number of specified parameters is invalid.";
