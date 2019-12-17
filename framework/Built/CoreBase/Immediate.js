@@ -1,17 +1,17 @@
 ﻿export class Immediate {
     constructor(callback, thisArg = globalThis) {
-        this.callback = callback;
-        this.thisArg = thisArg;
-        this.timeoutHandle = null;
+        this.__callback = callback;
+        this.__thisArg = thisArg;
+        this.__timeoutHandle = null;
     }
     start() {
         this.abort();
-        this.timeoutHandle = setTimeout(this.callback.bind(this.thisArg));
+        this.__timeoutHandle = setTimeout(this.__callback.bind(this.__thisArg));
     }
     abort() {
-        if (this.timeoutHandle === null)
+        if (this.__timeoutHandle === null)
             return false;
-        clearTimeout(this.timeoutHandle);
+        clearTimeout(this.__timeoutHandle);
         return true;
     }
 }

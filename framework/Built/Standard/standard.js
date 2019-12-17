@@ -1,25 +1,16 @@
-﻿/**
- * ReverseIterator class
- * Iterates backwards through an Iterable.
- */
-export class ReverseIterator {
-    constructor(iterable) {
-        this[Symbol.iterator] = () => this;
-        this._iterable = iterable;
-        this._index = iterable.length;
-    }
-    next() {
-        this._index--;
-        return {
-            done: this._index < 0,
-            value: this._iterable[this._index]
-        };
-    }
-}
+﻿import { ArgumentTypeException } from "./exceptions";
+import { Enumeration } from "./Enumeration";
+import { BroadcastFrameworkEvent } from "./Events";
+import { Interface, InterfaceFunction } from "./Types/Types";
 /**
  * ContextSelectionFlags Class
  * Allows the selection of individual flags.*/
 export class ContextSelectionFlags {
+    constructor(includeFlags = null, requireFlags = null, excludeFlags = null) {
+        this.__includeFlags = includeFlags || [];
+        this.__requireFlags = requireFlags || [];
+        this.__excludeFlags = excludeFlags || [];
+    }
     static [Symbol.species]() { return String; }
     static get all() { return new ContextSelectionFlags(["*"], null, null); }
     static get none() { return new ContextSelectionFlags(null, null, ["*"]); }
@@ -33,30 +24,25 @@ export class ContextSelectionFlags {
         let matches = FORMAT_REGEX.exec(str);
         if (!matches)
             return null;
-        let { include: includeFlagsStr, require: requireFlagsStr, exclude: excludeFlagsStr } = matches.groups;
+        let { include: includeFlagsStr, require: requireFlagsStr, exclude: excludeFlagsStr } = matches["groups"];
         let includeFlags = includeFlagsStr ? includeFlagsStr.split(SEPARATOR_REGEX) : [];
         let requireFlags = requireFlagsStr ? requireFlagsStr.split(SEPARATOR_REGEX) : [];
         let excludeFlags = excludeFlagsStr ? excludeFlagsStr.split(SEPARATOR_REGEX) : [];
         return new ContextSelectionFlags(includeFlags, requireFlags, excludeFlags);
     }
-    constructor(includeFlags = null, requireFlags = null, excludeFlags = null) {
-        this._includeFlags = includeFlags || [];
-        this._requireFlags = requireFlags || [];
-        this._excludeFlags = excludeFlags || [];
-    }
     toString() {
         let str = "";
-        str += this._includeFlags.join(", ");
-        if (this._requireFlags.length > 0)
-            str += " !" + this._requireFlags.join(", ");
-        if (this._excludeFlags.length > 0)
-            str += " -" + this._excludeFlags.join(", ");
+        str += this.__includeFlags.join(", ");
+        if (this.__requireFlags.length > 0)
+            str += " !" + this.__requireFlags.join(", ");
+        if (this.__excludeFlags.length > 0)
+            str += " -" + this.__excludeFlags.join(", ");
         return str;
     }
     matchesFlag(flag) {
-        const includeFlags = this._includeFlags;
-        const requireFlags = this._requireFlags;
-        const excludeFlags = this._excludeFlags;
+        const includeFlags = this.__includeFlags;
+        const requireFlags = this.__requireFlags;
+        const excludeFlags = this.__excludeFlags;
         function flagsInclude(flag, flags) {
             if (flags.includes("*"))
                 return true;
@@ -67,17 +53,14 @@ export class ContextSelectionFlags {
         return !flagsInclude(flag, excludeFlags) && flagsInclude(flag, includeFlags);
     }
     matches(contextFlags) {
-        return !this._excludeFlags.some(f => contextFlags.matchesFlag(f)) &&
-            this._includeFlags.some(f => contextFlags.matchesFlag(f));
+        return !this.__excludeFlags.some(f => contextFlags.matchesFlag(f)) &&
+            this.__includeFlags.some(f => contextFlags.matchesFlag(f));
     }
 }
 export class ServerTaskError {
     constructor(message, errorCode) {
         this.message = message;
         this.errorCode = errorCode;
-    }
-    [Symbol.toString]() {
-        return this.message;
     }
 }
 const DEFAULT_SERVER_TASK_OPTIONS = {
@@ -96,27 +79,23 @@ export const ServerTaskStatus = new Enumeration([
 /**
  * ServerTask class
  * Extends the promise class, providing server-side error handling logic.*/
-export class ServerTask extends Promise {
-    constructor(promise, options) {
-        this._timedOutEvent = new BroadcastFrameworkEvent("ServerTask_timedOut");
-        this._retriedEvent = new BroadcastFrameworkEvent("ServerTask_retried");
-        this._statusChangedEvent = new BroadcastFrameworkEvent("ServerTask_statusChanged");
-        this._startedEvent = new BroadcastFrameworkEvent("ServerTask_started");
-        this._finishedEvent = new BroadcastFrameworkEvent("ServerTask_finished");
-        this._succeededEvent = new BroadcastFrameworkEvent("ServerTask_succeeded");
-        this._failedEvent = new BroadcastFrameworkEvent("ServerTask_failed");
-        this._status = ServerTaskStatus.Pending;
-        this._error = null;
-        let _resolve, _reject;
+export class ServerTask {
+    constructor(promise, options = DEFAULT_SERVER_TASK_OPTIONS) {
+        this.__timedOutEvent = new BroadcastFrameworkEvent("ServerTask_timedOut");
+        this.__retriedEvent = new BroadcastFrameworkEvent("ServerTask_retried");
+        this.__statusChangedEvent = new BroadcastFrameworkEvent("ServerTask_statusChanged");
+        this.__startedEvent = new BroadcastFrameworkEvent("ServerTask_started");
+        this.__finishedEvent = new BroadcastFrameworkEvent("ServerTask_finished");
+        this.__succeededEvent = new BroadcastFrameworkEvent("ServerTask_succeeded");
+        this.__failedEvent = new BroadcastFrameworkEvent("ServerTask_failed");
+        this.__status = ServerTaskStatus.Pending;
+        this.__error = null;
         if (!(promise instanceof Promise))
             throw new ArgumentTypeException("promise", Promise);
-        super((resolve, reject) => {
-            _resolve = resolve;
-            _reject = reject;
-        });
-        options = Object.assign({}, DEFAULT_SERVER_TASK_OPTIONS, options);
-        this._options = options;
-        this._execute(promise, _resolve, _reject);
+        let { timeout, maxRetries } = options;
+        this.__timeout = timeout;
+        this.__maxRetries = maxRetries;
+        this.__loaded = new Promise((resolve, reject) => this._execute(promise, resolve, reject));
     }
     static get [Symbol.species]() { return Promise; }
     _execute(promise, resolve, reject) {
@@ -132,7 +111,7 @@ export class ServerTask extends Promise {
         }
         function notifyRetry(error, retries) {
             notifyStatus.call(this, ServerTaskStatus.Retried);
-            this._retries = retries;
+            this.__retries = retries;
             this.retriedEvent.broadcast(this, { error: error, retries: retries });
         }
         function notifyTimeout() {
@@ -146,7 +125,7 @@ export class ServerTask extends Promise {
         }
         function notifyError(error) {
             notifyStatus.call(this, ServerTaskStatus.Failed);
-            this._error = error;
+            this.__error = error;
             this.failedEvent.broadcast(this, { error: error });
             this.finishedEvent.broadcast(this);
         }
@@ -155,7 +134,7 @@ export class ServerTask extends Promise {
             reject(error);
         }
         function failed(error) {
-            if (retries > this._options.maxRetries || error instanceof ServerTaskError)
+            if (retries > this.__maxRetries || error instanceof ServerTaskError)
                 abort.call(this, error);
             else
                 retry.call(this, error);
@@ -186,30 +165,31 @@ export class ServerTask extends Promise {
         }
         retry.call(this);
     }
-    get timedOutEvent() { return this._timedOutEvent; }
-    get retriedEvent() { return this._retriedEvent; }
-    get statusChangedEvent() { return this._statusChangedEvent; }
-    get startedEvent() { return this._startedEvent; }
-    get finishedEvent() { return this._finishedEvent; }
-    get succeededEvent() { return this._succeededEvent; }
-    get failedEvent() { return this._failedEvent; }
-    get status() { return this._status; }
-    get error() { return this._error; }
-    get maxRetries() { return this._maxRetries; }
-    get retries() { return this._retries; }
-    get timeout() { return this._timeout; }
+    get timedOutEvent() { return this.__timedOutEvent; }
+    get retriedEvent() { return this.__retriedEvent; }
+    get statusChangedEvent() { return this.__statusChangedEvent; }
+    get startedEvent() { return this.__startedEvent; }
+    get finishedEvent() { return this.__finishedEvent; }
+    get succeededEvent() { return this.__succeededEvent; }
+    get failedEvent() { return this.__failedEvent; }
+    get status() { return this.__status; }
+    get error() { return this.__error; }
+    get loaded() { return this.__loaded; }
+    ;
+    get maxRetries() { return this.__maxRetries; }
+    get retries() { return this.__retries; }
+    get timeout() { return this.__timeout; }
 }
-export const IValueConverter = new Interface(new InterfaceFunction("convert"), new InterfaceFunction("convertBack"));
 /**
- * ValueConverter Class
+ * IValueConverter Interface
  * Exposes a friendly interface for converting values between layers of abstraction.*/
-export class ValueConverter {
-    convert(value) { throw NotImplementedException(); }
-    convertBack(value) { throw NotImplementedException(); }
-}
+export const IValueConverter = new Interface([
+    new InterfaceFunction("convert"),
+    new InterfaceFunction("convertBack")
+]);
 /**
- * ValueValidator Class
+ * ValueValidator Interface
  * Exposes a friendly interface for validating values between layers of abstraction.*/
-export class ValueValidator {
-    validate(value) { throw NotImplementedException(); }
-}
+export const IValueValidator = new Interface([
+    new InterfaceFunction("validate")
+]);

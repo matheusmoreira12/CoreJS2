@@ -1,15 +1,6 @@
-﻿/**
- * ReverseIterator class
- * Iterates backwards through an Iterable.
- */
-export declare class ReverseIterator {
-    constructor(iterable: any);
-    [Symbol.iterator]: () => this;
-    next(): {
-        done: boolean;
-        value: any;
-    };
-}
+﻿import { Enumeration } from "./Enumeration";
+import { BroadcastFrameworkEvent } from "./Events";
+import { Interface } from "./Types/Types";
 /**
  * ContextSelectionFlags Class
  * Allows the selection of individual flags.*/
@@ -21,53 +12,59 @@ export declare class ContextSelectionFlags {
     constructor(includeFlags?: any, requireFlags?: any, excludeFlags?: any);
     toString(): string;
     matchesFlag(flag: any): boolean;
-    matches(contextFlags: any): any;
+    matches(contextFlags: any): boolean;
+    __includeFlags: string[];
+    __requireFlags: string[];
+    __excludeFlags: string[];
 }
 export declare class ServerTaskError {
-    constructor(message: any, errorCode: any);
-    [Symbol.toString](): any;
+    constructor(message: string, errorCode: number);
+    message: string;
+    errorCode: number;
 }
-export declare const ServerTaskStatus: any;
+export declare const ServerTaskStatus: Enumeration;
 /**
  * ServerTask class
  * Extends the promise class, providing server-side error handling logic.*/
-export declare class ServerTask extends Promise {
+export declare class ServerTask {
     static readonly [Symbol.species]: PromiseConstructor;
-    constructor(promise: any, options: any);
+    constructor(promise: any, options?: {
+        timeout: number;
+        maxRetries: number;
+    });
     _execute(promise: any, resolve: any, reject: any): void;
-    _timedOutEvent: any;
-    _retriedEvent: any;
-    _statusChangedEvent: any;
-    _startedEvent: any;
-    _finishedEvent: any;
-    _succeededEvent: any;
-    _failedEvent: any;
-    _status: any;
-    _error: any;
-    readonly timedOutEvent: any;
-    readonly retriedEvent: any;
-    readonly statusChangedEvent: any;
-    readonly startedEvent: any;
-    readonly finishedEvent: any;
-    readonly succeededEvent: any;
-    readonly failedEvent: any;
+    private __timedOutEvent;
+    private __retriedEvent;
+    private __statusChangedEvent;
+    private __startedEvent;
+    private __finishedEvent;
+    private __succeededEvent;
+    private __failedEvent;
+    private __status;
+    private __error;
+    private __maxRetries;
+    private __retries;
+    private __timeout;
+    private __loaded;
+    readonly timedOutEvent: BroadcastFrameworkEvent;
+    readonly retriedEvent: BroadcastFrameworkEvent;
+    readonly statusChangedEvent: BroadcastFrameworkEvent;
+    readonly startedEvent: BroadcastFrameworkEvent;
+    readonly finishedEvent: BroadcastFrameworkEvent;
+    readonly succeededEvent: BroadcastFrameworkEvent;
+    readonly failedEvent: BroadcastFrameworkEvent;
     readonly status: any;
     readonly error: any;
-    readonly maxRetries: any;
-    readonly retries: any;
-    readonly timeout: any;
+    readonly loaded: Promise<any>;
+    readonly maxRetries: number;
+    readonly retries: number;
+    readonly timeout: number;
 }
-export declare const IValueConverter: any;
 /**
- * ValueConverter Class
+ * IValueConverter Interface
  * Exposes a friendly interface for converting values between layers of abstraction.*/
-export declare class ValueConverter {
-    convert(value: any): void;
-    convertBack(value: any): void;
-}
+export declare const IValueConverter: Interface;
 /**
- * ValueValidator Class
+ * ValueValidator Interface
  * Exposes a friendly interface for validating values between layers of abstraction.*/
-export declare class ValueValidator {
-    validate(value: any): void;
-}
+export declare const IValueValidator: Interface;

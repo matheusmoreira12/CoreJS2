@@ -1,24 +1,7 @@
-/**
- * ReverseIterator class
- * Iterates backwards through an Iterable.
- */
-export class ReverseIterator {
-    constructor(iterable) {
-        this._iterable = iterable;
-        this._index = iterable.length;
-    }
-
-    [Symbol.iterator] = () => this;
-
-    next() {
-        this._index--;
-
-        return {
-            done: this._index < 0,
-            value: this._iterable[this._index]
-        };
-    }
-}
+import { ArgumentTypeException, NotImplementedException } from "./exceptions";
+import { Enumeration } from "./Enumeration";
+import { BroadcastFrameworkEvent } from "./Events";
+import { Interface, InterfaceFunction } from "./Types/Types";
 
 /**
  * ContextSelectionFlags Class
@@ -44,7 +27,7 @@ export class ContextSelectionFlags {
         if (!matches)
             return null;
 
-        let { include: includeFlagsStr, require: requireFlagsStr, exclude: excludeFlagsStr } = matches.groups;
+        let { include: includeFlagsStr, require: requireFlagsStr, exclude: excludeFlagsStr } = matches["groups"];
 
         let includeFlags = includeFlagsStr ? includeFlagsStr.split(SEPARATOR_REGEX) : [];
         let requireFlags = requireFlagsStr ? requireFlagsStr.split(SEPARATOR_REGEX) : [];
@@ -54,29 +37,29 @@ export class ContextSelectionFlags {
     }
 
     constructor(includeFlags = null, requireFlags = null, excludeFlags = null) {
-        this._includeFlags = includeFlags || [];
-        this._requireFlags = requireFlags || [];
-        this._excludeFlags = excludeFlags || [];
+        this.__includeFlags = includeFlags || [];
+        this.__requireFlags = requireFlags || [];
+        this.__excludeFlags = excludeFlags || [];
     }
 
     toString() {
         let str = "";
 
-        str += this._includeFlags.join(", ");
+        str += this.__includeFlags.join(", ");
 
-        if (this._requireFlags.length > 0)
-            str += " !" + this._requireFlags.join(", ");
+        if (this.__requireFlags.length > 0)
+            str += " !" + this.__requireFlags.join(", ");
 
-        if (this._excludeFlags.length > 0)
-            str += " -" + this._excludeFlags.join(", ");
+        if (this.__excludeFlags.length > 0)
+            str += " -" + this.__excludeFlags.join(", ");
 
         return str;
     }
 
     matchesFlag(flag) {
-        const includeFlags = this._includeFlags;
-        const requireFlags = this._requireFlags;
-        const excludeFlags = this._excludeFlags;
+        const includeFlags = this.__includeFlags;
+        const requireFlags = this.__requireFlags;
+        const excludeFlags = this.__excludeFlags;
 
         function flagsInclude(flag, flags) {
             if (flags.includes("*")) return true;
@@ -90,20 +73,23 @@ export class ContextSelectionFlags {
     }
 
     matches(contextFlags) {
-        return !this._excludeFlags.some(f => contextFlags.matchesFlag(f)) &&
-            this._includeFlags.some(f => contextFlags.matchesFlag(f));
+        return !this.__excludeFlags.some(f => contextFlags.matchesFlag(f)) &&
+            this.__includeFlags.some(f => contextFlags.matchesFlag(f));
     }
+
+    __includeFlags: string[];
+    __requireFlags: string[];
+    __excludeFlags: string[];
 }
 
 export class ServerTaskError {
-    constructor(message, errorCode) {
+    constructor(message: string, errorCode: number) {
         this.message = message;
         this.errorCode = errorCode;
     }
 
-    [Symbol.toString]() {
-        return this.message;
-    }
+    message: string;
+    errorCode: number;
 }
 
 const DEFAULT_SERVER_TASK_OPTIONS = {
@@ -124,24 +110,17 @@ export const ServerTaskStatus = new Enumeration([
 /**
  * ServerTask class
  * Extends the promise class, providing server-side error handling logic.*/
-export class ServerTask extends Promise {
+export class ServerTask {
     static get [Symbol.species]() { return Promise; }
 
-    constructor(promise, options) {
-        let _resolve, _reject;
-
+    constructor(promise, options = DEFAULT_SERVER_TASK_OPTIONS) {
         if (!(promise instanceof Promise)) throw new ArgumentTypeException("promise", Promise);
 
-        super((resolve, reject) => {
-            _resolve = resolve;
-            _reject = reject;
-        });
+        let { timeout, maxRetries } = options;
+        this.__timeout = timeout;
+        this.__maxRetries = maxRetries;
 
-        options = Object.assign({}, DEFAULT_SERVER_TASK_OPTIONS, options);
-
-        this._options = options;
-
-        this._execute(promise, _resolve, _reject);
+        this.__loaded = new Promise<any>((resolve, reject) => this._execute(promise, resolve, reject));
     }
 
     _execute(promise, resolve, reject) {
@@ -154,50 +133,50 @@ export class ServerTask extends Promise {
             this.statusChangedEvent.broadcast(this, { status: status });
         }
 
-        function notifyStart() {
+        function notifyStart(this: ServerTask) {
             notifyStatus.call(this, ServerTaskStatus.Started);
 
             this.startedEvent.broadcast(this);
         }
 
-        function notifyRetry(error, retries) {
+        function notifyRetry(this: ServerTask, error, retries) {
             notifyStatus.call(this, ServerTaskStatus.Retried);
 
-            this._retries = retries;
+            this.__retries = retries;
 
             this.retriedEvent.broadcast(this, { error: error, retries: retries });
         }
 
-        function notifyTimeout() {
+        function notifyTimeout(this: ServerTask) {
             notifyStatus.call(this, ServerTaskStatus.TimedOut);
 
             this.timedOutEvent.broadcast(this);
         }
 
-        function notifySuccess() {
+        function notifySuccess(this: ServerTask) {
             notifyStatus.call(this, ServerTaskStatus.Succeeded);
 
             this.succeededEvent.broadcast(this);
             this.finishedEvent.broadcast(this, { error: null });
         }
 
-        function notifyError(error) {
+        function notifyError(this: ServerTask, error) {
             notifyStatus.call(this, ServerTaskStatus.Failed);
 
-            this._error = error;
+            this.__error = error;
 
             this.failedEvent.broadcast(this, { error: error });
             this.finishedEvent.broadcast(this);
         }
 
-        function abort(error) {
+        function abort(this: ServerTask, error) {
             notifyError.call(this, error);
 
             reject(error);
         }
 
-        function failed(error) {
-            if (retries > this._options.maxRetries || error instanceof ServerTaskError)
+        function failed(this: ServerTask, error) {
+            if (retries > this.__maxRetries || error instanceof ServerTaskError)
                 abort.call(this, error);
             else
                 retry.call(this, error);
@@ -205,7 +184,7 @@ export class ServerTask extends Promise {
             clearTimeout(timeoutHandle);
         }
 
-        function succeeded(result) {
+        function succeeded(this: ServerTask, result) {
             notifySuccess.call(this);
 
             resolve(result);
@@ -213,7 +192,7 @@ export class ServerTask extends Promise {
             clearTimeout(timeoutHandle);
         }
 
-        function timedOut() {
+        function timedOut(this: ServerTask) {
             notifyTimeout.call(this, ServerTaskStatus.TimedOut);
 
             failed.call(this, null);
@@ -221,7 +200,7 @@ export class ServerTask extends Promise {
             clearTimeout(timeoutHandle);
         }
 
-        function retry(error) {
+        function retry(this: ServerTask, error) {
             /*timeoutHandle = setTimeout(timedOut.bind(this), this._options.timeout);*/
 
             promise.then(value => { //Fulfilled
@@ -241,48 +220,49 @@ export class ServerTask extends Promise {
         retry.call(this);
     }
 
-    _timedOutEvent = new BroadcastFrameworkEvent("ServerTask_timedOut");
-    _retriedEvent = new BroadcastFrameworkEvent("ServerTask_retried");
-    _statusChangedEvent = new BroadcastFrameworkEvent("ServerTask_statusChanged");
-    _startedEvent = new BroadcastFrameworkEvent("ServerTask_started");
-    _finishedEvent = new BroadcastFrameworkEvent("ServerTask_finished");
-    _succeededEvent = new BroadcastFrameworkEvent("ServerTask_succeeded");
-    _failedEvent = new BroadcastFrameworkEvent("ServerTask_failed");
+    private __timedOutEvent = new BroadcastFrameworkEvent("ServerTask_timedOut");
+    private __retriedEvent = new BroadcastFrameworkEvent("ServerTask_retried");
+    private __statusChangedEvent = new BroadcastFrameworkEvent("ServerTask_statusChanged");
+    private __startedEvent = new BroadcastFrameworkEvent("ServerTask_started");
+    private __finishedEvent = new BroadcastFrameworkEvent("ServerTask_finished");
+    private __succeededEvent = new BroadcastFrameworkEvent("ServerTask_succeeded");
+    private __failedEvent = new BroadcastFrameworkEvent("ServerTask_failed");
 
-    _status = ServerTaskStatus.Pending;
-    _error = null;
+    private __status = ServerTaskStatus.Pending;
+    private __error = null;
+    private __maxRetries: number;
+    private __retries: number;
+    private __timeout: number;
 
-    get timedOutEvent() { return this._timedOutEvent; }
-    get retriedEvent() { return this._retriedEvent; }
-    get statusChangedEvent() { return this._statusChangedEvent; }
-    get startedEvent() { return this._startedEvent; }
-    get finishedEvent() { return this._finishedEvent; }
-    get succeededEvent() { return this._succeededEvent; }
-    get failedEvent() { return this._failedEvent; }
+    private __loaded: Promise<any>;
 
-    get status() { return this._status; }
-    get error() { return this._error; }
-    get maxRetries() { return this._maxRetries; }
-    get retries() { return this._retries; }
-    get timeout() { return this._timeout; }
+    get timedOutEvent() { return this.__timedOutEvent; }
+    get retriedEvent() { return this.__retriedEvent; }
+    get statusChangedEvent() { return this.__statusChangedEvent; }
+    get startedEvent() { return this.__startedEvent; }
+    get finishedEvent() { return this.__finishedEvent; }
+    get succeededEvent() { return this.__succeededEvent; }
+    get failedEvent() { return this.__failedEvent; }
+
+    get status() { return this.__status; }
+    get error() { return this.__error; }
+    get loaded() { return this.__loaded };
+    get maxRetries() { return this.__maxRetries; }
+    get retries() { return this.__retries; }
+    get timeout() { return this.__timeout; }
 }
 
-export const IValueConverter = new Interface(
+/**
+ * IValueConverter Interface
+ * Exposes a friendly interface for converting values between layers of abstraction.*/
+export const IValueConverter = new Interface([
     new InterfaceFunction("convert"),
     new InterfaceFunction("convertBack")
-);
+]);
 
 /**
- * ValueConverter Class 
- * Exposes a friendly interface for converting values between layers of abstraction.*/
-export class ValueConverter {
-    convert(value) { throw NotImplementedException(); }
-    convertBack(value) { throw NotImplementedException(); }
-}
-
-/**
- * ValueValidator Class 
+ * ValueValidator Interface 
  * Exposes a friendly interface for validating values between layers of abstraction.*/
-export class ValueValidator {
-    validate(value) { throw NotImplementedException(); }
-}
+export const IValueValidator = new Interface([
+    new InterfaceFunction("validate")
+]);

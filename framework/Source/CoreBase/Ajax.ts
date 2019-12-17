@@ -1,5 +1,3 @@
-import { ObjectUtils } from "../Standard.ObjectUtils";
-
 export namespace CoreBase {
     export const STATUS = {
         INFORMATIONAL: {

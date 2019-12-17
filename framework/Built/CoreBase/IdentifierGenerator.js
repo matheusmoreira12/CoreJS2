@@ -1,20 +1,20 @@
 ﻿export class IdentifierGenerator {
     constructor(prefix) {
-        this._usedNumbers = new Set();
-        this._prefix = prefix;
+        this.__usedNumbers = new Set();
+        this.__prefix = prefix;
     }
     generate() {
         let number = 0;
-        while (this._usedNumbers.has(number))
+        while (this.__usedNumbers.has(number))
             number++;
-        this._usedNumbers.add(number);
-        return `${this._prefix}${number}`;
+        this.__usedNumbers.add(number);
+        return `${this.__prefix}${number}`;
     }
     delete(id) {
-        if (!id.startsWith(this._prefix))
+        if (!id.startsWith(this.__prefix))
             return false;
-        let number = id.replace(this._prefix, "") * 1;
-        this._usedNumbers.delete(number);
+        let number = id.replace(this.__prefix, "") * 1;
+        this.__usedNumbers.delete(number);
         return true;
     }
 }
