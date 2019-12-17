@@ -1,6 +1,4 @@
-﻿import { Enumeration } from "./Standard.Enumeration";
-import { FrameworkEvent } from "./Standard.Events";
-export declare namespace Core.Standard.Collections {
+﻿export declare namespace Core.Standard.Collections {
     /**
      * Collection Class
      * Represents a collection of values.
@@ -21,7 +19,7 @@ export declare namespace Core.Standard.Collections {
         removeAt(index: any): T;
         remove(item: any): void;
     }
-    export const ObservableCollectionChangeAction: Enumeration;
+    export const ObservableCollectionChangeAction: any;
     export class ObservableCollection<T> extends Collection<T> {
         _notifySplice(start: any, deleteCount: any, ...items: any[]): void;
         _notifyPush(...items: any[]): void;
@@ -29,7 +27,7 @@ export declare namespace Core.Standard.Collections {
         splice(start: any, deleteCount: any, ...items: any[]): T[];
         push(...items: any[]): void;
         pop(): T;
-        ChangeEvent: FrameworkEvent;
+        ChangeEvent: any;
     }
     /**
      * KeyValuePair class
@@ -53,14 +51,14 @@ export declare namespace Core.Standard.Collections {
         values(): Generator<any, void, unknown>;
         delete(key: any): void;
     }
-    export const ObservableDictionaryChangeAction: Enumeration;
+    export const ObservableDictionaryChangeAction: any;
     export class ObservableDictionary extends Dictionary {
         constructor(entries: any);
         _notifySet(key: any, value: any): void;
         _notifyDelete(key: any): void;
         set(key: any, value: any): void;
         delete(key: any): void;
-        ChangeEvent: FrameworkEvent;
+        ChangeEvent: any;
     }
     export {};
 }

@@ -1,7 +1,4 @@
-﻿import { ArgumentOutOfRangeException, KeyNotFoundException } from "./exceptions";
-import { Enumeration } from "./Standard.Enumeration";
-import { FrameworkEvent } from "./Standard.Events";
-export var Core;
+﻿export var Core;
 (function (Core) {
     var Standard;
     (function (Standard) {
