@@ -4,6 +4,6 @@
     "module": "CommonJS",
     "outDir": "/Built",
     "rootDir": "/Source",
-    "target": "ESNext"
+    "target": "ES6"
   }
 }

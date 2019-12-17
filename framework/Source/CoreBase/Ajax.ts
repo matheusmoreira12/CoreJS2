@@ -1,14 +1,6 @@
 import { ObjectUtils } from "../Standard.ObjectUtils";
 
 export namespace CoreBase {
-    export const READY_STATE = {
-        UNSENT: 0,
-        OPENED: 1,
-        HEADERS_RECEIVED: 2,
-        LOADING: 3,
-        DONE: 4
-    };
-
     export const STATUS = {
         INFORMATIONAL: {
             CONTINUE: 100,
@@ -85,6 +77,14 @@ export namespace CoreBase {
         },
     };
 
+    export enum AjaxReadyState {
+        Unsent = 0,
+        Opened = 1,
+        HeadersReceived = 2,
+        Loading = 3,
+        Done = 4
+    };
+
     export enum AjaxMethod {
         Get = "GET",
         Head = "HEAD",
@@ -112,100 +112,178 @@ export namespace CoreBase {
         body?: Document | BodyInit,
     };
 
-    export type AjaxEvents = {
-        onabort?: EventHandlerNonNull,
-        onerror?: EventHandlerNonNull,
-        onload?: EventHandlerNonNull,
-        onloadend?: EventHandlerNonNull,
-        onloadstart?: EventHandlerNonNull,
-        onprogress?: EventHandlerNonNull,
-        onreadystatechange?: EventHandlerNonNull,
-        ontimeout?: EventHandlerNonNull
+    export type AjaxCallbacks = {
+        onabort?: AjaxAbortEventHandler,
+        onerror?: AjaxErrorEventHandler,
+        onload?: AjaxLoadEventHandler,
+        onloadend?: AjaxLoadEndEventHandler,
+        onloadstart?: AjaxLoadStartEventHandler,
+        onprogress?: AjaxProgressEventHandler,
+        onreadystatechange?: AjaxReadyStateChangeEventHandler,
+        ontimeout?: AjaxTimeoutEventHandler
     }
 
-    export class Ajax extends XMLHttpRequest {
-        static send(method: AjaxMethod, url, options = {}) {
+    export type AjaxAbortEventHandler = (this: Ajax) => void;
+    export type AjaxErrorEventHandler = (this: Ajax, status?: number, statusText?: string) => void;
+    export type AjaxLoadEventHandler = (this: Ajax, response?: any, responseType?: AjaxResponseType) => void;
+    export type AjaxLoadEndEventHandler = (this: Ajax) => void;
+    export type AjaxLoadStartEventHandler = (this: Ajax) => void;
+    export type AjaxProgressEventHandler = (this: Ajax, loaded?: number, total?: number) => void;
+    export type AjaxReadyStateChangeEventHandler = (this: Ajax, readyState?: AjaxReadyState) => void;
+    export type AjaxTimeoutEventHandler = (this: Ajax) => void;
+
+    export class Ajax {
+        static send(method: AjaxMethod, url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
             return new Promise((resolve, reject) => {
-                let ajax = new Ajax(AjaxMethod[method], url, options);
+                let ajax = new Ajax(AjaxMethod[method], url, events, options);
 
-                ajax.onload = function () {
-                    resolve(ajax.response);
-                }
+                ajax.__onload = (response: any) => {
+                    resolve(response);
+                };
 
-                ajax.onerror = function () {
-                    reject(`Server responded with status ${this.status} (${this.statusText})`);
-                }
+                ajax.__onerror = (status: number, statusText: string) => {
+                    reject(`Server responded with status ${status} (${statusText})`);
+                };
             });
         }
 
-        static get(url: string, options: AjaxEvents = {}, events: AjaxEvents = {}) {
-            return this.send(AjaxMethod.Get, url, options);
+        static get(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Get, url, events, options);
         }
 
-        static head(url, options = {}) {
-            return this.send(AjaxMethod.Head, url, options);
+        static head(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Head, url, events, options);
         }
 
-        static post(url, options = {}) {
-            return this.send(AjaxMethod.Post, url, options);
+        static post(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Post, url, events, options);
         }
 
-        static put(url, options = {}) {
-            return this.send(AjaxMethod.Put, url, options);
+        static put(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Put, url, events, options);
         }
 
-        static delete(url, options = {}) {
-            return this.send(AjaxMethod.Delete, url, options);
+        static delete(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Delete, url, events, options);
         }
 
-        static connect(url, options = {}) {
-            return this.send(AjaxMethod.Connect, url, options);
+        static connect(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Connect, url, events, options);
         }
 
-        static options(url, options = {}) {
-            return this.send(AjaxMethod.Options, url, options);
+        static options(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Options, url, events, options);
         }
 
-        static trace(url, options = {}) {
-            return this.send(AjaxMethod.Trace, url, options);
+        static trace(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Trace, url, events, options);
         }
 
-        static patch(url, options = {}) {
-            return this.send(AjaxMethod.Patch, url, options);
+        static patch(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+            return this.send(AjaxMethod.Patch, url, events, options);
         }
 
-        constructor(method: AjaxMethod, url: string, { onabort, onerror, onload, onloadend, onloadstart, onprogress, onreadystatechange, ontimeout }: AjaxEvents = {}, { mimeType, responseType, body }: AjaxOptions = {}) {
-            super();
+        constructor(method: AjaxMethod, url: string, events: AjaxCallbacks = {}, options: AjaxOptions = {}) {
+            this.__method = method;
+            this.__url = url;
+            this.__events = events;
+            this.__options = options;
 
-            this.url = url;
+            const { onabort, onerror, onload, onloadend, onloadstart, onprogress, onreadystatechange, ontimeout } = events;
+            const { body, mimeType, responseType } = options;
+
+            let request = new XMLHttpRequest();
+            this.__xhr = request;
 
             if (onabort !== undefined)
-                this.onabort = onabort;
+                this.__onabort = onabort;
             if (onerror !== undefined)
-                this.onerror = onerror;
+                this.__onerror = onerror;
             if (onload !== undefined)
-                this.onload = onload;
+                this.__onload = onload;
             if (onloadend !== undefined)
-                this.onloadend = onloadend;
+                this.__onloadend = onloadend;
             if (onloadstart !== undefined)
-                this.onloadstart = onloadstart;
+                this.__onloadstart = onloadstart;
             if (onprogress !== undefined)
-                this.onprogress = onprogress;
+                this.__onprogress = onprogress;
             if (onreadystatechange !== undefined)
-                this.onreadystatechange = onreadystatechange;
+                this.__onreadystatechange = onreadystatechange;
             if (ontimeout !== undefined)
-                this.ontimeout = ontimeout;
+                this.__ontimeout = ontimeout;
 
-            this.open(method, url);
+            request.open(AjaxMethod[method], url);
 
             if (responseType !== undefined)
-                this.responseType = responseType;
+                request.responseType = responseType;
             if (mimeType !== undefined)
-                this.overrideMimeType(mimeType);
+                request.overrideMimeType(mimeType);
 
-            this.send(body);
+            request.onabort = this.__request_onabort_handler.bind(this);
+            request.onerror = this.__request_onerror_handler.bind(this);
+            request.onload = this.__request_onload_handler.bind(this);
+            request.onloadend = this.__request_onloadend_handler.bind(this);
+            request.onloadstart = this.__request_onloadstart_handler.bind(this);
+            request.onprogress = this.__request_onprogress_handler.bind(this);
+            request.ontimeout = this.__request_ontimeout_handler.bind(this);
+            request.onreadystatechange = this.__request_onreadystatechange_handler.bind(this);
+
+            request.send(body);
         }
 
-        url: string;
+        __request_onabort_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__onabort)
+                this.__onabort.call(this);
+        }
+        __request_onerror_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__onerror)
+                this.__onerror.call(this, this.__xhr.status, this.__xhr.statusText);
+        }
+        __request_onload_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__onload)
+                this.__onload.call(this, this.__xhr.response, this.__xhr.responseType);
+        }
+        __request_onloadend_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__onloadend)
+                this.__onloadend.call(this);
+        }
+        __request_onloadstart_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__onloadstart)
+                this.__onloadstart.call(this);
+        }
+        __request_onprogress_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__onprogress)
+                this.__onprogress.call(this, evt.loaded, evt.total);
+        }
+        __request_ontimeout_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__ontimeout)
+                this.__ontimeout.call(this);
+        }
+        __request_onreadystatechange_handler(this: Ajax, evt: ProgressEvent) {
+            if (this.__onreadystatechange)
+                this.__onreadystatechange.call(this, this.__xhr.readyState);
+        }
+
+        private __onabort: AjaxAbortEventHandler;
+        private __onerror: AjaxErrorEventHandler;
+        private __onload: AjaxLoadEventHandler;
+        private __onloadend: AjaxLoadEndEventHandler;
+        private __onloadstart: AjaxLoadStartEventHandler;
+        private __onprogress: AjaxProgressEventHandler;
+        private __onreadystatechange: AjaxReadyStateChangeEventHandler;
+        private __ontimeout: AjaxTimeoutEventHandler;
+        private __xhr: XMLHttpRequest;
+
+        get method(): AjaxMethod { return this.__method; }
+        private __method: AjaxMethod;
+
+        get url(): string { return this.__url; }
+        private __url: string;
+
+        get events(): AjaxCallbacks { return this.__events; };
+        private __events: AjaxCallbacks;
+
+        get options(): AjaxOptions { return this.__options; };
+        private __options: AjaxOptions;
     };
 }
