@@ -9,7 +9,7 @@ declare type EventListenerData = {
 export declare class FrameworkEvent extends Destructible {
     static attachMultiple(listener: any, ...events: any[]): void;
     static detachMultiple(listener: any, ...events: any[]): void;
-    constructor(defaultListener?: any, defaultListenerThisArg?: any);
+    constructor(defaultListener?: Function, defaultListenerThisArg?: any);
     __detachAll(): void;
     attach(listener: any, thisArg?: any): boolean;
     detach(listener: any): boolean;
@@ -24,7 +24,7 @@ export declare class FrameworkEvent extends Destructible {
  */
 export declare class NativeEvent extends FrameworkEvent {
     constructor(target: EventTarget, nativeEventName: string, defaultListener?: any, defaultListenerThisArg?: any);
-    private __nativeEvent_handler;
+    private __target_nativeEvent_handler;
     readonly target: EventTarget;
     private __target;
     readonly nativeEventName: string;

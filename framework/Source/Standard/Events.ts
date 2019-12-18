@@ -9,17 +9,17 @@ type EventListenerData = { thisArg: any };
  * FrameworkEvent class
  * Enables event creation and manipulation, avoiding the use of callbacks.*/
 export class FrameworkEvent extends Destructible {
-    static attachMultiple(listener, ...events) {
+    static attachMultiple(listener, ...events): void {
         for (let event of events)
             event.attach(listener);
     }
 
-    static detachMultiple(listener, ...events) {
+    static detachMultiple(listener, ...events): void {
         for (let event of events)
             event.detach(listener);
     }
 
-    constructor(defaultListener?, defaultListenerThisArg?) {
+    constructor(defaultListener?: Function, defaultListenerThisArg?: any) {
         super();
 
         if (defaultListener !== undefined) {
@@ -30,12 +30,12 @@ export class FrameworkEvent extends Destructible {
         }
     }
 
-    __detachAll() {
+    __detachAll(): void {
         for (let listener of this.__listeners)
             this.detach(listener);
     }
 
-    attach(listener, thisArg?) {
+    attach(listener, thisArg?): boolean {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
@@ -48,7 +48,7 @@ export class FrameworkEvent extends Destructible {
         return true;
     }
 
-    detach(listener) {
+    detach(listener): boolean {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
             throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
 
@@ -59,7 +59,7 @@ export class FrameworkEvent extends Destructible {
         return true;
     }
 
-    protected __invokeListeners(sender, args) {
+    protected __invokeListeners(sender, args): void {
         let invokeErrors = [];
 
         let isPropagationStopped = false;
@@ -87,7 +87,7 @@ export class FrameworkEvent extends Destructible {
         for (let invokeError of invokeErrors) throw invokeError;
     }
 
-    invoke(sender, args) {
+    invoke(sender, args): void {
         this.__invokeListeners(sender, args);
     }
 
@@ -95,8 +95,6 @@ export class FrameworkEvent extends Destructible {
 
     destructor() {
         this.__detachAll();
-
-        super.destruct();
     }
 }
 
@@ -112,10 +110,10 @@ export class NativeEvent extends FrameworkEvent {
         this.__nativeEventName = nativeEventName;
         this.__defaultListener = defaultListener;
 
-        target.addEventListener(nativeEventName, this.__nativeEvent_handler);
+        target.addEventListener(nativeEventName, this.__target_nativeEvent_handler);
     }
 
-    private __nativeEvent_handler = ((event: Event) => {
+    private __target_nativeEvent_handler = ((event: Event): void => {
         this.invoke(this.target, event);
     }).bind(this);
 
@@ -129,7 +127,7 @@ export class NativeEvent extends FrameworkEvent {
     private __defaultListener;
 
     destructor() {
-        this.__target.removeEventListener(this.__nativeEventName, this.__nativeEvent_handler);
+        this.__target.removeEventListener(this.__nativeEventName, this.__target_nativeEvent_handler);
 
         super.destructor();
     }
@@ -203,6 +201,8 @@ export class BroadcastFrameworkEvent extends FrameworkEvent {
 
     destrutor() {
         BroadcastFrameworkEvent.__EventBroadcastEvent.detach(this.__onEventBroadcast);
+
+        super.destructor();
     }
 }
 
@@ -241,5 +241,7 @@ export class FrameworkCustomEvent extends FrameworkEvent {
 
     destructor() {
         this.__target.removeEventListener(this.__eventName, this.__target_customEvent_handler);
+
+        super.destructor();
     }
 }

@@ -72,7 +72,6 @@ export class FrameworkEvent extends Destructible {
     }
     destructor() {
         this.__detachAll();
-        super.destruct();
     }
 }
 /**
@@ -82,19 +81,19 @@ export class FrameworkEvent extends Destructible {
 export class NativeEvent extends FrameworkEvent {
     constructor(target, nativeEventName, defaultListener, defaultListenerThisArg) {
         super(defaultListener, defaultListenerThisArg);
-        this.__nativeEvent_handler = ((event) => {
+        this.__target_nativeEvent_handler = ((event) => {
             this.invoke(this.target, event);
         }).bind(this);
         this.__target = target;
         this.__nativeEventName = nativeEventName;
         this.__defaultListener = defaultListener;
-        target.addEventListener(nativeEventName, this.__nativeEvent_handler);
+        target.addEventListener(nativeEventName, this.__target_nativeEvent_handler);
     }
     get target() { return this.__target; }
     get nativeEventName() { return this.__nativeEventName; }
     get defaultListener() { return this.__defaultListener; }
     destructor() {
-        this.__target.removeEventListener(this.__nativeEventName, this.__nativeEvent_handler);
+        this.__target.removeEventListener(this.__nativeEventName, this.__target_nativeEvent_handler);
         super.destructor();
     }
 }
@@ -147,6 +146,7 @@ export class BroadcastFrameworkEvent extends FrameworkEvent {
     get name() { return this.__name; }
     destrutor() {
         BroadcastFrameworkEvent.__EventBroadcastEvent.detach(this.__onEventBroadcast);
+        super.destructor();
     }
 }
 BroadcastFrameworkEvent.__EventBroadcastEvent = new FrameworkEvent();
@@ -175,5 +175,6 @@ export class FrameworkCustomEvent extends FrameworkEvent {
     get eventName() { return this.__eventName; }
     destructor() {
         this.__target.removeEventListener(this.__eventName, this.__target_customEvent_handler);
+        super.destructor();
     }
 }
