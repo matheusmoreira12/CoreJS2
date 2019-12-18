@@ -9,26 +9,27 @@ export declare class Collection<T> extends Array<T> {
     constructor(...items: T[]);
     readonly first: T;
     readonly last: T;
-    getRange(index: any, itemCount: any): Generator<T, void, unknown>;
-    add(item: any): void;
-    addMultiple(items: any): void;
-    insert(index: any, item: any): void;
-    insertMultiple(index: any, items: any): void;
-    move(oldIndex: any, newIndex: any): void;
-    swap(index1: any, index2: any): void;
-    replace(oldItem: any, newItem: any): void;
-    removeAt(index: any): T;
-    remove(item: any): void;
+    getRange(index: any, itemCount: any): Generator<T>;
+    add(item: T): void;
+    addMultiple(items: Iterable<T>): void;
+    insert(index: number, item: T): void;
+    insertMultiple(index: number, items: Iterable<T>): void;
+    move(oldIndex: number, newIndex: number): void;
+    swap(index1: number, index2: number): void;
+    replace(oldItem: T, newItem: T): void;
+    removeAt(index: number): T;
+    remove(item: T): void;
 }
 export declare const ObservableCollectionChangeAction: Enumeration;
 export declare class ObservableCollection<T> extends Collection<T> {
-    _notifySplice(start: any, deleteCount: any, ...items: any[]): void;
-    _notifyPush(...items: any[]): void;
-    _notifyPop(): void;
-    splice(start: any, deleteCount: any, ...items: any[]): T[];
-    push(...items: any[]): void;
+    __notifySplice(start: any, deleteCount: any, ...items: any[]): void;
+    __notifyPush(...items: any[]): void;
+    __notifyPop(): void;
+    splice(start: number, deleteCount: number, ...items: T[]): T[];
+    push(...items: T[]): number;
     pop(): T;
-    ChangeEvent: FrameworkEvent;
+    readonly ChangeEvent: FrameworkEvent;
+    __ChangeEvent: FrameworkEvent;
 }
 /**
  * KeyValuePair class

@@ -74,9 +74,9 @@ export const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove
 export class ObservableCollection extends Collection {
     constructor() {
         super(...arguments);
-        this.ChangeEvent = new FrameworkEvent();
+        this.__ChangeEvent = new FrameworkEvent();
     }
-    _notifySplice(start, deleteCount, ...items) {
+    __notifySplice(start, deleteCount, ...items) {
         let action = (items.length > 0 ? ObservableCollectionChangeAction.Add : 0) |
             (deleteCount > 0 ? ObservableCollectionChangeAction.Remove : 0);
         if (action === 0)
@@ -90,7 +90,7 @@ export class ObservableCollection extends Collection {
             newItems: items
         });
     }
-    _notifyPush(...items) {
+    __notifyPush(...items) {
         const newIndex = this.length - 1;
         this.ChangeEvent.invoke(this, {
             action: ObservableCollectionChangeAction.Add,
@@ -100,7 +100,7 @@ export class ObservableCollection extends Collection {
             newItems: items
         });
     }
-    _notifyPop() {
+    __notifyPop() {
         const oldIndex = this.length - 1, oldItem = this.last;
         this.ChangeEvent.invoke(this, {
             action: ObservableCollectionChangeAction.Remove,
@@ -111,17 +111,18 @@ export class ObservableCollection extends Collection {
         });
     }
     splice(start, deleteCount, ...items) {
-        this._notifySplice(start, deleteCount, ...items);
+        this.__notifySplice(start, deleteCount, ...items);
         return super.splice(start, deleteCount, ...items);
     }
     push(...items) {
-        this._notifyPush(...items);
-        super.push(...items);
+        this.__notifyPush(...items);
+        return super.push(...items);
     }
     pop() {
-        this._notifyPop();
+        this.__notifyPop();
         return super.pop();
     }
+    get ChangeEvent() { return this.__ChangeEvent; }
 }
 /**
  * KeyValuePair class

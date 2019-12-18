@@ -13,11 +13,11 @@ export class Collection<T> extends Array<T> {
         super(...args);
     }
 
-    get first() { return this[0]; }
+    get first(): T { return this[0]; }
 
-    get last() { return this[this.length - 1]; }
+    get last(): T { return this[this.length - 1]; }
 
-    * getRange(index, itemCount) {
+    * getRange(index, itemCount): Generator<T> {
         if (index < 0 || index >= this.length) throw new ArgumentOutOfRangeException("index");
         if (itemCount < 0 || itemCount + index >= this.length) throw new ArgumentOutOfRangeException("itemCount");
 
@@ -25,23 +25,23 @@ export class Collection<T> extends Array<T> {
             yield this[i];
     }
 
-    add(item) {
+    add(item: T): void {
         this.push(item);
     }
 
-    addMultiple(items) {
+    addMultiple(items: Iterable<T>): void {
         this.push(...items);
     }
 
-    insert(index, item) {
+    insert(index: number, item: T): void {
         this.splice(index, 0, item);
     }
 
-    insertMultiple(index, items) {
+    insertMultiple(index: number, items: Iterable<T>): void {
         this.splice(index, 0, ...items);
     }
 
-    move(oldIndex, newIndex) {
+    move(oldIndex: number, newIndex: number): void {
         if (oldIndex < 0 || oldIndex >= this.length) throw new ArgumentOutOfRangeException("oldIndex");
         if (newIndex < 0 || newIndex >= this.length) throw new ArgumentOutOfRangeException("newIndex");
 
@@ -53,27 +53,27 @@ export class Collection<T> extends Array<T> {
         this.insert(newIndex, item);
     }
 
-    swap(index1, index2) {
+    swap(index1: number, index2: number): void {
         if (index1 < 0 || index1 >= this.length) throw new ArgumentOutOfRangeException("index1");
         if (index2 < 0 || index2 >= this.length) throw new ArgumentOutOfRangeException("index2");
 
         [this[index1], this[index2]] = [this[index2], this[index1]];
     }
 
-    replace(oldItem, newItem) {
+    replace(oldItem: T, newItem: T): void {
         let index = this.indexOf(oldItem);
         if (index === -1) throw new KeyNotFoundException();
 
         this[index] = newItem;
     }
 
-    removeAt(index) {
+    removeAt(index: number): T {
         if (index < 0 || index >= this.length) throw new ArgumentOutOfRangeException("index");
 
         return this.splice(index, 1)[0];
     }
 
-    remove(item) {
+    remove(item: T): void {
         let index = this.indexOf(item);
         if (index === -1) throw new KeyNotFoundException();
 
@@ -88,7 +88,7 @@ export class Collection<T> extends Array<T> {
 export const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove: 2 });
 
 export class ObservableCollection<T> extends Collection<T> {
-    _notifySplice(start, deleteCount, ...items) {
+    __notifySplice(start, deleteCount, ...items) {
         let action = (items.length > 0 ? ObservableCollectionChangeAction.Add : 0) |
             (deleteCount > 0 ? ObservableCollectionChangeAction.Remove : 0);
 
@@ -105,7 +105,7 @@ export class ObservableCollection<T> extends Collection<T> {
         });
     }
 
-    _notifyPush(...items) {
+    __notifyPush(...items) {
         const newIndex = this.length - 1;
 
         this.ChangeEvent.invoke(this, {
@@ -117,7 +117,7 @@ export class ObservableCollection<T> extends Collection<T> {
         });
     }
 
-    _notifyPop() {
+    __notifyPop() {
         const oldIndex = this.length - 1,
             oldItem = this.last;
 
@@ -130,25 +130,26 @@ export class ObservableCollection<T> extends Collection<T> {
         });
     }
 
-    splice(start, deleteCount, ...items) {
-        this._notifySplice(start, deleteCount, ...items);
+    splice(start: number, deleteCount: number, ...items: T[]) {
+        this.__notifySplice(start, deleteCount, ...items);
 
         return super.splice(start, deleteCount, ...items);
     }
 
-    push(...items) {
-        this._notifyPush(...items);
+    push(...items: T[]): number {
+        this.__notifyPush(...items);
 
-        super.push(...items);
+        return super.push(...items);
     }
 
-    pop() {
-        this._notifyPop();
+    pop(): T {
+        this.__notifyPop();
 
         return super.pop();
     }
 
-    ChangeEvent = new FrameworkEvent();
+    get ChangeEvent(): FrameworkEvent { return this.__ChangeEvent; }
+    __ChangeEvent = new FrameworkEvent();
 }
 
 /**

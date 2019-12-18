@@ -1,4 +1,4 @@
-﻿import { Dictionary } from "./Collections";
+﻿import { Dictionary, Collection } from "./Collections";
 import { ArgumentTypeException } from "./Exceptions";
 import { Type } from "./Types/Types";
 import { Destructible } from "./Destructible";
@@ -46,7 +46,7 @@ export class FrameworkEvent extends Destructible {
         this.__listeners.delete(listener);
         return true;
     }
-    invoke(sender, args) {
+    __invokeListeners(sender, args) {
         let invokeErrors = [];
         let isPropagationStopped = false;
         let _args = Object.assign(Object.assign({}, args), { stopEventPropagation() { isPropagationStopped = true; } });
@@ -67,6 +67,9 @@ export class FrameworkEvent extends Destructible {
         for (let invokeError of invokeErrors)
             throw invokeError;
     }
+    invoke(sender, args) {
+        this.__invokeListeners(sender, args);
+    }
     destructor() {
         this.__detachAll();
         super.destruct();
@@ -77,22 +80,21 @@ export class FrameworkEvent extends Destructible {
  * Routes DOM Events, enabling native event integration.
  */
 export class NativeEvent extends FrameworkEvent {
-    constructor(targetElement, nativeEventName, defaultListener, defaultListenerThisArg) {
+    constructor(target, nativeEventName, defaultListener, defaultListenerThisArg) {
         super(defaultListener, defaultListenerThisArg);
-        this.__bound_nativeEvent_handler = this.__nativeEvent_handler.bind(this);
-        this.__targetElement = targetElement;
+        this.__nativeEvent_handler = ((event) => {
+            this.invoke(this.target, event);
+        }).bind(this);
+        this.__target = target;
         this.__nativeEventName = nativeEventName;
         this.__defaultListener = defaultListener;
-        targetElement.addEventListener(nativeEventName, this.__bound_nativeEvent_handler);
+        target.addEventListener(nativeEventName, this.__nativeEvent_handler);
     }
-    __nativeEvent_handler(evt) {
-        this.invoke(this.targetElement, evt);
-    }
-    get targetElement() { return this.__targetElement; }
+    get target() { return this.__target; }
     get nativeEventName() { return this.__nativeEventName; }
     get defaultListener() { return this.__defaultListener; }
     destructor() {
-        this.__targetElement.removeEventListener(this.__nativeEventName, this.__bound_nativeEvent_handler);
+        this.__target.removeEventListener(this.__nativeEventName, this.__nativeEvent_handler);
         super.destructor();
     }
 }
@@ -123,7 +125,7 @@ export class BroadcastFrameworkEvent extends FrameworkEvent {
     route(baseEvent) {
         if (!(baseEvent instanceof FrameworkEvent))
             throw new ArgumentTypeException("baseEvent");
-        if (this.__routedEvents.includes(baseEvent))
+        if (this.__routedEvents.indexOf(baseEvent) !== -1)
             return false;
         baseEvent.attach(this.__onRoutedEvent, this);
         this.__routedEvents.add(baseEvent);
@@ -132,7 +134,7 @@ export class BroadcastFrameworkEvent extends FrameworkEvent {
     unroute(baseEvent) {
         if (!(baseEvent instanceof FrameworkEvent))
             throw new ArgumentTypeException("baseEvent");
-        if (!this.__routedEvents.includes(baseEvent))
+        if (this.__routedEvents.indexOf(baseEvent) == -1)
             return false;
         baseEvent.detach(this.__onRoutedEvent);
         this.__routedEvents.remove(baseEvent);
@@ -142,50 +144,36 @@ export class BroadcastFrameworkEvent extends FrameworkEvent {
         for (let routedEvent of this.__routedEvents)
             this.unroute(routedEvent);
     }
+    get name() { return this.__name; }
     destrutor() {
         BroadcastFrameworkEvent.__EventBroadcastEvent.detach(this.__onEventBroadcast);
     }
-    get name() { return this.__name; }
 }
 BroadcastFrameworkEvent.__EventBroadcastEvent = new FrameworkEvent();
 /**
  * FrameworkCustomEvent class
  * Simplifies DOM custom event creation and manipulation.*/
-export class FrameworkCustomEvent {
-    constructor(target, type) {
-        this._listenerMap = new WeakMap();
+export class FrameworkCustomEvent extends FrameworkEvent {
+    constructor(target, eventName, defaultListener, defaultListenerThisArg) {
+        super(defaultListener, defaultListenerThisArg);
+        this.__target_customEvent_handler = ((event) => {
+            this.__invokeListeners(event.target, event.detail);
+        }).bind(this);
         this.__target = target;
-        this.__type = type;
+        this.__eventName = eventName;
+        this.__target.addEventListener(eventName, this.__target_customEvent_handler);
     }
-    invoke(args = {}) {
-        let nativeEvent = new CustomEvent(this.__type, {
+    invoke(args) {
+        let nativeEvent = new CustomEvent(this.__eventName, {
             bubbles: true,
             detail: args
         }); //Create a native custom event with the specified arguments
         //Fire the native custom event
-        this.__target.dispatchEvent(nativeEvent);
-    }
-    attach(listener) {
-        if (this._listenerMap.has(listener))
-            return; //Listener already attached. Do nothing.
-        function handleNative(ev) {
-            listener.call(this, ev.detail);
-        }
-        //Attach the native handler to the target element
-        this.__target.addEventListener(this.__type, handleNative);
-        //Set the attached listener entry
-        this._listenerMap.set(listener, handleNative);
-    }
-    detach(listener) {
-        if (!this._listenerMap.has(listener))
-            return; //No attached listener. Do nothing
-        //Get the native handler
-        let nativeHandler = this._listenerMap.get(listener);
-        //Detach the native handler from the target element
-        this.__target.removeEventListener(this.__type, nativeHandler);
-        //Remove the previously attached listener entry
-        this._listenerMap.delete(listener);
+        super.invoke(nativeEvent, args);
     }
     get target() { return this.__target; }
-    get type() { return this.__type; }
+    get eventName() { return this.__eventName; }
+    destructor() {
+        this.__target.removeEventListener(this.__eventName, this.__target_customEvent_handler);
+    }
 }
