@@ -4,7 +4,7 @@ import { FrameworkEvent } from "./Events";
  * Collection Class
  * Represents a collection of values.
  */
-declare class Collection<T> extends Array<T> {
+export declare class Collection<T> extends Array<T> {
     constructor(length: number);
     constructor(...items: T[]);
     readonly first: T;
@@ -33,32 +33,39 @@ export declare class ObservableCollection<T> extends Collection<T> {
 /**
  * KeyValuePair class
  */
-export declare class KeyValuePair {
-    static fromMapItem(mapItem: any): KeyValuePair;
-    constructor(key: any, value: any);
+export declare class KeyValuePair<TKey, TValue> {
+    static fromMapItem<TKey, TValue>(mapItem: {
+        0: TKey;
+        1: TValue;
+    }): KeyValuePair<TKey, TValue>;
+    constructor(key: TKey, value: TValue);
+    readonly key: TKey;
+    private __key;
+    readonly value: TValue;
+    private __value;
 }
 /**
  * Dictionary class
  *
  */
 export declare class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TValue>> {
-    constructor(...items: any[]);
-    static fromMap(map: any): Dictionary<unknown, unknown>;
-    static fromKeyValueObject(obj: any): Dictionary<unknown, unknown>;
-    get(key: any): any;
-    has(key: any): boolean;
-    set(key: any, value: any): void;
-    keys(): Generator<any, void, unknown>;
-    values(): Generator<any, void, unknown>;
-    delete(key: any): void;
+    constructor(...items: KeyValuePair<TKey, TValue>[]);
+    static fromMap<TKey, TValue>(map: Map<TKey, TValue>): Dictionary<TKey, TValue>;
+    static fromKeyValueObject(obj: any): Dictionary<string, any>;
+    get(key: TKey): TValue;
+    has(key: TKey): boolean;
+    set(key: TKey, value: TValue): void;
+    getKeys(): Generator<TKey, void, unknown>;
+    getValues(): Generator<TValue, void, unknown>;
+    delete(key: TKey): void;
 }
 export declare const ObservableDictionaryChangeAction: Enumeration;
-export declare class ObservableDictionary extends Dictionary {
+export declare class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
     constructor(entries: any);
-    _notifySet(key: any, value: any): void;
-    _notifyDelete(key: any): void;
-    set(key: any, value: any): any;
-    delete(key: any): any;
-    ChangeEvent: FrameworkEvent;
+    private __notifySet;
+    private __notifyDelete;
+    set(key: TKey, value: TValue): void;
+    delete(key: TKey): void;
+    readonly ChangeEvent: FrameworkEvent;
+    __ChangeEvent: FrameworkEvent;
 }
-export {};

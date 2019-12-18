@@ -6,7 +6,7 @@ import { FrameworkEvent } from "./Events";
  * Collection Class
  * Represents a collection of values.
  */
-class Collection<T> extends Array<T> {
+export class Collection<T> extends Array<T> {
     constructor(length: number);
     constructor(...items: T[]);
     constructor(...args: any) {
@@ -154,17 +154,23 @@ export class ObservableCollection<T> extends Collection<T> {
 /**
  * KeyValuePair class
  */
-export class KeyValuePair {
-    static fromMapItem(mapItem) {
+export class KeyValuePair<TKey, TValue> {
+    static fromMapItem<TKey, TValue>(mapItem: { 0: TKey, 1: TValue }) {
         let { 0: key, 1: value } = mapItem;
 
-        return new KeyValuePair(key, value);
+        return new KeyValuePair<TKey, TValue>(key, value);
     }
 
-    constructor(key, value) {
-        this.key = key;
-        this.value = value;
+    constructor(key: TKey, value: TValue) {
+        this.__key = key;
+        this.__value = value;
     }
+
+    get key(): TKey { return this.__key; }
+    private __key: TKey;
+
+    get value(): TValue { return this.__value; }
+    private __value: TValue;
 }
 
 /**
@@ -172,31 +178,31 @@ export class KeyValuePair {
  * 
  */
 export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TValue>> {
-    constructor(...items) {
-        super(items);
+    constructor(...items: KeyValuePair<TKey, TValue>[]) {
+        super(...items);
     }
 
-    static fromMap(map) {
+    static fromMap<TKey, TValue>(map: Map<TKey, TValue>) {
         function* getItems() {
             for (let mapItem of map)
                 yield KeyValuePair.fromMapItem(mapItem);
         }
 
-        return new Dictionary(...getItems());
+        return new Dictionary<TKey, TValue>(...getItems());
     }
 
-    static fromKeyValueObject(obj) {
+    static fromKeyValueObject(obj): Dictionary<string, any> {
         function* getEntries(obj) {
             for (let key in obj) {
                 let value = obj[key];
-                yield new KeyValuePair(key, value);
+                yield new KeyValuePair<string, any>(key, value);
             }
         }
 
         return new Dictionary(...getEntries(obj));
     }
 
-    get(key) {
+    get(key: TKey): TValue {
         let item = this.find(item => item.key === key);
         if (item === undefined)
             return undefined;
@@ -204,11 +210,11 @@ export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TVal
         return item.value;
     }
 
-    has(key) {
+    has(key: TKey): boolean {
         return this.get(key) !== undefined;
     }
 
-    set(key, value) {
+    set(key: TKey, value: TValue) {
         if (key === undefined) throw new ArgumentOutOfRangeException("key");
         if (value === undefined) throw new ArgumentOutOfRangeException("value");
 
@@ -218,17 +224,17 @@ export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TVal
         this.add(new KeyValuePair(key, value));
     }
 
-    *keys() {
-        for (let pair of this)
-            yield pair.key;
+    *getKeys() {
+        for (let item of this)
+            yield item.key;
     }
 
-    *values() {
-        for (let pair of this)
-            yield pair.value;
+    *getValues() {
+        for (let item of this)
+            yield item.value;
     }
 
-    delete(key) {
+    delete(key: TKey): void {
         const item = this.find(item => item.key === key);
         if (item === undefined) throw new KeyNotFoundException("key");
 
@@ -246,12 +252,12 @@ export const ObservableDictionaryChangeAction = new Enumeration([
     "Delete"
 ]);
 
-export class ObservableDictionary extends Dictionary {
+export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
     constructor(entries) {
         super(entries);
     }
 
-    _notifySet(key, value) {
+    private __notifySet(key, value) {
         if (this.has(key)) {
             let oldValue = this.get(value);
 
@@ -271,7 +277,7 @@ export class ObservableDictionary extends Dictionary {
             });
     }
 
-    _notifyDelete(key) {
+    private __notifyDelete(key) {
         if (!this.has(key)) return;
 
         let oldValue = this.get(key);
@@ -284,17 +290,18 @@ export class ObservableDictionary extends Dictionary {
         });
     }
 
-    set(key, value) {
-        this._notifySet(key, value);
+    set(key: TKey, value: TValue) {
+        this.__notifySet(key, value);
 
-        return super.set(key, value);
+        super.set(key, value);
     }
 
-    delete(key) {
-        this._notifyDelete(key);
+    delete(key: TKey) {
+        this.__notifyDelete(key);
 
-        return super.delete(key);
+        super.delete(key);
     }
 
-    ChangeEvent = new FrameworkEvent();
+    get ChangeEvent() { return this.__ChangeEvent; }
+    __ChangeEvent = new FrameworkEvent();
 }

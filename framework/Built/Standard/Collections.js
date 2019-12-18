@@ -5,7 +5,7 @@ import { FrameworkEvent } from "./Events";
  * Collection Class
  * Represents a collection of values.
  */
-class Collection extends Array {
+export class Collection extends Array {
     constructor(...args) {
         super(...args);
     }
@@ -127,14 +127,16 @@ export class ObservableCollection extends Collection {
  * KeyValuePair class
  */
 export class KeyValuePair {
+    constructor(key, value) {
+        this.__key = key;
+        this.__value = value;
+    }
     static fromMapItem(mapItem) {
         let { 0: key, 1: value } = mapItem;
         return new KeyValuePair(key, value);
     }
-    constructor(key, value) {
-        this.key = key;
-        this.value = value;
-    }
+    get key() { return this.__key; }
+    get value() { return this.__value; }
 }
 /**
  * Dictionary class
@@ -142,7 +144,7 @@ export class KeyValuePair {
  */
 export class Dictionary extends Collection {
     constructor(...items) {
-        super(items);
+        super(...items);
     }
     static fromMap(map) {
         function* getItems() {
@@ -178,13 +180,13 @@ export class Dictionary extends Collection {
             this.delete(key);
         this.add(new KeyValuePair(key, value));
     }
-    *keys() {
-        for (let pair of this)
-            yield pair.key;
+    *getKeys() {
+        for (let item of this)
+            yield item.key;
     }
-    *values() {
-        for (let pair of this)
-            yield pair.value;
+    *getValues() {
+        for (let item of this)
+            yield item.value;
     }
     delete(key) {
         const item = this.find(item => item.key === key);
@@ -205,9 +207,9 @@ export const ObservableDictionaryChangeAction = new Enumeration([
 export class ObservableDictionary extends Dictionary {
     constructor(entries) {
         super(entries);
-        this.ChangeEvent = new FrameworkEvent();
+        this.__ChangeEvent = new FrameworkEvent();
     }
-    _notifySet(key, value) {
+    __notifySet(key, value) {
         if (this.has(key)) {
             let oldValue = this.get(value);
             this.ChangeEvent.invoke(this, {
@@ -225,7 +227,7 @@ export class ObservableDictionary extends Dictionary {
                 newValue: value
             });
     }
-    _notifyDelete(key) {
+    __notifyDelete(key) {
         if (!this.has(key))
             return;
         let oldValue = this.get(key);
@@ -237,11 +239,12 @@ export class ObservableDictionary extends Dictionary {
         });
     }
     set(key, value) {
-        this._notifySet(key, value);
-        return super.set(key, value);
+        this.__notifySet(key, value);
+        super.set(key, value);
     }
     delete(key) {
-        this._notifyDelete(key);
-        return super.delete(key);
+        this.__notifyDelete(key);
+        super.delete(key);
     }
+    get ChangeEvent() { return this.__ChangeEvent; }
 }
