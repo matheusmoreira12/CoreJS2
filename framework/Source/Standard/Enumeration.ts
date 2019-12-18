@@ -60,7 +60,8 @@ export class Enumeration<T = EnumerationValue> {
         if (!typeMatchesEnumerationType(value, this.__type))
             throw new ArgumentTypeException("value", "number");
 
-        if (this.__type == Enumeration.TYPE_NUMBER)
+        if (this.__type == Enumeration.TYPE_NUMBER ||
+            this.__type == Enumeration.TYPE_BIGINT)
             return (<number><unknown>value & <number><unknown>flag) == <number><unknown>flag;
         else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(<string><unknown>flag, <string><unknown>value);
