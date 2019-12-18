@@ -1,56 +1,66 @@
-﻿import { ArgumentTypeException, FormatException, InvalidTypeException, KeyNotFoundException } from "./Exceptions";
+﻿import { ArgumentTypeException, KeyNotFoundException } from "./Exceptions";
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
+function setContainsString(str, setStr) {
+    const strs = setStr.split("\s*,\s*");
+    return strs.indexOf(str) !== -1;
+}
+function* getEnumerationFlags(descriptor) {
+    if (typeof descriptor != "object")
+        return;
+    if (descriptor instanceof Object) {
+        for (let key in descriptor)
+            yield { key, value: descriptor[key] };
+    }
+    else if (descriptor instanceof Array) {
+        for (let i = 0; i < descriptor.length; i++)
+            yield { key: i, value: descriptor[i] };
+    }
+}
+function getEnumerationTypeFromValue(value) {
+    switch (typeof value) {
+        case "number":
+            return Enumeration.TYPE_NUMBER;
+        case "string":
+            return Enumeration.TYPE_STRING;
+        case "boolean":
+            return Enumeration.TYPE_BOOLEAN;
+        case "bigint":
+            return Enumeration.TYPE_BIGINT;
+    }
+    return null;
+}
+function typeMatchesEnumerationType(value, enumerationType) {
+    if (getEnumerationTypeFromValue(value) === enumerationType)
+        return true;
+    return false;
+}
 /**
  * Enumeration Class
  * Represents an enumeration of options.
  */
 export class Enumeration {
     constructor(descriptor) {
-        function addFlag(name, value) {
-            Object.defineProperty(this, name, {
-                get() { return value; }
-            });
+        for (let { key, value } of generateFlagsFromDescriptor(descriptor)) {
         }
-        if (descriptor instanceof Array) {
-            for (let i = 0; i < descriptor.length; i++)
-                addFlag.call(this, descriptor[i], i);
-        }
-        else if (descriptor instanceof Object)
-            for (let key in descriptor) {
-                if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
-                    throw new FormatException("FlagName", key);
-                const value = descriptor[key], valueType = typeof value;
-                if (this.__valueType === null)
-                    this.__valueType = valueType;
-                else if (valueType == "string" || valueType == "number")
-                    throw new InvalidTypeException(`descriptor[${key}]`, valueType, ["string", "number"]);
-                else if (this.__valueType !== valueType)
-                    throw new InvalidTypeException(`descriptor[${key}]`, valueType, this.__valueType, "The provided descriptor has inconsistent flag types.");
-                addFlag.call(this, key, value);
-            }
-        else
-            throw new ArgumentTypeException("map", [Array, Object]);
     }
     static get TYPE_NUMBER() { return 0; }
     static get TYPE_STRING() { return 1; }
+    static get TYPE_BOOLEAN() { return 2; }
+    static get TYPE_BIGINT() { return 3; }
     contains(flag, value) {
-        function contains_string() {
-            const flags = value.split(/,\s*/g);
-            return flags.includes();
-        }
-        if (this.__valueType == "number") {
+        if (this.__valueType == Enumeration.TYPE_NUMBER) {
             if (typeof flag !== "number")
                 throw new ArgumentTypeException("flag", "number");
             if (typeof value !== "number")
                 throw new ArgumentTypeException("value", "number");
             return (value & flag) == flag;
         }
-        else if (this.__valueType == "string") {
+        else if (this.__type == Enumeration.TYPE_STRING) {
             if (typeof flag !== "string")
                 throw new ArgumentTypeException("flag", "string");
             else if (typeof flag !== "string")
                 throw new ArgumentTypeException("value", "string");
-            return contains_string();
+            return setContainsString(flag, value);
         }
     }
     toString(value) {

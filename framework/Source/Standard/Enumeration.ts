@@ -2,21 +2,60 @@ import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOp
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
+function setContainsString(str: string, setStr: string) {
+    const strs: string[] = setStr.split("\s*,\s*");
+    return strs.indexOf(str) !== -1;
+}
+
+export type EnumerationValue = number | string | boolean | bigint;
+export type EnumerationDescriptor<T> = Array<string> | { [key: string]: T };
+
+function* getEnumerationFlags<T = EnumerationValue>(descriptor: EnumerationDescriptor<T>) {
+    if (typeof descriptor != "object")
+        return;
+
+    if (<any>descriptor instanceof Object) {
+        for (let key in descriptor)
+            yield { key, value: descriptor[key] };
+    }
+    else if (<any>descriptor instanceof Array) {
+        for (let i = 0; i < (<[]>descriptor).length; i++)
+            yield { key: i, value: descriptor[i] }
+    }
+}
+
+function getEnumerationTypeFromValue<T = EnumerationValue>(value: T): number {
+    switch (typeof value) {
+        case "number":
+            return Enumeration.TYPE_NUMBER;
+        case "string":
+            return Enumeration.TYPE_STRING;
+        case "boolean":
+            return Enumeration.TYPE_BOOLEAN;
+        case "bigint":
+            return Enumeration.TYPE_BIGINT;
+    }
+    return null;
+}
+
+function typeMatchesEnumerationType<T = EnumerationValue>(value: T, enumerationType: number): boolean {
+    if (getEnumerationTypeFromValue(value) === enumerationType)
+        return true;
+    return false;
+}
+
 /**
  * Enumeration Class
  * Represents an enumeration of options.
  */
-export class Enumeration<T = number | string> {
+export class Enumeration<T = EnumerationValue> {
     static get TYPE_NUMBER() { return 0 }
     static get TYPE_STRING() { return 1 }
+    static get TYPE_BOOLEAN() { return 2 }
+    static get TYPE_BIGINT() { return 3 }
 
     contains(flag: T, value: T): boolean {
-        function contains_string(): boolean {
-            const flags: string[] = (<string><unknown>value).split(/,\s*/g)
-            return flags.includes()
-        }
-
-        if (this.__valueType == "number") {
+        if (this.__valueType == Enumeration.TYPE_NUMBER) {
             if (typeof flag !== "number")
                 throw new ArgumentTypeException("flag", "number");
             if (typeof value !== "number")
@@ -24,46 +63,19 @@ export class Enumeration<T = number | string> {
 
             return (value & flag) == flag;
         }
-        else if (this.__valueType == "string") {
+        else if (this.__type == Enumeration.TYPE_STRING) {
             if (typeof flag !== "string")
                 throw new ArgumentTypeException("flag", "string");
             else if (typeof flag !== "string")
                 throw new ArgumentTypeException("value", "string");
 
-            return contains_string();
+            return setContainsString(<string><unknown>flag, <string><unknown>value);
         }
     }
 
     constructor(descriptor: string[] | { [key: string]: T }) {
-        function addFlag(name, value) {
-            Object.defineProperty(this, name, {
-                get() { return value; }
-            });
+        for (let { key, value } of generateFlagsFromDescriptor(descriptor)) {
         }
-
-        if (descriptor instanceof Array) {
-            for (let i = 0; i < descriptor.length; i++)
-                addFlag.call(this, descriptor[i], i);
-        }
-        else if (descriptor instanceof Object)
-            for (let key in descriptor) {
-                if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
-                    throw new FormatException("FlagName", key);
-
-                const value = descriptor[key],
-                    valueType = typeof value;
-
-                if (this.__valueType === null)
-                    this.__valueType = valueType;
-                else if (valueType == "string" || valueType == "number")
-                    throw new InvalidTypeException(`descriptor[${key}]`, valueType, ["string", "number"]);
-                else if (this.__valueType !== valueType)
-                    throw new InvalidTypeException(`descriptor[${key}]`, valueType, this.__valueType, "The provided descriptor has inconsistent flag types.");
-
-                addFlag.call(this, key, value);
-            }
-        else
-            throw new ArgumentTypeException("map", [Array, Object]);
     }
 
     toString(value: T) {

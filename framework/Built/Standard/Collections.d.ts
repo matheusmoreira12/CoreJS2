@@ -60,7 +60,7 @@ export declare class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TK
     getValues(): Generator<TValue, void, unknown>;
     delete(key: TKey): void;
 }
-export declare const ObservableDictionaryChangeAction: Enumeration<string | number>;
+export declare const ObservableDictionaryChangeAction: Enumeration<import("./Enumeration").EnumerationValue>;
 export declare class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
     constructor(entries: any);
     private __notifySet;
