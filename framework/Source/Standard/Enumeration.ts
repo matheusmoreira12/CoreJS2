@@ -20,11 +20,11 @@ function* getEnumerationFlags<T = EnumerationValue>(descriptor: EnumerationDescr
     }
     else if (<any>descriptor instanceof Array) {
         for (let i = 0; i < (<[]>descriptor).length; i++)
-            yield { key: i, value: descriptor[i] }
+            yield { key: descriptor[i], value: i }
     }
 }
 
-function getEnumerationTypeFromValue<T = EnumerationValue>(value: T): number {
+function inferEnumerationTypeFromValue<T = EnumerationValue>(value: T): number {
     switch (typeof value) {
         case "number":
             return Enumeration.TYPE_NUMBER;
@@ -39,7 +39,7 @@ function getEnumerationTypeFromValue<T = EnumerationValue>(value: T): number {
 }
 
 function typeMatchesEnumerationType<T = EnumerationValue>(value: T, enumerationType: number): boolean {
-    if (getEnumerationTypeFromValue(value) === enumerationType)
+    if (inferEnumerationTypeFromValue(value) === enumerationType)
         return true;
     return false;
 }
@@ -55,26 +55,29 @@ export class Enumeration<T = EnumerationValue> {
     static get TYPE_BIGINT() { return 3 }
 
     contains(flag: T, value: T): boolean {
-        if (this.__valueType == Enumeration.TYPE_NUMBER) {
-            if (typeof flag !== "number")
-                throw new ArgumentTypeException("flag", "number");
-            if (typeof value !== "number")
-                throw new ArgumentTypeException("value", "number");
+        if (!typeMatchesEnumerationType(flag, this.__type))
+            throw new ArgumentTypeException("flag", "number");
+        if (!typeMatchesEnumerationType(value, this.__type))
+            throw new ArgumentTypeException("value", "number");
 
-            return (value & flag) == flag;
-        }
-        else if (this.__type == Enumeration.TYPE_STRING) {
-            if (typeof flag !== "string")
-                throw new ArgumentTypeException("flag", "string");
-            else if (typeof flag !== "string")
-                throw new ArgumentTypeException("value", "string");
-
+        if (this.__type == Enumeration.TYPE_NUMBER)
+            return (<number><unknown>value & <number><unknown>flag) == <number><unknown>flag;
+        else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(<string><unknown>flag, <string><unknown>value);
-        }
     }
 
     constructor(descriptor: string[] | { [key: string]: T }) {
-        for (let { key, value } of generateFlagsFromDescriptor(descriptor)) {
+        for (let { key, value } of getEnumerationFlags(descriptor)) {
+            const type = inferEnumerationTypeFromValue(value);
+            if (type === null)
+                throw new InvalidTypeException(`descriptor[${key}]`, typeof value, ["number", "string", "bool", "bigint"])
+            else if (this.__type === undefined)
+                this.__type = type;
+            else if (this.__type !== type)
+                throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
+            if (this.__flags.has(key))
+                throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
+            this.__flags.set(key, value);
         }
     }
 

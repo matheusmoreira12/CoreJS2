@@ -1,4 +1,4 @@
-﻿import { ArgumentTypeException, KeyNotFoundException } from "./Exceptions";
+﻿import { ArgumentTypeException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 function setContainsString(str, setStr) {
     const strs = setStr.split("\s*,\s*");
@@ -13,10 +13,10 @@ function* getEnumerationFlags(descriptor) {
     }
     else if (descriptor instanceof Array) {
         for (let i = 0; i < descriptor.length; i++)
-            yield { key: i, value: descriptor[i] };
+            yield { key: descriptor[i], value: i };
     }
 }
-function getEnumerationTypeFromValue(value) {
+function inferEnumerationTypeFromValue(value) {
     switch (typeof value) {
         case "number":
             return Enumeration.TYPE_NUMBER;
@@ -30,7 +30,7 @@ function getEnumerationTypeFromValue(value) {
     return null;
 }
 function typeMatchesEnumerationType(value, enumerationType) {
-    if (getEnumerationTypeFromValue(value) === enumerationType)
+    if (inferEnumerationTypeFromValue(value) === enumerationType)
         return true;
     return false;
 }
@@ -40,7 +40,17 @@ function typeMatchesEnumerationType(value, enumerationType) {
  */
 export class Enumeration {
     constructor(descriptor) {
-        for (let { key, value } of generateFlagsFromDescriptor(descriptor)) {
+        for (let { key, value } of getEnumerationFlags(descriptor)) {
+            const type = inferEnumerationTypeFromValue(value);
+            if (type === null)
+                throw new InvalidTypeException(`descriptor[${key}]`, typeof value, ["number", "string", "bool", "bigint"]);
+            else if (this.__type === undefined)
+                this.__type = type;
+            else if (this.__type !== type)
+                throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
+            if (this.__flags.has(key))
+                throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
+            this.__flags.set(key, value);
         }
     }
     static get TYPE_NUMBER() { return 0; }
@@ -48,20 +58,14 @@ export class Enumeration {
     static get TYPE_BOOLEAN() { return 2; }
     static get TYPE_BIGINT() { return 3; }
     contains(flag, value) {
-        if (this.__valueType == Enumeration.TYPE_NUMBER) {
-            if (typeof flag !== "number")
-                throw new ArgumentTypeException("flag", "number");
-            if (typeof value !== "number")
-                throw new ArgumentTypeException("value", "number");
+        if (!typeMatchesEnumerationType(flag, this.__type))
+            throw new ArgumentTypeException("flag", "number");
+        if (!typeMatchesEnumerationType(value, this.__type))
+            throw new ArgumentTypeException("value", "number");
+        if (this.__type == Enumeration.TYPE_NUMBER)
             return (value & flag) == flag;
-        }
-        else if (this.__type == Enumeration.TYPE_STRING) {
-            if (typeof flag !== "string")
-                throw new ArgumentTypeException("flag", "string");
-            else if (typeof flag !== "string")
-                throw new ArgumentTypeException("value", "string");
+        else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(flag, value);
-        }
     }
     toString(value) {
         function toString_number() {
