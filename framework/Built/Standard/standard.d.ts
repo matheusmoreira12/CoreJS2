@@ -22,7 +22,7 @@ export declare class ServerTaskError {
     message: string;
     errorCode: number;
 }
-export declare const ServerTaskStatus: Enumeration;
+export declare const ServerTaskStatus: Enumeration<string | number>;
 /**
  * ServerTask class
  * Extends the promise class, providing server-side error handling logic.*/

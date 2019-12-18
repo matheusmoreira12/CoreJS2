@@ -20,7 +20,7 @@ export declare class Collection<T> extends Array<T> {
     removeAt(index: number): T;
     remove(item: T): void;
 }
-export declare const ObservableCollectionChangeAction: Enumeration;
+export declare const ObservableCollectionChangeAction: Enumeration<number>;
 export declare class ObservableCollection<T> extends Collection<T> {
     __notifySplice(start: any, deleteCount: any, ...items: any[]): void;
     __notifyPush(...items: any[]): void;
@@ -60,7 +60,7 @@ export declare class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TK
     getValues(): Generator<TValue, void, unknown>;
     delete(key: TKey): void;
 }
-export declare const ObservableDictionaryChangeAction: Enumeration;
+export declare const ObservableDictionaryChangeAction: Enumeration<string | number>;
 export declare class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
     constructor(entries: any);
     private __notifySet;

@@ -4,7 +4,7 @@ const allDestructibles = [];
 
 export abstract class Destructible {
     constructor() {
-        if (this.constructor === Destructible)
+        if (new.target === Destructible)
             throw new InvalidOperationException("Invalid constructor.");
     }
 

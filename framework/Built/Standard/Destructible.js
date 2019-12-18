@@ -3,7 +3,7 @@ const allDestructibles = [];
 export class Destructible {
     constructor() {
         this.__isDestructed = false;
-        if (this.constructor === Destructible)
+        if (new.target === Destructible)
             throw new InvalidOperationException("Invalid constructor.");
     }
     destruct() {

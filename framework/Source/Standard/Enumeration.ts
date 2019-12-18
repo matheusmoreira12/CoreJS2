@@ -1,56 +1,64 @@
+import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
+
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
 /**
  * Enumeration Class
  * Represents an enumeration of options.
  */
-export class Enumeration {
-    static intersect(value1, value2) {
-        if (typeof value1 !== "number")
-            throw new ArgumentTypeException("value1");
-        if (typeof value2 !== "number")
-            throw new ArgumentTypeException("value2");
+export class Enumeration<T = number | string> {
+    static get TYPE_NUMBER() { return 0 }
+    static get TYPE_STRING() { return 1 }
 
-        return value1 & value2;
+    contains(flag: T, value: T): boolean {
+        function contains_string(): boolean {
+            const flags: string[] = (<string><unknown>value).split(/,\s*/g)
+            return flags.includes()
+        }
+
+        if (this.__valueType == "number") {
+            if (typeof flag !== "number")
+                throw new ArgumentTypeException("flag", "number");
+            if (typeof value !== "number")
+                throw new ArgumentTypeException("value", "number");
+
+            return (value & flag) == flag;
+        }
+        else if (this.__valueType == "string") {
+            if (typeof flag !== "string")
+                throw new ArgumentTypeException("flag", "string");
+            else if (typeof flag !== "string")
+                throw new ArgumentTypeException("value", "string");
+
+            return contains_string();
+        }
     }
 
-    static valuesIntersect(value1, value2) {
-        return !!this.intersect(value1, value2);
-    }
-
-    static isFlagSet(flag, value) {
-        if (typeof flag !== "number")
-            throw new ArgumentTypeException("flag");
-        if (typeof value !== "number")
-            throw new ArgumentTypeException("value");
-
-        return this.intersect(value, flag) === flag;
-    }
-
-    static contains(value1, value2) {
-        return this.intersect(value1, value2) === value1;
-    }
-
-    constructor(descriptorMap) {
+    constructor(descriptor: string[] | { [key: string]: T }) {
         function addFlag(name, value) {
             Object.defineProperty(this, name, {
                 get() { return value; }
             });
         }
 
-        if (descriptorMap instanceof Array) {
-            for (let i = 0; i < descriptorMap.length; i++)
-                addFlag.call(this, descriptorMap[i], i);
+        if (descriptor instanceof Array) {
+            for (let i = 0; i < descriptor.length; i++)
+                addFlag.call(this, descriptor[i], i);
         }
-        else if (descriptorMap instanceof Object)
-            for (let key in descriptorMap) {
+        else if (descriptor instanceof Object)
+            for (let key in descriptor) {
                 if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
                     throw new FormatException("FlagName", key);
 
-                let value = descriptorMap[key];
+                const value = descriptor[key],
+                    valueType = typeof value;
 
-                if (typeof value !== "number")
-                    throw new InvalidTypeException("value", Number);
+                if (this.__valueType === null)
+                    this.__valueType = valueType;
+                else if (valueType == "string" || valueType == "number")
+                    throw new InvalidTypeException(`descriptor[${key}]`, valueType, ["string", "number"]);
+                else if (this.__valueType !== valueType)
+                    throw new InvalidTypeException(`descriptor[${key}]`, valueType, this.__valueType, "The provided descriptor has inconsistent flag types.");
 
                 addFlag.call(this, key, value);
             }
@@ -58,75 +66,88 @@ export class Enumeration {
             throw new ArgumentTypeException("map", [Array, Object]);
     }
 
-    convertToString(value) {
-        function convertExact() {
-            let result = map.get(value);
+    toString(value: T) {
+        function toString_number(this: Enumeration<T>): number {
+            function convertExact(this: Enumeration<T>): number {
+                let result: T = this.__flags.get(<string><unknown>value);
+                if (result !== undefined)
+                    return result;
+
+                return undefined;
+            }
+
+            function convertMultiple(this: Enumeration<T>): number {
+                let flagStrs: string[] = [];
+
+                for (let item of this.__flags) {
+                    if (this.contains(item[1], value))
+                        flagStrs.push(item[0]);
+                }
+
+                return flagStrs.join(", ");
+            }
+
+            if (typeof value !== "number")
+                throw new ArgumentTypeException("value");
+
+            const result = convertExact.call(this) || convertMultiple.call(this);
             if (result !== undefined)
                 return result;
 
-            return null;
+            throw ;
         }
 
-        function convertMultiple() {
-            let flagStrs = [];
+        function toString_string(this: Enumeration<T>) {
+            if (typeof value !== "string")
+                throw new ArgumentTypeException("value");
 
-            for (let entry of map) {
-                if (Enumeration.isFlagSet(entry[1], value))
-                    flagStrs.push(entry[0]);
-            }
+            const flag = __flags.get(value);
+            if (flag !== undefined)
+                return flag;
 
-            return flagStrs.join(", ");
+            throw ;
         }
 
-        if (typeof value !== "number")
-            throw new ArgumentTypeException("value");
-
-        let map = this.getAsMap();
-
-        return convertExact() || convertMultiple();
+        if (this.__type == Enumeration.TYPE_NUMBER)
+            return toString_number();
+        else if (this.__type == Enumeration.TYPE_STRING)
+            return toString_string();
     }
 
-    convertFromString(value) {
-        function convertMultiple() {
-            let flagNames = value.split(/\s*,\s*/);
+    parse(value) {
+        function parse_number(): number {
+            let result: number = 0;
 
-            let result = 0;
+            let flags = value.split(/\s*,\s*/);
+            for (let flag of flags) {
+                let value: T = this[flag];
+                if (value === undefined)
+                    throw new KeyNotFoundException(`Key ${flag} does not exist in Enumeration ${this.constructor.name}.`);
 
-            for (let flagName of flagNames) {
-                let flagValue = map.get(flagStr);
-                if (flagName === undefined)
-                    return null;
-
-                result |= flagValue;
+                if (this.__type == Enumeration.TYPE_NUMBER)
+                    result |= <number><unknown>value;
             }
 
             return result;
+        }
+
+        function parse_string(): string {
+            const result: string = this[value];
+            if (result !== undefined)
+                return result;
+
+            throw new KeyNotFoundException(`Key ${value} does not exist in Enumeration ${this.constructor.name}.`);
         }
 
         if (typeof value !== "string")
             throw new ArgumentTypeException("value");
 
-        let map = this.getAsMap();
-
-        let result = convertMultiple();
-        if (result !== null)
-            return result;
-
-        throw new FormatException(`[FlagName1]["," ...FlagNameN]`, value);
+        if (this.__type == Enumeration.TYPE_NUMBER)
+            return parse_number();
+        else if (this.__type == Enumeration.TYPE_STRING)
+            return parse_string();
     }
 
-    getAsMap() {
-        function* createMapEntries() {
-            for (let key of Object.getOwnPropertyNames(this)) {
-                let flag = this[key];
-
-                if (!key.match(ENUMERATION_FLAG_NAME_PATTERN)) continue;
-
-                if (typeof flag === "number")
-                    yield [key, flag];
-            }
-        }
-
-        return new Map(createMapEntries.call(this));
-    }
+    private __type: number;
+    private __flags: Map<string, T>;
 }
