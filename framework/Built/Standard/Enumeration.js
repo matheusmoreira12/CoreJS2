@@ -1,4 +1,4 @@
-﻿import { ArgumentTypeException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
+﻿import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 function setContainsString(str, setStr) {
     const strs = setStr.split("\s*,\s*");
@@ -41,13 +41,19 @@ function typeMatchesEnumerationType(value, enumerationType) {
 export class Enumeration {
     constructor(descriptor) {
         for (let { key, value } of getEnumerationFlags(descriptor)) {
+            if (typeof key === "string") {
+                if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
+                    throw new FormatException("EnumerationFlag", key);
+            }
             const type = inferEnumerationTypeFromValue(value);
             if (type === null)
                 throw new InvalidTypeException(`descriptor[${key}]`, typeof value, ["number", "string", "bool", "bigint"]);
-            else if (this.__type === undefined)
-                this.__type = type;
-            else if (this.__type !== type)
-                throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
+            else {
+                if (this.__type === undefined)
+                    this.__type = type;
+                else if (this.__type !== type)
+                    throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
+            }
             if (this.__flags.has(key))
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
             this.__flags.set(key, value);

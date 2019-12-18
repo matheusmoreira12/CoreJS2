@@ -68,13 +68,20 @@ export class Enumeration<T = EnumerationValue> {
 
     constructor(descriptor: string[] | { [key: string]: T }) {
         for (let { key, value } of getEnumerationFlags(descriptor)) {
+            if (typeof key === "string") {
+                if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
+                    throw new FormatException("EnumerationFlag", key)
+            }
+
             const type = inferEnumerationTypeFromValue(value);
             if (type === null)
                 throw new InvalidTypeException(`descriptor[${key}]`, typeof value, ["number", "string", "bool", "bigint"])
-            else if (this.__type === undefined)
-                this.__type = type;
-            else if (this.__type !== type)
-                throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
+            else {
+                if (this.__type === undefined)
+                    this.__type = type;
+                else if (this.__type !== type)
+                    throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
+            }
 
             if (this.__flags.has(key))
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
