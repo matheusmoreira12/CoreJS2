@@ -56,12 +56,11 @@ export class Enumeration<T = EnumerationValue> {
 
     contains(flag: T, value: T): boolean {
         if (!typeMatchesEnumerationType(flag, this.__type))
-            throw new ArgumentTypeException("flag", "number");
+            throw new ArgumentTypeException("flag", typeof flag);
         if (!typeMatchesEnumerationType(value, this.__type))
-            throw new ArgumentTypeException("value", "number");
+            throw new ArgumentTypeException("value", typeof value);
 
-        if (this.__type == Enumeration.TYPE_NUMBER ||
-            this.__type == Enumeration.TYPE_BIGINT)
+        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
             return (<number><unknown>value & <number><unknown>flag) == <number><unknown>flag;
         else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(<string><unknown>flag, <string><unknown>value);
@@ -76,9 +75,14 @@ export class Enumeration<T = EnumerationValue> {
                 this.__type = type;
             else if (this.__type !== type)
                 throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
+
             if (this.__flags.has(key))
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
             this.__flags.set(key, value);
+
+            Object.defineProperty(this, key, {
+                get() { return this.__flags.get(key); }
+            })
         }
     }
 

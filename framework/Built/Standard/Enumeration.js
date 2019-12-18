@@ -51,6 +51,9 @@ export class Enumeration {
             if (this.__flags.has(key))
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
             this.__flags.set(key, value);
+            Object.defineProperty(this, key, {
+                get() { return this.__flags.get(key); }
+            });
         }
     }
     static get TYPE_NUMBER() { return 0; }
@@ -59,11 +62,10 @@ export class Enumeration {
     static get TYPE_BIGINT() { return 3; }
     contains(flag, value) {
         if (!typeMatchesEnumerationType(flag, this.__type))
-            throw new ArgumentTypeException("flag", "number");
+            throw new ArgumentTypeException("flag", typeof flag);
         if (!typeMatchesEnumerationType(value, this.__type))
-            throw new ArgumentTypeException("value", "number");
-        if (this.__type == Enumeration.TYPE_NUMBER ||
-            this.__type == Enumeration.TYPE_BIGINT)
+            throw new ArgumentTypeException("value", typeof value);
+        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
             return (value & flag) == flag;
         else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(flag, value);
