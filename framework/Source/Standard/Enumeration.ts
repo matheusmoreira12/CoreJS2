@@ -21,15 +21,15 @@ function setContainsString(str: string, setStr: string): boolean {
 
 function* getEnumerationFlags<T = EnumerationValue>(descriptor: EnumerationDescriptor<T>) {
     if (typeof descriptor != "object")
-        return;
+        throw new ArgumentTypeException("descriptor", typeof descriptor, "object");
 
-    if (<any>descriptor instanceof Object) {
-        for (let key in descriptor)
-            yield { key, value: descriptor[key] };
-    }
-    else if (<any>descriptor instanceof Array) {
+    if (<any>descriptor instanceof Array) {
         for (let i = 0; i < (<[]>descriptor).length; i++)
             yield { key: descriptor[i], value: i }
+    }
+    else {
+        for (let key in descriptor)
+            yield { key, value: descriptor[key] };
     }
 }
 

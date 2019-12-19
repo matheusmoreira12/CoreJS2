@@ -13,14 +13,14 @@ function setContainsString(str, setStr) {
 }
 function* getEnumerationFlags(descriptor) {
     if (typeof descriptor != "object")
-        return;
-    if (descriptor instanceof Object) {
-        for (let key in descriptor)
-            yield { key, value: descriptor[key] };
-    }
-    else if (descriptor instanceof Array) {
+        throw new ArgumentTypeException("descriptor", typeof descriptor, "object");
+    if (descriptor instanceof Array) {
         for (let i = 0; i < descriptor.length; i++)
             yield { key: descriptor[i], value: i };
+    }
+    else {
+        for (let key in descriptor)
+            yield { key, value: descriptor[key] };
     }
 }
 function inferEnumerationTypeFromValue(value) {
