@@ -1,14 +1,23 @@
 import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
+import { mapUtils } from "../Utils/utils";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
-function setContainsString(str: string, setStr: string) {
-    const strs: string[] = setStr.split("\s*,\s*");
-    return strs.indexOf(str) !== -1;
-}
-
 export type EnumerationValue = number | string | boolean | bigint;
 export type EnumerationDescriptor<T> = Array<string> | { [key: string]: T };
+
+function splitSetString(setStr: string): string[] {
+    return setStr.split("\s*,\s*");
+}
+
+function joinIntoSetStr(strs: string[]): string {
+    return strs.join(", ");
+}
+
+function setContainsString(str: string, setStr: string): boolean {
+    const setStrs: string[] = splitSetString(setStr);
+    return setStrs.indexOf(str) !== -1;
+}
 
 function* getEnumerationFlags<T = EnumerationValue>(descriptor: EnumerationDescriptor<T>) {
     if (typeof descriptor != "object")
@@ -83,66 +92,75 @@ export class Enumeration<T = EnumerationValue> {
                     throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
             }
 
-            if (this.__flags.has(key))
+            if (this.__flagsMap.has(key))
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
-            this.__flags.set(key, value);
+            this.__flagsMap.set(key, value);
 
             Object.defineProperty(this, key, {
-                get() { return this.__flags.get(key); }
+                get() { return this.__flagsMap.get(key); }
             })
         }
     }
 
     toString(value: T) {
         function toString_number(this: Enumeration<T>): number {
-            function convertExact(this: Enumeration<T>): number {
-                let result: T = this.__flags.get(<string><unknown>value);
-                if (result !== undefined)
-                    return result;
-
-                return undefined;
+            function convertExact(this: Enumeration<T>): string {
+                return mapUtils.invert(this.__flagsMap).get(value);
             }
 
-            function convertMultiple(this: Enumeration<T>): number {
+            function convertMultiple(this: Enumeration<T>): string {
                 let flagStrs: string[] = [];
 
-                for (let item of this.__flags) {
+                for (let item of this.__flagsMap) {
                     if (this.contains(item[1], value))
                         flagStrs.push(item[0]);
                 }
 
-                return flagStrs.join(", ");
+                return joinIntoSetStr(flagStrs);
             }
-
-            if (typeof value !== "number")
-                throw new ArgumentTypeException("value");
 
             const result = convertExact.call(this) || convertMultiple.call(this);
             if (result !== undefined)
                 return result;
 
-            throw ;
+            throw new InvalidOperationException("Cannot convert Enumeration value to String. The specified value is not valid.");
         }
 
         function toString_string(this: Enumeration<T>) {
-            if (typeof value !== "string")
-                throw new ArgumentTypeException("value");
+            const result = [];
+            const valuesMap = mapUtils.invert(this.__flagsMap);
+            const valueItems = splitSetString(<string><unknown>value);
+            for (let valueItem of valueItems) {
+                let flag = valuesMap.get(<T><unknown>valueItem);
+                if (flag === undefined)
+                    throw new KeyNotFoundException(`Value ${valueItem} does not exist in Enumeration ${this.constructor.name}.`);
 
-            const flag = __flags.get(value);
-            if (flag !== undefined)
-                return flag;
-
-            throw ;
+                result.push(flag);
+            }
+            return result;
         }
 
-        if (this.__type == Enumeration.TYPE_NUMBER)
-            return toString_number();
+        function toString_boolean(this: Enumeration<T>) {
+            let result = mapUtils.invert(this.__flagsMap).get(value);
+            if (result !== undefined)
+                return result;
+
+            throw new KeyNotFoundException(`Value ${value} does not exist in Enumeration ${this.constructor.name}.`);
+        }
+
+        if (!typeMatchesEnumerationType(value, this.__type))
+            throw new ArgumentTypeException("value", typeof value);
+
+        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+            return toString_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
-            return toString_string();
+            return toString_string.call(this);
+        else if (this.__type == Enumeration.TYPE_BOOLEAN)
+            return toString_boolean.call(this);
     }
 
     parse(value) {
-        function parse_number(): number {
+        function parse_number(this: Enumeration<T>): number {
             let result: number = 0;
 
             let flags = value.split(/\s*,\s*/);
@@ -158,7 +176,7 @@ export class Enumeration<T = EnumerationValue> {
             return result;
         }
 
-        function parse_string(): string {
+        function parse_string(this: Enumeration<T>): string {
             const result: string = this[value];
             if (result !== undefined)
                 return result;
@@ -166,15 +184,25 @@ export class Enumeration<T = EnumerationValue> {
             throw new KeyNotFoundException(`Key ${value} does not exist in Enumeration ${this.constructor.name}.`);
         }
 
-        if (typeof value !== "string")
-            throw new ArgumentTypeException("value");
+        function parse_boolean(this: Enumeration<T>): boolean {
+            const result = this.__flagsMap.get(value);
+            if (result !== undefined)
+                return <boolean><unknown>result;
 
-        if (this.__type == Enumeration.TYPE_NUMBER)
-            return parse_number();
+            throw new KeyNotFoundException(`Key ${value} does not exist in Enumeration ${this.constructor.name}.`);
+        }
+
+        if (typeof value !== "string")
+            throw new ArgumentTypeException("value", typeof value);
+
+        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+            return parse_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
-            return parse_string();
+            return parse_string.call(this);
+        else if (this.__type == Enumeration.TYPE_BOOLEAN)
+            return parse_boolean.call(this);
     }
 
     private __type: number;
-    private __flags: Map<string, T>;
+    private __flagsMap: Map<string, T>;
 }

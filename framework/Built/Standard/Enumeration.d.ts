@@ -16,7 +16,7 @@ export declare class Enumeration<T = EnumerationValue> {
         [key: string]: T;
     });
     toString(value: T): any;
-    parse(value: any): string | number;
+    parse(value: any): any;
     private __type;
-    private __flags;
+    private __flagsMap;
 }

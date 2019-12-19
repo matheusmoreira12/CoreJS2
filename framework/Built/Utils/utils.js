@@ -1,4 +1,4 @@
-﻿export let arrayUtils = {
+﻿export const arrayUtils = {
     detectArrayChanges(cached, current, addCallback, removeCallback, replaceCallback) {
         for (let i = 0; i < current.length || i < cached.length; i++) {
             if (i >= cached.length)
@@ -13,7 +13,7 @@
         }
     }
 };
-export let domUtils = {
+export const domUtils = {
     insertElementAt(parent, position, newChild) {
         if (parent.children.length === 0 || position >= parent.children.length)
             parent.appendChild(newChild);
@@ -23,7 +23,7 @@ export let domUtils = {
         }
     }
 };
-export let objectUtils = {
+export const objectUtils = {
     equals(obj1, obj2) {
         if (obj1 instanceof Object) {
             //Check each property value
@@ -35,5 +35,14 @@ export let objectUtils = {
         if (obj1 !== obj2)
             return false;
         return true;
+    }
+};
+export const mapUtils = {
+    invert(value) {
+        function* generateInvertedEntries() {
+            for (let entry of value)
+                yield [entry[1], entry[0]];
+        }
+        return new Map(generateInvertedEntries());
     }
 };

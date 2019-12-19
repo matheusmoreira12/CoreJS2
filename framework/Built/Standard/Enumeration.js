@@ -1,8 +1,15 @@
 ﻿import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
+import { mapUtils } from "../Utils/utils";
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
+function splitSetString(setStr) {
+    return setStr.split("\s*,\s*");
+}
+function joinIntoSetStr(strs) {
+    return strs.join(", ");
+}
 function setContainsString(str, setStr) {
-    const strs = setStr.split("\s*,\s*");
-    return strs.indexOf(str) !== -1;
+    const setStrs = splitSetString(setStr);
+    return setStrs.indexOf(str) !== -1;
 }
 function* getEnumerationFlags(descriptor) {
     if (typeof descriptor != "object")
@@ -54,11 +61,11 @@ export class Enumeration {
                 else if (this.__type !== type)
                     throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
             }
-            if (this.__flags.has(key))
+            if (this.__flagsMap.has(key))
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
-            this.__flags.set(key, value);
+            this.__flagsMap.set(key, value);
             Object.defineProperty(this, key, {
-                get() { return this.__flags.get(key); }
+                get() { return this.__flagsMap.get(key); }
             });
         }
     }
@@ -79,38 +86,47 @@ export class Enumeration {
     toString(value) {
         function toString_number() {
             function convertExact() {
-                let result = this.__flags.get(value);
-                if (result !== undefined)
-                    return result;
-                return undefined;
+                return mapUtils.invert(this.__flagsMap).get(value);
             }
             function convertMultiple() {
                 let flagStrs = [];
-                for (let item of this.__flags) {
+                for (let item of this.__flagsMap) {
                     if (this.contains(item[1], value))
                         flagStrs.push(item[0]);
                 }
-                return flagStrs.join(", ");
+                return joinIntoSetStr(flagStrs);
             }
-            if (typeof value !== "number")
-                throw new ArgumentTypeException("value");
             const result = convertExact.call(this) || convertMultiple.call(this);
             if (result !== undefined)
                 return result;
-            throw ;
+            throw new InvalidOperationException("Cannot convert Enumeration value to String. The specified value is not valid.");
         }
         function toString_string() {
-            if (typeof value !== "string")
-                throw new ArgumentTypeException("value");
-            const flag = __flags.get(value);
-            if (flag !== undefined)
-                return flag;
-            throw ;
+            const result = [];
+            const valuesMap = mapUtils.invert(this.__flagsMap);
+            const valueItems = splitSetString(value);
+            for (let valueItem of valueItems) {
+                let flag = valuesMap.get(valueItem);
+                if (flag === undefined)
+                    throw new KeyNotFoundException(`Value ${valueItem} does not exist in Enumeration ${this.constructor.name}.`);
+                result.push(flag);
+            }
+            return result;
         }
-        if (this.__type == Enumeration.TYPE_NUMBER)
-            return toString_number();
+        function toString_boolean() {
+            let result = mapUtils.invert(this.__flagsMap).get(value);
+            if (result !== undefined)
+                return result;
+            throw new KeyNotFoundException(`Value ${value} does not exist in Enumeration ${this.constructor.name}.`);
+        }
+        if (!typeMatchesEnumerationType(value, this.__type))
+            throw new ArgumentTypeException("value", typeof value);
+        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+            return toString_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
-            return toString_string();
+            return toString_string.call(this);
+        else if (this.__type == Enumeration.TYPE_BOOLEAN)
+            return toString_boolean.call(this);
     }
     parse(value) {
         function parse_number() {
@@ -131,11 +147,19 @@ export class Enumeration {
                 return result;
             throw new KeyNotFoundException(`Key ${value} does not exist in Enumeration ${this.constructor.name}.`);
         }
+        function parse_boolean() {
+            const result = this.__flagsMap.get(value);
+            if (result !== undefined)
+                return result;
+            throw new KeyNotFoundException(`Key ${value} does not exist in Enumeration ${this.constructor.name}.`);
+        }
         if (typeof value !== "string")
-            throw new ArgumentTypeException("value");
-        if (this.__type == Enumeration.TYPE_NUMBER)
-            return parse_number();
+            throw new ArgumentTypeException("value", typeof value);
+        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+            return parse_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
-            return parse_string();
+            return parse_string.call(this);
+        else if (this.__type == Enumeration.TYPE_BOOLEAN)
+            return parse_boolean.call(this);
     }
 }
