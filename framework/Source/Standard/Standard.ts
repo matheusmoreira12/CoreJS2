@@ -4,13 +4,9 @@ import { BroadcastFrameworkEvent } from "./Events";
 import { Interface, InterfaceFunction } from "./Types/Types";
 
 export class ServerTaskException extends FrameworkException {
-    constructor(message?: string, innerException?: any) {
-        super(message, innerException);
-    }
-}
-
-export class ServerErrorException extends ServerTaskException {
     constructor(serverMessage?: string, serverErrorCode?: number, message?: string, innerException?: string) {
+        message = message || `Server task failed in the server side with status code $serverErrorCode and message "$serverMessage".`;
+
         super(message, innerException);
 
         this.data["serverMessage"] = serverMessage;
@@ -18,14 +14,8 @@ export class ServerErrorException extends ServerTaskException {
     }
 }
 
-export class ServerTaskTimedOutException extends ServerTaskException {
-    constructor(message?: string, innerException?: any) {
-
-    }
-}
-
 const DEFAULT_SERVER_TASK_OPTIONS = {
-    timeout: 60 * 1000,
+    timeout: Number.POSITIVE_INFINITY,
     maxRetries: 0
 };
 
@@ -45,20 +35,13 @@ export const ServerTaskStatus = new Enumeration([
 export class ServerTask {
     static get [Symbol.species]() { return Promise; }
 
-    constructor(promise, options = DEFAULT_SERVER_TASK_OPTIONS) {
+    constructor(promise) {
         if (!(promise instanceof Promise)) throw new ArgumentTypeException("promise", Promise);
-
-        let { timeout, maxRetries } = options;
-        this.__timeout = timeout;
-        this.__maxRetries = maxRetries;
 
         this.__loaded = new Promise<any>((resolve, reject) => this._execute(promise, resolve, reject));
     }
 
     _execute(promise, resolve, reject) {
-        let retries = 0;
-        let timeoutHandle = null;
-
         function notifyStatus(status) {
             this._status = status;
 
@@ -68,27 +51,13 @@ export class ServerTask {
         function notifyStart(this: ServerTask) {
             notifyStatus.call(this, ServerTaskStatus.Started);
 
-            this.startedEvent.broadcast(this);
-        }
-
-        function notifyRetry(this: ServerTask, error, retries) {
-            notifyStatus.call(this, ServerTaskStatus.Retried);
-
-            this.__retries = retries;
-
-            this.retriedEvent.broadcast(this, { error: error, retries: retries });
-        }
-
-        function notifyTimeout(this: ServerTask) {
-            notifyStatus.call(this, ServerTaskStatus.TimedOut);
-
-            this.timedOutEvent.broadcast(this);
+            this.startedEvent.broadcast(this, {});
         }
 
         function notifySuccess(this: ServerTask) {
             notifyStatus.call(this, ServerTaskStatus.Succeeded);
 
-            this.succeededEvent.broadcast(this);
+            this.succeededEvent.broadcast(this, {});
             this.finishedEvent.broadcast(this, { error: null });
         }
 
@@ -98,62 +67,28 @@ export class ServerTask {
             this.__error = error;
 
             this.failedEvent.broadcast(this, { error: error });
-            this.finishedEvent.broadcast(this);
-        }
-
-        function abort(this: ServerTask, error) {
-            notifyError.call(this, error);
-
-            reject(error);
+            this.finishedEvent.broadcast(this, {});
         }
 
         function failed(this: ServerTask, error) {
-            if (retries > this.__maxRetries || error instanceof ServerTaskError)
-                abort.call(this, error);
-            else
-                retry.call(this, error);
-
-            clearTimeout(timeoutHandle);
+            notifyError.call(this, error);
+            reject(error);
         }
 
         function succeeded(this: ServerTask, result) {
             notifySuccess.call(this);
-
             resolve(result);
-
-            clearTimeout(timeoutHandle);
         }
 
-        function timedOut(this: ServerTask) {
-            notifyTimeout.call(this, ServerTaskStatus.TimedOut);
+        promise.then(value => { //Fulfilled
+            succeeded.call(this, value);
+        }, reason => { //Rejected
+            failed.call(this, reason);
+        });
 
-            failed.call(this, null);
-
-            clearTimeout(timeoutHandle);
-        }
-
-        function retry(this: ServerTask, error) {
-            /*timeoutHandle = setTimeout(timedOut.bind(this), this._options.timeout);*/
-
-            promise.then(value => { //Fulfilled
-                succeeded.call(this, value);
-            }, reason => { //Rejected
-                failed.call(this, reason);
-            });
-
-            if (retries > 0)
-                notifyRetry.call(this, error, retries);
-            else
-                notifyStart.call(this);
-
-            retries++;
-        }
-
-        retry.call(this);
+        notifyStart.call(this);
     }
 
-    private __timedOutEvent = new BroadcastFrameworkEvent("ServerTask_timedOut");
-    private __retriedEvent = new BroadcastFrameworkEvent("ServerTask_retried");
     private __statusChangedEvent = new BroadcastFrameworkEvent("ServerTask_statusChanged");
     private __startedEvent = new BroadcastFrameworkEvent("ServerTask_started");
     private __finishedEvent = new BroadcastFrameworkEvent("ServerTask_finished");
@@ -162,14 +97,9 @@ export class ServerTask {
 
     private __status = ServerTaskStatus.Pending;
     private __error = null;
-    private __maxRetries: number;
-    private __retries: number;
-    private __timeout: number;
 
     private __loaded: Promise<any>;
 
-    get timedOutEvent() { return this.__timedOutEvent; }
-    get retriedEvent() { return this.__retriedEvent; }
     get statusChangedEvent() { return this.__statusChangedEvent; }
     get startedEvent() { return this.__startedEvent; }
     get finishedEvent() { return this.__finishedEvent; }
@@ -179,9 +109,6 @@ export class ServerTask {
     get status() { return this.__status; }
     get error() { return this.__error; }
     get loaded() { return this.__loaded };
-    get maxRetries() { return this.__maxRetries; }
-    get retries() { return this.__retries; }
-    get timeout() { return this.__timeout; }
 }
 
 /**
