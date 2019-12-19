@@ -1,7 +1,6 @@
 ﻿import { FrameworkException } from "./exceptions";
 import { Enumeration } from "./Enumeration";
 import { BroadcastFrameworkEvent } from "./Events";
-import { Interface } from "./Types/Types";
 export declare class ServerTaskException extends FrameworkException {
     constructor(serverMessage?: string, serverErrorCode?: number, message?: string, innerException?: string);
 }
@@ -33,8 +32,8 @@ export declare class ServerTask {
 /**
  * IValueConverter Interface
  * Exposes a friendly interface for converting values between layers of abstraction.*/
-export declare const IValueConverter: Interface;
+export declare const IValueConverter: any;
 /**
  * ValueValidator Interface
  * Exposes a friendly interface for validating values between layers of abstraction.*/
-export declare const IValueValidator: Interface;
+export declare const IValueValidator: any;

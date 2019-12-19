@@ -1,5 +1,7 @@
 import { Enumeration } from "../Enumeration";
 import { InvalidOperationException, ArgumentTypeException } from "../Exceptions";
+import { ObjectUtils } from "../ObjectUtils";
+import { Dictionary } from "../Collections";
 
 export const InterfaceDifferenceKind = new Enumeration([
     "MissingProperty",
@@ -50,19 +52,19 @@ export const InterfaceMemberType = new Enumeration([
 ]);
 
 export class InterfaceMember {
-    constructor(name: string, memberType: number = MemberSelectionType.Any, attributes: number = MemberSelectionAttributes.Any, isOptional = false, valueType?: Type) {
+    constructor(name: string, memberType?: number, valueType?: Type, attributes?: number, isOptional?) {
         if (new.target === InterfaceMember)
             throw new InvalidOperationException("Invalid constructor.");
 
         if (typeof name !== "string")
             throw new ArgumentTypeException(`name`, Type.of(name));
-        if (typeof memberType !== "number")
+        if (memberType !== undefined && typeof memberType !== "number")
             throw new ArgumentTypeException(`memberType`, Type.of(memberType));
-        if (valueType !== null && !(valueType instanceof Type))
+        if (valueType !== undefined && !(valueType instanceof Type))
             throw new ArgumentTypeException(`valueType`, Type.of(valueType));
-        if (typeof attributes !== "number")
+        if (attributes !== undefined && typeof attributes !== "number")
             throw new ArgumentTypeException(`attributes`, Type.of(attributes));
-        if (typeof isOptional !== "boolean")
+        if (isOptional !== undefined && typeof isOptional !== "boolean")
             throw new ArgumentTypeException(`isOptional`, Type.of(isOptional));
 
         this.__name = name;
@@ -89,74 +91,39 @@ export class InterfaceMember {
 }
 
 export class InterfaceProperty extends InterfaceMember {
-    constructor(name, type = null, attributes = MemberSelectionAttributes.Any, isOptional = false) {
-        super(name, InterfaceMemberType.Property, type, attributes, isOptional);
-    }
-
-    get type() {
-        return Closure.doIfExists(this, c => c.type);
+    constructor(name: string, valueType?: Type, attributes?: number, isOptional?: number) {
+        super(name, InterfaceMemberType.Property, valueType, attributes, isOptional);
     }
 }
 
 export class InterfaceFunction extends InterfaceMember {
-    constructor(name, attributes = MemberSelectionAttributes.Any, isOptional = false) {
-        super(name, InterfaceMemberType.Function, null, attributes, isOptional);
+    constructor(name: string, attributes?: number, isOptional?: boolean) {
+        super(name, InterfaceMemberType.Function, undefined, attributes, isOptional);
     }
 }
 
-export class InterfaceFunctionArgumentClosure extends Closure {
-    initialize(name, argumentType, isOptional) {
-
-    }
-}
-
-export const InterfaceFunctionArgumentType = new Enumeration({
-
-});
-
-export class InterfaceFunctionArgument extends Shell {
-    constructor(name, argumentType = ArgumentType.Any, isOptional = false) {
-
-    }
-}
-
-class InterfaceClosure extends Closure {
-    static extractFromType(type) {
-        function* createMembersFromType() {
-            const nonStaticMembers = type.getMembers(MemberSelectionType.Any & ~MemberSelectionType.Static);
-
+export class Interface {
+    static extract(type: Type) {
+        function* generateMembersFromType(): Generator<InterfaceMember> {
+            const nonStaticMembers: Member[] = type.getMembers(MemberSelectionType.Any & ~MemberSelectionType.Static);
             for (let member of nonStaticMembers) {
-                const type = getMemberType(member);
-
-                yield new InterfaceMember(member.name, type, member.attributes);
+                const memberType: number = member.memberType;
+                yield new InterfaceMember(member.name, memberType, member.attributes);
             }
         }
 
-        return new Interface(...createMembersFromType());
+        if (!(type instanceof Type))
+            throw new ArgumentTypeException("type");
+
+        return new Interface(...generateMembersFromType());
     }
 
-    initialize(...members) {
-        this.members = members;
+    constructor(...members: InterfaceMember[]) {
+        this.__members = members;
     }
 
-    members = null;
-}
-
-export class Interface extends Shell {
-    static extract(type) {
-        if (!type instanceof Type)
-            throw ArgumentTypeException("type");
-
-        return InterfaceClosure.extractFromType(type);
-    }
-
-    constructor(descriptorMap) {
-        super(InterfaceClosure, descriptorMap);
-    }
-
-    get members() {
-        return Closure.doIfExists(this, c => c.members);
-    }
+    get members(): InterfaceMember[] { return this.__members; }
+    private __members: InterfaceMember[];
 }
 
 export const MemberSelectionAttributes = new Enumeration({
@@ -174,75 +141,54 @@ export const MemberSelectionType = new Enumeration({
     AnyStatic: 7
 });
 
-export class TypeClosure extends Closure {
-    static getInstanceHasConstructor(instance) {
-        if (instance === undefined)
-            return false;
-        if (instance === null)
-            return false;
-
-        return true;
-    }
-
-    static createTypeFromClass(_class) {
+export class Type {
+    private static __createTypeFromClass(_class) {
         let result = new Type();
-
-        Closure.doIfExists(result, c => {
-            c.initializeWithClass(_class);
-        });
+        result.__initializeWithClass(_class);
 
         return result;
     }
 
-    static createTypeFromInstance(instance) {
+    private static __createTypeFromInstance(instance) {
         let result = new Type();
-
-        Closure.doIfExists(result, c => {
-            c.initializeWithInstance(instance);
-        });
+        result.__initializeWithInstance(instance);
 
         return result;
     }
 
-    instance = null;
-    hasInstance = false;
-    _class = null;
-    hasClass = false;
-    typeofResult = null;
-    members = null;
-    initialized = false;
+    static get(_class) {
+        if (!(_class instanceof Function))
+            throw new ArgumentTypeException("_class");
 
-    initializeWithInstance(instance) {
-        this.instance = instance;
+        return this.__createTypeFromClass(_class);
+    }
 
-        let instanceHasConstructor = TypeClosure.getInstanceHasConstructor(instance);
+    static of(instance) {
+        return this.__createTypeFromInstance(instance);
+    }
+
+    constructor() {
+    }
+
+    private __initializeWithInstance(instance) {
+        this.__instance = instance;
+
+        let instanceHasConstructor = ObjectUtils.hasPrototype(instance);
         if (instanceHasConstructor)
-            this.initializeWithClass(instance.constructor);
-
-        this.hasInstance = true;
-        this.initialized = true;
+            this.__initializeWithClass(instance.constructor);
+        this.__hasInstance = true;
     }
 
-    initializeWithClass(_class) {
-        this._class = _class;
-
-        this.hasClass = true;
-        this.initialized = true;
-    }
-
-    checkInitializedStatus() {
-        if (this.initialized) return;
-
-        throw new InvalidOperationException("Type not initialized.");
+    private __initializeWithClass(_class) {
+        this.__class = _class;
+        this.__hasClass = true;
     }
 
     getName() {
-        this.checkInitializedStatus();
+        if (!this.__hasClass)
+            return String(this.__instance);
 
-        if (!this.hasClass)
-            return String(this.instance);
-
-        return this._class.name;
+        return this.__class.name;
     }
 
     * getOwnMembers(selectionType, selectionAttributes) {
@@ -426,59 +372,12 @@ export class TypeClosure extends Closure {
 
         return null;
     }
-}
 
-export class Type extends Shell {
-    static get(_class) {
-        if (!(_class instanceof Function))
-            throw new ArgumentTypeException("_class");
-
-        return TypeClosure.createTypeFromClass(_class);
-    }
-
-    static of(instance) {
-        return TypeClosure.createTypeFromInstance(instance);
-    }
-
-    constructor() {
-        super(TypeClosure);
-    }
-
-    get name() {
-        return Closure.doIfExists(this, c => c.getName());
-    }
-
-    getOwnMembers(selectionType = MemberSelectionType.Any, selectionAttributes = MemberSelectionAttributes.Any) {
-        return Closure.doIfExists(this, c => c.getOwnMembers(selectionType, selectionAttributes));
-    }
-
-    getMembers(selectionType = MemberSelectionType.Any, selectionAttributes = MemberSelectionAttributes.Any) {
-        return Closure.doIfExists(this, c => c.getMembers(selectionType, selectionAttributes));
-    }
-
-    getParentTypes() {
-        return Closure.doIfExists(this, c => c.getParentTypes());
-    }
-
-    getParentType() {
-        return Closure.doIfExists(this, c => c.getParentType());
-    }
-
-    implements(_interface) {
-        return Closure.doIfExists(this, c => c.implements(_interface));
-    }
-
-    equals(other) {
-        return Closure.doIfExists(this, c => c.equals(other));
-    }
-
-    equalsOrExtends(other) {
-        return Closure.doIfExists(this, c => c.equalsOrExtends(other));
-    }
-
-    extends(other) {
-        return Closure.doIfExists(this, c => c.extends(other));
-    }
+    __instance: any = null;
+    __hasInstance: boolean = false;
+    __class: Function = null;
+    __hasClass: boolean = false;
+    __typeofResult: string = null;
 }
 
 export const MemberAttributes = new Enumeration({

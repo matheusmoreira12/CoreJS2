@@ -1,6 +1,5 @@
 ﻿import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
 import { Enumeration } from "../Standard/Enumeration";
-import { Interface } from "../Standard/Types/Types";
 export declare class BooleanAttributeValueConverter {
     convertBack(value: any): boolean;
     convert(value: any): "" | "false";
@@ -19,7 +18,7 @@ export declare class EnumerationAttributeValueConverter<T> {
     convert(value: T): any;
     private __enumeration;
 }
-export declare const IFrameworkPropertyOptions: Interface;
+export declare const IFrameworkPropertyOptions: any;
 /**
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
