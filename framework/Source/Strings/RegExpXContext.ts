@@ -1,37 +1,35 @@
-export const StringUtils = {
-
-};
+import { KeyValuePair, Dictionary } from "../Standard/Collections";
+import { IndexOutOfRangeException, ArgumentTypeException } from "../Standard/Exceptions";
+import { Type } from "../Standard/Types/Types";
 
 export class RegExpXContext {
-    constructor() {
-        this.namedPatterns = new Dictionary();
-
-        return Object.freeze(this);
+    constructor(...namedPatterns: KeyValuePair<string, string>[]) {
+        this.__namedPatterns = new Dictionary(...namedPatterns);
     }
 
     derive() {
-        let result = new RegExpXContext();
-        result.addMultiple(this.namedPatterns);
-
-        return result;
+        return new RegExpXContext(...this.__namedPatterns);
     }
 
     declareNamedPattern(name, pattern) {
-        if (this.namedPatterns.has(name))
+        if (this.__namedPatterns.has(name))
             return false;
 
-        this.namedPatterns.set(name, pattern);
+        this.__namedPatterns.set(name, pattern);
         return true;
     }
 
     deleteNamedPattern(name) {
-        return this.namedPatterns.delete(name);
+        return this.__namedPatterns.delete(name);
     }
 
     createRegExpX(pattern, flags = "") {
         let result = new RegExpX(pattern, flags, this);
         return result;
     }
+
+    public get namedPattern() { return this.__namedPatterns; }
+    private __namedPatterns: Dictionary<string, string> = new Dictionary();
 }
 
 function computeFinalPattern(pattern, context) {
@@ -43,23 +41,26 @@ function computeFinalPattern(pattern, context) {
         return pattern;
     }
 
-    if (context === null)
+    if (context === undefined)
         return pattern;
 
     pattern = pattern.replace(/(?<!\$)\$[A-Za-z]\w*?;/g, replaceEscapedPattern);
 
-    pattern = pattern.replace(/\${2}/g, "$");
+    pattern = pattern.replace(/\$\$/g, "$");
     return pattern;
 }
 
 export class RegExpX extends RegExp {
-    constructor(pattern, flags = "", context = null) {
-        if (context !== null && !(context instanceof RegExpXContext))
+    constructor(pattern, flags = "", context?: RegExpXContext) {
+        if (context !== undefined && !(context instanceof RegExpXContext))
             throw new ArgumentTypeException("context", Type.of(context), Type.get(RegExpXContext));
 
         const finalPattern = computeFinalPattern(pattern, context);
         super(finalPattern, flags);
 
-        this.context = context;
+        this.__context = context;
     }
+
+    get context(): RegExpXContext { return this.__context; }
+    private __context: RegExpXContext;
 }

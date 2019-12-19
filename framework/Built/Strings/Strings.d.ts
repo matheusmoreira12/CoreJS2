@@ -1,4 +1,4 @@
-﻿import { Dictionary, KeyValuePair } from "./Collections";
+﻿import { KeyValuePair, Dictionary } from "../Standard/Collections";
 export declare const StringUtils: {};
 export declare class RegExpXContext {
     constructor(...namedPatterns: KeyValuePair<string, string>[]);

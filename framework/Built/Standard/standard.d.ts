@@ -1,26 +1,15 @@
-﻿import { Enumeration } from "./Enumeration";
+﻿import { FrameworkException } from "./exceptions";
+import { Enumeration } from "./Enumeration";
 import { BroadcastFrameworkEvent } from "./Events";
 import { Interface } from "./Types/Types";
-/**
- * ContextSelectionFlags Class
- * Allows the selection of individual flags.*/
-export declare class ContextSelectionFlags {
-    static [Symbol.species](): StringConstructor;
-    static readonly all: ContextSelectionFlags;
-    static readonly none: ContextSelectionFlags;
-    static parse(str: any): ContextSelectionFlags;
-    constructor(includeFlags?: any, requireFlags?: any, excludeFlags?: any);
-    toString(): string;
-    matchesFlag(flag: any): boolean;
-    matches(contextFlags: any): boolean;
-    __includeFlags: string[];
-    __requireFlags: string[];
-    __excludeFlags: string[];
+export declare class ServerTaskException extends FrameworkException {
+    constructor(message?: string, innerException?: any);
 }
-export declare class ServerTaskError {
-    constructor(message: string, errorCode: number);
-    message: string;
-    errorCode: number;
+export declare class ServerErrorException extends ServerTaskException {
+    constructor(serverMessage?: string, serverErrorCode?: number, message?: string, innerException?: string);
+}
+export declare class ServerTaskTimedOutException extends ServerTaskException {
+    constructor(message?: string, innerException?: any);
 }
 export declare const ServerTaskStatus: Enumeration<import("./Enumeration").EnumerationValue>;
 /**

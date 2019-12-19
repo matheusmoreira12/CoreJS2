@@ -1,7 +1,6 @@
-﻿import { Dictionary } from "./Collections";
-import { IndexOutOfRangeException, ArgumentTypeException } from "./Exceptions";
-import { Type } from "./Types/Types";
-export const StringUtils = {};
+﻿import { Dictionary } from "../Standard/Collections";
+import { IndexOutOfRangeException, ArgumentTypeException } from "../Standard/Exceptions";
+import { Type } from "../Standard/Types/Types";
 export class RegExpXContext {
     constructor(...namedPatterns) {
         this.__namedPatterns = new Dictionary();
