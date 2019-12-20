@@ -1,4 +1,8 @@
 ﻿var _a, _b;
+import { Collection } from "../Standard/Collections";
+import { FrameworkEvent, NativeEvent } from "../Standard/Events";
+import { FrameworkProperty } from "./user-interface";
+import { PropertyAttributeBinding } from "./UserInterface.Bindings";
 class VisualTreeManager {
     constructor(target) {
         this.elements = new Collection();

@@ -1,7 +1,7 @@
 ﻿import { ArgumentTypeException, FrameworkException } from "./exceptions";
 import { Enumeration } from "./Enumeration";
 import { BroadcastFrameworkEvent } from "./Events";
-import { Interface, InterfaceFunction } from "./Types/Types";
+import { Interface, InterfaceMember, InterfaceMemberType } from "./Interfaces/Interface";
 export class ServerTaskException extends FrameworkException {
     constructor(serverMessage, serverErrorCode, message, innerException) {
         message = message || `Server task failed in the server side with status code $serverErrorCode and message "$serverMessage".`;
@@ -88,13 +88,8 @@ export class ServerTask {
 /**
  * IValueConverter Interface
  * Exposes a friendly interface for converting values between layers of abstraction.*/
-export const IValueConverter = new Interface([
-    new InterfaceFunction("convert"),
-    new InterfaceFunction("convertBack")
-]);
+export const IValueConverter = new Interface(new InterfaceMember("convert", InterfaceMemberType.Function), new InterfaceMember("convertBack", InterfaceMemberType.Function));
 /**
  * ValueValidator Interface
  * Exposes a friendly interface for validating values between layers of abstraction.*/
-export const IValueValidator = new Interface([
-    new InterfaceFunction("validate")
-]);
+export const IValueValidator = new Interface(new InterfaceMember("validate", InterfaceMemberType.Function));

@@ -1,5 +1,4 @@
-﻿import { RegExpXContext } from "./Strings";
-const REGEXPX_CONTEXT = new RegExpXContext();
+﻿const REGEXPX_CONTEXT = new RegExpXContext();
 REGEXPX_CONTEXT.declareNamedPattern("year", `y{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("month", `M{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("day", `d{1,4}`);

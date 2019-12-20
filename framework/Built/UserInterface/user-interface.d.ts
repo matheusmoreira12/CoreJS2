@@ -2,7 +2,7 @@
 import { Enumeration } from "../Standard/Enumeration";
 export declare class BooleanAttributeValueConverter {
     convertBack(value: any): boolean;
-    convert(value: any): "false" | "";
+    convert(value: any): "" | "false";
 }
 export declare class JSONAttributeValueConverter {
     convertBack(value: any): any;

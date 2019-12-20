@@ -1,6 +1,9 @@
-﻿declare class VisualTreeManager {
+﻿import { Collection } from "../Standard/Collections";
+import { FrameworkEvent, NativeEvent } from "../Standard/Events";
+import { FrameworkProperty } from "./user-interface";
+declare class VisualTreeManager {
     constructor(target: any);
-    elements: any;
+    elements: Collection<unknown>;
     attachAll(): void;
     detachAll(): void;
 }
@@ -21,40 +24,40 @@ export declare class Widget extends HTMLElement {
     _dragDropHandler_onDragLeave(sender: any, args: any): void;
     _dragDropHandler_onDragDrop(sender: any, args: any): void;
     _onDragMove(sender: any, args: any): void;
-    DragStartEvent: any;
+    DragStartEvent: FrameworkEvent;
     _onDragStart(sender: any, args: any): void;
-    DragMoveEvent: any;
+    DragMoveEvent: FrameworkEvent;
     _onDragEnd(sender: any, args: any): void;
-    DragEndEvent: any;
+    DragEndEvent: FrameworkEvent;
     _onDragCancel(sender: any, args: any): void;
-    DragCancelEvent: any;
+    DragCancelEvent: FrameworkEvent;
     _onDragEnter(sender: any, args: any): void;
-    DragEnterEvent: any;
+    DragEnterEvent: FrameworkEvent;
     _onDragOver(sender: any, args: any): void;
-    DragOverEvent: any;
+    DragOverEvent: FrameworkEvent;
     _onDragLeave(sender: any, args: any): void;
-    DragLeaveEvent: any;
+    DragLeaveEvent: FrameworkEvent;
     _onDragDrop(sender: any, args: any): void;
-    DragDropEvent: any;
+    DragDropEvent: FrameworkEvent;
     _onMouseEnter(sender: any, args: any): void;
-    MouseEnterEvent: any;
+    MouseEnterEvent: NativeEvent;
     _onMouseLeave(sender: any, args: any): void;
-    MouseLeaveEvent: any;
+    MouseLeaveEvent: NativeEvent;
     _onMouseDown(sender: any, args: any): void;
-    MouseDownEvent: any;
+    MouseDownEvent: NativeEvent;
     _onMouseMove(sender: any, args: any): void;
-    MouseMoveEvent: any;
+    MouseMoveEvent: NativeEvent;
     _onMouseUp(sender: any, args: any): void;
-    MouseUpEvent: any;
+    MouseUpEvent: NativeEvent;
     _onClick(sender: any, args: any): void;
-    ClickEvent: any;
-    static isMouseOverProperty: any;
+    ClickEvent: NativeEvent;
+    static isMouseOverProperty: FrameworkProperty;
     isMouseOver: any;
-    static isDraggingProperty: any;
+    static isDraggingProperty: FrameworkProperty;
     isDragging: any;
-    static isDragOverProperty: any;
+    static isDragOverProperty: FrameworkProperty;
     isDragOver: any;
-    static isDraggableProperty: any;
+    static isDraggableProperty: FrameworkProperty;
     isDraggable: any;
 }
 /**
@@ -62,7 +65,7 @@ export declare class Widget extends HTMLElement {
  */
 export declare class JContentPresenter extends Widget {
     constructor();
-    static contentProperty: any;
+    static contentProperty: FrameworkProperty;
     content: any;
 }
 /**
@@ -72,23 +75,23 @@ export declare const JBannerType: any;
 export declare const ButtonIconPosition: any;
 export declare class JButton extends Widget {
     constructor();
-    static isDefaultProperty: any;
+    static isDefaultProperty: FrameworkProperty;
     isDefault: any;
-    static valueProperty: any;
+    static valueProperty: FrameworkProperty;
     value: any;
-    static contentProperty: any;
+    static contentProperty: FrameworkProperty;
     content: any;
-    static iconProperty: any;
+    static iconProperty: FrameworkProperty;
     icon: any;
 }
 export declare let DialogManager: {
     new (): {
-        _openDialogs: any;
+        _openDialogs: Collection<unknown>;
         showModal(options: any): Promise<unknown>;
     };
 };
 export declare let dialogManager: {
-    _openDialogs: any;
+    _openDialogs: Collection<unknown>;
     showModal(options: any): Promise<unknown>;
 };
 export {};

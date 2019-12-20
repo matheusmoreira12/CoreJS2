@@ -1,5 +1,3 @@
-﻿export declare namespace CoreBase {
-    const ObjectUtils: {
-        deepFreeze(obj: any): any;
-    };
-}
+﻿export declare const ObjectUtils: {
+    deepFreeze(obj: any): any;
+};
