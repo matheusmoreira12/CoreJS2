@@ -53,7 +53,7 @@ export declare class Type {
     private __initializeWithClass;
     getName(): string;
     getOwnMembers(selectionType?: number, selectionAttributes?: number): Generator<any, void, any>;
-    getMembers(selectionType?: any, selectionAttributes?: any): Generator<any, void, any>;
+    getMembers(selectionType?: number, selectionAttributes?: number): Generator<any, void, any>;
     private __getEffectiveValue;
     equals(other: any): boolean;
     extends(other: any): boolean;

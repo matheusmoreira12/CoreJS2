@@ -1,7 +1,6 @@
 import { Enumeration } from "../Enumeration";
 import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Exceptions";
 import { ObjectUtils } from "../ObjectUtils";
-import { Dictionary } from "../Collections";
 
 export const InterfaceDifferenceKind = new Enumeration([
     "MissingProperty",
@@ -112,8 +111,8 @@ export class InterfaceMember {
 export class Interface {
     static extract(type: Type) {
         function* generateMembersFromType(): Generator<InterfaceMember> {
-            const nonStaticMembers: Generator<Member> = type.getMembers(MemberSelectionType.Any & ~MemberSelectionType.Static);
-            for (let member of nonStaticMembers)
+            const members: Generator<Member> = type.getMembers();
+            for (let member of members)
                 yield InterfaceMember.__createFromMember(member);
         }
 
@@ -132,10 +131,10 @@ export class Interface {
 }
 
 export const MemberSelectionAttributes = new Enumeration({
+    Any: 0,
     Configurable: 1,
     Enumerable: 2,
     Writable: 4,
-    Any: 7
 });
 
 export const MemberSelectionType = new Enumeration({
@@ -218,6 +217,7 @@ export class Type {
             function memberTypeMatches(memberType) {
                 if (!MemberSelectionType.contains(MemberSelectionType.Function, selectionType) && MemberType.contains(MemberType.Function, memberType)) return false;
                 if (!MemberSelectionType.contains(MemberSelectionType.Property, selectionType) && MemberType.contains(MemberType.Property, memberType)) return false;
+                if (!MemberSelectionType.contains(MemberSelectionType.Field, selectionType) && MemberType.contains(MemberType.Field, memberType)) return false;
                 if (!MemberSelectionType.contains(MemberSelectionType.Static, selectionType) && MemberType.contains(MemberType.Static, memberType)) return false;
                 if (!MemberSelectionType.contains(MemberSelectionType.Instance, selectionType) && MemberType.contains(MemberType.Instance, memberType)) return false;
 
@@ -225,7 +225,11 @@ export class Type {
             }
 
             function memberAttributesMatch(memberAttributes) {
-                return MemberSelectionAttributes.contains(memberAttributes, selectionAttributes);
+                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes)) return false;
+                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Configurable, memberAttributes)) return false;
+                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Writable, memberAttributes)) return false;
+
+                return true;
             }
 
             for (let member of members) {
@@ -241,16 +245,20 @@ export class Type {
         if (selectionAttributes !== undefined && typeof selectionAttributes !== "number")
             throw new InvalidTypeException("selectionAttributes", typeof selectionAttributes);
 
-        selectionType = selectionType || MemberSelectionType.Any;
-        selectionAttributes = selectionAttributes || MemberSelectionAttributes.Any;
+        selectionType = selectionType === undefined ? MemberSelectionType.Any : selectionType;
+        selectionAttributes = selectionAttributes === undefined ? MemberSelectionAttributes.Any : selectionAttributes;
 
         let members = generateMembers.call(this);
-        let selectedMembers = selectMembers.call(this, members);
 
-        yield* selectedMembers;
+        if (selectionType === MemberSelectionType.Any && selectionAttributes === MemberSelectionAttributes.Any)
+            yield* members;
+        else {
+            let selectedMembers = selectMembers.call(this, members);
+            yield* selectedMembers;
+        }
     }
 
-    * getMembers(selectionType?, selectionAttributes?) {
+    * getMembers(selectionType?: number, selectionAttributes?: number) {
         yield* this.getOwnMembers(selectionType, selectionAttributes);
 
         for (let parentType of this.getParentTypes())

@@ -79,8 +79,8 @@ export class Interface {
     }
     static extract(type) {
         function* generateMembersFromType() {
-            const nonStaticMembers = type.getMembers(MemberSelectionType.Any & ~MemberSelectionType.Static);
-            for (let member of nonStaticMembers)
+            const members = type.getMembers();
+            for (let member of members)
                 yield InterfaceMember.__createFromMember(member);
         }
         if (!(type instanceof Type))
@@ -90,10 +90,10 @@ export class Interface {
     get members() { return this.__members; }
 }
 export const MemberSelectionAttributes = new Enumeration({
+    Any: 0,
     Configurable: 1,
     Enumerable: 2,
     Writable: 4,
-    Any: 7
 });
 export const MemberSelectionType = new Enumeration({
     Property: 1,
@@ -166,6 +166,8 @@ export class Type {
                     return false;
                 if (!MemberSelectionType.contains(MemberSelectionType.Property, selectionType) && MemberType.contains(MemberType.Property, memberType))
                     return false;
+                if (!MemberSelectionType.contains(MemberSelectionType.Field, selectionType) && MemberType.contains(MemberType.Field, memberType))
+                    return false;
                 if (!MemberSelectionType.contains(MemberSelectionType.Static, selectionType) && MemberType.contains(MemberType.Static, memberType))
                     return false;
                 if (!MemberSelectionType.contains(MemberSelectionType.Instance, selectionType) && MemberType.contains(MemberType.Instance, memberType))
@@ -173,7 +175,13 @@ export class Type {
                 return true;
             }
             function memberAttributesMatch(memberAttributes) {
-                return MemberSelectionAttributes.contains(memberAttributes, selectionAttributes);
+                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes))
+                    return false;
+                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Configurable, memberAttributes))
+                    return false;
+                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Writable, memberAttributes))
+                    return false;
+                return true;
             }
             for (let member of members) {
                 if (!memberTypeMatches(member.memberType))
@@ -187,11 +195,15 @@ export class Type {
             throw new InvalidTypeException("selectionType", typeof selectionType);
         if (selectionAttributes !== undefined && typeof selectionAttributes !== "number")
             throw new InvalidTypeException("selectionAttributes", typeof selectionAttributes);
-        selectionType = selectionType || MemberSelectionType.Any;
-        selectionAttributes = selectionAttributes || MemberSelectionAttributes.Any;
+        selectionType = selectionType === undefined ? MemberSelectionType.Any : selectionType;
+        selectionAttributes = selectionAttributes === undefined ? MemberSelectionAttributes.Any : selectionAttributes;
         let members = generateMembers.call(this);
-        let selectedMembers = selectMembers.call(this, members);
-        yield* selectedMembers;
+        if (selectionType === MemberSelectionType.Any && selectionAttributes === MemberSelectionAttributes.Any)
+            yield* members;
+        else {
+            let selectedMembers = selectMembers.call(this, members);
+            yield* selectedMembers;
+        }
     }
     *getMembers(selectionType, selectionAttributes) {
         yield* this.getOwnMembers(selectionType, selectionAttributes);

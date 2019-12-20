@@ -26,7 +26,7 @@ export const ObjectUtils = {
         if (!this.hasPrototype(dest))
             throw new ArgumentException("dest", `Value is null, undefined or does not implement the property "prototype".`);
 
-        for (let key of this.getOwnPropertyKeys()) {
+        for (let key of this.getOwnPropertyKeys(source)) {
             const destDesc = Object.getOwnPropertyDescriptor(dest, key);
             if (destDesc && !destDesc.configurable) continue;
 
