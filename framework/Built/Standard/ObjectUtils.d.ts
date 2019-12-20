@@ -1,4 +1,5 @@
 ﻿export declare const ObjectUtils: {
-    hasPrototype(obj: any): boolean;
-    crudeCopy(source: any, dest: any): any;
+    hasPrototype(obj: object): boolean;
+    getOwnPropertyKeys(obj: object): (string | symbol)[];
+    crudeCopy(source: object, dest: object): object;
 };

@@ -31,8 +31,6 @@ function inferEnumerationTypeFromValue(value) {
             return Enumeration.TYPE_STRING;
         case "boolean":
             return Enumeration.TYPE_BOOLEAN;
-        case "bigint":
-            return Enumeration.TYPE_BIGINT;
     }
     return null;
 }
@@ -72,13 +70,12 @@ export class Enumeration {
     static get TYPE_NUMBER() { return 0; }
     static get TYPE_STRING() { return 1; }
     static get TYPE_BOOLEAN() { return 2; }
-    static get TYPE_BIGINT() { return 3; }
     contains(flag, value) {
         if (!typeMatchesEnumerationType(flag, this.__type))
             throw new ArgumentTypeException("flag", typeof flag);
         if (!typeMatchesEnumerationType(value, this.__type))
             throw new ArgumentTypeException("value", typeof value);
-        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+        if (this.__type == Enumeration.TYPE_NUMBER)
             return (value & flag) == flag;
         else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(flag, value);
@@ -121,7 +118,7 @@ export class Enumeration {
         }
         if (!typeMatchesEnumerationType(value, this.__type))
             throw new ArgumentTypeException("value", typeof value);
-        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+        if (this.__type == Enumeration.TYPE_NUMBER)
             return toString_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
             return toString_string.call(this);
@@ -155,7 +152,7 @@ export class Enumeration {
         }
         if (typeof value !== "string")
             throw new ArgumentTypeException("value", typeof value);
-        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+        if (this.__type == Enumeration.TYPE_NUMBER)
             return parse_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
             return parse_string.call(this);

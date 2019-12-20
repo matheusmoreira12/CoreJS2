@@ -41,8 +41,6 @@ function inferEnumerationTypeFromValue<T = EnumerationValue>(value: T): number {
             return Enumeration.TYPE_STRING;
         case "boolean":
             return Enumeration.TYPE_BOOLEAN;
-        case "bigint":
-            return Enumeration.TYPE_BIGINT;
     }
     return null;
 }
@@ -61,7 +59,6 @@ export class Enumeration<T = EnumerationValue> {
     static get TYPE_NUMBER() { return 0 }
     static get TYPE_STRING() { return 1 }
     static get TYPE_BOOLEAN() { return 2 }
-    static get TYPE_BIGINT() { return 3 }
 
     contains(flag: T, value: T): boolean {
         if (!typeMatchesEnumerationType(flag, this.__type))
@@ -69,7 +66,7 @@ export class Enumeration<T = EnumerationValue> {
         if (!typeMatchesEnumerationType(value, this.__type))
             throw new ArgumentTypeException("value", typeof value);
 
-        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+        if (this.__type == Enumeration.TYPE_NUMBER)
             return (<number><unknown>value & <number><unknown>flag) == <number><unknown>flag;
         else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(<string><unknown>flag, <string><unknown>value);
@@ -102,7 +99,7 @@ export class Enumeration<T = EnumerationValue> {
         }
     }
 
-    toString(value: T) {
+    toString(value: T): string {
         function toString_number(this: Enumeration<T>): number {
             function convertExact(this: Enumeration<T>): string {
                 return mapUtils.invert(this.__flagsMap).get(value);
@@ -151,7 +148,7 @@ export class Enumeration<T = EnumerationValue> {
         if (!typeMatchesEnumerationType(value, this.__type))
             throw new ArgumentTypeException("value", typeof value);
 
-        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+        if (this.__type == Enumeration.TYPE_NUMBER)
             return toString_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
             return toString_string.call(this);
@@ -159,7 +156,7 @@ export class Enumeration<T = EnumerationValue> {
             return toString_boolean.call(this);
     }
 
-    parse(value) {
+    parse(value: string): T {
         function parse_number(this: Enumeration<T>): number {
             let result: number = 0;
 
@@ -195,7 +192,7 @@ export class Enumeration<T = EnumerationValue> {
         if (typeof value !== "string")
             throw new ArgumentTypeException("value", typeof value);
 
-        if (this.__type == Enumeration.TYPE_NUMBER || this.__type == Enumeration.TYPE_BIGINT)
+        if (this.__type == Enumeration.TYPE_NUMBER)
             return parse_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
             return parse_string.call(this);

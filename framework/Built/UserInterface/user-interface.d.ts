@@ -2,7 +2,7 @@
 import { Enumeration } from "../Standard/Enumeration";
 export declare class BooleanAttributeValueConverter {
     convertBack(value: any): boolean;
-    convert(value: any): "" | "false";
+    convert(value: any): "false" | "";
 }
 export declare class JSONAttributeValueConverter {
     convertBack(value: any): any;
@@ -15,7 +15,7 @@ export declare class FlagsAttributeValueConverter {
 export declare class EnumerationAttributeValueConverter<T> {
     constructor(enumeration: Enumeration<T>);
     convertBack(value: T): any;
-    convert(value: T): any;
+    convert(value: T): string;
     private __enumeration;
 }
 export declare const IFrameworkPropertyOptions: any;

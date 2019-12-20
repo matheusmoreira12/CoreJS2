@@ -1,120 +1,88 @@
-﻿import { Closure, Shell } from "./Standard.Closures.js";
-export declare const InterfaceDifferenceType: any;
-export declare class InterfaceDifference extends Shell {
-    constructor(analizedType: any, analizedInterface: any, propertyName: any);
-    readonly analizedType: any;
-    readonly analizedInterface: any;
+﻿import { Enumeration } from "../Enumeration";
+export declare const InterfaceDifferenceKind: Enumeration<import("../Enumeration").EnumerationValue>;
+export declare class InterfaceDifference {
+    constructor(analizedType: Type, analizedInterface: Interface, propertyName: string, differenceType: number);
+    readonly analizedType: Type;
+    private __analizedType;
+    readonly analizedInterface: Interface;
+    private __analizedInterface;
+    readonly propertyName: string | symbol;
+    private __propertyName;
+    readonly differenceType: number;
+    private __differenceType;
 }
-export declare class InterfaceDifferAnalysisClosure extends Closure {
-    static createFromTypeAndInterface(): void;
-    initialize(analizedType: any, ...differences: any[]): void;
-    getIsEmpty(): boolean;
-    analizedType: any;
-    differences: any;
+export declare class InterfaceDifferAnalysis {
+    constructor(analizedType: Type, analizedInterface: Interface, ...differences: InterfaceDifference[]);
+    readonly analizedType: Type;
+    private __analizedType;
+    readonly analizedInterface: Interface;
+    private __analizedInterface;
+    readonly differences: InterfaceDifference[];
+    private __differences;
 }
-export declare class InterfaceDifferAnalysis extends Shell {
+export declare const InterfaceMemberType: Enumeration<import("../Enumeration").EnumerationValue>;
+export declare class InterfaceMember {
+    static __createFromMember(member: Member): InterfaceMember;
+    constructor(key: string | symbol, memberType: number, valueType?: Type, attributes?: number, isOptional?: any);
+    readonly key: string | symbol;
+    private __key;
+    readonly memberType: number;
+    private __memberType;
+    readonly valueType: Type;
+    private __valueType;
+    readonly attributes: number;
+    private __attributes;
+    readonly isOptional: boolean;
+    private __isOptional;
+}
+export declare class Interface {
+    static extract(type: Type): Interface;
+    constructor(...members: InterfaceMember[]);
+    readonly members: InterfaceMember[];
+    private __members;
+}
+export declare const MemberSelectionAttributes: Enumeration<number>;
+export declare const MemberSelectionType: Enumeration<number>;
+export declare class Type {
+    private static __createTypeFromClass;
+    private static __createTypeFromInstance;
+    static get(_class: any): Type;
+    static of(instance: any): Type;
     constructor();
-    readonly analizedType: any;
-    readonly analizedInterface: any;
-    readonly differences: any;
-}
-export declare const InterfaceMemberType: any;
-export declare class InterfaceMember extends Shell {
-    constructor(name: any, memberType: any, type: any, attributes: any, isOptional: any);
-    readonly name: any;
-    readonly attributes: any;
-    readonly isOptional: any;
-}
-export declare class InterfaceProperty extends InterfaceMember {
-    constructor(name: any, type?: any, attributes?: any, isOptional?: boolean);
-    readonly type: any;
-}
-export declare class InterfaceFunction extends InterfaceMember {
-    constructor(name: any, attributes?: any, isOptional?: boolean);
-}
-export declare class InterfaceFunctionArgumentClosure extends Closure {
-    initialize(name: any, argumentType: any, isOptional: any): void;
-}
-export declare const InterfaceFunctionArgumentType: any;
-export declare class InterfaceFunctionArgument extends Shell {
-    constructor(name: any, argumentType?: any, isOptional?: boolean);
-}
-export declare class Interface extends Shell {
-    static extract(type: any): any;
-    constructor(descriptorMap: any);
-    readonly members: any;
-}
-export declare const MemberSelectionAttributes: any;
-export declare const MemberSelectionType: any;
-export declare class TypeClosure extends Closure {
-    static getInstanceHasConstructor(instance: any): boolean;
-    static createTypeFromClass(_class: any): Type;
-    static createTypeFromInstance(instance: any): Type;
-    instance: any;
-    hasInstance: boolean;
-    _class: any;
-    hasClass: boolean;
-    typeofResult: any;
-    members: any;
-    initialized: boolean;
-    initializeWithInstance(instance: any): void;
-    initializeWithClass(_class: any): void;
-    checkInitializedStatus(): void;
-    getName(): any;
-    getOwnMembers(selectionType: any, selectionAttributes: any): Generator<any, void, unknown>;
-    getMembers(selectionType: any, selectionAttributes: any): Generator<any, void, any>;
-    getEffectiveValue(): any;
+    private __initializeWithInstance;
+    private __initializeWithClass;
+    getName(): string;
+    getOwnMembers(selectionType?: number, selectionAttributes?: number): Generator<any, void, any>;
+    getMembers(selectionType?: any, selectionAttributes?: any): Generator<any, void, any>;
+    private __getEffectiveValue;
     equals(other: any): boolean;
     extends(other: any): boolean;
     equalsOrExtends(other: any): boolean;
     implements(_interface: any): boolean;
-    _getParentClasses(_class: any): Generator<any, void, unknown>;
-    getParentTypes(): Generator<any, void, any>;
-    _getParentInstance(instance: any): any;
-    _getParentClass(_class: any): any;
-    getParentType(): Type;
-}
-export declare class Type extends Shell {
-    static get(_class: any): Type;
-    static of(instance: any): Type;
-    constructor();
-    readonly name: any;
-    getOwnMembers(selectionType?: any, selectionAttributes?: any): any;
-    getMembers(selectionType?: any, selectionAttributes?: any): any;
     getParentTypes(): any;
-    getParentType(): any;
-    implements(_interface: any): any;
-    equals(other: any): any;
-    equalsOrExtends(other: any): any;
-    extends(other: any): any;
+    private __getParentInstance;
+    private __getParentClass;
+    getParentType(): Type;
+    __instance: any;
+    __hasInstance: boolean;
+    __class: Function;
+    __hasClass: boolean;
+    __typeofResult: string;
 }
-export declare const MemberAttributes: any;
-export declare const MemberType: any;
-export declare class Member extends Shell {
-    constructor(name: any, type: any, parentType: any, memberType: any, attributes: any);
-    isSame(other: any): any;
-    readonly parentType: any;
-    readonly memberType: any;
-    readonly name: any;
-    readonly attributes: any;
-}
-export declare class PropertyMember extends Member {
-    constructor(name: any, type: any, parentType: any, attributes: any);
-    readonly type: any;
-    getValue(instance: any): any;
-    setValue(instance: any, value: any): any;
-}
-export declare class StaticPropertyMember extends Member {
-    constructor(name: any, type: any, parentType: any, attributes: any);
-    readonly type: any;
-    getValue(instance: any): any;
-    setValue(instance: any, value: any): any;
-}
-export declare class FunctionMember extends Member {
-    constructor(name: any, type: any, parentType: any, attributes: any);
-    invoke(instance: any, ...args: any[]): any;
-}
-export declare class StaticFunctionMember extends Member {
-    constructor(name: any, type: any, parentType: any, attributes: any);
-    invoke(...args: any[]): any;
+export declare const MemberAttributes: Enumeration<number>;
+export declare const MemberType: Enumeration<number>;
+export declare class Member {
+    static __createFromPropertyDescriptor(parentType: Type, key: string | symbol, descriptor: PropertyDescriptor, isStatic?: boolean): Member;
+    constructor(key: string | symbol, type: Type, parentType: Type, memberType: number, attributes: number);
+    isSame(other: Member): boolean;
+    readonly parentType: Type;
+    protected __parentType: Type;
+    readonly type: Type;
+    protected __type: Type;
+    readonly memberType: number;
+    protected __memberType: number;
+    readonly key: string | symbol;
+    protected __key: string | symbol;
+    readonly attributes: number;
+    protected __attributes: number;
 }

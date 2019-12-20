@@ -10,13 +10,12 @@ export declare class Enumeration<T = EnumerationValue> {
     static readonly TYPE_NUMBER: number;
     static readonly TYPE_STRING: number;
     static readonly TYPE_BOOLEAN: number;
-    static readonly TYPE_BIGINT: number;
     contains(flag: T, value: T): boolean;
     constructor(descriptor: string[] | {
         [key: string]: T;
     });
-    toString(value: T): any;
-    parse(value: any): any;
+    toString(value: T): string;
+    parse(value: string): T;
     private __type;
     private __flagsMap;
 }

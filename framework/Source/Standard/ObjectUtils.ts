@@ -1,13 +1,21 @@
+import { ArgumentException } from "./Exceptions";
+
 export const ObjectUtils = {
-    hasPrototype(obj) {
+    hasPrototype(obj: object): boolean {
         if (obj === null) return false;
         if (obj === undefined) return false;
-        if (!obj.prototype) return false;
+
+        const prototype = Object.getPrototypeOf(obj);
+        if (prototype === undefined) return false;
 
         return true;
     },
 
-    crudeCopy(source, dest) {
+    getOwnPropertyKeys(obj: object): (string | symbol)[] {
+        return [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
+    },
+
+    crudeCopy(source: object, dest: object) {
         function overwriteProperty(dest, key, desc) {
             delete dest[key];
             Object.defineProperty(dest, key, desc);
@@ -18,9 +26,9 @@ export const ObjectUtils = {
         if (!this.hasPrototype(dest))
             throw new ArgumentException("dest", `Value is null, undefined or does not implement the property "prototype".`);
 
-        for (let key of [...Object.getOwnPropertyNames(source), ...Object.getOwnPropertySymbols(source)]) {
+        for (let key of this.getOwnPropertyKeys()) {
             const destDesc = Object.getOwnPropertyDescriptor(dest, key);
-            if (sourceDesc && !destDesc.configurable) continue;
+            if (destDesc && !destDesc.configurable) continue;
 
             const sourceDesc = Object.getOwnPropertyDescriptor(source, key);
             overwriteProperty(dest, key, sourceDesc);

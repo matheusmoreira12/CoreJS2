@@ -1,5 +1,5 @@
 import { Enumeration } from "../Enumeration";
-import { InvalidOperationException, ArgumentTypeException } from "../Exceptions";
+import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Exceptions";
 import { ObjectUtils } from "../ObjectUtils";
 import { Dictionary } from "../Collections";
 
@@ -52,13 +52,28 @@ export const InterfaceMemberType = new Enumeration([
 ]);
 
 export class InterfaceMember {
-    constructor(name: string, memberType?: number, valueType?: Type, attributes?: number, isOptional?) {
-        if (new.target === InterfaceMember)
-            throw new InvalidOperationException("Invalid constructor.");
+    static __createFromMember(member: Member): InterfaceMember {
+        function convertMemberType(memberType: number): number {
+            switch (memberType) {
+                case MemberType.Property:
+                    return InterfaceMemberType.Property;
+                case MemberType.Function:
+                    return InterfaceMemberType.Property;
+            }
+            return null;
+        }
 
-        if (typeof name !== "string")
-            throw new ArgumentTypeException(`name`, Type.of(name));
-        if (memberType !== undefined && typeof memberType !== "number")
+        let memberType = convertMemberType(member.memberType);
+        if (memberType === null)
+            return null;
+
+        return new InterfaceMember(member.key, memberType, member.type, member.attributes, true);
+    }
+
+    constructor(key: string | symbol, memberType: number, valueType?: Type, attributes?: number, isOptional?) {
+        if (typeof key !== "string" && typeof key !== "symbol")
+            throw new ArgumentTypeException(`key`, Type.of(key));
+        if (typeof memberType !== "number")
             throw new ArgumentTypeException(`memberType`, Type.of(memberType));
         if (valueType !== undefined && !(valueType instanceof Type))
             throw new ArgumentTypeException(`valueType`, Type.of(valueType));
@@ -67,15 +82,19 @@ export class InterfaceMember {
         if (isOptional !== undefined && typeof isOptional !== "boolean")
             throw new ArgumentTypeException(`isOptional`, Type.of(isOptional));
 
-        this.__name = name;
+        valueType = valueType === undefined ? null : valueType;
+        attributes = attributes === undefined ? MemberAttributes.Writable : attributes;
+        isOptional = isOptional === undefined ? false : isOptional;
+
+        this.__key = key;
         this.__memberType = memberType;
         this.__valueType = valueType;
         this.__attributes = attributes;
         this.__isOptional = isOptional;
     }
 
-    get name() { return this.__name; }
-    private __name: string | symbol;
+    get key() { return this.__key; }
+    private __key: string | symbol;
 
     get memberType(): number { return this.__memberType; }
     private __memberType: number;
@@ -90,26 +109,12 @@ export class InterfaceMember {
     private __isOptional: boolean;
 }
 
-export class InterfaceProperty extends InterfaceMember {
-    constructor(name: string, valueType?: Type, attributes?: number, isOptional?: number) {
-        super(name, InterfaceMemberType.Property, valueType, attributes, isOptional);
-    }
-}
-
-export class InterfaceFunction extends InterfaceMember {
-    constructor(name: string, attributes?: number, isOptional?: boolean) {
-        super(name, InterfaceMemberType.Function, undefined, attributes, isOptional);
-    }
-}
-
 export class Interface {
     static extract(type: Type) {
         function* generateMembersFromType(): Generator<InterfaceMember> {
-            const nonStaticMembers: Member[] = type.getMembers(MemberSelectionType.Any & ~MemberSelectionType.Static);
-            for (let member of nonStaticMembers) {
-                const memberType: number = member.memberType;
-                yield new InterfaceMember(member.name, memberType, member.attributes);
-            }
+            const nonStaticMembers: Generator<Member> = type.getMembers(MemberSelectionType.Any & ~MemberSelectionType.Static);
+            for (let member of nonStaticMembers)
+                yield InterfaceMember.__createFromMember(member);
         }
 
         if (!(type instanceof Type))
@@ -136,9 +141,10 @@ export const MemberSelectionAttributes = new Enumeration({
 export const MemberSelectionType = new Enumeration({
     Property: 1,
     Function: 2,
-    Static: 4,
-    Any: 3,
-    AnyStatic: 7
+    Field: 4,
+    Instance: 8,
+    Static: 16,
+    Any: 31,
 });
 
 export class Type {
@@ -191,80 +197,81 @@ export class Type {
         return this.__class.name;
     }
 
-    * getOwnMembers(selectionType, selectionAttributes) {
-        function* createMembers(_class, hasClass, instance, hasInstance) {
-            if (!hasClass) return;
+    * getOwnMembers(selectionType?: number, selectionAttributes?: number) {
+        function* generateMembers(this: Type) {
+            if (!this.__hasClass) return;
 
-            const staticDescriptorsDictionary = Dictionary.fromKeyValueObject(Object.getOwnPropertyDescriptors(_class));
-            for (let item of staticDescriptorsDictionary)
-                yield MemberClosure.createFromPropertyDescriptor(this.shell, item.key, item.value, true);
+            for (let key of ObjectUtils.getOwnPropertyKeys(this.__class)) {
+                const descriptor = Object.getOwnPropertyDescriptor(this.__class, key);
+                yield Member.__createFromPropertyDescriptor(this, key, descriptor, true);
+            }
 
-            if (!hasInstance) return;
+            if (!this.__hasInstance) return;
 
-            const descriptorsDictionary = Dictionary.fromKeyValueObject(Object.getOwnPropertyDescriptors(instance));
-            for (let item of descriptorsDictionary)
-                yield MemberClosure.createFromPropertyDescriptor(this.shell, item.key, item.value, false);
+            for (let key of ObjectUtils.getOwnPropertyKeys(this.__instance)) {
+                const descriptor = Object.getOwnPropertyDescriptor(this.__instance, key);
+                yield Member.__createFromPropertyDescriptor(this, key, descriptor, false);
+            }
         }
 
-        function* selectMembers(members, selectionType, selectionAttributes) {
+        function* selectMembers(this: Type, members: Iterable<Member>) {
             function memberTypeMatches(memberType) {
-                if (Enumeration.isFlagSet(MemberSelectionType.Static, selectionType) ^ Enumeration.isFlagSet(MemberType.Static, memberType)) return false;
-
-                if (!Enumeration.contains(Enumeration.intersect(~MemberType.Static, memberType), selectionType)) return false;
+                if (!MemberSelectionType.contains(MemberSelectionType.Function, selectionType) && MemberType.contains(MemberType.Function, memberType)) return false;
+                if (!MemberSelectionType.contains(MemberSelectionType.Property, selectionType) && MemberType.contains(MemberType.Property, memberType)) return false;
+                if (!MemberSelectionType.contains(MemberSelectionType.Static, selectionType) && MemberType.contains(MemberType.Static, memberType)) return false;
+                if (!MemberSelectionType.contains(MemberSelectionType.Instance, selectionType) && MemberType.contains(MemberType.Instance, memberType)) return false;
 
                 return true;
             }
 
             function memberAttributesMatch(memberAttributes) {
-                return Enumeration.contains(memberAttributes, selectionAttributes);
+                return MemberSelectionAttributes.contains(memberAttributes, selectionAttributes);
             }
 
             for (let member of members) {
                 if (!memberTypeMatches(member.memberType)) continue;
-
                 if (!memberAttributesMatch(member.attributes)) continue;
 
                 yield member;
             }
         }
 
-        this.checkInitializedStatus();
+        if (selectionType !== undefined && typeof selectionType !== "number")
+            throw new InvalidTypeException("selectionType", typeof selectionType);
+        if (selectionAttributes !== undefined && typeof selectionAttributes !== "number")
+            throw new InvalidTypeException("selectionAttributes", typeof selectionAttributes);
 
-        if (!this.hasClass) return;
+        selectionType = selectionType || MemberSelectionType.Any;
+        selectionAttributes = selectionAttributes || MemberSelectionAttributes.Any;
 
-        let members = createMembers.call(this, this._class, this.hasClass, this.instance, this.hasInstance);
-
-        let selectedMembers = selectMembers(members, selectionType, selectionAttributes);
+        let members = generateMembers.call(this);
+        let selectedMembers = selectMembers.call(this, members);
 
         yield* selectedMembers;
     }
 
-    * getMembers(selectionType, selectionAttributes) {
+    * getMembers(selectionType?, selectionAttributes?) {
         yield* this.getOwnMembers(selectionType, selectionAttributes);
 
         for (let parentType of this.getParentTypes())
             yield* parentType.getOwnMembers(selectionType, selectionAttributes);
     }
 
-    getEffectiveValue() {
-        this.checkInitializedStatus();
+    private __getEffectiveValue() {
+        if (!this.__hasClass)
+            return this.__instance;
 
-        if (!this.hasClass)
-            return this.instance;
-
-        return this._class;
+        return this.__class;
     }
 
     equals(other) {
         if (!(other instanceof Type))
             throw new ArgumentTypeException("other");
 
-        return this.getEffectiveValue() === Closure.doIfExists(other, c => c.getEffectiveValue(other));
+        return this.__getEffectiveValue() === other.__getEffectiveValue();
     }
 
     extends(other) {
-        this.checkInitializedStatus();
-
         for (let type of this.getParentTypes()) {
             if (type.equals(other))
                 return true;
@@ -278,12 +285,12 @@ export class Type {
     }
 
     implements(_interface) {
-        function getMemberByName(members, name) {
-            return members.find(m => m.name === name);
+        function getMemberByKey(members, key) {
+            return members.find(m => m.key === key);
         }
 
         function attributesMatch(memberAttributes, interfaceMemberAttributes) {
-            return Enumeration.isFlagSet(interfaceMemberAttributes, memberAttributes);
+            return MemberAttributes.contains(interfaceMemberAttributes, memberAttributes);
         }
 
         function membersMatch(member, interfaceMember) {
@@ -312,26 +319,16 @@ export class Type {
         if (!Type.of(_interface).equalsOrExtends(Type.get(Interface)))
             throw new ArgumentTypeException("interface", Type.of(_interface), Type.get(Interface));
 
-        let members = [...this.getMembers(MemberSelectionType.Property | MemberSelectionType.Function,
-            MemberSelectionAttributes.Any)];
+        let members = [...this.getMembers(MemberSelectionType.Property | MemberSelectionType.Function)];
 
         for (let interfaceMember of _interface.members) {
-            let member = getMemberByName(members, interfaceMember.name);
+            let member = getMemberByKey(members, interfaceMember.key);
 
             if (!membersMatch(member, interfaceMember))
                 return false;
         }
 
         return true;
-    }
-
-    * _getParentClasses(_class) {
-        let parentClass = this._getParentClass(this._class);
-
-        while (parentClass !== null) {
-            yield parentClass;
-            parentClass = this._getParentClass(parentClass);
-        }
     }
 
     * getParentTypes() {
@@ -343,12 +340,12 @@ export class Type {
         yield* parentType.getParentTypes();
     }
 
-    _getParentInstance(instance) {
+    private __getParentInstance(instance) {
         let parentInstance = Object.getPrototypeOf(instance);
         return parentInstance;
     }
 
-    _getParentClass(_class) {
+    private __getParentClass(_class) {
         let parentClass = Object.getPrototypeOf(_class);
         if (parentClass instanceof Function)
             return parentClass;
@@ -357,14 +354,14 @@ export class Type {
     }
 
     getParentType() {
-        if (this.hasClass) {
-            if (this.hasInstance) {
-                let parentInstance = this._getParentInstance(this.instance);
+        if (this.__hasClass) {
+            if (this.__hasInstance) {
+                let parentInstance = this.__getParentInstance(this.__instance);
                 if (parentInstance !== null)
                     return Type.of(parentInstance);
             }
             else {
-                let parentClass = this._getParentClass(this._class);
+                let parentClass = this.__getParentClass(this.__class);
                 if (parentClass !== null)
                     return Type.get(parentClass);
             }
@@ -389,183 +386,58 @@ export const MemberAttributes = new Enumeration({
 export const MemberType = new Enumeration({
     Property: 1,
     Function: 2,
-    Static: 4
+    Field: 4,
+    Static: 8
 });
 
-class MemberClosure extends Closure {
-    static createFromPropertyDescriptor(parentType, name, descriptor, isStatic) {
+export class Member {
+    static __createFromPropertyDescriptor(parentType: Type, key: string | symbol, descriptor: PropertyDescriptor, isStatic: boolean = false) {
         function getAttributesFromDescriptor(descriptor) {
             return (descriptor.writable ? MemberAttributes.Writable : 0) |
                 (descriptor.enumerable ? MemberAttributes.Enumerable : 0) |
                 (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
 
-        let attributes = getAttributesFromDescriptor(descriptor);
-
-        const value = descriptor.value;
-        const type = Type.of(value);
+        const attributes = getAttributesFromDescriptor(descriptor);
+        const type = Type.of(descriptor.value);
 
         const isFunction = type.equals(Type.get(Function));
-        if (isFunction) {
-            if (isStatic)
-                return new StaticFunctionMember(name, type, parentType, attributes);
-            else
-                return new FunctionMember(name, type, parentType, attributes);
-        }
-        else {
-            if (isStatic)
-                return new StaticPropertyMember(name, type, parentType, attributes);
-            else
-                return new PropertyMember(name, type, parentType, attributes);
-        }
+        const memberType = (isFunction ? MemberType.Function : MemberType.Property) | (isStatic ? MemberType.Static : 0);
+
+        return new Member(key, type, parentType, memberType, attributes);
     }
 
-    initialize(parentType, type, memberType, name, attributes) {
-        this.parentType = parentType;
-        this.type = type;
-        this.memberType = memberType;
-        this.name = name;
-        this.attributes = attributes;
+    constructor(key: string | symbol, type: Type, parentType: Type, memberType: number, attributes: number) {
+        if (this.constructor === Member)
+            throw new InvalidOperationException("Invalid constructor");
+
+        this.__key = key;
+        this.__type = type;
+        this.__parentType = parentType;
+        this.__memberType = memberType;
+        this.__attributes = attributes;
     }
 
-    getInvokable() {
-        function* getArgumentStrings(_arguments) {
-            for (let argument of _arguments)
-                yield argument.toString();
-        }
-
-        if (this.body !== null)
-            return new Function(...getArgumentStrings(this._arguments), this.body);
-
-        return null;
-    }
-
-    isSame(other) {
-        if (this.name !== other.name) return false;
-
-        if (this.memberType !== other.memberType) return false;
-        if (this.memberType === MemberType.Property && this.type !== other.type) return false;
+    isSame(other: Member) {
+        if (this.__key !== other.__key) return false;
+        if (this.__memberType !== other.memberType) return false;
+        if (this.__memberType === MemberType.Property && this.__type.equals(other.__type)) return false;
 
         return true;
     }
 
-    getValue(instance) {
-        return instance[this.name];
-    }
+    get parentType(): Type { return this.__parentType; }
+    protected __parentType: Type;
 
-    setValue(instance, value) {
-        instance[this.name] = value;
-    }
+    get type(): Type { return this.__type; }
+    protected __type: Type;
 
-    invoke(instance, ...args) {
-        let value = this.getValue(instance);
+    get memberType(): number { return this.__memberType; }
+    protected __memberType: number;
 
-        return value.call(instance, ...args);
-    }
+    get key(): string | symbol { return this.__key; }
+    protected __key: string | symbol;
 
-    getValueStatic() {
-        let _class = Closure.doIfExists(this.parentType, c => c._class);
-        if (!_class) return undefined;
-
-        return this.getValue(_class);
-    }
-
-    setValueStatic(value) {
-        let _class = Closure.doIfExists(this.parentType, c => c._class);
-        if (!_class) return;
-
-        this.setValue(_class, value);
-    }
-
-    invokeStatic(...args) {
-        let _class = Closure.doIfExists(this.parentType, c => c._class);
-        if (!_class) return;
-
-        return this.invoke(_class, ...args);
-    }
-}
-
-export class Member extends Shell {
-    constructor(name, type, parentType, memberType, attributes) {
-        super(MemberClosure, parentType, type, memberType, name, attributes);
-
-        if (this.constructor === Member)
-            throw new InvalidOperationException("Invalid constructor");
-    }
-
-    isSame(other) {
-        return Closure.doIfExists(this, c => c.isSame(other));
-    }
-
-    get parentType() {
-        return Closure.doIfExists(this, c => c.parentType);
-    }
-
-    get memberType() {
-        return Closure.doIfExists(this, c => c.memberType);
-    }
-
-    get name() {
-        return Closure.doIfExists(this, c => c.name);
-    }
-
-    get attributes() {
-        return Closure.doIfExists(this, c => c.attributes);
-    }
-}
-
-export class PropertyMember extends Member {
-    constructor(name, type, parentType, attributes) {
-        super(name, type, parentType, MemberType.Property, attributes);
-    }
-
-    get type() {
-        return Closure.doIfExists(this, c => c.type);
-    }
-
-    getValue(instance) {
-        return Closure.doIfExists(this, c => c.getValue(instance));
-    }
-
-    setValue(instance, value) {
-        return Closure.doIfExists(this, c => c.setValue(instance, value));
-    }
-}
-
-export class StaticPropertyMember extends Member {
-    constructor(name, type, parentType, attributes) {
-        super(name, type, parentType, MemberType.Property | MemberType.Static, attributes);
-    }
-
-    get type() {
-        return Closure.doIfExists(this, c => c.type);
-    }
-
-    getValue(instance) {
-        return Closure.doIfExists(this, c => c.getValueStatic(instance));
-    }
-
-    setValue(instance, value) {
-        return Closure.doIfExists(this, c => c.setValueStatic(instance, value));
-    }
-}
-
-export class FunctionMember extends Member {
-    constructor(name, type, parentType, attributes) {
-        super(name, type, parentType, MemberType.Function, attributes);
-    }
-
-    invoke(instance, ...args) {
-        return Closure.doIfExists(this, c => c.invoke(instance, ...args));
-    }
-}
-
-export class StaticFunctionMember extends Member {
-    constructor(name, type, parentType, attributes) {
-        super(name, type, parentType, MemberType.Function | MemberType.Static, attributes);
-    }
-
-    invoke(...args) {
-        return Closure.doIfExists(this, c => c.invokeStatic(...args));
-    }
+    get attributes(): number { return this.__attributes; }
+    protected __attributes: number;
 }
