@@ -77,12 +77,12 @@ export declare class Ajax {
     private __onreadystatechange;
     private __ontimeout;
     private __xhr;
-    readonly method: AjaxMethod;
+    get method(): AjaxMethod;
     private __method;
-    readonly url: string;
+    get url(): string;
     private __url;
-    readonly events: AjaxCallbacks;
+    get events(): AjaxCallbacks;
     private __events;
-    readonly options: AjaxOptions;
+    get options(): AjaxOptions;
     private __options;
 }

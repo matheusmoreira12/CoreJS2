@@ -1,11 +1,15 @@
-﻿export declare class VisualTreeNode {
-    constructor(domNode: any);
-    _insertElement(treeNode: any, index: any): void;
-    _removeElement(treeNode: any): void;
-    _setAttribute(treeNode: any): void;
-    _removeAttribute(treeNode: any): void;
-    _childNodes_onChange(sender: any, args: any): void;
-    childNodes: any;
+﻿import { ObservableCollection } from "../Standard/Collections";
+export declare abstract class VisualTreeNode {
+    constructor(domNode: Element);
+    private __insertElement;
+    private __removeElement;
+    private __setAttribute;
+    private __removeAttribute;
+    private __childNodes_onChange;
+    readonly childNodes: ObservableCollection<VisualTreeNode>;
+    protected __childNodes: ObservableCollection<VisualTreeNode>;
+    readonly domNode: Element;
+    protected __domNode: Element;
 }
 export declare class VisualTreeElement extends VisualTreeNode {
     constructor(qualifiedName: any, namespaceURI?: any);

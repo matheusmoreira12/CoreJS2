@@ -1,49 +1,61 @@
 ﻿import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
 import { Enumeration } from "../Standard/Enumeration";
-export declare class BooleanAttributeValueConverter {
+import { ValueConverter } from "../Standard/Standard";
+import { Interface } from "../Standard/Interfaces/Interface";
+import { FrameworkEvent, BroadcastFrameworkEvent } from "../Standard/Events";
+import { Collection, Dictionary } from "../Standard/Collections";
+export declare class BooleanAttributeValueConverter implements ValueConverter {
     convertBack(value: any): boolean;
-    convert(value: any): "false" | "";
-}
-export declare class JSONAttributeValueConverter {
-    convertBack(value: any): any;
     convert(value: any): string;
 }
-export declare class FlagsAttributeValueConverter {
-    convertBack(value: any): ContextSelectionFlags;
-    convert(value: any): any;
+export declare class JSONAttributeValueConverter implements ValueConverter {
+    convertBack(value: any): JSON;
+    convert(value: any): string;
 }
-export declare class EnumerationAttributeValueConverter<T> {
+export declare class FlagsAttributeValueConverter implements ValueConverter {
+    convertBack(value: string): ContextSelectionFlags;
+    convert(value: any): string;
+}
+export declare class EnumerationAttributeValueConverter<T> implements ValueConverter {
     constructor(enumeration: Enumeration<T>);
-    convertBack(value: T): any;
+    convertBack(value: string): T;
     convert(value: T): string;
     private __enumeration;
 }
-export declare const IFrameworkPropertyOptions: any;
+export declare const IFrameworkPropertyOptions: Interface;
+export interface FrameworkPropertyOptions {
+    defaultValue: any;
+}
 /**
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
  */
 export declare class FrameworkProperty {
-    static getAllProperties(type: any): any;
-    constructor(name: any, options: any);
-    _storedValues: WeakMap<object, any>;
+    constructor(name: string, options: FrameworkPropertyOptions);
     get(target: any): any;
     set(target: any, value: any): void;
-    ChangeEvent: any;
-    readonly name: any;
+    ChangeEvent: FrameworkEvent;
+    readonly name: string;
     private __name;
-    readonly options: any;
+    readonly options: FrameworkPropertyOptions;
     private __options;
+    private __storedValues;
 }
 /**
  * FrameworkAction base class
  * Represents an user-initiated action.
  */
-export declare class FrameworkAction {
+export declare abstract class FrameworkAction {
     constructor();
-    execute(): void;
-    _ExecutedEvent: any;
-    readonly ExecutedEvent: any;
+    execute(data?: Dictionary<string, any>): void;
+    readonly ExecutedEvent: FrameworkEvent;
+    private __ExecutedEvent;
+}
+/**
+ * Trigger base class
+ */
+export declare abstract class Trigger {
+    constructor();
 }
 /**
  *
@@ -51,31 +63,33 @@ export declare class FrameworkAction {
 export declare class Setter {
 }
 /**
- * Trigger base class
- */
-export declare class Trigger {
-    constructor(...actions: any[]);
-    readonly actions: any;
-}
-/**
  * PropertyTrigger class
  * Triggers a group of action when the specified property matches the specified value.
  */
 export declare class PropertyTrigger extends Trigger {
-    constructor(target: any, targetProperty: any, value: any, ...actions: any[]);
-    _targetProperty_onChange(sender: any, args: any): void;
-    readonly target: any;
-    readonly targetProperty: any;
+    constructor(target: object, targetProperty: FrameworkProperty, value: any, ...actions: FrameworkAction[]);
+    private __targetProperty_onChange;
+    readonly target: object;
+    private __target;
+    readonly targetProperty: FrameworkProperty;
+    private __targetProperty;
     readonly value: any;
+    private __value;
+    readonly setters: Collection<Setter>;
+    private __setters;
 }
 /**
  * EventTrigger class
  * Triggers a group of actions upon the firing of an event.
  */
-export declare class EventTrigger {
-    constructor(targetEvent: any);
-    _targetEvent_handler(): void;
-    readonly targetEvent: any;
+export declare class EventTrigger extends Trigger {
+    constructor(targetEvent: FrameworkEvent, ...actions: FrameworkAction[]);
+    private __targetEvent_handler;
+    protected __executeActions(data?: Dictionary<string, any>): void;
+    readonly targetEvent: FrameworkEvent;
+    private __targetEvent;
+    readonly actions: Collection<FrameworkAction>;
+    private __actions;
 }
 /**
  * Visual State Manager
@@ -83,8 +97,8 @@ export declare class EventTrigger {
  */
 declare class VisualStateManager {
     constructor();
-    serverTaskStartedEvent: any;
-    serverTaskFinishedEvent: any;
+    serverTaskStartedEvent: BroadcastFrameworkEvent;
+    serverTaskFinishedEvent: BroadcastFrameworkEvent;
     _onServerTaskStarted(): void;
     _onServerTaskFinished(): void;
 }
@@ -113,10 +127,14 @@ export declare class Timer {
     constructor(delayMillis?: number, isPeriodic?: boolean);
     start(): void;
     stop(): void;
-    _TickEvent: any;
-    readonly delayMillis: any;
-    readonly isPeriodic: any;
-    readonly TickEvent: any;
+    _TickEvent: FrameworkEvent;
+    readonly delayMillis: number;
+    private __delayMillis;
+    readonly isPeriodic: boolean;
+    private __isPeriodic;
+    readonly TickEvent: FrameworkEvent;
+    private __TickEvent;
+    private __timeoutHandle;
 }
 /**
  * AutoScroller Class
@@ -126,29 +144,30 @@ export declare const AutoScrollerOrientation: Enumeration<import("../Standard/En
 export declare const AutoScrollerDirection: Enumeration<import("../Standard/Enumeration").EnumerationValue>;
 export declare class AutoScroller {
     constructor(target: any);
-    _doRequestScrollStart(args: any): void;
-    _doScrollStart(args: any): void;
-    _doScrollRateChange(args: any): void;
-    _doScrollEnd(args: any): void;
-    _scrollTimer_onTick(sender: any, args: any): void;
-    _RequestScrollStartEvent: any;
-    _ScrollStartEvent: any;
-    _ScrollRateChangeEvent: any;
-    _ScrollEndEvent: any;
-    _scrollTimer: Timer;
-    _rateX: number;
-    _rateY: number;
-    _stateX: any;
-    _stateY: any;
-    _directionX: any;
-    _directionY: any;
-    _window_onMouseMove(evt: any): void;
-    _target_onMouseLeave(evt: any): void;
-    readonly ScrollRequestStartEvent: any;
-    readonly ScrollStartEvent: any;
-    readonly ScrollRateChangeEvent: any;
-    readonly ScrollEndEvent: any;
-    readonly target: any;
+    private __doRequestScrollStart;
+    private __doScrollStart;
+    private __doScrollRateChange;
+    private __doScrollEnd;
+    private __scrollTimer_onTick;
+    private __window_onMouseMove;
+    private __target_onMouseLeave;
+    private __ScrollRequestStartEvent;
+    private __ScrollStartEvent;
+    private __ScrollRateChangeEvent;
+    private __ScrollEndEvent;
+    private __scrollTimer;
+    private __rateX;
+    private __rateY;
+    private __stateX;
+    private __stateY;
+    private __directionX;
+    private __directionY;
+    readonly ScrollRequestStartEvent: FrameworkEvent;
+    readonly ScrollStartEvent: FrameworkEvent;
+    readonly ScrollRateChangeEvent: FrameworkEvent;
+    readonly ScrollEndEvent: FrameworkEvent;
+    readonly target: Element;
+    private __target;
 }
 /**
  *
@@ -162,10 +181,10 @@ declare class DragEmulator {
     onDragMove(sender: any, args: any): void;
     onDragEnd(sender: any, args: any): void;
     onDragCancel(sender: any, args: any): void;
-    DragStartEvent: any;
-    DragMoveEvent: any;
-    DragEndEvent: any;
-    DragCancelEvent: any;
+    DragStartEvent: FrameworkEvent;
+    DragMoveEvent: FrameworkEvent;
+    DragEndEvent: FrameworkEvent;
+    DragCancelEvent: FrameworkEvent;
     previewElem: any;
 }
 export declare class DragDropHandler {
@@ -189,32 +208,32 @@ export declare class DragDropHandler {
     _doDragDrop(args: any): void;
     _onNotifyDragMove(sender: any, args: any): void;
     _onNotifyDragEnd(sender: any, args: any): void;
-    _NotifyDragStartEvent: any;
-    _NotifyDragMoveEvent: any;
-    _NotifyDragEndEvent: any;
-    _NotifyDragCancelEvent: any;
-    _RequestDragStartEvent: any;
-    _DragStartEvent: any;
-    _DragMoveEvent: any;
-    _DragEndEvent: any;
-    _DragCancelEvent: any;
-    _DragEnterEvent: any;
-    _DragOverEvent: any;
-    _DragLeaveEvent: any;
-    _DragDropEvent: any;
+    _NotifyDragStartEvent: BroadcastFrameworkEvent;
+    _NotifyDragMoveEvent: BroadcastFrameworkEvent;
+    _NotifyDragEndEvent: BroadcastFrameworkEvent;
+    _NotifyDragCancelEvent: BroadcastFrameworkEvent;
+    _RequestDragStartEvent: FrameworkEvent;
+    _DragStartEvent: FrameworkEvent;
+    _DragMoveEvent: FrameworkEvent;
+    _DragEndEvent: FrameworkEvent;
+    _DragCancelEvent: FrameworkEvent;
+    _DragEnterEvent: FrameworkEvent;
+    _DragOverEvent: FrameworkEvent;
+    _DragLeaveEvent: FrameworkEvent;
+    _DragDropEvent: FrameworkEvent;
     _emulator: DragEmulator;
     _data: any;
     _context: any;
     _state: any;
-    readonly RequestDragStartEvent: any;
-    readonly DragStartEvent: any;
-    readonly DragMoveEvent: any;
-    readonly DragEndEvent: any;
-    readonly DragCancelEvent: any;
-    readonly DragEnterEvent: any;
-    readonly DragOverEvent: any;
-    readonly DragLeaveEvent: any;
-    readonly DragDropEvent: any;
+    readonly RequestDragStartEvent: FrameworkEvent;
+    readonly DragStartEvent: FrameworkEvent;
+    readonly DragMoveEvent: FrameworkEvent;
+    readonly DragEndEvent: FrameworkEvent;
+    readonly DragCancelEvent: FrameworkEvent;
+    readonly DragEnterEvent: FrameworkEvent;
+    readonly DragOverEvent: FrameworkEvent;
+    readonly DragLeaveEvent: FrameworkEvent;
+    readonly DragDropEvent: FrameworkEvent;
     readonly target: any;
 }
 export {};

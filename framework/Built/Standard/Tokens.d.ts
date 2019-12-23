@@ -6,15 +6,16 @@
     decrement(): number;
     jump(count: any): any;
     goto(index: any): void;
-    readonly isWithinBounds: boolean;
-    readonly currentToken: any;
-    readonly startIndex: any;
+    get isWithinBounds(): boolean;
+    get currentToken(): any;
+    get startIndex(): any;
     private __startIndex;
-    currentIndex: any;
+    get currentIndex(): any;
+    set currentIndex(value: any);
     private __currentIndex;
-    readonly parentContext: any;
+    get parentContext(): any;
     private __parentContext;
-    readonly tokens: any;
+    get tokens(): any;
     private __tokens;
 }
 export declare class TokenReader<T> extends TokenReaderContext<T> {

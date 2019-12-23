@@ -31,6 +31,13 @@ export declare class ObservableCollection<T> extends Collection<T> {
     readonly ChangeEvent: FrameworkEvent;
     __ChangeEvent: FrameworkEvent;
 }
+export declare type ObservableCollectionChangeArgs<T> = {
+    action: number;
+    oldItems: T[];
+    oldIndex: number;
+    newItems: T[];
+    newIndex: number;
+};
 /**
  * KeyValuePair class
  */
@@ -50,7 +57,6 @@ export declare class KeyValuePair<TKey, TValue> {
  *
  */
 export declare class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TValue>> {
-    constructor(...items: KeyValuePair<TKey, TValue>[]);
     static fromMap<TKey, TValue>(map: Map<TKey, TValue>): Dictionary<TKey, TValue>;
     static fromKeyValueObject(obj: any): Dictionary<string, any>;
     get(key: TKey): TValue;
@@ -62,7 +68,6 @@ export declare class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TK
 }
 export declare const ObservableDictionaryChangeAction: Enumeration<import("./Enumeration").EnumerationValue>;
 export declare class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
-    constructor(entries: any);
     private __notifySet;
     private __notifyDelete;
     set(key: TKey, value: TValue): void;
@@ -70,3 +75,9 @@ export declare class ObservableDictionary<TKey, TValue> extends Dictionary<TKey,
     readonly ChangeEvent: FrameworkEvent;
     __ChangeEvent: FrameworkEvent;
 }
+export declare type ObservableDictionaryChangeArgs<TKey, TValue> = {
+    action: number;
+    key: TKey;
+    oldValue: TValue;
+    newValue: TValue;
+};

@@ -1,6 +1,9 @@
 ﻿import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
 import { Enumeration } from "../Standard/Enumeration";
-import { Interface } from "../Standard/Types/Types";
+import { InterfaceMember, Interface, InterfaceMemberType } from "../Standard/Interfaces/Interface";
+import { FrameworkEvent, BroadcastFrameworkEvent } from "../Standard/Events";
+import { InvalidOperationException, ArgumentTypeException, ArgumentNullException } from "../Standard/Exceptions";
+import { Collection } from "../Standard/Collections";
 export class BooleanAttributeValueConverter {
     convertBack(value) {
         if (value === null)
@@ -51,43 +54,29 @@ export class EnumerationAttributeValueConverter {
 const DEFAULT_FRAMEWORK_PROPERTY_OPTIONS = {
     defaultValue: null
 };
-export const IFrameworkPropertyOptions = new Interface([
-    FrameworkProperty()
-]);
+export const IFrameworkPropertyOptions = new Interface(new InterfaceMember("defaultValue", InterfaceMemberType.Property));
 /**
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
  */
 export class FrameworkProperty {
     constructor(name, options) {
-        this._storedValues = new WeakMap();
         this.ChangeEvent = new FrameworkEvent();
+        this.__storedValues = new WeakMap();
         options = Object.assign({}, DEFAULT_FRAMEWORK_PROPERTY_OPTIONS, options);
-        this._name = name;
-        this._options = options;
-    }
-    static *getAllProperties(type) {
-        const PROPERTY_NAME_PATTERN = /^([a-zA-Z]\w*)Property$/;
-        for (let staticPropName of Object.getOwnPropertyNames(type)) {
-            let staticProp = Object.getOwnPropertyDescriptor(type, staticPropName);
-            if (!staticPropName.match(PROPERTY_NAME_PATTERN))
-                continue;
-            if (!(staticProp.value instanceof FrameworkProperty))
-                continue;
-            yield staticProp.value;
-        }
-        if (type.prototype)
-            yield* this.getAllProperties(type.prototype);
+        this.__name = name;
+        this.__options = options;
     }
     get(target) {
-        let storedValues = this._storedValues;
+        const options = this.__options;
+        const storedValues = this.__storedValues;
         if (!storedValues.has(target))
-            return this._options.defaultValue;
+            return options.defaultValue;
         return storedValues.get(target);
     }
     set(target, value) {
-        let storedValues = this._storedValues;
-        let oldValue = this.get(target);
+        const oldValue = this.get(target);
+        const storedValues = this.__storedValues;
         storedValues.set(target, value);
         if (value !== oldValue)
             this.ChangeEvent.invoke(this, {
@@ -97,8 +86,8 @@ export class FrameworkProperty {
                 newValue: value
             });
     }
-    get name() { return this._name; }
-    get options() { return this._options; }
+    get name() { return this.__name; }
+    get options() { return this.__options; }
 }
 /**
  * FrameworkAction base class
@@ -106,14 +95,25 @@ export class FrameworkProperty {
  */
 export class FrameworkAction {
     constructor() {
-        this._ExecutedEvent = new FrameworkEvent();
         if (this.constructor === FrameworkAction)
             throw new InvalidOperationException("Invalid constructor");
+        this.__ExecutedEvent = new FrameworkEvent();
     }
-    execute() {
-        this.ExecutedEvent.invoke(this);
+    execute(data) {
+        this.__ExecutedEvent.invoke(this, {
+            data: data
+        });
     }
-    get ExecutedEvent() { return this._ExecutedEvent; }
+    get ExecutedEvent() { return this.__ExecutedEvent; }
+}
+/**
+ * Trigger base class
+ */
+export class Trigger {
+    constructor() {
+        if (new.target === Trigger)
+            throw new InvalidOperationException("Invalid constructor");
+    }
 }
 /**
  *
@@ -121,60 +121,63 @@ export class FrameworkAction {
 export class Setter {
 }
 /**
- * Trigger base class
- */
-export class Trigger {
-    constructor(...actions) {
-        if (this.constructor === Trigger)
-            throw new InvalidOperationException("Invalid constructor");
-        if (!(this.action instanceof FrameworkAction))
-            throw new ArgumentTypeException("action", action, FrameworkAction);
-        this._actions = new Collection(actions);
-    }
-    get actions() { return this._actions; }
-}
-/**
  * PropertyTrigger class
  * Triggers a group of action when the specified property matches the specified value.
  */
 export class PropertyTrigger extends Trigger {
     constructor(target, targetProperty, value, ...actions) {
+        super();
         if (typeof target !== "object")
             throw new ArgumentTypeException("target", target, Object);
         if (!(targetProperty instanceof FrameworkProperty))
             throw new ArgumentTypeException("targetProperty", targetProperty, FrameworkProperty);
-        this._target = target;
-        this._targetProperty = targetProperty;
-        this._value = value;
-        targetProperty.ChangeEvent.attach(this._targetProperty_onChange, this);
+        this.__target = target;
+        this.__targetProperty = targetProperty;
+        this.__value = value;
+        targetProperty.ChangeEvent.attach(this.__targetProperty_onChange, this);
     }
-    _targetProperty_onChange(sender, args) {
-        if (!Object.is(args.target, this.target))
+    __targetProperty_onChange(sender, args) {
+        if (args.target !== this.target)
             return;
-        let newValue = args.newValue;
-        if (newValue !== this.value)
+        if (args.newValue !== this.value)
             return;
-        this.action.execute();
     }
-    get target() { return this._target; }
-    get targetProperty() { return this._targetProperty; }
-    get value() { return this._value; }
+    get target() { return this.__target; }
+    get targetProperty() { return this.__targetProperty; }
+    get value() { return this.__value; }
+    get setters() { return this.__setters; }
 }
 /**
  * EventTrigger class
  * Triggers a group of actions upon the firing of an event.
  */
-export class EventTrigger {
-    constructor(targetEvent) {
+export class EventTrigger extends Trigger {
+    constructor(targetEvent, ...actions) {
+        super(...actions);
         if (!(targetEvent instanceof FrameworkEvent))
             throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);
-        this._targetEvent = targetEvent;
-        targetEvent.attach(this._targetEvent_handler, this);
+        this.__targetEvent = targetEvent;
+        this.__actions = new Collection(...actions);
+        targetEvent.attach(this.__targetEvent_handler, this);
     }
-    _targetEvent_handler() {
-        this.action.execute();
+    __targetEvent_handler() {
+        this.__executeActions();
     }
-    get targetEvent() { return this._targetEvent; }
+    __executeActions(data) {
+        const executionErrors = [];
+        for (let action of this.actions) {
+            try {
+                action.execute(data);
+            }
+            catch (e) {
+                executionErrors.push(e);
+            }
+        }
+        for (let e of executionErrors)
+            throw e;
+    }
+    get targetEvent() { return this.__targetEvent; }
+    get actions() { return this.__actions; }
 }
 /**
  * Visual State Manager
@@ -300,8 +303,8 @@ export const Utils = {
 export class Timer {
     constructor(delayMillis = 100, isPeriodic = true) {
         this._TickEvent = new FrameworkEvent();
-        this._delayMillis = delayMillis;
-        this._isPeriodic = isPeriodic;
+        this.__delayMillis = delayMillis;
+        this.__isPeriodic = isPeriodic;
     }
     start() {
         this.stop();
@@ -310,17 +313,17 @@ export class Timer {
             if (this.isPeriodic)
                 this.start();
         }
-        this._timeoutHandle = setTimeout(onTimeout.bind(this), this.delayMillis);
+        this.__timeoutHandle = setTimeout(onTimeout.bind(this), this.delayMillis);
     }
     stop() {
-        if (!this._timeoutHandle)
+        if (!this.__timeoutHandle)
             return;
-        clearTimeout(this._timeoutHandle);
-        this._timeoutHandle = null;
+        clearTimeout(this.__timeoutHandle);
+        this.__timeoutHandle = null;
     }
-    get delayMillis() { return this._delayMillis; }
-    get isPeriodic() { return this._isPeriodic; }
-    get TickEvent() { return this._TickEvent; }
+    get delayMillis() { return this.__delayMillis; }
+    get isPeriodic() { return this.__isPeriodic; }
+    get TickEvent() { return this.__TickEvent; }
 }
 /**
  * AutoScroller Class
@@ -343,81 +346,81 @@ const AutoScrollerState = new Enumeration([
 ]);
 export class AutoScroller {
     constructor(target) {
-        this._RequestScrollStartEvent = new FrameworkEvent();
-        this._ScrollStartEvent = new FrameworkEvent();
-        this._ScrollRateChangeEvent = new FrameworkEvent();
-        this._ScrollEndEvent = new FrameworkEvent();
-        this._scrollTimer = new Timer(10, true);
-        this._rateX = 0;
-        this._rateY = 0;
-        this._stateX = AutoScrollerState.Ready;
-        this._stateY = AutoScrollerState.Ready;
-        this._directionX = AutoScrollerDirection.None;
-        this._directionY = AutoScrollerDirection.None;
+        this.__ScrollRequestStartEvent = new FrameworkEvent();
+        this.__ScrollStartEvent = new FrameworkEvent();
+        this.__ScrollRateChangeEvent = new FrameworkEvent();
+        this.__ScrollEndEvent = new FrameworkEvent();
+        this.__scrollTimer = new Timer(10, true);
+        this.__rateX = 0;
+        this.__rateY = 0;
+        this.__stateX = AutoScrollerState.Ready;
+        this.__stateY = AutoScrollerState.Ready;
+        this.__directionX = AutoScrollerDirection.None;
+        this.__directionY = AutoScrollerDirection.None;
         if (!target)
             throw new ArgumentNullException("target");
         if (!(target instanceof Element))
             throw new ArgumentTypeException("target", target, Element);
-        this._target = target;
-        this._scrollTimer.TickEvent.attach(this._scrollTimer_onTick, this);
-        this._scrollTimer.start();
-        window.addEventListener("mousemove", this._window_onMouseMove.bind(this));
+        this.__target = target;
+        this.__scrollTimer.TickEvent.attach(this.__scrollTimer_onTick, this);
+        this.__scrollTimer.start();
+        window.addEventListener("mousemove", this.__window_onMouseMove.bind(this));
     }
-    _doRequestScrollStart(args) {
+    __doRequestScrollStart(args) {
         let scrollAccepted = false;
         this.ScrollRequestStartEvent.invoke(this, Object.assign({ acceptScroll() { scrollAccepted = true; } }, args));
         let orientation = args.orientation;
         if (scrollAccepted)
-            this._doScrollStart(args);
+            this.__doScrollStart(args);
     }
-    _doScrollStart(args) {
+    __doScrollStart(args) {
         let { orientation, direction } = args;
         switch (orientation) {
             case AutoScrollerOrientation.Vertical:
-                this._directionY = direction;
-                this._stateY = AutoScrollerState.ScrollActive;
+                this.__directionY = direction;
+                this.__stateY = AutoScrollerState.ScrollActive;
                 break;
             case AutoScrollerOrientation.Horizontal:
-                this._directionX = direction;
-                this._stateX = AutoScrollerState.ScrollActive;
+                this.__directionX = direction;
+                this.__stateX = AutoScrollerState.ScrollActive;
                 break;
         }
         this.ScrollStartEvent.invoke(this, args);
     }
-    _doScrollRateChange(args) {
+    __doScrollRateChange(args) {
         let { orientation, rate } = args;
         switch (orientation) {
             case AutoScrollerOrientation.Vertical:
-                this._rateY = rate;
+                this.__rateY = rate;
                 break;
             case AutoScrollerOrientation.Horizontal:
-                this._rateX = rate;
+                this.__rateX = rate;
                 break;
         }
         this.ScrollRateChangeEvent.invoke(this, args);
     }
-    _doScrollEnd(args) {
+    __doScrollEnd(args) {
         let orientation = args.orientation;
         switch (orientation) {
             case AutoScrollerOrientation.Vertical:
-                this._stateY = AutoScrollerState.Ready;
-                this._directionY = AutoScrollerDirection.None;
+                this.__stateY = AutoScrollerState.Ready;
+                this.__directionY = AutoScrollerDirection.None;
                 break;
             case AutoScrollerOrientation.Horizontal:
-                this._stateX = AutoScrollerState.Ready;
-                this._directionX = AutoScrollerDirection.None;
+                this.__stateX = AutoScrollerState.Ready;
+                this.__directionX = AutoScrollerDirection.None;
                 break;
         }
         this.ScrollEndEvent.invoke(this, args);
     }
-    _scrollTimer_onTick(sender, args) {
-        let directionX = this._directionX, directionY = this._directionY, rateX = this._rateX, rateY = this._rateY;
+    __scrollTimer_onTick(sender, args) {
+        let directionX = this.__directionX, directionY = this.__directionY, rateX = this.__rateX, rateY = this.__rateY;
         if (directionX === AutoScrollerDirection.None &&
             directionY === AutoScrollerDirection.None)
             return;
         this.target.scrollBy(directionX === AutoScrollerDirection.Forward ? rateX : -rateX, directionY === AutoScrollerDirection.Forward ? rateY : -rateY);
     }
-    _window_onMouseMove(evt) {
+    __window_onMouseMove(evt) {
         const SCROLL_REGION_OFFSET = 50;
         let { clientX, clientY } = evt;
         let computedStyle = getComputedStyle(this.target);
@@ -428,21 +431,21 @@ export class AutoScroller {
         let clientRect = this.target.getBoundingClientRect();
         let topScrollRegion = Utils.clipRectSide(clientRect, "top", SCROLL_REGION_OFFSET), rightScrollRegion = Utils.clipRectSide(clientRect, "right", SCROLL_REGION_OFFSET), bottomScrollRegion = Utils.clipRectSide(clientRect, "bottom", SCROLL_REGION_OFFSET), leftScrollRegion = Utils.clipRectSide(clientRect, "left", SCROLL_REGION_OFFSET);
         let cursorIsInTopScrollRegion = Utils.pointInRect(topScrollRegion, cursorPos), cursorIsInRightScrollRegion = Utils.pointInRect(rightScrollRegion, cursorPos), cursorIsInBottomScrollRegion = Utils.pointInRect(bottomScrollRegion, cursorPos), cursorIsInLeftScrollRegion = Utils.pointInRect(leftScrollRegion, cursorPos);
-        let directionX = this._directionX, directionY = this._directionY;
-        let stateX = this._stateX, stateY = this._stateY;
+        let directionX = this.__directionX, directionY = this.__directionY;
+        let stateX = this.__stateX, stateY = this.__stateY;
         switch (stateX) {
             case AutoScrollerState.Ready: //Horizontal scroll is ready
                 if (canScrollX) { //Horizontal scroll is possible, check if cursor is inside any of the 
                     //horizontal scrolling zones
                     if (cursorIsInRightScrollRegion) //Cursor is inside the right zone, request 
                         //scrolling right
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Horizontal,
                             direction: AutoScrollerDirection.Forward
                         });
                     else if (cursorIsInLeftScrollRegion) //Cursor is inside the left zone, request
                         //scrolling left
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Horizontal,
                             direction: AutoScrollerDirection.Backward
                         });
@@ -452,19 +455,19 @@ export class AutoScroller {
                 if (cursorIsInRightScrollRegion && directionX === AutoScrollerDirection.Forward && canScrollX)
                     //Cursor remains in the right scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Horizontal,
                         rate: cursorPos.x - rightScrollRegion.left
                     });
                 else if (cursorIsInLeftScrollRegion && directionX === AutoScrollerDirection.Backward && canScrollX)
                     //Cursor remains in the left scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Horizontal,
                         rate: leftScrollRegion.right - cursorPos.x
                     });
                 else //Cursor left the active horizontal scrolling region, finish scrolling
-                    this._doScrollEnd({
+                    this.__doScrollEnd({
                         orientation: AutoScrollerOrientation.Horizontal
                     });
                 break;
@@ -474,13 +477,13 @@ export class AutoScroller {
                 if (canScrollY) { //Vertical scroll is possible, check if cursor is inside any of the 
                     //vertical scrolling zones
                     if (cursorIsInTopScrollRegion) //Cursor is inside the top zone, request scrolling up
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Vertical,
                             direction: AutoScrollerDirection.Backward
                         });
                     else if (cursorIsInBottomScrollRegion) //Cursor is inside the bottom zone. Request 
                         //scrolling down
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Vertical,
                             direction: AutoScrollerDirection.Forward
                         });
@@ -490,43 +493,43 @@ export class AutoScroller {
                 if (cursorIsInTopScrollRegion && directionY === AutoScrollerDirection.Backward && canScrollY)
                     //Cursor remains in the top scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Vertical,
                         rate: topScrollRegion.bottom - cursorPos.y
                     });
                 else if (cursorIsInBottomScrollRegion && directionY === AutoScrollerDirection.Forward && canScrollY)
                     //Cursor remains in the bottom scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Vertical,
                         rate: cursorPos.y - bottomScrollRegion.top
                     });
                 else //Cursor left the active vertical scrolling zone, finish scrolling
-                    this._doScrollEnd({
+                    this.__doScrollEnd({
                         orientation: AutoScrollerOrientation.Vertical
                     });
                 break;
         }
     }
-    _target_onMouseLeave(evt) {
-        switch (this._stateY) {
+    __target_onMouseLeave(evt) {
+        switch (this.__stateY) {
             case AutoScrollerState.ScrollActive:
-                this._doScrollEnd({
+                this.__doScrollEnd({
                     orientation: AutoScrollerOrientation.Vertical
                 });
         }
-        switch (this._stateX) {
+        switch (this.__stateX) {
             case AutoScrollerState.ScrollActive:
-                this._doScrollEnd({
+                this.__doScrollEnd({
                     orientation: AutoScrollerOrientation.Horizontal
                 });
         }
     }
-    get ScrollRequestStartEvent() { return this._RequestScrollStartEvent; }
-    get ScrollStartEvent() { return this._ScrollStartEvent; }
-    get ScrollRateChangeEvent() { return this._ScrollRateChangeEvent; }
-    get ScrollEndEvent() { return this._ScrollEndEvent; }
-    get target() { return this._target; }
+    get ScrollRequestStartEvent() { return this.__ScrollRequestStartEvent; }
+    get ScrollStartEvent() { return this.__ScrollStartEvent; }
+    get ScrollRateChangeEvent() { return this.__ScrollRateChangeEvent; }
+    get ScrollEndEvent() { return this.__ScrollEndEvent; }
+    get target() { return this.__target; }
 }
 /**
  *

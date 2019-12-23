@@ -144,9 +144,6 @@ export class KeyValuePair {
  *
  */
 export class Dictionary extends Collection {
-    constructor(...items) {
-        super(...items);
-    }
     static fromMap(map) {
         function* getItems() {
             for (let mapItem of map)
@@ -206,8 +203,8 @@ export const ObservableDictionaryChangeAction = new Enumeration([
     "Delete"
 ]);
 export class ObservableDictionary extends Dictionary {
-    constructor(entries) {
-        super(entries);
+    constructor() {
+        super(...arguments);
         this.__ChangeEvent = new FrameworkEvent();
     }
     __notifySet(key, value) {

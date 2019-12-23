@@ -119,7 +119,7 @@ export const IValueConverter = new Interface(
     new InterfaceMember("convertBack", InterfaceMemberType.Function)
 );
 
-export interface ValueConverter<T> {
+export interface ValueConverter {
     convert: (value: any) => string,
     convertBack: (value: string) => any
 }

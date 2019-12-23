@@ -1,7 +1,7 @@
 ﻿export declare class AsynchronousResolver {
-    static readonly STATUS_REJECTED: number;
-    static readonly STATUS_PENDING: number;
-    static readonly STATUS_RESOLVED: number;
+    static get STATUS_REJECTED(): number;
+    static get STATUS_PENDING(): number;
+    static get STATUS_RESOLVED(): number;
     constructor();
     status: number;
 }

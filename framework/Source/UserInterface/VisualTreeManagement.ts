@@ -1,80 +1,90 @@
+import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
+import { Enumeration } from "../Standard/Enumeration";
+import { ObservableCollectionChangeAction, ObservableCollection, ObservableCollectionChangeArgs } from "../Standard/Collections";
+import { VisualTemplatePropertyBinding, VisualTemplateNode, VisualTemplateElement, VisualTemplateBinding } from "./UserInterface.Templating";
+
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 
-export class VisualTreeNode {
-    constructor(domNode) {
-        if (this.constructor === VisualTreeNode) throw new InvalidOperationException("Invalid constructor.");
+export abstract class VisualTreeNode {
+    constructor(domNode: Element) {
+        if (new.target === VisualTreeNode)
+            throw new InvalidOperationException("Invalid constructor.");
 
-        if (!(domNode instanceof Node)) throw new ArgumentTypeException("domNode", domNode, Node);
+        if (!(domNode instanceof Node))
+            throw new ArgumentTypeException("domNode", domNode, Node);
 
-        this.domNode = domNode;
-
-        this.childNodes.ChangeEvent.attach(this._childNodes_onChange, this);
+        this.__domNode = domNode;
+        this.__childNodes.ChangeEvent.attach(this.__childNodes_onChange, this);
     }
 
-    _insertElement(treeNode, index) {
-        let domChildNodes = this.domNode.childNodes;
+    private __insertElement(treeNode, index) {
+        let domChildNodes = this.__domNode.childNodes;
 
         if (domChildNodes.length > index) {
             let refNode = domChildNodes[index];
 
-            this.domNode.insertBefore(treeNode.domNode, refNode);
+            this.__domNode.insertBefore(treeNode.domNode, refNode);
         }
         else
-            this.domNode.appendChild(treeNode.domNode);
+            this.__domNode.appendChild(treeNode.domNode);
     }
 
-    _removeElement(treeNode) {
-        treeNode.domNode.remove();
+    private __removeElement(treeNode: VisualTreeNode) {
+        treeNode.__domNode.remove();
     }
 
-    _setAttribute(treeNode) {
-        this.domNode.setAttributeNodeNS(treeNode.domNode);
+    private __setAttribute(treeNode: VisualTreeNode) {
+        this.__domNode.setAttributeNodeNS(treeNode.__domNode);
     }
 
-    _removeAttribute(treeNode) {
-        this.domNode.removeAttributeNode(treeNode.domNode);
+    private __removeAttribute(treeNode: VisualTreeNode) {
+        this.__domNode.removeAttributeNode(treeNode.__domNode);
     }
 
-    _childNodes_onChange(sender, args) {
-        if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Remove, args.action)) {
+    private __childNodes_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeNode>) {
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
                 if (item instanceof VisualTreeNode) {
                     if (item instanceof VisualTreeElement)
-                        this._removeElement(item);
+                        this.__removeElement(item);
                     else if (item instanceof VisualTreeAttribute)
-                        this._removeAttribute(item);
+                        this.__removeAttribute(item);
                 }
                 else
-                    throw InvalidTypeException("item", item, VisualTreeNode);
+                    throw new InvalidTypeException("item", item, VisualTreeNode);
             }
         }
 
-        if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Add, args.action)) {
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Add, args.action)) {
             let index = args.newIndex;
-
             for (let item of args.newItems) {
                 if (item instanceof VisualTreeNode) {
                     if (item instanceof VisualTreeElement)
-                        this._insertElement(item, index);
+                        this.__insertElement(item, index);
                     else if (item instanceof VisualTreeAttribute)
-                        this._setAttribute(item, index);
+                        this.__setAttribute(item);
                 }
                 else
-                    throw InvalidTypeException("item", item, VisualTreeNode);
+                    throw new InvalidTypeException("item", item, VisualTreeNode);
 
                 index++;
             }
         }
     }
 
-    childNodes = new ObservableCollection();
+    get childNodes(): ObservableCollection<VisualTreeNode> { return this.__childNodes; }
+    protected __childNodes: ObservableCollection<VisualTreeNode> = new ObservableCollection();
+
+    get domNode(): Element { return this.__domNode; }
+    protected __domNode: Element;
 }
 
 export class VisualTreeElement extends VisualTreeNode {
     constructor(qualifiedName, namespaceURI = null) {
         namespaceURI = namespaceURI || DEFAULT_NAMESPACE_URI;
 
-        if (typeof qualifiedName !== "string") throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
+        if (typeof qualifiedName !== "string")
+            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
 
         let domElement = document.createElementNS(namespaceURI, qualifiedName);
         super(domElement);
@@ -85,7 +95,8 @@ export class VisualTreeAttribute extends VisualTreeNode {
     constructor(qualifiedName, namespaceURI = null) {
         namespaceURI = namespaceURI || DEFAULT_NAMESPACE_URI;
 
-        if (typeof qualifiedName !== "string") throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
+        if (typeof qualifiedName !== "string")
+            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
 
         let domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
         super(domAttribute);
@@ -98,8 +109,8 @@ export class VisualTree extends VisualTreeNode {
     }
 
     async applyTemplate(template) {
-        async function applyBinding(tempBinding) {
-            for (let tempBinding of tempBindings) {
+        async function* applyBindings(tempBindings: Iterable<VisualTemplateBinding>) {
+            async function applyBinding(tempBinding: VisualTemplateBinding) {
                 if (tempBinding instanceof VisualTemplatePropertyBinding) {
                     let source = await ReferenceSystem.retrieve(tempBinding.sourceName, context);
                     let sourceProperty = await ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
@@ -118,12 +129,10 @@ export class VisualTree extends VisualTreeNode {
                     return new PropertyAttributeBinding(source, sourceProperty, targetNode, tempBinding.targetAttributeName,
                         tempBinding.options);
                 }
+
+                return null;
             }
 
-            return null;
-        }
-
-        async function* applyBindings(tempBindings) {
             for (let tempBinding of tempBindings)
                 yield await applyBinding(tempBinding);
         }
@@ -145,7 +154,7 @@ export class VisualTree extends VisualTreeNode {
             return domNode;
         }
 
-        async function* applyNodes(tempNodes) {
+        async function* __applyNodes(tempNodes) {
             for (let tempNode of tempNodes) {
                 let domNode = await applyNode(tempNode);
 
@@ -160,7 +169,3 @@ export class VisualTree extends VisualTreeNode {
             this.childNodes.add(node);
     }
 }
-
-window.VisualTree = VisualTree;
-window.VisualTreeElement = VisualTreeElement;
-window.VisualTreeAttribute = VisualTreeAttribute;

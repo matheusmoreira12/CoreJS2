@@ -152,6 +152,8 @@ export class ObservableCollection<T> extends Collection<T> {
     __ChangeEvent = new FrameworkEvent();
 }
 
+export type ObservableCollectionChangeArgs<T> = { action: number, oldItems: T[], oldIndex: number, newItems: T[], newIndex: number };
+
 /**
  * KeyValuePair class
  */
@@ -179,10 +181,6 @@ export class KeyValuePair<TKey, TValue> {
  * 
  */
 export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TValue>> {
-    constructor(...items: KeyValuePair<TKey, TValue>[]) {
-        super(...items);
-    }
-
     static fromMap<TKey, TValue>(map: Map<TKey, TValue>) {
         function* getItems() {
             for (let mapItem of map)
@@ -254,10 +252,6 @@ export const ObservableDictionaryChangeAction = new Enumeration([
 ]);
 
 export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
-    constructor(entries) {
-        super(entries);
-    }
-
     private __notifySet(key, value) {
         if (this.has(key)) {
             let oldValue = this.get(value);
@@ -306,3 +300,5 @@ export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue>
     get ChangeEvent() { return this.__ChangeEvent; }
     __ChangeEvent = new FrameworkEvent();
 }
+
+export type ObservableDictionaryChangeArgs<TKey, TValue> = { action: number, key: TKey, oldValue: TValue, newValue: TValue };

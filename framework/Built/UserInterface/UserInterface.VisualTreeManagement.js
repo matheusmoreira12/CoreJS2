@@ -19,63 +19,68 @@ var __asyncGenerator = (this && this.__asyncGenerator) || function (thisArg, _ar
     function reject(value) { resume("throw", value); }
     function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
 };
+import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
+import { ObservableCollectionChangeAction, ObservableCollection } from "../Standard/Collections";
+import { VisualTemplatePropertyBinding, VisualTemplateNode, VisualTemplateElement } from "./UserInterface.Templating";
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 export class VisualTreeNode {
     constructor(domNode) {
-        this.childNodes = new ObservableCollection();
-        if (this.constructor === VisualTreeNode)
+        this.__childNodes = new ObservableCollection();
+        if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
         if (!(domNode instanceof Node))
             throw new ArgumentTypeException("domNode", domNode, Node);
-        this.domNode = domNode;
-        this.childNodes.ChangeEvent.attach(this._childNodes_onChange, this);
+        this.__domNode = domNode;
+        this.__childNodes.ChangeEvent.attach(this.__childNodes_onChange, this);
     }
-    _insertElement(treeNode, index) {
-        let domChildNodes = this.domNode.childNodes;
+    __insertElement(treeNode, index) {
+        let domChildNodes = this.__domNode.childNodes;
         if (domChildNodes.length > index) {
             let refNode = domChildNodes[index];
-            this.domNode.insertBefore(treeNode.domNode, refNode);
+            this.__domNode.insertBefore(treeNode.domNode, refNode);
         }
         else
-            this.domNode.appendChild(treeNode.domNode);
+            this.__domNode.appendChild(treeNode.domNode);
     }
-    _removeElement(treeNode) {
-        treeNode.domNode.remove();
+    __removeElement(treeNode) {
+        treeNode.__domNode.remove();
     }
-    _setAttribute(treeNode) {
-        this.domNode.setAttributeNodeNS(treeNode.domNode);
+    __setAttribute(treeNode) {
+        this.__domNode.setAttributeNodeNS(treeNode.__domNode);
     }
-    _removeAttribute(treeNode) {
-        this.domNode.removeAttributeNode(treeNode.domNode);
+    __removeAttribute(treeNode) {
+        this.__domNode.removeAttributeNode(treeNode.__domNode);
     }
-    _childNodes_onChange(sender, args) {
-        if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Remove, args.action)) {
+    __childNodes_onChange(sender, args) {
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
                 if (item instanceof VisualTreeNode) {
                     if (item instanceof VisualTreeElement)
-                        this._removeElement(item);
+                        this.__removeElement(item);
                     else if (item instanceof VisualTreeAttribute)
-                        this._removeAttribute(item);
+                        this.__removeAttribute(item);
                 }
                 else
-                    throw InvalidTypeException("item", item, VisualTreeNode);
+                    throw new InvalidTypeException("item", item, VisualTreeNode);
             }
         }
-        if (Enumeration.isFlagSet(ObservableCollectionChangeAction.Add, args.action)) {
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Add, args.action)) {
             let index = args.newIndex;
             for (let item of args.newItems) {
                 if (item instanceof VisualTreeNode) {
                     if (item instanceof VisualTreeElement)
-                        this._insertElement(item, index);
+                        this.__insertElement(item, index);
                     else if (item instanceof VisualTreeAttribute)
-                        this._setAttribute(item, index);
+                        this.__setAttribute(item);
                 }
                 else
-                    throw InvalidTypeException("item", item, VisualTreeNode);
+                    throw new InvalidTypeException("item", item, VisualTreeNode);
                 index++;
             }
         }
     }
+    get childNodes() { return this.__childNodes; }
+    get domNode() { return this.__domNode; }
 }
 export class VisualTreeElement extends VisualTreeNode {
     constructor(qualifiedName, namespaceURI = null) {
@@ -101,28 +106,26 @@ export class VisualTree extends VisualTreeNode {
     }
     applyTemplate(template) {
         return __awaiter(this, void 0, void 0, function* () {
-            function applyBinding(tempBinding) {
-                return __awaiter(this, void 0, void 0, function* () {
-                    for (let tempBinding of tempBindings) {
-                        if (tempBinding instanceof VisualTemplatePropertyBinding) {
-                            let source = yield ReferenceSystem.retrieve(tempBinding.sourceName, context);
-                            let sourceProperty = yield ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
-                            let target = yield ReferenceSystem.retrieve(tempBinding.targetName, context);
-                            let targetProperty = yield ReferenceSystem.retrieve(tempBinding.targetPropertyName, context);
-                            return new PropertyBinding(source, sourceProperty, target, targetProperty, tempBinding.options);
-                        }
-                        else if (tempBinding instanceof VisualTemplatePropertyAttributeBinding) {
-                            let source = yield ReferenceSystem.retrieve(tempBinding.sourceName, context);
-                            let sourceProperty = yield ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
-                            let targetNode = yield ReferenceSystem.retrieve(tempBinding.targetqualifiedName, context);
-                            return new PropertyAttributeBinding(source, sourceProperty, targetNode, tempBinding.targetAttributeName, tempBinding.options);
-                        }
-                    }
-                    return null;
-                });
-            }
             function applyBindings(tempBindings) {
                 return __asyncGenerator(this, arguments, function* applyBindings_1() {
+                    function applyBinding(tempBinding) {
+                        return __awaiter(this, void 0, void 0, function* () {
+                            if (tempBinding instanceof VisualTemplatePropertyBinding) {
+                                let source = yield ReferenceSystem.retrieve(tempBinding.sourceName, context);
+                                let sourceProperty = yield ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
+                                let target = yield ReferenceSystem.retrieve(tempBinding.targetName, context);
+                                let targetProperty = yield ReferenceSystem.retrieve(tempBinding.targetPropertyName, context);
+                                return new PropertyBinding(source, sourceProperty, target, targetProperty, tempBinding.options);
+                            }
+                            else if (tempBinding instanceof VisualTemplatePropertyAttributeBinding) {
+                                let source = yield ReferenceSystem.retrieve(tempBinding.sourceName, context);
+                                let sourceProperty = yield ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
+                                let targetNode = yield ReferenceSystem.retrieve(tempBinding.targetqualifiedName, context);
+                                return new PropertyAttributeBinding(source, sourceProperty, targetNode, tempBinding.targetAttributeName, tempBinding.options);
+                            }
+                            return null;
+                        });
+                    }
                     for (let tempBinding of tempBindings)
                         yield yield __await(yield __await(applyBinding(tempBinding)));
                 });
@@ -142,8 +145,8 @@ export class VisualTree extends VisualTreeNode {
                     return domNode;
                 });
             }
-            function applyNodes(tempNodes) {
-                return __asyncGenerator(this, arguments, function* applyNodes_1() {
+            function __applyNodes(tempNodes) {
+                return __asyncGenerator(this, arguments, function* __applyNodes_1() {
                     for (let tempNode of tempNodes) {
                         let domNode = yield __await(applyNode(tempNode));
                         if (tempNode.name)
@@ -157,6 +160,3 @@ export class VisualTree extends VisualTreeNode {
         });
     }
 }
-window.VisualTree = VisualTree;
-window.VisualTreeElement = VisualTreeElement;
-window.VisualTreeAttribute = VisualTreeAttribute;

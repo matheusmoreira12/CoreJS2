@@ -1,9 +1,13 @@
 import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
 import { Enumeration } from "../Standard/Enumeration";
-import { Interface } from "../Standard/Types/Types";
+import { ValueConverter } from "../Standard/Standard";
+import { InterfaceMember, Interface, InterfaceMemberType } from "../Standard/Interfaces/Interface";
+import { FrameworkEvent, BroadcastFrameworkEvent } from "../Standard/Events";
+import { InvalidOperationException, ArgumentTypeException, ArgumentNullException } from "../Standard/Exceptions";
+import { Collection, Dictionary } from "../Standard/Collections";
 
-export class BooleanAttributeValueConverter {
-    convertBack(value) {
+export class BooleanAttributeValueConverter implements ValueConverter {
+    convertBack(value): boolean {
         if (value === null) return null;
 
         if (value === "false") return false;
@@ -11,7 +15,7 @@ export class BooleanAttributeValueConverter {
         return true;
     }
 
-    convert(value) {
+    convert(value): string {
         if (value === null) return null;
 
         if (value === false) return "false";
@@ -20,37 +24,37 @@ export class BooleanAttributeValueConverter {
     }
 }
 
-export class JSONAttributeValueConverter {
-    convertBack(value) {
+export class JSONAttributeValueConverter implements ValueConverter {
+    convertBack(value): JSON {
         return JSON.parse(value);
     }
 
-    convert(value) {
+    convert(value): string {
         return JSON.stringify(value);
     }
 }
 
-export class FlagsAttributeValueConverter {
-    convertBack(value) {
+export class FlagsAttributeValueConverter implements ValueConverter {
+    convertBack(value: string): ContextSelectionFlags {
         return ContextSelectionFlags.parse(value);
     }
 
-    convert(value) {
+    convert(value): string {
         return value.toString();
     }
 }
 
-export class EnumerationAttributeValueConverter<T> {
+export class EnumerationAttributeValueConverter<T> implements ValueConverter {
     constructor(enumeration: Enumeration<T>) {
         this.__enumeration = enumeration;
     }
 
-    convertBack(value: T) {
+    convertBack(value: string): T {
         if (value === null) return null;
         return this.__enumeration.parse(value);
     }
 
-    convert(value: T) {
+    convert(value: T): string {
         if (value === null) return null;
         return this.__enumeration.toString(value);
     }
@@ -62,55 +66,39 @@ const DEFAULT_FRAMEWORK_PROPERTY_OPTIONS = {
     defaultValue: null
 };
 
-export const IFrameworkPropertyOptions = new Interface([
-    FrameworkProperty()
-]);
+export const IFrameworkPropertyOptions = new Interface(
+    new InterfaceMember("defaultValue", InterfaceMemberType.Property)
+);
+
+export interface FrameworkPropertyOptions {
+    defaultValue: any
+}
 
 /**
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
  */
 export class FrameworkProperty {
-    static *getAllProperties(type) {
-        const PROPERTY_NAME_PATTERN = /^([a-zA-Z]\w*)Property$/;
-
-        for (let staticPropName of Object.getOwnPropertyNames(type)) {
-            let staticProp = Object.getOwnPropertyDescriptor(type, staticPropName);
-
-            if (!staticPropName.match(PROPERTY_NAME_PATTERN)) continue;
-
-            if (!(staticProp.value instanceof FrameworkProperty)) continue;
-
-            yield staticProp.value;
-        }
-
-        if (type.prototype)
-            yield* this.getAllProperties(type.prototype);
-    }
-
-    constructor(name, options) {
+    constructor(name: string, options: FrameworkPropertyOptions) {
         options = Object.assign({}, DEFAULT_FRAMEWORK_PROPERTY_OPTIONS, options);
 
-        this._name = name;
-        this._options = options;
+        this.__name = name;
+        this.__options = options;
     }
 
-    _storedValues = new WeakMap();
-
     get(target) {
-        let storedValues = this._storedValues;
-
+        const options = this.__options;
+        const storedValues = this.__storedValues;
         if (!storedValues.has(target))
-            return this._options.defaultValue;
+            return options.defaultValue;
 
         return storedValues.get(target);
     }
 
     set(target, value) {
-        let storedValues = this._storedValues;
+        const oldValue = this.get(target);
 
-        let oldValue = this.get(target);
-
+        const storedValues = this.__storedValues;
         storedValues.set(target, value);
 
         if (value !== oldValue)
@@ -124,29 +112,44 @@ export class FrameworkProperty {
 
     ChangeEvent = new FrameworkEvent();
 
-    get name() { return this._name; }
+    get name(): string { return this.__name; }
     private __name: string;
 
-    get options() { return this._options; }
-    private __options: object;
+    get options(): FrameworkPropertyOptions { return this.__options; }
+    private __options: FrameworkPropertyOptions;
+
+    private __storedValues = new WeakMap();
 }
 
 /**
  * FrameworkAction base class
  * Represents an user-initiated action.
  */
-export class FrameworkAction {
+export abstract class FrameworkAction {
     constructor() {
         if (this.constructor === FrameworkAction) throw new InvalidOperationException("Invalid constructor");
+
+        this.__ExecutedEvent = new FrameworkEvent();
     }
 
-    execute() {
-        this.ExecutedEvent.invoke(this);
+    execute(data?: Dictionary<string, any>): void {
+        this.__ExecutedEvent.invoke(this, {
+            data: data
+        });
     }
 
-    _ExecutedEvent = new FrameworkEvent();
+    get ExecutedEvent() { return this.__ExecutedEvent; }
+    private __ExecutedEvent: FrameworkEvent;
+}
 
-    get ExecutedEvent() { return this._ExecutedEvent; }
+/**
+ * Trigger base class
+ */
+export abstract class Trigger {
+    constructor() {
+        if (new.target === Trigger)
+            throw new InvalidOperationException("Invalid constructor");
+    }
 }
 
 /**
@@ -157,75 +160,88 @@ export class Setter {
 }
 
 /**
- * Trigger base class
- */
-
-export class Trigger {
-    constructor(...actions) {
-        if (this.constructor === Trigger) throw new InvalidOperationException("Invalid constructor");
-
-        if (!(this.action instanceof FrameworkAction)) throw new ArgumentTypeException("action", action,
-            FrameworkAction);
-
-        this._actions = new Collection(actions);
-    }
-
-    get actions() { return this._actions; }
-}
-
-/**
  * PropertyTrigger class
  * Triggers a group of action when the specified property matches the specified value.
  */
 
 export class PropertyTrigger extends Trigger {
-    constructor(target, targetProperty, value, ...actions) {
+    constructor(target: object, targetProperty: FrameworkProperty, value: any, ...actions: FrameworkAction[]) {
+        super();
+
         if (typeof target !== "object") throw new ArgumentTypeException("target", target, Object);
 
         if (!(targetProperty instanceof FrameworkProperty)) throw new ArgumentTypeException("targetProperty",
             targetProperty, FrameworkProperty);
 
-        this._target = target;
-        this._targetProperty = targetProperty;
-        this._value = value;
+        this.__target = target;
+        this.__targetProperty = targetProperty;
+        this.__value = value;
 
-        targetProperty.ChangeEvent.attach(this._targetProperty_onChange, this);
+        targetProperty.ChangeEvent.attach(this.__targetProperty_onChange, this);
     }
 
-    _targetProperty_onChange(sender, args) {
-        if (!Object.is(args.target, this.target)) return;
-
-        let newValue = args.newValue;
-
-        if (newValue !== this.value) return;
-
-        this.action.execute();
+    private __targetProperty_onChange(sender, args) {
+        if (args.target !== this.target)
+            return;
+        if (args.newValue !== this.value)
+            return;
     }
 
-    get target() { return this._target; }
-    get targetProperty() { return this._targetProperty; }
-    get value() { return this._value; }
+    get target(): object { return this.__target; }
+    private __target: object;
+
+    get targetProperty(): FrameworkProperty { return this.__targetProperty; }
+    private __targetProperty: FrameworkProperty;
+
+    get value(): any { return this.__value; }
+    private __value: any;
+
+    get setters(): Collection<Setter> { return this.__setters; }
+    private __setters: Collection<Setter>;
 }
 
 /**
  * EventTrigger class
  * Triggers a group of actions upon the firing of an event.
  */
-export class EventTrigger {
-    constructor(targetEvent) {
-        if (!(targetEvent instanceof FrameworkEvent)) throw new ArgumentTypeException("targetEvent",
-            targetEvent, FrameworkEvent);
+export class EventTrigger extends Trigger {
+    constructor(targetEvent: FrameworkEvent, ...actions: FrameworkAction[]) {
+        super(...actions);
 
-        this._targetEvent = targetEvent;
+        if (!(targetEvent instanceof FrameworkEvent))
+            throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);
 
-        targetEvent.attach(this._targetEvent_handler, this);
+        this.__targetEvent = targetEvent;
+        this.__actions = new Collection(...actions);
+
+        targetEvent.attach(this.__targetEvent_handler, this);
     }
 
-    _targetEvent_handler() {
-        this.action.execute();
+    private __targetEvent_handler() {
+        this.__executeActions();
     }
 
-    get targetEvent() { return this._targetEvent; }
+    protected __executeActions(data?: Dictionary<string, any>) {
+        const executionErrors = [];
+
+        for (let action of this.actions) {
+            try {
+                action.execute(data);
+            }
+            catch (e) {
+                executionErrors.push(e);
+            }
+        }
+
+        for (let e of executionErrors)
+            throw e;
+    }
+
+    get targetEvent(): FrameworkEvent { return this.__targetEvent; }
+    private __targetEvent: FrameworkEvent;
+
+    get actions(): Collection<FrameworkAction> { return this.__actions; }
+    private __actions: Collection<FrameworkAction>;
 }
 
 /** 
@@ -392,8 +408,8 @@ export const Utils = {
  */
 export class Timer {
     constructor(delayMillis = 100, isPeriodic = true) {
-        this._delayMillis = delayMillis;
-        this._isPeriodic = isPeriodic;
+        this.__delayMillis = delayMillis;
+        this.__isPeriodic = isPeriodic;
     }
 
     start() {
@@ -406,23 +422,29 @@ export class Timer {
                 this.start();
         }
 
-        this._timeoutHandle = setTimeout(onTimeout.bind(this), this.delayMillis);
+        this.__timeoutHandle = setTimeout(onTimeout.bind(this), this.delayMillis);
     }
 
     stop() {
-        if (!this._timeoutHandle) return;
+        if (!this.__timeoutHandle) return;
 
-        clearTimeout(this._timeoutHandle);
+        clearTimeout(this.__timeoutHandle);
 
-        this._timeoutHandle = null;
+        this.__timeoutHandle = null;
     }
 
     _TickEvent = new FrameworkEvent();
 
-    get delayMillis() { return this._delayMillis; }
-    get isPeriodic() { return this._isPeriodic; }
+    get delayMillis(): number { return this.__delayMillis; }
+    private __delayMillis: number;
 
-    get TickEvent() { return this._TickEvent; }
+    get isPeriodic(): boolean { return this.__isPeriodic; }
+    private __isPeriodic: boolean;
+
+    get TickEvent(): FrameworkEvent { return this.__TickEvent; }
+    private __TickEvent: FrameworkEvent;
+
+    private __timeoutHandle: number;
 }
 
 /**
@@ -452,15 +474,15 @@ export class AutoScroller {
         if (!target) throw new ArgumentNullException("target");
         if (!(target instanceof Element)) throw new ArgumentTypeException("target", target, Element);
 
-        this._target = target;
+        this.__target = target;
 
-        this._scrollTimer.TickEvent.attach(this._scrollTimer_onTick, this);
-        this._scrollTimer.start();
+        this.__scrollTimer.TickEvent.attach(this.__scrollTimer_onTick, this);
+        this.__scrollTimer.start();
 
-        window.addEventListener("mousemove", this._window_onMouseMove.bind(this));
+        window.addEventListener("mousemove", this.__window_onMouseMove.bind(this));
     }
 
-    _doRequestScrollStart(args) {
+    private __doRequestScrollStart(args) {
         let scrollAccepted = false;
 
         this.ScrollRequestStartEvent.invoke(this, {
@@ -471,66 +493,66 @@ export class AutoScroller {
         let orientation = args.orientation;
 
         if (scrollAccepted)
-            this._doScrollStart(args);
+            this.__doScrollStart(args);
     }
 
-    _doScrollStart(args) {
+    private __doScrollStart(args) {
         let { orientation, direction } = args;
 
         switch (orientation) {
             case AutoScrollerOrientation.Vertical:
-                this._directionY = direction;
-                this._stateY = AutoScrollerState.ScrollActive;
+                this.__directionY = direction;
+                this.__stateY = AutoScrollerState.ScrollActive;
                 break;
 
             case AutoScrollerOrientation.Horizontal:
-                this._directionX = direction;
-                this._stateX = AutoScrollerState.ScrollActive;
+                this.__directionX = direction;
+                this.__stateX = AutoScrollerState.ScrollActive;
                 break;
         }
 
         this.ScrollStartEvent.invoke(this, args);
     }
 
-    _doScrollRateChange(args) {
+    private __doScrollRateChange(args) {
         let { orientation, rate } = args;
 
         switch (orientation) {
             case AutoScrollerOrientation.Vertical:
-                this._rateY = rate;
+                this.__rateY = rate;
                 break;
 
             case AutoScrollerOrientation.Horizontal:
-                this._rateX = rate;
+                this.__rateX = rate;
                 break;
         }
 
         this.ScrollRateChangeEvent.invoke(this, args);
     }
 
-    _doScrollEnd(args) {
+    private __doScrollEnd(args) {
         let orientation = args.orientation;
 
         switch (orientation) {
             case AutoScrollerOrientation.Vertical:
-                this._stateY = AutoScrollerState.Ready;
-                this._directionY = AutoScrollerDirection.None;
+                this.__stateY = AutoScrollerState.Ready;
+                this.__directionY = AutoScrollerDirection.None;
                 break;
 
             case AutoScrollerOrientation.Horizontal:
-                this._stateX = AutoScrollerState.Ready;
-                this._directionX = AutoScrollerDirection.None;
+                this.__stateX = AutoScrollerState.Ready;
+                this.__directionX = AutoScrollerDirection.None;
                 break;
         }
 
         this.ScrollEndEvent.invoke(this, args);
     }
 
-    _scrollTimer_onTick(sender, args) {
-        let directionX = this._directionX,
-            directionY = this._directionY,
-            rateX = this._rateX,
-            rateY = this._rateY;
+    private __scrollTimer_onTick(sender, args) {
+        let directionX = this.__directionX,
+            directionY = this.__directionY,
+            rateX = this.__rateX,
+            rateY = this.__rateY;
 
         if (directionX === AutoScrollerDirection.None &&
             directionY === AutoScrollerDirection.None) return;
@@ -539,22 +561,7 @@ export class AutoScroller {
             directionY === AutoScrollerDirection.Forward ? rateY : -rateY);
     }
 
-    _RequestScrollStartEvent = new FrameworkEvent();
-    _ScrollStartEvent = new FrameworkEvent();
-    _ScrollRateChangeEvent = new FrameworkEvent();
-    _ScrollEndEvent = new FrameworkEvent();
-
-    _scrollTimer = new Timer(10, true);
-
-    _rateX = 0;
-    _rateY = 0;
-
-    _stateX = AutoScrollerState.Ready;
-    _stateY = AutoScrollerState.Ready;
-    _directionX = AutoScrollerDirection.None;
-    _directionY = AutoScrollerDirection.None;
-
-    _window_onMouseMove(evt) {
+    private __window_onMouseMove(evt) {
         const SCROLL_REGION_OFFSET = 50;
 
         let { clientX, clientY } = evt;
@@ -580,9 +587,9 @@ export class AutoScroller {
             cursorIsInBottomScrollRegion = Utils.pointInRect(bottomScrollRegion, cursorPos),
             cursorIsInLeftScrollRegion = Utils.pointInRect(leftScrollRegion, cursorPos);
 
-        let directionX = this._directionX, directionY = this._directionY;
+        let directionX = this.__directionX, directionY = this.__directionY;
 
-        let stateX = this._stateX, stateY = this._stateY;
+        let stateX = this.__stateX, stateY = this.__stateY;
 
         switch (stateX) {
             case AutoScrollerState.Ready: //Horizontal scroll is ready
@@ -590,13 +597,13 @@ export class AutoScroller {
                     //horizontal scrolling zones
                     if (cursorIsInRightScrollRegion) //Cursor is inside the right zone, request 
                         //scrolling right
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Horizontal,
                             direction: AutoScrollerDirection.Forward
                         });
                     else if (cursorIsInLeftScrollRegion) //Cursor is inside the left zone, request
                         //scrolling left
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Horizontal,
                             direction: AutoScrollerDirection.Backward
                         });
@@ -607,19 +614,19 @@ export class AutoScroller {
                 if (cursorIsInRightScrollRegion && directionX === AutoScrollerDirection.Forward && canScrollX)
                     //Cursor remains in the right scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Horizontal,
                         rate: cursorPos.x - rightScrollRegion.left
                     });
                 else if (cursorIsInLeftScrollRegion && directionX === AutoScrollerDirection.Backward && canScrollX)
                     //Cursor remains in the left scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Horizontal,
                         rate: leftScrollRegion.right - cursorPos.x
                     });
                 else //Cursor left the active horizontal scrolling region, finish scrolling
-                    this._doScrollEnd({
+                    this.__doScrollEnd({
                         orientation: AutoScrollerOrientation.Horizontal
                     });
                 break;
@@ -630,13 +637,13 @@ export class AutoScroller {
                 if (canScrollY) { //Vertical scroll is possible, check if cursor is inside any of the 
                     //vertical scrolling zones
                     if (cursorIsInTopScrollRegion) //Cursor is inside the top zone, request scrolling up
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Vertical,
                             direction: AutoScrollerDirection.Backward
                         });
                     else if (cursorIsInBottomScrollRegion) //Cursor is inside the bottom zone. Request 
                         //scrolling down
-                        this._doRequestScrollStart({
+                        this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Vertical,
                             direction: AutoScrollerDirection.Forward
                         });
@@ -647,47 +654,63 @@ export class AutoScroller {
                 if (cursorIsInTopScrollRegion && directionY === AutoScrollerDirection.Backward && canScrollY)
                     //Cursor remains in the top scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Vertical,
                         rate: topScrollRegion.bottom - cursorPos.y
                     });
                 else if (cursorIsInBottomScrollRegion && directionY === AutoScrollerDirection.Forward && canScrollY)
                     //Cursor remains in the bottom scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
-                    this._doScrollRateChange({
+                    this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Vertical,
                         rate: cursorPos.y - bottomScrollRegion.top
                     });
                 else //Cursor left the active vertical scrolling zone, finish scrolling
-                    this._doScrollEnd({
+                    this.__doScrollEnd({
                         orientation: AutoScrollerOrientation.Vertical
                     });
                 break;
         }
     }
 
-    _target_onMouseLeave(evt) {
-        switch (this._stateY) {
+    private __target_onMouseLeave(evt) {
+        switch (this.__stateY) {
             case AutoScrollerState.ScrollActive:
-                this._doScrollEnd({
+                this.__doScrollEnd({
                     orientation: AutoScrollerOrientation.Vertical
                 });
         }
 
-        switch (this._stateX) {
+        switch (this.__stateX) {
             case AutoScrollerState.ScrollActive:
-                this._doScrollEnd({
+                this.__doScrollEnd({
                     orientation: AutoScrollerOrientation.Horizontal
                 });
         }
     }
 
-    get ScrollRequestStartEvent() { return this._RequestScrollStartEvent; }
-    get ScrollStartEvent() { return this._ScrollStartEvent; }
-    get ScrollRateChangeEvent() { return this._ScrollRateChangeEvent; }
-    get ScrollEndEvent() { return this._ScrollEndEvent; }
+    private __ScrollRequestStartEvent = new FrameworkEvent();
+    private __ScrollStartEvent = new FrameworkEvent();
+    private __ScrollRateChangeEvent = new FrameworkEvent();
+    private __ScrollEndEvent = new FrameworkEvent();
 
-    get target() { return this._target; }
+    private __scrollTimer = new Timer(10, true);
+
+    private __rateX = 0;
+    private __rateY = 0;
+
+    private __stateX = AutoScrollerState.Ready;
+    private __stateY = AutoScrollerState.Ready;
+    private __directionX = AutoScrollerDirection.None;
+    private __directionY = AutoScrollerDirection.None;
+
+    get ScrollRequestStartEvent() { return this.__ScrollRequestStartEvent; }
+    get ScrollStartEvent() { return this.__ScrollStartEvent; }
+    get ScrollRateChangeEvent() { return this.__ScrollRateChangeEvent; }
+    get ScrollEndEvent() { return this.__ScrollEndEvent; }
+
+    get target(): Element { return this.__target; }
+    private __target: Element;
 }
 
 /**
