@@ -1,7 +1,7 @@
 ﻿declare const MathX: {
-    orderMag(value: any): number;
-    pow10(exponent: any): number;
-    decimals(value: any, decimalPlaces: any): number;
-    round(value: any, decimalPlaces?: number): number;
+    orderMag(value: number): number;
+    pow10(exponent: number): number;
+    decimals(value: number, decimalPlaces: number): number;
+    round(value: number, decimalPlaces?: number): number;
 };
 export default MathX;

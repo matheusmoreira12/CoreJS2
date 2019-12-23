@@ -119,6 +119,11 @@ export const IValueConverter = new Interface(
     new InterfaceMember("convertBack", InterfaceMemberType.Function)
 );
 
+export interface ValueConverter<T> {
+    convert: (value: any) => string,
+    convertBack: (value: string) => any
+}
+
 /**
  * ValueValidator Interface 
  * Exposes a friendly interface for validating values between layers of abstraction.*/

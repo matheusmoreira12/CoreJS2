@@ -1,4 +1,5 @@
-﻿export declare class TimeSpan {
+﻿import { Enumeration } from "./Enumeration";
+export declare class TimeSpan {
     static fromMilliseconds(millis: any): TimeSpan;
     static fromSeconds(secs: any): TimeSpan;
     static fromMinutes(mins: any): TimeSpan;
@@ -6,39 +7,45 @@
     static fromDays(days: any): TimeSpan;
     constructor(ticks: any);
     toString(format?: string): string;
-    multiply(value: any): TimeSpan;
-    add(value: any): TimeSpan | DateTime;
-    subtract(value: any): TimeSpan;
+    multiply(value: number): TimeSpan;
+    divide(value: number): TimeSpan;
+    add(value: DateTime): DateTime;
+    add(value: TimeSpan): TimeSpan;
+    subtract(value: TimeSpan): TimeSpan;
+    readonly totalTicks: number;
     readonly totalMilliseconds: number;
     readonly totalSeconds: number;
     readonly totalMinutes: number;
     readonly totalHours: number;
     readonly totalDays: number;
-    readonly years: any;
-    readonly months: number;
     readonly days: number;
     readonly hours: number;
     readonly minutes: number;
     readonly seconds: number;
     readonly milliseconds: number;
     getFractions(precision?: number): number;
+    private __ticks;
 }
-export declare const DateTimeEra: any;
+export declare const DateTimeEra: Enumeration<import("./Enumeration").EnumerationValue>;
+export declare const TimeOfDay: Enumeration<import("./Enumeration").EnumerationValue>;
 export declare class DateTime {
     static fromNativeDateTimeStamp(dateTimeStamp: any): DateTime;
     static fromUTC(year: any, month: any, date: any, hours?: number, minutes?: number, seconds?: number, millis?: number): DateTime;
     static readonly now: DateTime;
     constructor(ticks: any);
     toString(format?: string): string;
-    subtract(value: any): TimeSpan | DateTime;
-    add(value: any): DateTime;
-    readonly era: any;
+    subtract(value: DateTime): TimeSpan;
+    subtract(value: TimeSpan): DateTime;
+    add(value: TimeSpan): DateTime;
+    readonly era: number;
     readonly year: number;
     readonly month: number;
     readonly day: number;
+    readonly timeOfDay: number;
     readonly hour: number;
     readonly minute: number;
     readonly second: number;
     readonly millisecond: number;
     getFraction(precision?: number): number;
+    private __ticks;
 }

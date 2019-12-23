@@ -34,6 +34,10 @@ export declare class ServerTask {
  * IValueConverter Interface
  * Exposes a friendly interface for converting values between layers of abstraction.*/
 export declare const IValueConverter: Interface;
+export interface ValueConverter<T> {
+    convert: (value: T) => string;
+    convertBack: (value: string) => any;
+}
 /**
  * ValueValidator Interface
  * Exposes a friendly interface for validating values between layers of abstraction.*/
