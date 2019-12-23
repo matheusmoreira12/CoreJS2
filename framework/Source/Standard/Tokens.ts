@@ -1,4 +1,4 @@
-import { InvalidOperationException, ArgumentTypeException, FrameworkException } from "./Exceptions";
+import { ArgumentTypeException, FrameworkException } from "./Exceptions";
 import { Type } from "./Types/Types";
 
 export class TokenReaderContext<T> {

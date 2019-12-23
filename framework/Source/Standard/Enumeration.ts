@@ -1,5 +1,5 @@
 import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
-import { mapUtils } from "../Utils/utils";
+import { MapUtils } from "../Utils/utils";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
@@ -102,7 +102,7 @@ export class Enumeration<T = EnumerationValue> {
     toString(value: T): string {
         function toString_number(this: Enumeration<T>): number {
             function convertExact(this: Enumeration<T>): string {
-                return mapUtils.invert(this.__flagsMap).get(value);
+                return MapUtils.invert(this.__flagsMap).get(value);
             }
 
             function convertMultiple(this: Enumeration<T>): string {
@@ -125,7 +125,7 @@ export class Enumeration<T = EnumerationValue> {
 
         function toString_string(this: Enumeration<T>) {
             const result = [];
-            const valuesMap = mapUtils.invert(this.__flagsMap);
+            const valuesMap = MapUtils.invert(this.__flagsMap);
             const valueItems = splitSetString(<string><unknown>value);
             for (let valueItem of valueItems) {
                 let flag = valuesMap.get(<T><unknown>valueItem);
@@ -138,7 +138,7 @@ export class Enumeration<T = EnumerationValue> {
         }
 
         function toString_boolean(this: Enumeration<T>) {
-            let result = mapUtils.invert(this.__flagsMap).get(value);
+            let result = MapUtils.invert(this.__flagsMap).get(value);
             if (result !== undefined)
                 return result;
 

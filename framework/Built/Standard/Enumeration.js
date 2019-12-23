@@ -1,5 +1,5 @@
 ﻿import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
-import { mapUtils } from "../Utils/utils";
+import { MapUtils } from "../Utils/utils";
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 function splitSetString(setStr) {
     return setStr.split("\s*,\s*");
@@ -83,7 +83,7 @@ export class Enumeration {
     toString(value) {
         function toString_number() {
             function convertExact() {
-                return mapUtils.invert(this.__flagsMap).get(value);
+                return MapUtils.invert(this.__flagsMap).get(value);
             }
             function convertMultiple() {
                 let flagStrs = [];
@@ -100,7 +100,7 @@ export class Enumeration {
         }
         function toString_string() {
             const result = [];
-            const valuesMap = mapUtils.invert(this.__flagsMap);
+            const valuesMap = MapUtils.invert(this.__flagsMap);
             const valueItems = splitSetString(value);
             for (let valueItem of valueItems) {
                 let flag = valuesMap.get(valueItem);
@@ -111,7 +111,7 @@ export class Enumeration {
             return result;
         }
         function toString_boolean() {
-            let result = mapUtils.invert(this.__flagsMap).get(value);
+            let result = MapUtils.invert(this.__flagsMap).get(value);
             if (result !== undefined)
                 return result;
             throw new KeyNotFoundException(`Value ${value} does not exist in Enumeration ${this.constructor.name}.`);

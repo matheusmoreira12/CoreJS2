@@ -1,6 +1,7 @@
 {
   "compileOnSave": true,
   "include": [ "Source/" ],
+  "exclude": [ "Source/Standard/Types/Models.ts" ],
   "compilerOptions": {
     "declaration": true,
     "emitBOM": true,
