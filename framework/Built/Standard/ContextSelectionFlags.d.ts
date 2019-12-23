@@ -3,8 +3,8 @@
  * Allows the selection of individual flags.*/
 export declare class ContextSelectionFlags {
     static [Symbol.species](): StringConstructor;
-    static get all(): ContextSelectionFlags;
-    static get none(): ContextSelectionFlags;
+    static readonly all: ContextSelectionFlags;
+    static readonly none: ContextSelectionFlags;
     static parse(str: any): ContextSelectionFlags;
     constructor(includeFlags?: any, requireFlags?: any, excludeFlags?: any);
     toString(): string;

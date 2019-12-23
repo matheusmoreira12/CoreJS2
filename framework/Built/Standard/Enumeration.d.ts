@@ -7,9 +7,9 @@ export declare type EnumerationDescriptor<T> = Array<string> | {
  * Represents an enumeration of options.
  */
 export declare class Enumeration<T = EnumerationValue> {
-    static get TYPE_NUMBER(): number;
-    static get TYPE_STRING(): number;
-    static get TYPE_BOOLEAN(): number;
+    static readonly TYPE_NUMBER: number;
+    static readonly TYPE_STRING: number;
+    static readonly TYPE_BOOLEAN: number;
     contains(flag: T, value: T): boolean;
     constructor(descriptor: string[] | {
         [key: string]: T;

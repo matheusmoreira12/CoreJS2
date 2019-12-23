@@ -2,7 +2,7 @@
     toString(): string;
     constructor(message?: string, innerException?: any);
     _data: Map<any, any>;
-    get data(): Map<any, any>;
+    readonly data: Map<any, any>;
 }
 export declare class FormatException extends FrameworkException {
     constructor(expectedFormat?: string, receivedString?: string, message?: string, innerException?: any);

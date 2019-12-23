@@ -1,23 +1,23 @@
 ﻿export declare class Identifier {
     static get(value: any): Identifier;
-    static get empty(): Identifier;
+    static readonly empty: Identifier;
     static parse(value: any): Identifier;
     constructor(...items: any[]);
     toString(): any;
     equals(value: any): boolean;
     combine(value: any): Identifier;
-    get isEmpty(): boolean;
+    readonly isEmpty: boolean;
 }
 export declare class Module {
-    static get STATUS_PENDING(): number;
-    static get STATUS_INITIALIZING(): number;
-    static get STATUS_DONE(): number;
+    static readonly STATUS_PENDING: number;
+    static readonly STATUS_INITIALIZING: number;
+    static readonly STATUS_DONE: number;
     static declare(namespace: any, initializer: any, parentModule?: Module): Promise<Module>;
     constructor(namespace: any, initializer: any, parentModule?: any);
     initialize(): Promise<void>;
     listExportsRecursive(): Generator<any, void, any>;
-    get fullNamespace(): any;
-    get isOrphan(): boolean;
+    readonly fullNamespace: any;
+    readonly isOrphan: boolean;
     status: number;
 }
 /**Module Demonstration:
