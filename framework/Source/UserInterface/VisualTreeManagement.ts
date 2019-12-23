@@ -1,12 +1,12 @@
 import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
-import { Enumeration } from "../Standard/Enumeration";
 import { ObservableCollectionChangeAction, ObservableCollection, ObservableCollectionChangeArgs } from "../Standard/Collections";
-import { VisualTemplatePropertyBinding, VisualTemplateNode, VisualTemplateElement, VisualTemplateBinding } from "./UserInterface.Templating";
+import { VisualTemplateBinding, VisualTemplatePropertyBinding, VisualTemplatePropertyAttributeBinding, VisualTemplateNode, VisualTemplateElement } from "./Templating";
+import { PropertyBinding, PropertyAttributeBinding, Binding } from "./Bindings";
 
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 
 export abstract class VisualTreeNode {
-    constructor(domNode: Element) {
+    constructor(domNode: Node) {
         if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
 
@@ -30,15 +30,16 @@ export abstract class VisualTreeNode {
     }
 
     private __removeElement(treeNode: VisualTreeNode) {
-        treeNode.__domNode.remove();
+        const domNode = treeNode.__domNode;
+        domNode.parentNode.removeChild(domNode);
     }
 
     private __setAttribute(treeNode: VisualTreeNode) {
-        this.__domNode.setAttributeNodeNS(treeNode.__domNode);
+        this.__domNode.appendChild(treeNode.__domNode);
     }
 
     private __removeAttribute(treeNode: VisualTreeNode) {
-        this.__domNode.removeAttributeNode(treeNode.__domNode);
+        this.__domNode.appendChild(treeNode.__domNode);
     }
 
     private __childNodes_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeNode>) {
@@ -75,8 +76,8 @@ export abstract class VisualTreeNode {
     get childNodes(): ObservableCollection<VisualTreeNode> { return this.__childNodes; }
     protected __childNodes: ObservableCollection<VisualTreeNode> = new ObservableCollection();
 
-    get domNode(): Element { return this.__domNode; }
-    protected __domNode: Element;
+    get domNode(): Node { return this.__domNode; }
+    protected __domNode: Node;
 }
 
 export class VisualTreeElement extends VisualTreeNode {
@@ -108,9 +109,9 @@ export class VisualTree extends VisualTreeNode {
         super(rootNode);
     }
 
-    async applyTemplate(template) {
-        async function* applyBindings(tempBindings: Iterable<VisualTemplateBinding>) {
-            async function applyBinding(tempBinding: VisualTemplateBinding) {
+    async applyTemplate(template): void {
+        async function* applyBindings(tempBindings: Iterable<VisualTemplateBinding>): Generator<Binding> {
+            async function applyBinding(tempBinding: VisualTemplateBinding): Binding {
                 if (tempBinding instanceof VisualTemplatePropertyBinding) {
                     let source = await ReferenceSystem.retrieve(tempBinding.sourceName, context);
                     let sourceProperty = await ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
@@ -137,12 +138,12 @@ export class VisualTree extends VisualTreeNode {
                 yield await applyBinding(tempBinding);
         }
 
-        async function applyNode(tempNode) {
+        async function applyNode(tempNode: VisualTemplateNode): Promise<VisualTreeNode> {
             ReferenceSystem.deriveContext();
 
             if (tempNode instanceof VisualTemplateNode) {
                 if (tempNode instanceof VisualTemplateElement) {
-                    for (let childNode of await applyNodes(tempNode.children))
+                    for (let childNode of await applyNodes(tempNode.childNodes))
                         domNode.appendChild(domChild);
                 }
             }
@@ -154,7 +155,7 @@ export class VisualTree extends VisualTreeNode {
             return domNode;
         }
 
-        async function* __applyNodes(tempNodes) {
+        async function* applyNodes(tempNodes: Iterable<VisualTemplateNode>) {
             for (let tempNode of tempNodes) {
                 let domNode = await applyNode(tempNode);
 

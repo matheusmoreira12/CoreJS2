@@ -1,16 +1,19 @@
 ﻿import { Collection } from "../Standard/Collections";
+import DragDropHandler from "./DragDropHandler";
 import { FrameworkEvent, NativeEvent } from "../Standard/Events";
 import { FrameworkProperty } from "./user-interface";
+import { Enumeration } from "../Standard/Enumeration";
 declare class VisualTreeManager {
-    constructor(target: any);
-    elements: Collection<unknown>;
+    constructor(target: Widget);
     attachAll(): void;
     detachAll(): void;
+    private __target;
+    private __elements;
 }
 export declare class Widget extends HTMLElement {
     constructor();
     _visualTreeManager: VisualTreeManager;
-    _dragDropHandler: any;
+    _dragDropHandler: DragDropHandler;
     _fillVisualTree(manager: any): void;
     connectedCallback(): void;
     disconnectedCallback(): void;
@@ -71,8 +74,8 @@ export declare class JContentPresenter extends Widget {
 /**
  * Banner Widget Definition
  */
-export declare const JBannerType: any;
-export declare const ButtonIconPosition: any;
+export declare const JBannerType: Enumeration<import("../Standard/Enumeration").EnumerationValue>;
+export declare const ButtonIconPosition: Enumeration<import("../Standard/Enumeration").EnumerationValue>;
 export declare class JButton extends Widget {
     constructor();
     static isDefaultProperty: FrameworkProperty;

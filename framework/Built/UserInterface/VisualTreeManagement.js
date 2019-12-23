@@ -21,7 +21,8 @@ var __asyncGenerator = (this && this.__asyncGenerator) || function (thisArg, _ar
 };
 import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
 import { ObservableCollectionChangeAction, ObservableCollection } from "../Standard/Collections";
-import { VisualTemplatePropertyBinding, VisualTemplateNode, VisualTemplateElement } from "./UserInterface.Templating";
+import { VisualTemplatePropertyBinding, VisualTemplatePropertyAttributeBinding, VisualTemplateNode, VisualTemplateElement } from "./Templating";
+import { PropertyBinding, PropertyAttributeBinding } from "./Bindings";
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 export class VisualTreeNode {
     constructor(domNode) {
@@ -43,13 +44,14 @@ export class VisualTreeNode {
             this.__domNode.appendChild(treeNode.domNode);
     }
     __removeElement(treeNode) {
-        treeNode.__domNode.remove();
+        const domNode = treeNode.__domNode;
+        domNode.parentNode.removeChild(domNode);
     }
     __setAttribute(treeNode) {
-        this.__domNode.setAttributeNodeNS(treeNode.__domNode);
+        this.__domNode.appendChild(treeNode.__domNode);
     }
     __removeAttribute(treeNode) {
-        this.__domNode.removeAttributeNode(treeNode.__domNode);
+        this.__domNode.appendChild(treeNode.__domNode);
     }
     __childNodes_onChange(sender, args) {
         if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
@@ -135,7 +137,7 @@ export class VisualTree extends VisualTreeNode {
                     ReferenceSystem.deriveContext();
                     if (tempNode instanceof VisualTemplateNode) {
                         if (tempNode instanceof VisualTemplateElement) {
-                            for (let childNode of yield applyNodes(tempNode.children))
+                            for (let childNode of yield applyNodes(tempNode.childNodes))
                                 domNode.appendChild(domChild);
                         }
                     }
@@ -145,8 +147,8 @@ export class VisualTree extends VisualTreeNode {
                     return domNode;
                 });
             }
-            function __applyNodes(tempNodes) {
-                return __asyncGenerator(this, arguments, function* __applyNodes_1() {
+            function applyNodes(tempNodes) {
+                return __asyncGenerator(this, arguments, function* applyNodes_1() {
                     for (let tempNode of tempNodes) {
                         let domNode = yield __await(applyNode(tempNode));
                         if (tempNode.name)

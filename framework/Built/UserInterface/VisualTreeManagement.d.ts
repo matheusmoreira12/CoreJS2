@@ -1,15 +1,15 @@
 ﻿import { ObservableCollection } from "../Standard/Collections";
 export declare abstract class VisualTreeNode {
-    constructor(domNode: Element);
+    constructor(domNode: Node);
     private __insertElement;
     private __removeElement;
     private __setAttribute;
     private __removeAttribute;
     private __childNodes_onChange;
-    readonly childNodes: ObservableCollection<VisualTreeNode>;
+    get childNodes(): ObservableCollection<VisualTreeNode>;
     protected __childNodes: ObservableCollection<VisualTreeNode>;
-    readonly domNode: Element;
-    protected __domNode: Element;
+    get domNode(): Node;
+    protected __domNode: Node;
 }
 export declare class VisualTreeElement extends VisualTreeNode {
     constructor(qualifiedName: any, namespaceURI?: any);
@@ -19,5 +19,5 @@ export declare class VisualTreeAttribute extends VisualTreeNode {
 }
 export declare class VisualTree extends VisualTreeNode {
     constructor(rootNode: any);
-    applyTemplate(template: any): Promise<void>;
+    applyTemplate(template: any): void;
 }

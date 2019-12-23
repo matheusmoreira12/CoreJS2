@@ -152,7 +152,7 @@ export class PropertyTrigger extends Trigger {
  */
 export class EventTrigger extends Trigger {
     constructor(targetEvent, ...actions) {
-        super(...actions);
+        super();
         if (!(targetEvent instanceof FrameworkEvent))
             throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);
         this.__targetEvent = targetEvent;

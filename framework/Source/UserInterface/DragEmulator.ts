@@ -1,34 +1,39 @@
-﻿/**
+﻿import { ArgumentTypeException } from "../Standard/Exceptions";
+import { FrameworkEvent } from "../Standard/Events";
+import DragDropHandler from "./DragDropHandler";
+
+/**
  * 
  */
-class DragEmulator {
+export default class DragEmulator {
     constructor(handler) {
-        if (!handler instanceof DragDropHandler) throw new ArgumentTypeException("handler", handler, DragDropHandler);
+        if (!(handler instanceof DragDropHandler)) throw new ArgumentTypeException("handler", handler, DragDropHandler);
 
         handler.DragStartEvent.attach(this.DragStartEvent);
         handler.DragMoveEvent.attach(this.DragMoveEvent);
         handler.DragEndEvent.attach(this.DragEndEvent);
         handler.DragCancelEvent.attach(this.DragCancelEvent);
 
-        this.handler = handler;
+        this.__handler = handler;
     }
 
     createPreviewElem(args) {
-        let targetElem = this.handler.target;
+        let targetElem = this.__handler.target;
 
-        let previewElem = targetElem.cloneNode(true);
+        let previewElem = <HTMLElement>targetElem.cloneNode(true);
+        this.__previewElem = previewElem;
+
         previewElem.style.position = "absolute";
         previewElem.style.opacity = ".6";
         previewElem.style.zIndex = "9999";
-        document.body.appendChild(previewElem);
 
-        this.previewElem = previewElem;
+        document.body.appendChild(previewElem);
 
         this.repositionPreviewElem(args);
     }
 
     repositionPreviewElem(args) {
-        const previewElem = this.previewElem;
+        const previewElem = <HTMLElement>this.__previewElem;
         if (!previewElem) return;
 
         let { left, top } = args;
@@ -38,16 +43,16 @@ class DragEmulator {
     }
 
     removePreviewElement() {
-        const previewElem = this.previewElem;
+        const previewElem = this.__previewElem;
         if (!previewElem) return;
 
         previewElem.remove();
 
-        this.previewElem = null;
+        this.__previewElem = null;
     }
 
     onDragStart(sender, args) {
-        let targetElem = this.handler.target;
+        let targetElem = this.__handler.target;
 
         let { clientX, clientY } = args;
 
@@ -57,17 +62,17 @@ class DragEmulator {
             left, top
         });
 
-        this.initialLeft = left;
-        this.initialTop = top;
-        this.initialClientX = clientX;
-        this.initialClientY = clientY;
+        this.__initialLeft = left;
+        this.__initialTop = top;
+        this.__initialClientX = clientX;
+        this.__initialClientY = clientY;
     }
 
-    onDragMove(sender, args) {
+    onDragMove(_sender, args) {
         let { clientX, clientY } = args;
 
-        let left = this.initialLeft + clientX - this.initialClientX;
-        let top = this.initialTop + clientY - this.initialClientY;
+        let left = this.__initialLeft + clientX - this.__initialClientX;
+        let top = this.__initialTop + clientY - this.__initialClientY;
 
         this.repositionPreviewElem({
             left,
@@ -75,18 +80,23 @@ class DragEmulator {
         });
     }
 
-    onDragEnd(sender, args) {
+    onDragEnd(_sender, _args) {
         this.removePreviewElement();
     }
 
-    onDragCancel(sender, args) {
+    onDragCancel(_sender, _args) {
         this.removePreviewElement();
     }
 
-    DragStartEvent = new FrameworkEvent(this.onDragStart.bind(this));
-    DragMoveEvent = new FrameworkEvent(this.onDragMove.bind(this));
-    DragEndEvent = new FrameworkEvent(this.onDragEnd.bind(this));
-    DragCancelEvent = new FrameworkEvent(this.onDragCancel.bind(this));
+    DragStartEvent = new FrameworkEvent(this.onDragStart, this);
+    DragMoveEvent = new FrameworkEvent(this.onDragMove, this);
+    DragEndEvent = new FrameworkEvent(this.onDragEnd, this);
+    DragCancelEvent = new FrameworkEvent(this.onDragCancel, this);
 
-    previewElem = null;
+    private __initialLeft: number;
+    private __initialTop: number;
+    private __initialClientX: number;
+    private __initialClientY: number;
+    private __previewElem: Element = null;
+    private __handler: DragDropHandler;
 }

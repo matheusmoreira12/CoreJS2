@@ -24,7 +24,7 @@ export declare class EnumerationAttributeValueConverter<T> implements ValueConve
 }
 export declare const IFrameworkPropertyOptions: Interface;
 export interface FrameworkPropertyOptions {
-    defaultValue: any;
+    defaultValue?: any;
 }
 /**
  * FrameworkProperty class
@@ -35,9 +35,9 @@ export declare class FrameworkProperty {
     get(target: any): any;
     set(target: any, value: any): void;
     ChangeEvent: FrameworkEvent;
-    readonly name: string;
+    get name(): string;
     private __name;
-    readonly options: FrameworkPropertyOptions;
+    get options(): FrameworkPropertyOptions;
     private __options;
     private __storedValues;
 }
@@ -48,7 +48,7 @@ export declare class FrameworkProperty {
 export declare abstract class FrameworkAction {
     constructor();
     execute(data?: Dictionary<string, any>): void;
-    readonly ExecutedEvent: FrameworkEvent;
+    get ExecutedEvent(): FrameworkEvent;
     private __ExecutedEvent;
 }
 /**
@@ -69,13 +69,13 @@ export declare class Setter {
 export declare class PropertyTrigger extends Trigger {
     constructor(target: object, targetProperty: FrameworkProperty, value: any, ...actions: FrameworkAction[]);
     private __targetProperty_onChange;
-    readonly target: object;
+    get target(): object;
     private __target;
-    readonly targetProperty: FrameworkProperty;
+    get targetProperty(): FrameworkProperty;
     private __targetProperty;
-    readonly value: any;
+    get value(): any;
     private __value;
-    readonly setters: Collection<Setter>;
+    get setters(): Collection<Setter>;
     private __setters;
 }
 /**
@@ -86,9 +86,9 @@ export declare class EventTrigger extends Trigger {
     constructor(targetEvent: FrameworkEvent, ...actions: FrameworkAction[]);
     private __targetEvent_handler;
     protected __executeActions(data?: Dictionary<string, any>): void;
-    readonly targetEvent: FrameworkEvent;
+    get targetEvent(): FrameworkEvent;
     private __targetEvent;
-    readonly actions: Collection<FrameworkAction>;
+    get actions(): Collection<FrameworkAction>;
     private __actions;
 }
 /**
@@ -128,11 +128,11 @@ export declare class Timer {
     start(): void;
     stop(): void;
     _TickEvent: FrameworkEvent;
-    readonly delayMillis: number;
+    get delayMillis(): number;
     private __delayMillis;
-    readonly isPeriodic: boolean;
+    get isPeriodic(): boolean;
     private __isPeriodic;
-    readonly TickEvent: FrameworkEvent;
+    get TickEvent(): FrameworkEvent;
     private __TickEvent;
     private __timeoutHandle;
 }

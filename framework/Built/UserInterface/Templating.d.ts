@@ -1,12 +1,12 @@
 ﻿export declare class VisualTemplateNode {
     constructor();
-    readonly childNodes: any;
+    get childNodes(): any;
 }
 export declare class VisualTemplateElement extends VisualTemplateNode {
     constructor(qualifiedName: any, namespaceUri?: any);
-    readonly qualifiedName: any;
-    readonly namespaceUri: any;
-    readonly properties: any;
+    get qualifiedName(): any;
+    get namespaceUri(): any;
+    get properties(): any;
 }
 export declare class VisualTemplate extends VisualTemplateNode {
     constructor();

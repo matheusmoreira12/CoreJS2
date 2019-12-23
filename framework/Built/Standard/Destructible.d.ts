@@ -2,6 +2,6 @@
     constructor();
     protected abstract destructor(): any;
     destruct(): void;
-    readonly isDestructed: boolean;
+    get isDestructed(): boolean;
     private __isDestructed;
 }

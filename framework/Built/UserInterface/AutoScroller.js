@@ -46,7 +46,6 @@ export class AutoScroller {
     __doRequestScrollStart(args) {
         let scrollAccepted = false;
         this.ScrollRequestStartEvent.invoke(this, Object.assign({ acceptScroll() { scrollAccepted = true; } }, args));
-        let orientation = args.orientation;
         if (scrollAccepted)
             this.__doScrollStart(args);
     }

@@ -25,11 +25,11 @@ export declare class FrameworkEvent extends Destructible {
 export declare class NativeEvent extends FrameworkEvent {
     constructor(target: EventTarget, nativeEventName: string, defaultListener?: any, defaultListenerThisArg?: any);
     private __target_nativeEvent_handler;
-    readonly target: EventTarget;
+    get target(): EventTarget;
     private __target;
-    readonly nativeEventName: string;
+    get nativeEventName(): string;
     private __nativeEventName;
-    readonly defaultListener: any;
+    get defaultListener(): any;
     private __defaultListener;
     destructor(): void;
 }
@@ -46,7 +46,7 @@ export declare class BroadcastFrameworkEvent extends FrameworkEvent {
     unroute(baseEvent: any): boolean;
     unrouteAll(): void;
     private __routedEvents;
-    readonly name: string;
+    get name(): string;
     private __name;
     destrutor(): void;
 }
@@ -57,9 +57,9 @@ export declare class FrameworkCustomEvent extends FrameworkEvent {
     constructor(target: EventTarget, eventName: string, defaultListener?: Function, defaultListenerThisArg?: any);
     private __target_customEvent_handler;
     invoke(args?: object): void;
-    readonly target: EventTarget;
+    get target(): EventTarget;
     private __target;
-    readonly eventName: string;
+    get eventName(): string;
     private __eventName;
     destructor(): void;
 }

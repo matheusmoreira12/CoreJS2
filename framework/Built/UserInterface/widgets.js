@@ -1,19 +1,24 @@
 ﻿var _a, _b;
 import { Collection } from "../Standard/Collections";
-import { FrameworkEvent, NativeEvent } from "../Standard/Events";
-import { FrameworkProperty } from "./user-interface";
-import { PropertyAttributeBinding } from "./UserInterface.Bindings";
+import { PropertyAttributeBinding, BindingDirection, PropertyBinding } from "./Bindings";
+import DragDropHandler from "./DragDropHandler";
+import { FrameworkEvent, NativeEvent, BroadcastFrameworkEvent, FrameworkCustomEvent } from "../Standard/Events";
+import { FrameworkProperty, BooleanAttributeValueConverter, EnumerationAttributeValueConverter, Utils, JSONAttributeValueConverter, FlagsAttributeValueConverter } from "./user-interface";
+import { AutoScroller } from "./AutoScroller";
+import { Enumeration } from "../Standard/Enumeration";
+import { ArrayUtils, DomUtils } from "../Utils/utils";
+import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
 class VisualTreeManager {
     constructor(target) {
-        this.elements = new Collection();
-        this.target = target;
+        this.__elements = new Collection();
+        this.__target = target;
     }
     attachAll() {
-        for (let element of this.elements)
-            this.target.appendChild(element);
+        for (let element of this.__elements)
+            this.__target.appendChild(element);
     }
     detachAll() {
-        for (let element of this.elements)
+        for (let element of this.__elements)
             element.remove();
     }
 }
@@ -132,11 +137,11 @@ export class Widget extends HTMLElement {
     //      Click Event
     _onClick(sender, args) { }
     get isMouseOver() { return Widget.isMouseOverProperty.get(this); }
-    set isMouseOver(value) { Widget.isMouseOverProperty.get(this, value); }
+    set isMouseOver(value) { Widget.isMouseOverProperty.set(this, value); }
     get isDragging() { return Widget.isDraggingProperty.get(this); }
-    set isDragging(value) { Widget.isDraggingProperty.get(this, value); }
+    set isDragging(value) { Widget.isDraggingProperty.set(this, value); }
     get isDragOver() { return Widget.isDragOverProperty.get(this); }
-    set isDragOver(value) { Widget.isDragOverProperty.get(this, value); }
+    set isDragOver(value) { Widget.isDragOverProperty.set(this, value); }
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
 }
@@ -161,7 +166,7 @@ export class JContentPresenter extends Widget {
         new PropertyAttributeBinding(this, JContentPresenter.contentProperty, this, "content", { direction: BindingDirection.ToSource });
     }
     get content() { return JButton.contentProperty.get(this); }
-    set content(value) { return JButton.contentProperty.set(this, value); }
+    set content(value) { JButton.contentProperty.set(this, value); }
 }
 //Framework Properties
 JContentPresenter.contentProperty = new FrameworkProperty("content", { defaultValue: null });
@@ -188,10 +193,10 @@ let JScrollContainer = (_a = class JScrollContainer extends Widget {
             this.style.touchAction = "none";
         }
         _forceAutoScroll() {
-            this._forceAutoScrollIsForced = true;
+            this._isAutoScrollForced = true;
         }
         _unforceAutoScroll() {
-            this._forceAutoScrollIsForced = false;
+            this._isAutoScrollForced = false;
         }
         _enterAutoScrollMode() {
             this._disableTouchInteraction();
@@ -203,7 +208,7 @@ let JScrollContainer = (_a = class JScrollContainer extends Widget {
         }
         //Event Listeners
         _autoScroller_onScrollRequestStart(sender, args) {
-            if (this.isAutoScrollEnabled || this._forceAutoScrollIsForced)
+            if (this.isAutoScrollEnabled || this._isAutoScrollForced)
                 args.acceptScroll();
         }
         _dragDropHandler_onNotifyDragStart(sender, args) {
@@ -242,7 +247,7 @@ let JBanner = (_b = class JBanner extends Widget {
             new PropertyAttributeBinding(this, JBanner.isOpenProperty, this, "open", { valueConverter: new BooleanAttributeValueConverter() });
         }
         _fillVisualTree(manager) {
-            super._fillVisualTree();
+            super._fillVisualTree(manager);
             //Visual Template
             this._layoutPanel = document.createElement("j-wrap-panel");
             manager.elements.add(this._layoutPanel);
@@ -348,7 +353,7 @@ class JProgressBar extends Widget {
     set maximum(value) { JProgressBar.maximumProperty.set(this, value); }
 }
 JProgressBar.isIndeterminateProperty = new FrameworkProperty("isIndeterminate", { defaultValue: true });
-JProgressBar.valueProperty = new FrameworkProperty("value");
+JProgressBar.valueProperty = new FrameworkProperty("value", {});
 JProgressBar.minimumProperty = new FrameworkProperty("minimum", { defaultValue: 0 });
 JProgressBar.maximumProperty = new FrameworkProperty("maximum", { defaultValue: 1 });
 window.customElements.define("j-progress-bar", JProgressBar);
@@ -371,13 +376,13 @@ export class JButton extends Widget {
         new PropertyAttributeBinding(this, JButton.iconProperty, this, "icon", { valueConverter: new EnumerationAttributeValueConverter(ButtonIconPosition) });
     }
     get isDefault() { return JButton.isDefaultProperty.get(this); }
-    set isDefault(value) { return JButton.isDefaultProperty.set(this, value); }
+    set isDefault(value) { JButton.isDefaultProperty.set(this, value); }
     get value() { return JButton.valueProperty.get(this); }
-    set value(value) { return JButton.valueProperty.set(this, value); }
+    set value(value) { JButton.valueProperty.set(this, value); }
     get content() { return JButton.contentProperty.get(this); }
-    set content(value) { return JButton.contentProperty.set(this, value); }
+    set content(value) { JButton.contentProperty.set(this, value); }
     get icon() { return JButton.iconProperty.get(this); }
-    set icon(value) { return JButton.iconProperty.set(this, value); }
+    set icon(value) { JButton.iconProperty.set(this, value); }
 }
 //Framework Properties
 JButton.isDefaultProperty = new FrameworkProperty("isDefault", { defaultValue: false });
@@ -399,7 +404,7 @@ class JButtonBar extends Widget {
         JButtonBar.buttonsProperty.ChangeEvent.attach(this._buttonsProperty_onChange, this);
     }
     _fillVisualTree(manager) {
-        super._fillVisualTree();
+        super._fillVisualTree(manager);
         //Visual tree
         this._layoutPanel = document.createElement("j-wrap-panel");
         manager.elements.add(this._layoutPanel);
@@ -413,7 +418,7 @@ class JButtonBar extends Widget {
         if (data.isDefault)
             button.focus();
         //Insert button to the appropriate container
-        domUtils.insertElementAt(this._layoutPanel, position, button);
+        DomUtils.insertElementAt(this._layoutPanel, position, button);
         let self = this;
         button.onclick = function () {
             self._invokeOnSubmit(this.value);
@@ -427,7 +432,7 @@ class JButtonBar extends Widget {
     _updateButton(position) {
     }
     _updateButtons(oldButtons, newButtons) {
-        arrayUtils.detectArrayChanges(oldButtons, newButtons, (newItem, newIndex) => {
+        ArrayUtils.detectArrayChanges(oldButtons, newButtons, (newItem, newIndex) => {
             this._addButton(newItem, newIndex);
         }, (oldItem, oldIndex) => {
             this._removeButton(oldItem);
@@ -498,7 +503,7 @@ class JDialog extends Widget {
         new PropertyBinding(this, JDialog.buttonsProperty, this._buttonBar, JButtonBar.buttonsProperty);
     }
     _fillVisualTree(manager) {
-        super._fillVisualTree();
+        super._fillVisualTree(manager);
         let self = this;
         //Events
         function closeButtonClick() {
@@ -582,7 +587,7 @@ JDialog.titleProperty = new FrameworkProperty("title", { defaultValue: "" });
 JDialog.contentProperty = new FrameworkProperty("content", { defaultValue: "" });
 JDialog.buttonsProperty = new FrameworkProperty("buttons", { defaultValue: [] });
 JDialog.isOpenProperty = new FrameworkProperty("isOpen", { defaultValue: false });
-JDialog.optionsProperty = new FrameworkProperty("options");
+JDialog.optionsProperty = new FrameworkProperty("options", {});
 window.customElements.define("j-dialog", JDialog);
 /*Board Widget*/
 class JBoard extends Widget {
@@ -655,7 +660,7 @@ class JCard extends Widget {
         new PropertyAttributeBinding(this, JCard.dataProperty, this, "data", { valueConverter: new JSONAttributeValueConverter() });
     }
     _fillVisualTree(manager) {
-        super._fillVisualTree();
+        super._fillVisualTree(manager);
         //Visual Tree
         this._fieldsStackPanel = document.createElement("j-stack-panel");
         this.appendChild(this._fieldsStackPanel);
@@ -726,13 +731,13 @@ class JEditableLabel extends Widget {
     }
     _openEditing() {
         this._cachedText = this.textContent;
-        this.contentEditable = true;
+        this.contentEditable = "contentEditable";
         Utils.selectAllText(this);
         this.focus();
         this.startEditEvent.invoke();
     }
     _closeEditing() {
-        this.contentEditable = false;
+        this.contentEditable = null;
         Utils.deselectAllText();
     }
     _applyAndClose() {
@@ -778,12 +783,8 @@ JEditableLabel.isEditingProperty = new FrameworkProperty("isEditing", { defaultV
 customElements.define("j-editable-label", JEditableLabel);
 /*Spinner Widget*/
 class JSpinner extends Widget {
-    constructor() {
-        super(...arguments);
-        this.isOpen = false;
-    }
     _fillVisualTree(manager) {
-        super._fillVisualTree();
+        super._fillVisualTree(manager);
         let layoutCenterPanel = document.createElement("j-center-panel");
         manager.elements.add(layoutCenterPanel);
         let spinnerImage = new Image(80, 80);
@@ -801,5 +802,5 @@ class JSpinner extends Widget {
     get isOpen() { return JBanner.isOpenProperty.get(this); }
     set isOpen(value) { JBanner.isOpenProperty.set(this, value); }
 }
-JSpinner.isOpenProperty = new FrameworkProperty("isOpen");
+JSpinner.isOpenProperty = new FrameworkProperty("isOpen", {});
 customElements.define("j-spinner", JSpinner);

@@ -71,7 +71,7 @@ export const IFrameworkPropertyOptions = new Interface(
 );
 
 export interface FrameworkPropertyOptions {
-    defaultValue: any
+    defaultValue?: any
 }
 
 /**
@@ -206,7 +206,7 @@ export class PropertyTrigger extends Trigger {
  */
 export class EventTrigger extends Trigger {
     constructor(targetEvent: FrameworkEvent, ...actions: FrameworkAction[]) {
-        super(...actions);
+        super();
 
         if (!(targetEvent instanceof FrameworkEvent))
             throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);

@@ -46,8 +46,6 @@ export class AutoScroller {
             ...args
         });
 
-        let orientation = args.orientation;
-
         if (scrollAccepted)
             this.__doScrollStart(args);
     }
