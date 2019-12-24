@@ -8,17 +8,18 @@ import { AutoScroller } from "./AutoScroller";
 import { Enumeration } from "../Standard/Enumeration";
 import { ArrayUtils, DomUtils } from "../Utils/utils";
 import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
+import { InvalidOperationException } from "../Standard/Exceptions";
 class VisualTreeManager {
     constructor(target) {
-        this.__elements = new Collection();
-        this.__target = target;
+        this.elements = new Collection();
+        this.target = target;
     }
     attachAll() {
-        for (let element of this.__elements)
-            this.__target.appendChild(element);
+        for (let element of this.elements)
+            this.target.appendChild(element);
     }
     detachAll() {
-        for (let element of this.__elements)
+        for (let element of this.elements)
             element.remove();
     }
 }
@@ -26,116 +27,116 @@ export class Widget extends HTMLElement {
     constructor() {
         super();
         //Helper Class Instances
-        this._visualTreeManager = new VisualTreeManager(this);
-        this._dragDropHandler = new DragDropHandler(this);
-        this.DragStartEvent = new FrameworkEvent(this._onDragStart.bind(this));
-        this.DragMoveEvent = new FrameworkEvent(this._onDragMove.bind(this));
-        this.DragEndEvent = new FrameworkEvent(this._onDragEnd.bind(this));
-        this.DragCancelEvent = new FrameworkEvent(this._onDragCancel.bind(this));
-        this.DragEnterEvent = new FrameworkEvent(this._onDragEnter.bind(this));
-        this.DragOverEvent = new FrameworkEvent(this._onDragOver.bind(this));
-        this.DragLeaveEvent = new FrameworkEvent(this._onDragLeave.bind(this));
-        this.DragDropEvent = new FrameworkEvent(this._onDragDrop.bind(this));
-        this.MouseEnterEvent = new NativeEvent(this, "mouseenter", this._onMouseEnter.bind(this));
-        this.MouseLeaveEvent = new NativeEvent(this, "mouseleave", this._onMouseLeave.bind(this));
-        this.MouseDownEvent = new NativeEvent(this, "mousedown", this._onMouseDown.bind(this));
-        this.MouseMoveEvent = new NativeEvent(this, "mousemove", this._onMouseMove.bind(this));
-        this.MouseUpEvent = new NativeEvent(this, "mouseup", this._onMouseUp.bind(this));
-        this.ClickEvent = new NativeEvent(this, "click", this._onClick.bind(this));
+        this.__visualTreeManager = new VisualTreeManager(this);
+        this.__dragDropHandler = new DragDropHandler(this);
+        this.DragStartEvent = new FrameworkEvent(this.__onDragStart.bind(this));
+        this.DragMoveEvent = new FrameworkEvent(this.__onDragMove.bind(this));
+        this.DragEndEvent = new FrameworkEvent(this.__onDragEnd.bind(this));
+        this.DragCancelEvent = new FrameworkEvent(this.__onDragCancel.bind(this));
+        this.DragEnterEvent = new FrameworkEvent(this.__onDragEnter.bind(this));
+        this.DragOverEvent = new FrameworkEvent(this.__onDragOver.bind(this));
+        this.DragLeaveEvent = new FrameworkEvent(this.__onDragLeave.bind(this));
+        this.DragDropEvent = new FrameworkEvent(this.__onDragDrop.bind(this));
+        this.MouseEnterEvent = new NativeEvent(this, "mouseenter", this.__onMouseEnter.bind(this));
+        this.MouseLeaveEvent = new NativeEvent(this, "mouseleave", this.__onMouseLeave.bind(this));
+        this.MouseDownEvent = new NativeEvent(this, "mousedown", this.__onMouseDown.bind(this));
+        this.MouseMoveEvent = new NativeEvent(this, "mousemove", this.__onMouseMove.bind(this));
+        this.MouseUpEvent = new NativeEvent(this, "mouseup", this.__onMouseUp.bind(this));
+        this.ClickEvent = new NativeEvent(this, "click", this.__onClick.bind(this));
+        if (new.target === Widget)
+            throw new InvalidOperationException("Invalid constructor");
         //Initialize Widget Lifecycle
         //Fill Visual Tree
-        this._fillVisualTree(this._visualTreeManager);
+        this.__fillVisualTree(this.__visualTreeManager);
         //Create Bindings
         new PropertyAttributeBinding(this, Widget.isDraggableProperty, this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
         //Attach Event Handlers
         //  Drag/Drop Handler Events
-        this._dragDropHandler.RequestDragStartEvent.attach(this._dragDropHandler_onRequestDragStart, this);
-        this._dragDropHandler.DragStartEvent.attach(this._dragDropHandler_onDragStart, this);
-        this._dragDropHandler.DragMoveEvent.attach(this._dragDropHandler_onDragMove, this);
-        this._dragDropHandler.DragEndEvent.attach(this._dragDropHandler_onDragEnd, this);
-        this._dragDropHandler.DragCancelEvent.attach(this._dragDropHandler_onDragCancel, this);
-        this._dragDropHandler.DragEnterEvent.attach(this._dragDropHandler_onDragEnter, this);
-        this._dragDropHandler.DragOverEvent.attach(this._dragDropHandler_onDragOver, this);
-        this._dragDropHandler.DragLeaveEvent.attach(this._dragDropHandler_onDragLeave, this);
-        this._dragDropHandler.DragDropEvent.attach(this._dragDropHandler_onDragDrop, this);
+        this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
+        this.__dragDropHandler.DragStartEvent.attach(this.__dragDropHandler__onDragStart, this);
+        this.__dragDropHandler.DragMoveEvent.attach(this.__dragDropHandler__onDragMove, this);
+        this.__dragDropHandler.DragEndEvent.attach(this.__dragDropHandler__onDragEnd, this);
+        this.__dragDropHandler.DragCancelEvent.attach(this.__dragDropHandler__onDragCancel, this);
+        this.__dragDropHandler.DragEnterEvent.attach(this.__dragDropHandler__onDragEnter, this);
+        this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
+        this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
+        this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
     }
-    //Widget Lifecycle Management
-    _fillVisualTree(manager) { }
     connectedCallback() {
-        this._visualTreeManager.attachAll();
+        this.__visualTreeManager.attachAll();
     }
     disconnectedCallback() {
-        this._visualTreeManager.detachAll();
+        this.__visualTreeManager.detachAll();
     }
     //Drag/Drop Handler Event Listeners
-    _dragDropHandler_onRequestDragStart(sender, args) {
+    __dragDropHandler__onRequestDragStart(sender, args) {
         let { acceptDrag } = args;
         if (this.isDraggable)
             acceptDrag();
     }
-    _dragDropHandler_onDragStart(sender, args) {
+    __dragDropHandler__onDragStart(sender, args) {
         this.DragStartEvent.invoke(this, args);
     }
-    _dragDropHandler_onDragMove(sender, args) {
+    __dragDropHandler__onDragMove(sender, args) {
         this.DragMoveEvent.invoke(this, args);
     }
-    _dragDropHandler_onDragEnd(sender, args) {
+    __dragDropHandler__onDragEnd(sender, args) {
         this.DragEndEvent.invoke(this, args);
     }
-    _dragDropHandler_onDragCancel(sender, args) {
+    __dragDropHandler__onDragCancel(sender, args) {
         this.DragCancelEvent.invoke(this, args);
     }
-    _dragDropHandler_onDragEnter(sender, args) {
+    __dragDropHandler__onDragEnter(sender, args) {
         this.DragEnterEvent.invoke(this, args);
     }
-    _dragDropHandler_onDragOver(sender, args) {
+    __dragDropHandler__onDragOver(sender, args) {
         this.DragOverEvent.invoke(this, args);
     }
-    _dragDropHandler_onDragLeave(sender, args) {
+    __dragDropHandler__onDragLeave(sender, args) {
         this.DragLeaveEvent.invoke(this, args);
     }
-    _dragDropHandler_onDragDrop(sender, args) {
+    __dragDropHandler__onDragDrop(sender, args) {
         this.DragDropEvent.invoke(this, args);
     }
     //Framework Events
     //  Drag/Drop Events
-    _onDragMove(sender, args) { }
-    _onDragStart(sender, args) {
+    __onDragMove(sender, args) { }
+    __onDragStart(sender, args) {
         this.isDragging = true;
     }
-    _onDragEnd(sender, args) {
+    __onDragEnd(sender, args) {
         this.isDragging = false;
     }
-    _onDragCancel(sender, args) {
+    __onDragCancel(sender, args) {
         this.isDragging = false;
     }
-    _onDragEnter(sender, args) { }
-    _onDragOver(sender, args) {
+    __onDragEnter(sender, args) { }
+    __onDragOver(sender, args) {
         this.isDragOver = true;
     }
-    _onDragLeave(sender, args) {
+    __onDragLeave(sender, args) {
         this.isDragOver = false;
     }
-    _onDragDrop(sender, args) {
+    __onDragDrop(sender, args) {
         this.isDragOver = false;
     }
     //  Mouse Events
     //      Mouse Enter Event
-    _onMouseEnter(sender, args) {
+    __onMouseEnter(sender, args) {
         this.isMouseOver = true;
     }
     //      Mouse Leave Event
-    _onMouseLeave(sender, args) {
+    __onMouseLeave(sender, args) {
         this.isMouseOver = false;
     }
     //      Mouse Down Event
-    _onMouseDown(sender, args) { }
+    __onMouseDown(sender, args) { }
     //      Mouse Move Event
-    _onMouseMove(sender, args) { }
+    __onMouseMove(sender, args) { }
     //      Mouse Up Event
-    _onMouseUp(sender, args) { }
+    __onMouseUp(sender, args) { }
     //      Click Event
-    _onClick(sender, args) { }
+    __onClick(sender, args) { }
     get isMouseOver() { return Widget.isMouseOverProperty.get(this); }
     set isMouseOver(value) { Widget.isMouseOverProperty.set(this, value); }
     get isDragging() { return Widget.isDraggingProperty.get(this); }
@@ -165,6 +166,7 @@ export class JContentPresenter extends Widget {
         super();
         new PropertyAttributeBinding(this, JContentPresenter.contentProperty, this, "content", { direction: BindingDirection.ToSource });
     }
+    __fillVisualTree() { }
     get content() { return JButton.contentProperty.get(this); }
     set content(value) { JButton.contentProperty.set(this, value); }
 }
@@ -176,49 +178,50 @@ JContentPresenter.contentProperty = new FrameworkProperty("content", { defaultVa
 let JScrollContainer = (_a = class JScrollContainer extends Widget {
         constructor() {
             super();
-            this._autoScroller = new AutoScroller(this);
+            this.__autoScroller = new AutoScroller(this);
             //Framework Events
-            this.NotifyDragStartEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragStart", this._dragDropHandler_onNotifyDragStart.bind(this));
-            this.NotifyDragEndEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragEnd", this._dragDropHandler_onNotifyDragEnd.bind(this));
-            this.NotifyDragCancelEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragCancel", this._dragDropHandler_onNotifyDragCancel.bind(this));
+            this.NotifyDragStartEvent = new BroadcastFrameworkEvent("DragDropHandler__NotifyDragStart", this.__dragDropHandler__onNotifyDragStart.bind(this));
+            this.NotifyDragEndEvent = new BroadcastFrameworkEvent("DragDropHandler__NotifyDragEnd", this.__dragDropHandler__onNotifyDragEnd.bind(this));
+            this.NotifyDragCancelEvent = new BroadcastFrameworkEvent("DragDropHandler__NotifyDragCancel", this.__dragDropHandler__onNotifyDragCancel.bind(this));
             //Attach Event Listeners
-            this._autoScroller.ScrollRequestStartEvent.attach(this._autoScroller_onScrollRequestStart, this);
+            this.__autoScroller.ScrollRequestStartEvent.attach(this.__autoScroller__onScrollRequestStart, this);
             //Create Bindings
             new PropertyAttributeBinding(this, JScrollContainer.isAutoScrollEnabledProperty, this, "autoscroll", { valueConverter: new BooleanAttributeValueConverter() });
         }
-        _disableTouchInteraction() {
+        __fillVisualTree(manager) { }
+        __disableTouchInteraction() {
             this.style.touchAction = "unset";
         }
-        _enableTouchInteraction() {
+        __enableTouchInteraction() {
             this.style.touchAction = "none";
         }
-        _forceAutoScroll() {
-            this._isAutoScrollForced = true;
+        __forceAutoScroll() {
+            this.__isAutoScrollForced = true;
         }
-        _unforceAutoScroll() {
-            this._isAutoScrollForced = false;
+        __unforceAutoScroll() {
+            this.__isAutoScrollForced = false;
         }
-        _enterAutoScrollMode() {
-            this._disableTouchInteraction();
-            this._forceAutoScroll();
+        __enterAutoScrollMode() {
+            this.__disableTouchInteraction();
+            this.__forceAutoScroll();
         }
-        _exitAutoScrollMode() {
-            this._enableTouchInteraction();
-            this._unforceAutoScroll();
+        __exitAutoScrollMode() {
+            this.__enableTouchInteraction();
+            this.__unforceAutoScroll();
         }
         //Event Listeners
-        _autoScroller_onScrollRequestStart(sender, args) {
-            if (this.isAutoScrollEnabled || this._isAutoScrollForced)
+        __autoScroller__onScrollRequestStart(sender, args) {
+            if (this.isAutoScrollEnabled || this.__isAutoScrollForced)
                 args.acceptScroll();
         }
-        _dragDropHandler_onNotifyDragStart(sender, args) {
-            this._enterAutoScrollMode();
+        __dragDropHandler__onNotifyDragStart(sender, args) {
+            this.__enterAutoScrollMode();
         }
-        _dragDropHandler_onNotifyDragEnd(sender, args) {
-            this._exitAutoScrollMode();
+        __dragDropHandler__onNotifyDragEnd(sender, args) {
+            this.__exitAutoScrollMode();
         }
-        _dragDropHandler_onNotifyDragCancel(sender, args) {
-            this._exitAutoScrollMode();
+        __dragDropHandler__onNotifyDragCancel(sender, args) {
+            this.__exitAutoScrollMode();
         }
         get isAutoScrollEnabled() { return JScrollContainer.isAutoScrollEnabledProperty.get(this); }
         set isAutoScrollEnabled(value) { JScrollContainer.isAutoScrollEnabledProperty.set(this, value); }
@@ -242,39 +245,39 @@ let JBanner = (_b = class JBanner extends Widget {
             super();
             this.openEvent = new FrameworkCustomEvent(this, "open");
             this.closeEvent = new FrameworkCustomEvent(this, "close");
-            JBanner.isOpenProperty.ChangeEvent.attach(this._isOpenProperty_onChange, this);
+            this.__closeTimeoutHandle = null;
+            JBanner.isOpenProperty.ChangeEvent.attach(this.__isOpenProperty__onChange, this);
             new PropertyAttributeBinding(this, JBanner.typeProperty, this, "type", { valueConverter: new EnumerationAttributeValueConverter(JBannerType) });
             new PropertyAttributeBinding(this, JBanner.isOpenProperty, this, "open", { valueConverter: new BooleanAttributeValueConverter() });
         }
-        _fillVisualTree(manager) {
-            super._fillVisualTree(manager);
+        __fillVisualTree(manager) {
             //Visual Template
-            this._layoutPanel = document.createElement("j-wrap-panel");
-            manager.elements.add(this._layoutPanel);
-            this._messageSpan = document.createElement("span");
-            this._layoutPanel.appendChild(this._messageSpan);
+            this.__layoutPanel = document.createElement("j-wrap-panel");
+            manager.elements.add(this.__layoutPanel);
+            this.__messageSpan = document.createElement("span");
+            this.__layoutPanel.appendChild(this.__messageSpan);
         }
-        _cancelCloseTimeout() {
-            if (this._closeTimeout === null)
+        __cancelCloseTimeout() {
+            if (this.__closeTimeoutHandle === null)
                 return;
-            clearTimeout(this._closeTimeout);
-            this._closeTimeout = null;
+            clearTimeout(this.__closeTimeoutHandle);
+            this.__closeTimeoutHandle = null;
         }
-        _resetCloseTimeout() {
-            this._cancelCloseTimeout();
+        __resetCloseTimeout() {
+            this.__cancelCloseTimeout();
             if (!this.timeout)
                 return;
             let self = this;
             function closeTimeoutDone() {
                 self.close();
             }
-            this._closeTimeout = setTimeout(closeTimeoutDone, this.timeout * 1000, this);
+            this.__closeTimeoutHandle = setTimeout(closeTimeoutDone, this.timeout * 1000, this);
         }
-        _open() {
+        __open() {
             this.openEvent.invoke();
-            this._resetCloseTimeout();
+            this.__resetCloseTimeout();
         }
-        _close() {
+        __close() {
             this.closeEvent.invoke();
         }
         open() { this.isOpen = true; }
@@ -285,12 +288,12 @@ let JBanner = (_b = class JBanner extends Widget {
         set buttonBarContent(value) { JBanner.buttonBarContentProperty.set(this, value); }
         get type() { return JBanner.typeProperty.get(this); }
         set type(value) { JBanner.typeProperty.set(this, value); }
-        _isOpenProperty_onChange(sender, args) {
+        __isOpenProperty__onChange(sender, args) {
             if (args.target === this) {
                 if (args.newValue === true)
-                    this._open();
+                    this.__open();
                 else
-                    this._close();
+                    this.__close();
             }
         }
         get isOpen() { return JBanner.isOpenProperty.get(this); }
@@ -311,31 +314,31 @@ window.customElements.define("j-banner", JBanner);
 class JProgressBar extends Widget {
     constructor() {
         super();
-        FrameworkEvent.attachMultiple(this._property_onChange.bind(this), JProgressBar.valueProperty.ChangeEvent, JProgressBar.minimumProperty.ChangeEvent, JProgressBar.maximumProperty.ChangeEvent, JProgressBar.isIndeterminateProperty.ChangeEvent);
+        FrameworkEvent.attachMultiple(this.__property__onChange.bind(this), JProgressBar.valueProperty.ChangeEvent, JProgressBar.minimumProperty.ChangeEvent, JProgressBar.maximumProperty.ChangeEvent, JProgressBar.isIndeterminateProperty.ChangeEvent);
         new PropertyAttributeBinding(this, JProgressBar.valueProperty, this, "value");
         new PropertyAttributeBinding(this, JProgressBar.maximumProperty, this, "maximum");
         new PropertyAttributeBinding(this, JProgressBar.minimumProperty, this, "minimum");
         new PropertyAttributeBinding(this, JProgressBar.isIndeterminateProperty, this, "indeterminate", { valueConverter: new BooleanAttributeValueConverter() });
     }
-    _fillVisualTree(manager) {
+    __fillVisualTree(manager) {
         //Visual Tree
-        this._progressBarFill = document.createElement("j-progress-bar-fill");
-        manager.elements.add(this._progressBarFill);
-        this._update();
+        this.__progressBarFill = document.createElement("j-progress-bar-fill");
+        manager.elements.add(this.__progressBarFill);
+        this.__update();
     }
-    _update() {
+    __update() {
         if (this.isIndeterminate) {
-            this._progressBarFill.style.width = "100%";
-            this._progressBarFill.classList.add("indeterminate");
+            this.__progressBarFill.style.width = "100%";
+            this.__progressBarFill.classList.add("indeterminate");
         }
         else {
-            this._progressBarFill.style.width = this.valueInPercent + "%";
-            this._progressBarFill.classList.remove("indeterminate");
+            this.__progressBarFill.style.width = this.valueInPercent + "%";
+            this.__progressBarFill.classList.remove("indeterminate");
         }
     }
-    _property_onChange(sender, args) {
+    __property__onChange(sender, args) {
         if (args.target === this) {
-            this._update();
+            this.__update();
             if (args.property === JProgressBar.valueProperty)
                 this.isIndeterminate = false;
         }
@@ -375,6 +378,7 @@ export class JButton extends Widget {
         new PropertyAttributeBinding(this, JButton.contentProperty, this, "content", { direction: BindingDirection.ToSource });
         new PropertyAttributeBinding(this, JButton.iconProperty, this, "icon", { valueConverter: new EnumerationAttributeValueConverter(ButtonIconPosition) });
     }
+    __fillVisualTree(manager) { }
     get isDefault() { return JButton.isDefaultProperty.get(this); }
     set isDefault(value) { JButton.isDefaultProperty.set(this, value); }
     get value() { return JButton.valueProperty.get(this); }
@@ -392,7 +396,7 @@ JButton.iconProperty = new FrameworkProperty("icon", { defaultValue: null });
 /*
  * Button Bar Widget Definition
  */
-const DEFAULT_BUTTON_DATA = {
+const DEFAULT__BUTTON__DATA = {
     text: "",
     value: null,
     isDefault: false
@@ -401,16 +405,15 @@ class JButtonBar extends Widget {
     constructor() {
         super();
         this.SubmitEvent = new FrameworkCustomEvent(this, "submit");
-        JButtonBar.buttonsProperty.ChangeEvent.attach(this._buttonsProperty_onChange, this);
+        JButtonBar.buttonsProperty.ChangeEvent.attach(this.__buttonsProperty__onChange, this);
     }
-    _fillVisualTree(manager) {
-        super._fillVisualTree(manager);
+    __fillVisualTree(manager) {
         //Visual tree
-        this._layoutPanel = document.createElement("j-wrap-panel");
-        manager.elements.add(this._layoutPanel);
+        this.__layoutPanel = document.createElement("j-wrap-panel");
+        manager.elements.add(this.__layoutPanel);
     }
-    _addButton(data, position) {
-        data = Object.assign({}, DEFAULT_BUTTON_DATA, data);
+    __addButton(data, position) {
+        data = Object.assign({}, DEFAULT__BUTTON__DATA, data);
         //Create and initialize button
         let button = document.createElement("j-button");
         button.innerText = data.text;
@@ -418,44 +421,44 @@ class JButtonBar extends Widget {
         if (data.isDefault)
             button.focus();
         //Insert button to the appropriate container
-        DomUtils.insertElementAt(this._layoutPanel, position, button);
+        DomUtils.insertElementAt(this.__layoutPanel, position, button);
         let self = this;
         button.onclick = function () {
-            self._invokeOnSubmit(this.value);
+            self.__invokeOnSubmit(button.value);
         };
     }
-    _removeButton(position) {
+    __removeButton(position) {
         //Retrieve button element
-        let button = this._layoutPanel.children[position];
+        let button = this.__layoutPanel.children[position];
         button.remove();
     }
-    _updateButton(position) {
+    __updateButton(position) {
     }
-    _updateButtons(oldButtons, newButtons) {
+    __updateButtons(oldButtons, newButtons) {
         ArrayUtils.detectArrayChanges(oldButtons, newButtons, (newItem, newIndex) => {
-            this._addButton(newItem, newIndex);
+            this.__addButton(newItem, newIndex);
         }, (oldItem, oldIndex) => {
-            this._removeButton(oldItem);
+            this.__removeButton(oldItem);
         }, (oldItem, newItem, index) => {
-            this._updateButton(oldItem);
+            this.__updateButton(oldItem);
         });
     }
-    _buttonsProperty_onChange(sender, args) {
+    __buttonsProperty__onChange(sender, args) {
         if (args.target === this) {
-            this._updateButtons(args.oldValue, args.newValue);
+            this.__updateButtons(args.oldValue, args.newValue);
         }
     }
     get buttons() { return JButtonBar.buttonsProperty.get(this); }
     set buttons(value) { JButtonBar.buttonsProperty.set(this, value); }
-    _invokeOnSubmit(value) {
+    __invokeOnSubmit(value) {
         this.SubmitEvent.invoke({ value: value });
     }
 }
 JButtonBar.buttonsProperty = new FrameworkProperty("buttons", { defaultValue: [] });
 window.customElements.define("j-button-bar", JButtonBar);
-export let DialogManager = class DialogManager {
+export class DialogManager {
     constructor() {
-        this._openDialogs = new Collection();
+        this.__openDialogs = new Collection();
     }
     showModal(options) {
         return new Promise((resolve, reject) => {
@@ -471,17 +474,17 @@ export let DialogManager = class DialogManager {
                 showButtonBar: options.showButtonBar
             };
             dialog.open();
-            function dialog_onClose() {
+            function dialog__onClose() {
                 resolve();
             }
-            dialog.closeEvent.attach(dialog_onClose);
-            this._openDialogs.add(dialog);
+            dialog.closeEvent.attach(dialog__onClose);
+            this.__openDialogs.add(dialog);
         });
     }
-};
+}
+;
 export let dialogManager = new DialogManager();
-window.dialogManager = dialogManager;
-const DEFAULT_DIALOG_OPTIONS = {
+const DEFAULT__DIALOG__OPTIONS = {
     showTitleBar: true,
     showButtonBar: true,
     showCloseButton: true
@@ -494,52 +497,51 @@ class JDialog extends Widget {
         super();
         this.openEvent = new FrameworkCustomEvent(this, "open");
         this.closeEvent = new FrameworkCustomEvent(this, "close");
-        JDialog.titleProperty.ChangeEvent.attach(this._titleProperty_onChange, this);
-        JDialog.contentProperty.ChangeEvent.attach(this._contentProperty_onChange, this);
-        JDialog.isOpenProperty.ChangeEvent.attach(this._isOpenProperty_onChange, this);
+        JDialog.titleProperty.ChangeEvent.attach(this.__titleProperty__onChange, this);
+        JDialog.contentProperty.ChangeEvent.attach(this.__contentProperty__onChange, this);
+        JDialog.isOpenProperty.ChangeEvent.attach(this.__isOpenProperty__onChange, this);
         new PropertyAttributeBinding(this, JDialog.isOpenProperty, this, "open", { valueConverter: new BooleanAttributeValueConverter() });
         new PropertyAttributeBinding(this, JDialog.optionsProperty, this, "options", { valueConverter: new JSONAttributeValueConverter() });
         new PropertyAttributeBinding(this, JDialog.buttonsProperty, this, "buttons", { valueConverter: new JSONAttributeValueConverter() });
-        new PropertyBinding(this, JDialog.buttonsProperty, this._buttonBar, JButtonBar.buttonsProperty);
+        new PropertyBinding(this, JDialog.buttonsProperty, this.__buttonBar, JButtonBar.buttonsProperty);
     }
-    _fillVisualTree(manager) {
-        super._fillVisualTree(manager);
+    __fillVisualTree(manager) {
         let self = this;
         //Events
         function closeButtonClick() {
             self.close();
         }
         //Visual Template
-        this._layoutCenterPanel = document.createElement("j-center-panel");
-        manager.elements.add(this._layoutCenterPanel);
-        this._dialogWindow = document.createElement("j-dialog-window");
-        this._layoutCenterPanel.appendChild(this._dialogWindow);
-        this._dialogWindowLayoutPanel = document.createElement("j-stack-panel");
-        this._dialogWindow.appendChild(this._dialogWindowLayoutPanel);
-        this._titleBar = document.createElement("j-dialog-title-bar");
-        this._dialogWindowLayoutPanel.appendChild(this._titleBar);
-        this._titleBarLayoutPanel = document.createElement("j-wrap-panel");
-        this._titleBar.appendChild(this._titleBarLayoutPanel);
-        this._titleSpan = document.createElement("span");
-        this._titleBarLayoutPanel.appendChild(this._titleSpan);
-        this._closeButton = document.createElement("j-button");
-        this._titleBarLayoutPanel.appendChild(this._closeButton);
-        this._closeButton.textContent = "X";
-        this._closeButton.classList.add("close-button");
-        this._closeButton.onclick = closeButtonClick;
-        this._contentWrapper = document.createElement("j-dialog-content-wrapper");
-        this._dialogWindowLayoutPanel.appendChild(this._contentWrapper);
-        this._buttonBar = document.createElement("j-button-bar");
-        this._dialogWindowLayoutPanel.appendChild(this._buttonBar);
-        this._buttonBar.SubmitEvent.attach(this._buttonBar_onSubmit, this);
+        this.__layoutCenterPanel = document.createElement("j-center-panel");
+        manager.elements.add(this.__layoutCenterPanel);
+        this.__dialogWindow = document.createElement("j-dialog-window");
+        this.__layoutCenterPanel.appendChild(this.__dialogWindow);
+        this.__dialogWindowLayoutPanel = document.createElement("j-stack-panel");
+        this.__dialogWindow.appendChild(this.__dialogWindowLayoutPanel);
+        this.__titleBar = document.createElement("j-dialog-title-bar");
+        this.__dialogWindowLayoutPanel.appendChild(this.__titleBar);
+        this.__titleBarLayoutPanel = document.createElement("j-wrap-panel");
+        this.__titleBar.appendChild(this.__titleBarLayoutPanel);
+        this.__titleSpan = document.createElement("span");
+        this.__titleBarLayoutPanel.appendChild(this.__titleSpan);
+        this.__closeButton = document.createElement("j-button");
+        this.__titleBarLayoutPanel.appendChild(this.__closeButton);
+        this.__closeButton.textContent = "X";
+        this.__closeButton.classList.add("close-button");
+        this.__closeButton.onclick = closeButtonClick;
+        this.__contentWrapper = document.createElement("j-dialog-content-wrapper");
+        this.__dialogWindowLayoutPanel.appendChild(this.__contentWrapper);
+        this.__buttonBar = document.createElement("j-button-bar");
+        this.__dialogWindowLayoutPanel.appendChild(this.__buttonBar);
+        this.__buttonBar.SubmitEvent.attach(this.__buttonBar__onSubmit, this);
     }
-    _buttonBar_onSubmit(args) {
-        this._submit();
+    __buttonBar__onSubmit(args) {
+        this.__submit();
     }
-    _open() {
+    __open() {
         this.openEvent.invoke();
     }
-    _close() {
+    __close() {
         this.closeEvent.invoke();
     }
     open() {
@@ -549,33 +551,33 @@ class JDialog extends Widget {
         this.isOpen = false;
     }
     updateOptions() {
-        let options = Object.assign({}, DEFAULT_DIALOG_OPTIONS, this.options);
-        this._titleBar.hidden = !options.showTitleBar;
-        this._buttonBar.hidden = !options.showButtonBar;
-        this._closeButton.hidden = !options.showCloseButton;
+        let options = Object.assign({}, DEFAULT__DIALOG__OPTIONS, this.options);
+        this.__titleBar.hidden = !options.showTitleBar;
+        this.__buttonBar.hidden = !options.showButtonBar;
+        this.__closeButton.hidden = !options.showCloseButton;
     }
-    _titleProperty_onChange(sender, args) {
+    __titleProperty__onChange(sender, args) {
         if (args.target === this) {
-            this._titleSpan.innerText = args.newValue;
+            this.__titleSpan.innerText = args.newValue;
         }
     }
     get title() { return JDialog.titleProperty.get(this); }
     set title(value) { JDialog.titleProperty.set(this, value); }
-    _contentProperty_onChange(sender, args) {
+    __contentProperty__onChange(sender, args) {
         if (args.target === this) {
-            this._contentWrapper.innerHTML = args.newValue;
+            this.__contentWrapper.innerHTML = args.newValue;
         }
     }
     get content() { return JDialog.contentProperty.get(this); }
     set content(value) { JDialog.contentProperty.set(this, value); }
     get buttons() { return JDialog.buttonsProperty.get(this); }
     set buttons(value) { JDialog.buttonsProperty.set(this, value); }
-    _isOpenProperty_onChange(sender, args) {
+    __isOpenProperty__onChange(sender, args) {
         if (args.target === this) {
             if (args.value === true)
-                this._open();
+                this.__open();
             else
-                this._close();
+                this.__close();
         }
     }
     get isOpen() { return JDialog.isOpenProperty.get(this); }
@@ -594,21 +596,21 @@ class JBoard extends Widget {
     constructor() {
         super();
         this.cardDropEvent = new FrameworkCustomEvent(this, "carddrop");
-        this.ondragover = this._dragover_handler;
-        this.ondrop = this._drop_handler;
-        this.ondragleave = this._dragleave_handler;
+        this.ondragover = this.__dragover__handler;
+        this.ondrop = this.__drop__handler;
+        this.ondragleave = this.__dragleave__handler;
         new PropertyAttributeBinding(this, JBoard.contextProperty, this, "context", { valueConverter: new FlagsAttributeValueConverter() });
         new PropertyAttributeBinding(this, JBoard.dataProperty, this, "data", { valueConverter: new JSONAttributeValueConverter() });
         new PropertyAttributeBinding(this, JBoard.acceptsDropProperty, this, "acceptsDrop", { valueConverter: new BooleanAttributeValueConverter() });
     }
-    _invokeCardDrop(cardData, boardData, context) {
+    __invokeCardDrop(cardData, boardData, context) {
         this.cardDropEvent.invoke({
             cardData: cardData,
             boardData: boardData,
             context: context
         });
     }
-    _onDragEnter(sender, args) {
+    __onDragEnter(sender, args) {
         let { acceptDrop } = args;
         let sourceContextStr = args.getContext();
         if (!sourceContextStr)
@@ -619,28 +621,28 @@ class JBoard extends Widget {
             return;
         acceptDrop();
     }
-    _onDragOver(sender, args) {
-        this._applyDragOverVisualStyle();
+    __onDragOver(sender, args) {
+        this.__applyDragOverVisualStyle();
     }
-    _onDragLeave(sender, args) {
-        this._removeDragOverVisualStyle();
+    __onDragLeave(sender, args) {
+        this.__removeDragOverVisualStyle();
     }
-    _canAcceptDrop(data) {
+    __canAcceptDrop(data) {
         if (data === null)
             return false;
         if (data.type !== "card")
             return false;
         return true;
     }
-    _onDragDrop(sender, args) {
+    __onDragDrop(sender, args) {
         let { getData } = args;
         let data = getData();
-        if (this._canAcceptDrop(data))
-            this._invokeCardDrop(data.cardData, this.data, this.context);
-        this._removeDragOverVisualStyle();
+        if (this.__canAcceptDrop(data))
+            this.__invokeCardDrop(data.cardData, this.data, this.context);
+        this.__removeDragOverVisualStyle();
     }
-    _applyDragOverVisualStyle() { this.classList.add("drag-over"); }
-    _removeDragOverVisualStyle() { this.classList.remove("drag-over"); }
+    __applyDragOverVisualStyle() { this.classList.add("drag-over"); }
+    __removeDragOverVisualStyle() { this.classList.remove("drag-over"); }
     get context() { return JBoard.contextProperty.get(this); }
     set context(value) { JBoard.contextProperty.set(this, value); }
     get data() { return JBoard.dataProperty.get(this); }
@@ -659,16 +661,16 @@ class JCard extends Widget {
         new PropertyAttributeBinding(this, JCard.contextProperty, this, "context", { valueConverter: new FlagsAttributeValueConverter() });
         new PropertyAttributeBinding(this, JCard.dataProperty, this, "data", { valueConverter: new JSONAttributeValueConverter() });
     }
-    _fillVisualTree(manager) {
-        super._fillVisualTree(manager);
+    __fillVisualTree(manager) {
+        super.__fillVisualTree(manager);
         //Visual Tree
-        this._fieldsStackPanel = document.createElement("j-stack-panel");
-        this.appendChild(this._fieldsStackPanel);
+        this.__fieldsStackPanel = document.createElement("j-stack-panel");
+        this.appendChild(this.__fieldsStackPanel);
     }
-    _applyDragVisualStyle() {
+    __applyDragVisualStyle() {
         this.classList.add("dragging");
     }
-    _onDragStart(sender, args) {
+    __onDragStart(sender, args) {
         let data = {
             type: "card",
             cardData: this.data
@@ -676,16 +678,16 @@ class JCard extends Widget {
         args.setData(data);
         let contextStr = this.context.toString();
         args.setContext(contextStr);
-        this._applyDragVisualStyle();
+        this.__applyDragVisualStyle();
     }
-    _removeDragVisualStyle() {
+    __removeDragVisualStyle() {
         this.classList.remove("dragging");
     }
-    _onDragEnd(sender, args) {
-        this._removeDragVisualStyle();
+    __onDragEnd(sender, args) {
+        this.__removeDragVisualStyle();
     }
-    _onDragCancel(sender, args) {
-        this._removeDragVisualStyle();
+    __onDragCancel(sender, args) {
+        this.__removeDragVisualStyle();
     }
     get context() { return JCard.contextProperty.get(this); }
     set context(value) { JCard.contextProperty.set(this, value); }
@@ -699,81 +701,81 @@ window.customElements.define("j-card", JCard);
 class JEditableLabel extends Widget {
     constructor() {
         super();
-        this._cachedText = "";
+        this.__cachedText = "";
         this.startEditEvent = new FrameworkCustomEvent(this, "startedit");
         this.endEditEvent = new FrameworkCustomEvent(this, "endedit");
         this.confirmEditEvent = new FrameworkCustomEvent(this, "confirmedit");
         this.cancelEditEvent = new FrameworkCustomEvent(this, "canceledit");
-        this.ondblclick = this._dblclick_handler;
-        this.onblur = this._blur_handler;
-        this.onkeydown = this._keydown_handler;
-        JEditableLabel.isEditingProperty.ChangeEvent.attach(this._isEditing_onChange, this);
+        this.ondblclick = this.__dblclick__handler;
+        this.onblur = this.__blur__handler;
+        this.onkeydown = this.__keydown__handler;
+        JEditableLabel.isEditingProperty.ChangeEvent.attach(this.__isEditing__onChange, this);
         new PropertyAttributeBinding(this, JEditableLabel.isEditingProperty, this, "editing", { valueConverter: new BooleanAttributeValueConverter() });
     }
-    _invokeStartEdit() {
+    __invokeStartEdit() {
         this.startEditEvent.invoke();
     }
-    _invokeEndEdit(text, canceled) {
+    __invokeEndEdit(text, canceled) {
         this.endEditEvent.invoke({
             text: text,
             canceled: canceled
         });
     }
-    _invokeConfirmEdit(text) {
+    __invokeConfirmEdit(text) {
         this.confirmEditEvent.invoke({
             text: text
         });
     }
-    _invokeCancelEdit(text) {
+    __invokeCancelEdit(text) {
         this.cancelEditEvent.invoke({
             text: text
         });
     }
-    _openEditing() {
-        this._cachedText = this.textContent;
+    __openEditing() {
+        this.__cachedText = this.textContent;
         this.contentEditable = "contentEditable";
         Utils.selectAllText(this);
         this.focus();
         this.startEditEvent.invoke();
     }
-    _closeEditing() {
+    __closeEditing() {
         this.contentEditable = null;
         Utils.deselectAllText();
     }
-    _applyAndClose() {
+    __applyAndClose() {
         let text = this.textContent;
         this.closeEditing();
-        this._invokeConfirmEdit(text);
-        this._invokeEndEdit(text, false);
+        this.__invokeConfirmEdit(text);
+        this.__invokeEndEdit(text, false);
     }
-    _discardAndClose() {
-        this.textContent = this._cachedText;
+    __discardAndClose() {
+        this.textContent = this.__cachedText;
         this.closeEditing();
-        this._invokeCancelEdit(this.textContent);
-        this._invokeEndEdit(this.textContent, true);
+        this.__invokeCancelEdit(this.textContent);
+        this.__invokeEndEdit(this.textContent, true);
     }
-    _dblclick_handler(ev) {
-        const MOUSE_LEFT_BUTTON = 1;
-        if (ev.button !== MOUSE_LEFT_BUTTON)
+    __dblclick__handler(ev) {
+        const MOUSE__LEFT__BUTTON = 1;
+        if (ev.button !== MOUSE__LEFT__BUTTON)
             this.openEditing();
     }
-    _blur_handler() {
-        this._discardAndClose();
+    __blur__handler() {
+        this.__discardAndClose();
     }
-    _keydown_handler(ev) {
+    __keydown__handler(ev) {
         if (ev.key === "Escape")
-            this._discardAndClose();
+            this.__discardAndClose();
         else if (ev.key === "Enter")
-            this._applyAndClose();
+            this.__applyAndClose();
     }
     openEditing() { this.isEditing = true; }
     closeEditing() { this.isEditing = false; }
-    _isEditing_onChange(sender, args) {
+    __isEditing__onChange(sender, args) {
         if (args.target === this) {
             if (args.newValue)
-                this._openEditing();
+                this.__openEditing();
             else
-                this._closeEditing();
+                this.__closeEditing();
         }
     }
     get isEditing() { return JEditableLabel.isEditingProperty.get(this); }
@@ -783,15 +785,15 @@ JEditableLabel.isEditingProperty = new FrameworkProperty("isEditing", { defaultV
 customElements.define("j-editable-label", JEditableLabel);
 /*Spinner Widget*/
 class JSpinner extends Widget {
-    _fillVisualTree(manager) {
-        super._fillVisualTree(manager);
+    __fillVisualTree(manager) {
+        super.__fillVisualTree(manager);
         let layoutCenterPanel = document.createElement("j-center-panel");
         manager.elements.add(layoutCenterPanel);
         let spinnerImage = new Image(80, 80);
         spinnerImage.src = "styles/images/loader.svg";
         layoutCenterPanel.appendChild(spinnerImage);
-        this._layoutCenterPanel = layoutCenterPanel;
-        this._spinnerImage = spinnerImage;
+        this.__layoutCenterPanel = layoutCenterPanel;
+        this.__spinnerImage = spinnerImage;
     }
     open() {
         this.isOpen = true;

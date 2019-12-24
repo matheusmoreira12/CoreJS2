@@ -1,19 +1,8 @@
-﻿import { Collection } from "../Standard/Collections";
+﻿import { FrameworkProperty } from "./user-interface";
 import { FrameworkEvent, NativeEvent } from "../Standard/Events";
-import { FrameworkProperty } from "./user-interface";
-import { Enumeration } from "../Standard/Enumeration";
-declare class VisualTreeManager {
-    constructor(target: Widget);
-    attachAll(): void;
-    detachAll(): void;
-    readonly target: Widget;
-    readonly elements: Collection<HTMLElement>;
-}
 export declare abstract class Widget extends HTMLElement {
     constructor();
-    private __visualTreeManager;
     private __dragDropHandler;
-    protected abstract __fillVisualTree(manager: VisualTreeManager): any;
     protected connectedCallback(): void;
     protected disconnectedCallback(): void;
     private __dragDropHandler__onRequestDragStart;
@@ -62,35 +51,3 @@ export declare abstract class Widget extends HTMLElement {
     static isDraggableProperty: FrameworkProperty;
     isDraggable: any;
 }
-/**
- * Content Presenter Definition
- */
-export declare class JContentPresenter extends Widget {
-    constructor();
-    protected __fillVisualTree(): void;
-    static contentProperty: FrameworkProperty;
-    content: any;
-}
-/**
- * Banner Widget Definition
- */
-export declare const JBannerType: Enumeration<import("../Standard/Enumeration").EnumerationValue>;
-export declare const ButtonIconPosition: Enumeration<import("../Standard/Enumeration").EnumerationValue>;
-export declare class JButton extends Widget {
-    constructor();
-    protected __fillVisualTree(manager: VisualTreeManager): void;
-    static isDefaultProperty: FrameworkProperty;
-    isDefault: any;
-    static valueProperty: FrameworkProperty;
-    value: any;
-    static contentProperty: FrameworkProperty;
-    content: any;
-    static iconProperty: FrameworkProperty;
-    icon: any;
-}
-export declare class DialogManager {
-    private __openDialogs;
-    showModal(options: any): Promise<unknown>;
-}
-export declare let dialogManager: DialogManager;
-export {};
