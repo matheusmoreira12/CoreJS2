@@ -1,7 +1,7 @@
 {
   "compileOnSave": true,
   "include": [ "Source/" ],
-  "exclude": [ "Source/Standard/Types/Models.ts" ],
+  "exclude": [ "Source/Standard/Types/Models.ts", "Source/UserInterface/widgets.ts" ],
   "compilerOptions": {
     "declaration": true,
     "emitBOM": true,

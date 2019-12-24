@@ -19,5 +19,4 @@ export declare class VisualTreeAttribute extends VisualTreeNode {
 }
 export declare class VisualTree extends VisualTreeNode {
     constructor(rootNode: any);
-    applyTemplate(template: any): void;
 }

@@ -109,64 +109,65 @@ export class VisualTree extends VisualTreeNode {
         super(rootNode);
     }
 
-    async applyTemplate(template): void {
-        async function* applyBindings(tempBindings: Iterable<VisualTemplateBinding>): Generator<Binding> {
-            async function applyBinding(tempBinding: VisualTemplateBinding): Binding {
-                if (tempBinding instanceof VisualTemplatePropertyBinding) {
-                    let source = await ReferenceSystem.retrieve(tempBinding.sourceName, context);
-                    let sourceProperty = await ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
+    ///TODO: Re-implement template system
+    //async applyTemplate(template): void {
+    //    async function* applyBindings(tempBindings: Iterable<VisualTemplateBinding>): Generator<Binding> {
+    //        async function applyBinding(tempBinding: VisualTemplateBinding): Binding {
+    //            if (tempBinding instanceof VisualTemplatePropertyBinding) {
+    //                let source = await ReferenceSystem.retrieve(tempBinding.sourceName, context);
+    //                let sourceProperty = await ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
 
-                    let target = await ReferenceSystem.retrieve(tempBinding.targetName, context);
-                    let targetProperty = await ReferenceSystem.retrieve(tempBinding.targetPropertyName, context);
+    //                let target = await ReferenceSystem.retrieve(tempBinding.targetName, context);
+    //                let targetProperty = await ReferenceSystem.retrieve(tempBinding.targetPropertyName, context);
 
-                    return new PropertyBinding(source, sourceProperty, target, targetProperty, tempBinding.options);
-                }
-                else if (tempBinding instanceof VisualTemplatePropertyAttributeBinding) {
-                    let source = await ReferenceSystem.retrieve(tempBinding.sourceName, context);
-                    let sourceProperty = await ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
+    //                return new PropertyBinding(source, sourceProperty, target, targetProperty, tempBinding.options);
+    //            }
+    //            else if (tempBinding instanceof VisualTemplatePropertyAttributeBinding) {
+    //                let source = await ReferenceSystem.retrieve(tempBinding.sourceName, context);
+    //                let sourceProperty = await ReferenceSystem.retrieve(tempBinding.sourcePropertyName, context);
 
-                    let targetNode = await ReferenceSystem.retrieve(tempBinding.targetqualifiedName, context);
+    //                let targetNode = await ReferenceSystem.retrieve(tempBinding.targetqualifiedName, context);
 
-                    return new PropertyAttributeBinding(source, sourceProperty, targetNode, tempBinding.targetAttributeName,
-                        tempBinding.options);
-                }
+    //                return new PropertyAttributeBinding(source, sourceProperty, targetNode, tempBinding.targetAttributeName,
+    //                    tempBinding.options);
+    //            }
 
-                return null;
-            }
+    //            return null;
+    //        }
 
-            for (let tempBinding of tempBindings)
-                yield await applyBinding(tempBinding);
-        }
+    //        for (let tempBinding of tempBindings)
+    //            yield await applyBinding(tempBinding);
+    //    }
 
-        async function applyNode(tempNode: VisualTemplateNode): Promise<VisualTreeNode> {
-            ReferenceSystem.deriveContext();
+    //    async function applyNode(tempNode: VisualTemplateNode): Promise<VisualTreeNode> {
+    //        ReferenceSystem.deriveContext();
 
-            if (tempNode instanceof VisualTemplateNode) {
-                if (tempNode instanceof VisualTemplateElement) {
-                    for (let childNode of await applyNodes(tempNode.childNodes))
-                        domNode.appendChild(domChild);
-                }
-            }
-            else
-                throw new InvalidTypeException("tempNode", tempNode, VisualTemplateNode);
+    //        if (tempNode instanceof VisualTemplateNode) {
+    //            if (tempNode instanceof VisualTemplateElement) {
+    //                for (let childNode of await applyNodes(tempNode.childNodes))
+    //                    domNode.appendChild(domChild);
+    //            }
+    //        }
+    //        else
+    //            throw new InvalidTypeException("tempNode", tempNode, VisualTemplateNode);
 
-            ReferenceSystem.freeContext();
+    //        ReferenceSystem.freeContext();
 
-            return domNode;
-        }
+    //        return domNode;
+    //    }
 
-        async function* applyNodes(tempNodes: Iterable<VisualTemplateNode>) {
-            for (let tempNode of tempNodes) {
-                let domNode = await applyNode(tempNode);
+    //    async function* applyNodes(tempNodes: Iterable<VisualTemplateNode>) {
+    //        for (let tempNode of tempNodes) {
+    //            let domNode = await applyNode(tempNode);
 
-                if (tempNode.name)
-                    ReferenceSystem.declare(tempNode.name, domNode);
+    //            if (tempNode.name)
+    //                ReferenceSystem.declare(tempNode.name, domNode);
 
-                yield domNode;
-            }
-        }
+    //            yield domNode;
+    //        }
+    //    }
 
-        for (let node of await applyNodes())
-            this.childNodes.add(node);
-    }
+    //    for (let node of await applyNodes())
+    //        this.childNodes.add(node);
+    //}
 }
