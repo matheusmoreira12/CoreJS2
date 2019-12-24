@@ -1,7 +1,5 @@
 import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
 import { ObservableCollectionChangeAction, ObservableCollection, ObservableCollectionChangeArgs } from "../Standard/Collections";
-import { VisualTemplateBinding, VisualTemplatePropertyBinding, VisualTemplatePropertyAttributeBinding, VisualTemplateNode, VisualTemplateElement } from "./Templating";
-import { PropertyBinding, PropertyAttributeBinding, Binding } from "./Bindings";
 
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 

@@ -1,6 +1,6 @@
 {
   "compileOnSave": true,
-  "include": [ "Source/**/*.ts" ],
+  "include": [ "Source/*.ts" ],
   "compilerOptions": {
     "declaration": true,
     "emitBOM": true,

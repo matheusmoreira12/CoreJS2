@@ -4,15 +4,13 @@ import { BooleanAttributeValueConverter, FrameworkProperty } from "./user-interf
 import DragDropHandler from "./DragDropHandler";
 import { FrameworkEvent, NativeEvent } from "../Standard/Events";
 
-export abstract class Widget extends HTMLElement {
-    constructor() {
-        super();
-
+export abstract class Widget {
+    constructor(namespaceURI, qualifiedName) {
         if (new.target === Widget)
             throw new InvalidOperationException("Invalid constructor");
 
         //Create Bindings
-        new PropertyAttributeBinding(this, Widget.isDraggableProperty, this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
+        new PropertyAttributeBinding(this, Widget.isDraggableProperty, <HTMLElement><unknown>this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
 
         //Attach Event Handlers
         //  Drag/Drop Handler Events
@@ -25,6 +23,10 @@ export abstract class Widget extends HTMLElement {
         this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
+
+        let element = document.createElementNS(namespaceURI, qualifiedName);
+        Object.setPrototypeOf(element, this);
+        return <Widget><unknown>element;
     }
 
     //Helper Class Instances
@@ -119,29 +121,29 @@ export abstract class Widget extends HTMLElement {
     private __onMouseEnter(sender, args) {
         this.isMouseOver = true;
     }
-    MouseEnterEvent = new NativeEvent(this, "mouseenter", this.__onMouseEnter.bind(this));
+    MouseEnterEvent = new NativeEvent(<HTMLElement><unknown>this, "mouseenter", this.__onMouseEnter.bind(this));
 
     //      Mouse Leave Event
     private __onMouseLeave(sender, args) {
         this.isMouseOver = false;
     }
-    MouseLeaveEvent = new NativeEvent(this, "mouseleave", this.__onMouseLeave.bind(this));
+    MouseLeaveEvent = new NativeEvent(<HTMLElement><unknown>this, "mouseleave", this.__onMouseLeave.bind(this));
 
     //      Mouse Down Event
     private __onMouseDown(sender, args) { }
-    MouseDownEvent = new NativeEvent(this, "mousedown", this.__onMouseDown.bind(this));
+    MouseDownEvent = new NativeEvent(<HTMLElement><unknown>this, "mousedown", this.__onMouseDown.bind(this));
 
     //      Mouse Move Event
     private __onMouseMove(sender, args) { }
-    MouseMoveEvent = new NativeEvent(this, "mousemove", this.__onMouseMove.bind(this));
+    MouseMoveEvent = new NativeEvent(<HTMLElement><unknown>this, "mousemove", this.__onMouseMove.bind(this));
 
     //      Mouse Up Event
     private __onMouseUp(sender, args) { }
-    MouseUpEvent = new NativeEvent(this, "mouseup", this.__onMouseUp.bind(this));
+    MouseUpEvent = new NativeEvent(<HTMLElement><unknown>this, "mouseup", this.__onMouseUp.bind(this));
 
     //      Click Event
     private __onClick(sender, args) { }
-    ClickEvent = new NativeEvent(this, "click", this.__onClick.bind(this));
+    ClickEvent = new NativeEvent(<HTMLElement><unknown>this, "click", this.__onClick.bind(this));
 
     //Framework Properties
     //  State Properties
@@ -167,3 +169,5 @@ export abstract class Widget extends HTMLElement {
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
 }
+
+Object.setPrototypeOf(Widget, Object.getPrototypeOf(HTMLElement));

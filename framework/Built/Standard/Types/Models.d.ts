@@ -3,8 +3,8 @@ export declare class DestructuringExpressionArgument extends Shell {
     static parse(value: any): DestructuringExpressionArgument;
     static tryParse(value: any, outputObj: any): boolean;
     constructor(name: any, defaultValue: any);
-    readonly name: any;
-    readonly defaultValue: any;
+    get name(): any;
+    get defaultValue(): any;
 }
 export declare const DestructuringExpressionType: any;
 export declare class DestructuringExpression extends Shell {
@@ -12,8 +12,8 @@ export declare class DestructuringExpression extends Shell {
     static parse(value: any): any;
     static tryParse(value: any, outputObj: any): boolean;
     constructor(type: any, ..._arguments: any[]);
-    readonly type: any;
-    readonly arguments: any;
+    get type(): any;
+    get arguments(): any;
 }
 export declare class ArrayDestructuringExpression extends DestructuringExpression {
     static parse(value: any): ArrayDestructuringExpression;
@@ -31,9 +31,9 @@ export declare class FunctionParameterModel extends Shell {
     static tryParse(value: any, outputObj: any): boolean;
     constructor(name: any, parameterType: any, defaultValue: any, destructuringExpression: any);
     toString(): any;
-    readonly name: any;
-    readonly parameterType: any;
-    readonly defaultValue: any;
+    get name(): any;
+    get parameterType(): any;
+    get defaultValue(): any;
 }
 export declare class FunctionSimpleParameterModel extends FunctionParameterModel {
     static parse(value: any): FunctionSimpleParameterModel;
@@ -53,5 +53,5 @@ export declare class FunctionModel extends Shell {
     static parse(value: any): FunctionModel;
     constructor(name: any, body: any, ...parameters: any[]);
     getInvokable(): any;
-    readonly parameters: any;
+    get parameters(): any;
 }
