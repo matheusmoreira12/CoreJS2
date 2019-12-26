@@ -20,74 +20,76 @@ export const MemberSelectionType = new Enumeration({
 });
 
 export class Type {
-    private static __createTypeFromClass(_class) {
+    static get(_class): Type {
+        if (!(_class instanceof Function))
+            throw new ArgumentTypeException("_class");
+
         let result = new Type();
         result.__initializeWithClass(_class);
 
         return result;
     }
 
-    private static __createTypeFromInstance(instance) {
+    static of(instance): Type {
         let result = new Type();
         result.__initializeWithInstance(instance);
 
         return result;
     }
 
-    static get(_class) {
-        if (!(_class instanceof Function))
-            throw new ArgumentTypeException("_class");
-
-        return this.__createTypeFromClass(_class);
-    }
-
-    static of(instance) {
-        return this.__createTypeFromInstance(instance);
-    }
-
-    constructor() {
-    }
-
-    private __initializeWithInstance(instance) {
+    private __initializeWithInstance(instance): void {
         this.__instance = instance;
+        this.__hasInstance = true;
 
         let instanceHasConstructor = ObjectUtils.hasPrototype(instance);
         if (instanceHasConstructor)
             this.__initializeWithClass(instance.constructor);
-        this.__hasInstance = true;
+
+        this.__initialized = true;
     }
 
-    private __initializeWithClass(_class) {
+    private __initializeWithClass(_class): void {
         this.__class = _class;
         this.__hasClass = true;
+
+        this.__initialized = true;
     }
 
-    getName() {
+    private __checkInitializationStatus() {
+        if (!this.__initialized)
+            throw new InvalidOperationException("Type has not been initialized.");
+    }
+
+    getName(): string {
+        this.__checkInitializationStatus();
+
         if (!this.__hasClass)
             return String(this.__instance);
 
         return this.__class.name;
     }
 
-    * getOwnMembers(selectionType?: number, selectionAttributes?: number) {
+    * getOwnMembers(selectionType?: number, selectionAttributes?: number): Generator<Member> {
+        this.__checkInitializationStatus();
+
         function* generateMembers(this: Type) {
             if (!this.__hasClass) return;
 
             for (let key of ObjectUtils.getOwnPropertyKeys(this.__class)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__class, key);
-                yield Member.__createFromPropertyDescriptor(this, key, descriptor, true);
+                yield Member.fromPropertyDescriptor(this, key, descriptor, true);
             }
 
             if (!this.__hasInstance) return;
 
             for (let key of ObjectUtils.getOwnPropertyKeys(this.__instance)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__instance, key);
-                yield Member.__createFromPropertyDescriptor(this, key, descriptor, false);
+                yield Member.fromPropertyDescriptor(this, key, descriptor);
             }
         }
 
-        function* selectMembers(this: Type, members: Iterable<Member>) {
-            function memberTypeMatches(memberType) {
+        function* selectMembers(this: Type, members: Iterable<Member>): Generator<Member> {
+            function memberTypeMatches(memberType: number): boolean {
                 let selectionHasFunction: boolean = MemberSelectionType.contains(MemberSelectionType.Function, selectionType),
                     selectionHasProperty: boolean = MemberSelectionType.contains(MemberSelectionType.Property, selectionType),
                     selectionHasField: boolean = MemberSelectionType.contains(MemberSelectionType.Field, selectionType),
@@ -110,7 +112,7 @@ export class Type {
                 return true;
             }
 
-            function memberAttributesMatch(memberAttributes) {
+            function memberAttributesMatch(memberAttributes: number): boolean {
                 let selectionHasEnumerable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes),
                     selectionHasConfigurable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, selectionAttributes),
                     selectionHasWritable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, selectionAttributes);
@@ -154,7 +156,7 @@ export class Type {
             yield* members;
     }
 
-    * getMembers(selectionType?: number, selectionAttributes?: number) {
+    * getMembers(selectionType?: number, selectionAttributes?: number): Generator<Member> {
         yield* this.getOwnMembers(selectionType, selectionAttributes);
 
         for (let parentType of this.getParentTypes())
@@ -169,6 +171,8 @@ export class Type {
     }
 
     equals(other) {
+        this.__checkInitializationStatus();
+
         if (!(other instanceof Type))
             throw new ArgumentTypeException("other");
 
@@ -176,6 +180,8 @@ export class Type {
     }
 
     extends(other) {
+        this.__checkInitializationStatus();
+
         for (let type of this.getParentTypes()) {
             if (type.equals(other))
                 return true;
@@ -185,10 +191,14 @@ export class Type {
     }
 
     equalsOrExtends(other) {
+        this.__checkInitializationStatus();
+
         return this.equals(other) || this.extends(other);
     }
 
     implements(_interface) {
+        this.__checkInitializationStatus();
+
         let analysis = Interface.differ(this, _interface);
         if (analysis.isEmpty)
             return true;
@@ -219,6 +229,8 @@ export class Type {
     }
 
     getParentType() {
+        this.__checkInitializationStatus();
+
         if (this.__hasClass) {
             if (this.__hasInstance) {
                 let parentInstance = this.__getParentInstance(this.__instance);
@@ -235,11 +247,11 @@ export class Type {
         return null;
     }
 
-    __instance: any = null;
-    __hasInstance: boolean = false;
-    __class: Function = null;
-    __hasClass: boolean = false;
-    __typeofResult: string = null;
+    private __instance: any = null;
+    private __hasInstance: boolean = false;
+    private __class: Function = null;
+    private __hasClass: boolean = false;
+    private __initialized: boolean = false;
 }
 
 export const MemberAttributes = new Enumeration({
@@ -257,38 +269,36 @@ export const MemberType = new Enumeration({
 });
 
 export class Member {
-    static __createFromPropertyDescriptor(parentType: Type, key: string | symbol, descriptor: PropertyDescriptor, isStatic: boolean = false) {
+    static fromPropertyDescriptor(parentType: Type, key: string | symbol, descriptor: PropertyDescriptor, isStatic: boolean = false) {
         function getAttributesFromDescriptor(descriptor) {
             return (descriptor.writable ? MemberAttributes.Writable : 0) |
                 (descriptor.enumerable ? MemberAttributes.Enumerable : 0) |
                 (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
 
+        function getMemberType(value) {
+            let memberIsFunction: boolean = value instanceof Function,
+                memberIsProperty: boolean = !!descriptor.get || !!descriptor.set;
+            return (isStatic ? MemberType.Static : MemberType.Instance) |
+                (memberIsFunction ? MemberType.Function : memberIsProperty ? MemberType.Property : MemberType.Field);
+        }
+
         const attributes = getAttributesFromDescriptor(descriptor);
-        const type = Type.of(descriptor.value);
-
-        let memberType: number;
-        if (type.equals(Type.get(Function)))
-            memberType = MemberType.Function;
-        else if (descriptor.get || descriptor.set)
-            memberType = MemberType.Property;
-        else
-            memberType = MemberType.Field;
-        if (isStatic)
-            memberType |= MemberType.Static;
-
-        return new Member(key, type, parentType, memberType, attributes);
+        const value = descriptor.value;
+        const memberType = getMemberType(value);
+        const type = Type.of(value);
+        return new Member(key, memberType, parentType, attributes, type);
     }
 
-    constructor(key: string | symbol, type: Type, parentType: Type, memberType: number, attributes: number) {
+    constructor(key: string | symbol, memberType: number, parentType: Type, attributes: number, type: Type) {
         if (this.constructor === Member)
             throw new InvalidOperationException("Invalid constructor");
 
         this.__key = key;
-        this.__type = type;
-        this.__parentType = parentType;
         this.__memberType = memberType;
+        this.__parentType = parentType;
         this.__attributes = attributes;
+        this.__type = type;
     }
 
     isSame(other: Member) {

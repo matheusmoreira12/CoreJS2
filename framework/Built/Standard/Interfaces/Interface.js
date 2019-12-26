@@ -4,8 +4,10 @@ const Enumeration_1 = require("../Enumeration");
 const Types_1 = require("../Types/Types");
 const Exceptions_1 = require("../Exceptions");
 exports.InterfaceDifferenceKind = new Enumeration_1.Enumeration([
-    "MissingProperty",
-    "IncorrectType"
+    "Missing",
+    "Invalid",
+    "MissingAttributes",
+    "WrongType"
 ]);
 class InterfaceDifference {
     constructor(analizedType, analizedInterface, propertyName, differenceType) {
@@ -48,28 +50,13 @@ class InterfaceMember {
         if (isOptional !== undefined && typeof isOptional !== "boolean")
             throw new Exceptions_1.ArgumentTypeException(`isOptional`, isOptional, Boolean);
         valueType = valueType === undefined ? null : valueType;
-        attributes = attributes === undefined ? Types_1.MemberAttributes.Writable : attributes;
+        attributes = attributes === undefined ? Types_1.MemberAttributes.Enumerable : attributes;
         isOptional = isOptional === undefined ? false : isOptional;
         this.__key = key;
         this.__memberType = memberType;
         this.__valueType = valueType;
         this.__attributes = attributes;
         this.__isOptional = isOptional;
-    }
-    static __extractFromMember(member) {
-        function convertMemberType(memberType) {
-            switch (memberType) {
-                case Types_1.MemberType.Property:
-                    return exports.InterfaceMemberType.Property;
-                case Types_1.MemberType.Function:
-                    return exports.InterfaceMemberType.Property;
-            }
-            return null;
-        }
-        let memberType = convertMemberType(member.memberType);
-        if (memberType === null)
-            return null;
-        return new InterfaceMember(member.key, memberType, member.type, member.attributes, true);
     }
     get key() { return this.__key; }
     get memberType() { return this.__memberType; }
@@ -83,22 +70,46 @@ class Interface {
         this.__members = members;
     }
     static extract(type) {
-        function* generateMembersFromType() {
-            const members = type.getMembers();
-            for (let member of members)
-                yield InterfaceMember.__extractFromMember(member);
+        function* generateInterfaceMembers() {
+            function generateInterfaceMember(member) {
+                let memberIsFunction = Types_1.MemberType.contains(Types_1.MemberType.Function, member.memberType), memberIsProperty = Types_1.MemberType.contains(Types_1.MemberType.Property, member.memberType);
+                if (memberIsFunction)
+                    return new InterfaceMember(member.key, exports.InterfaceMemberType.Function, member.type, member.attributes);
+                else if (memberIsProperty)
+                    return new InterfaceMember(member.key, exports.InterfaceMemberType.Property, member.type, member.attributes);
+            }
+            const instanceMembers = type.getMembers(Types_1.MemberSelectionType.Instance | Types_1.MemberSelectionType.Property | Types_1.MemberSelectionType.Function);
+            for (let member of instanceMembers)
+                yield generateInterfaceMember(member);
         }
         if (!(type instanceof Types_1.Type))
             throw new Exceptions_1.ArgumentTypeException("type", type, Types_1.Type);
-        return new Interface(...generateMembersFromType());
+        return new Interface(...generateInterfaceMembers());
     }
     static differ(type, _interface) {
         function* analizeMembers() {
-            for (let member of type.getMembers()) {
+            function memberAttributesMatch(interfaceMember, typeMember) {
+                let interfaceMemberIsEnumerable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Enumerable, interfaceMember), interfaceMemberIsConfigurable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Configurable, interfaceMember), interfaceMemberIsWritable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Writable, interfaceMember);
+                let typeMemberIsEnumerable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Enumerable, typeMember), typeMemberIsConfigurable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Configurable, typeMember), typeMemberIsWritable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Writable, typeMember);
+                if (interfaceMemberIsEnumerable && !typeMemberIsEnumerable ||
+                    interfaceMemberIsConfigurable && !typeMemberIsConfigurable ||
+                    interfaceMemberIsWritable && !typeMemberIsWritable)
+                    return false;
+                return true;
+            }
+            let typeMembers = [...type.getMembers(Types_1.MemberSelectionType.Instance | Types_1.MemberSelectionType.Property | Types_1.MemberSelectionType.Function)];
+            for (let member of _interface.members) {
+                let typeMember = typeMembers.find(m => m.key == member.key);
+                if (typeMember === undefined)
+                    yield new InterfaceDifference(type, _interface, member.key, exports.InterfaceDifferenceKind.Missing);
+                else {
+                    if (memberAttributesMatch(member.attributes, typeMember.attributes))
+                        ;
+                }
                 yield null;
             }
         }
-        return new InterfaceDifferAnalysis(type, _interface, ...generateMember);
+        return new InterfaceDifferAnalysis(type, _interface, ...analizeMembers());
     }
     get members() { return this.__members; }
 }

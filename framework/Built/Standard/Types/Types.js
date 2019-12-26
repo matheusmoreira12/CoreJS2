@@ -24,55 +24,57 @@ class Type {
         this.__hasInstance = false;
         this.__class = null;
         this.__hasClass = false;
-        this.__typeofResult = null;
-    }
-    static __createTypeFromClass(_class) {
-        let result = new Type();
-        result.__initializeWithClass(_class);
-        return result;
-    }
-    static __createTypeFromInstance(instance) {
-        let result = new Type();
-        result.__initializeWithInstance(instance);
-        return result;
+        this.__initialized = false;
     }
     static get(_class) {
         if (!(_class instanceof Function))
             throw new Exceptions_1.ArgumentTypeException("_class");
-        return this.__createTypeFromClass(_class);
+        let result = new Type();
+        result.__initializeWithClass(_class);
+        return result;
     }
     static of(instance) {
-        return this.__createTypeFromInstance(instance);
+        let result = new Type();
+        result.__initializeWithInstance(instance);
+        return result;
     }
     __initializeWithInstance(instance) {
         this.__instance = instance;
+        this.__hasInstance = true;
         let instanceHasConstructor = utils_1.ObjectUtils.hasPrototype(instance);
         if (instanceHasConstructor)
             this.__initializeWithClass(instance.constructor);
-        this.__hasInstance = true;
+        this.__initialized = true;
     }
     __initializeWithClass(_class) {
         this.__class = _class;
         this.__hasClass = true;
+        this.__initialized = true;
+    }
+    __checkInitializationStatus() {
+        if (!this.__initialized)
+            throw new Exceptions_1.InvalidOperationException("Type has not been initialized.");
     }
     getName() {
+        this.__checkInitializationStatus();
         if (!this.__hasClass)
             return String(this.__instance);
         return this.__class.name;
     }
     *getOwnMembers(selectionType, selectionAttributes) {
+        this.__checkInitializationStatus();
         function* generateMembers() {
             if (!this.__hasClass)
                 return;
             for (let key of utils_1.ObjectUtils.getOwnPropertyKeys(this.__class)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__class, key);
-                yield Member.__createFromPropertyDescriptor(this, key, descriptor, true);
+                yield Member.fromPropertyDescriptor(this, key, descriptor, true);
             }
             if (!this.__hasInstance)
                 return;
             for (let key of utils_1.ObjectUtils.getOwnPropertyKeys(this.__instance)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__instance, key);
-                yield Member.__createFromPropertyDescriptor(this, key, descriptor, false);
+                yield Member.fromPropertyDescriptor(this, key, descriptor);
             }
         }
         function* selectMembers(members) {
@@ -130,11 +132,13 @@ class Type {
         return this.__class;
     }
     equals(other) {
+        this.__checkInitializationStatus();
         if (!(other instanceof Type))
             throw new Exceptions_1.ArgumentTypeException("other");
         return this.__getEffectiveValue() === other.__getEffectiveValue();
     }
     extends(other) {
+        this.__checkInitializationStatus();
         for (let type of this.getParentTypes()) {
             if (type.equals(other))
                 return true;
@@ -142,9 +146,11 @@ class Type {
         return false;
     }
     equalsOrExtends(other) {
+        this.__checkInitializationStatus();
         return this.equals(other) || this.extends(other);
     }
     implements(_interface) {
+        this.__checkInitializationStatus();
         let analysis = Interface_1.Interface.differ(this, _interface);
         if (analysis.isEmpty)
             return true;
@@ -168,6 +174,7 @@ class Type {
         return null;
     }
     getParentType() {
+        this.__checkInitializationStatus();
         if (this.__hasClass) {
             if (this.__hasInstance) {
                 let parentInstance = this.__getParentInstance(this.__instance);
@@ -197,33 +204,31 @@ exports.MemberType = new Enumeration_1.Enumeration({
     Static: 16
 });
 class Member {
-    constructor(key, type, parentType, memberType, attributes) {
+    constructor(key, memberType, parentType, attributes, type) {
         if (this.constructor === Member)
             throw new Exceptions_1.InvalidOperationException("Invalid constructor");
         this.__key = key;
-        this.__type = type;
-        this.__parentType = parentType;
         this.__memberType = memberType;
+        this.__parentType = parentType;
         this.__attributes = attributes;
+        this.__type = type;
     }
-    static __createFromPropertyDescriptor(parentType, key, descriptor, isStatic = false) {
+    static fromPropertyDescriptor(parentType, key, descriptor, isStatic = false) {
         function getAttributesFromDescriptor(descriptor) {
             return (descriptor.writable ? exports.MemberAttributes.Writable : 0) |
                 (descriptor.enumerable ? exports.MemberAttributes.Enumerable : 0) |
                 (descriptor.configurable ? exports.MemberAttributes.Configurable : 0);
         }
+        function getMemberType(value) {
+            let memberIsFunction = value instanceof Function, memberIsProperty = !!descriptor.get || !!descriptor.set;
+            return (isStatic ? exports.MemberType.Static : exports.MemberType.Instance) |
+                (memberIsFunction ? exports.MemberType.Function : memberIsProperty ? exports.MemberType.Property : exports.MemberType.Field);
+        }
         const attributes = getAttributesFromDescriptor(descriptor);
-        const type = Type.of(descriptor.value);
-        let memberType;
-        if (type.equals(Type.get(Function)))
-            memberType = exports.MemberType.Function;
-        else if (descriptor.get || descriptor.set)
-            memberType = exports.MemberType.Property;
-        else
-            memberType = exports.MemberType.Field;
-        if (isStatic)
-            memberType |= exports.MemberType.Static;
-        return new Member(key, type, parentType, memberType, attributes);
+        const value = descriptor.value;
+        const memberType = getMemberType(value);
+        const type = Type.of(value);
+        return new Member(key, memberType, parentType, attributes, type);
     }
     isSame(other) {
         if (this.__key !== other.__key)

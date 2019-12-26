@@ -1,5 +1,5 @@
 ﻿import { Enumeration } from "../Enumeration";
-import { Type, Member } from "../Types/Types";
+import { Type } from "../Types/Types";
 export declare const InterfaceDifferenceKind: Enumeration<import("../Enumeration").EnumerationValue>;
 export declare class InterfaceDifference {
     constructor(analizedType: Type, analizedInterface: Interface, propertyName: string, differenceType: number);
@@ -23,7 +23,6 @@ export declare class InterfaceDifferAnalysis {
 }
 export declare const InterfaceMemberType: Enumeration<import("../Enumeration").EnumerationValue>;
 export declare class InterfaceMember {
-    static __extractFromMember(member: Member): InterfaceMember;
     constructor(key: string | symbol, memberType: number, valueType?: Type, attributes?: number, isOptional?: any);
     readonly key: string | symbol;
     private __key;
