@@ -7,18 +7,18 @@ exports.InterfaceDifferenceKind = new Enumeration_1.Enumeration([
     "Missing",
     "Invalid",
     "MissingAttributes",
-    "WrongType"
+    "IncorrectType"
 ]);
 class InterfaceDifference {
-    constructor(analizedType, analizedInterface, propertyName, differenceType) {
+    constructor(analizedType, analizedInterface, propertyKey, differenceType) {
         this.__analizedType = analizedType;
         this.__analizedInterface = analizedInterface;
-        this.__propertyName = propertyName;
+        this.__propertyKey = propertyKey;
         this.__differenceType = differenceType;
     }
     get analizedType() { return this.__analizedType; }
     get analizedInterface() { return this.__analizedInterface; }
-    get propertyName() { return this.__propertyName; }
+    get propertyKey() { return this.__propertyKey; }
     get differenceType() { return this.__differenceType; }
 }
 exports.InterfaceDifference = InterfaceDifference;
@@ -88,23 +88,30 @@ class Interface {
     }
     static differ(type, _interface) {
         function* analizeMembers() {
-            function memberAttributesMatch(interfaceMember, typeMember) {
-                let interfaceMemberIsEnumerable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Enumerable, interfaceMember), interfaceMemberIsConfigurable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Configurable, interfaceMember), interfaceMemberIsWritable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Writable, interfaceMember);
-                let typeMemberIsEnumerable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Enumerable, typeMember), typeMemberIsConfigurable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Configurable, typeMember), typeMemberIsWritable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Writable, typeMember);
-                if (interfaceMemberIsEnumerable && !typeMemberIsEnumerable ||
-                    interfaceMemberIsConfigurable && !typeMemberIsConfigurable ||
-                    interfaceMemberIsWritable && !typeMemberIsWritable)
+            function memberAttributesMatch(memberAttributes, typeMemberAttributes) {
+                let memberIsEnumerable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Enumerable, memberAttributes), memberIsConfigurable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Configurable, memberAttributes), memberIsWritable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Writable, memberAttributes);
+                let typeMemberIsEnumerable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Enumerable, typeMemberAttributes), typeMemberIsConfigurable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Configurable, typeMemberAttributes), typeMemberIsWritable = Types_1.MemberAttributes.contains(Types_1.MemberAttributes.Writable, typeMemberAttributes);
+                if (memberIsEnumerable && !typeMemberIsEnumerable ||
+                    memberIsConfigurable && !typeMemberIsConfigurable ||
+                    memberIsWritable && !typeMemberIsWritable)
                     return false;
                 return true;
             }
-            let typeMembers = [...type.getMembers(Types_1.MemberSelectionType.Instance | Types_1.MemberSelectionType.Property | Types_1.MemberSelectionType.Function)];
+            function memberTypeMatches(memberType, typeMemberType) {
+                ///TODO: Implement type matching algorithm
+            }
+            let typeMembers = [...type.getMembers(Types_1.MemberSelectionType.Instance)];
             for (let member of _interface.members) {
                 let typeMember = typeMembers.find(m => m.key == member.key);
                 if (typeMember === undefined)
                     yield new InterfaceDifference(type, _interface, member.key, exports.InterfaceDifferenceKind.Missing);
                 else {
-                    if (memberAttributesMatch(member.attributes, typeMember.attributes))
-                        ;
+                    if (!memberAttributesMatch(member.attributes, typeMember.attributes))
+                        yield new InterfaceDifference(type, _interface, member.key, exports.InterfaceDifferenceKind.MissingAttributes);
+                    else if (!memberTypesMatch(member.memberType, typeMember.memberType))
+                        yield new InterfaceDifference(type, _interface, member.key, exports.InterfaceDifferenceKind.Invalid);
+                    else if (member.valueType.equals(typeMember.memberType))
+                        yield new InterfaceDifference(type, _interface, member.key, exports.InterfaceDifferenceKind.IncorrectType);
                 }
                 yield null;
             }

@@ -2,13 +2,13 @@
 import { Type } from "../Types/Types";
 export declare const InterfaceDifferenceKind: Enumeration<import("../Enumeration").EnumerationValue>;
 export declare class InterfaceDifference {
-    constructor(analizedType: Type, analizedInterface: Interface, propertyName: string, differenceType: number);
+    constructor(analizedType: Type, analizedInterface: Interface, propertyKey: string | symbol, differenceType: number);
     readonly analizedType: Type;
     private __analizedType;
     readonly analizedInterface: Interface;
     private __analizedInterface;
-    readonly propertyName: string | symbol;
-    private __propertyName;
+    readonly propertyKey: string | symbol;
+    private __propertyKey;
     readonly differenceType: number;
     private __differenceType;
 }
