@@ -1,18 +1,20 @@
-﻿import { ArgumentTypeException } from "../Standard/Exceptions";
-import { FrameworkEvent } from "../Standard/Events";
-import DragDropHandler from "./DragDropHandler";
+﻿"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Exceptions_1 = require("../Standard/Exceptions");
+const Events_1 = require("../Standard/Events");
+const DragDropHandler_1 = require("./DragDropHandler");
 /**
  *
  */
-export default class DragEmulator {
+class DragEmulator {
     constructor(handler) {
-        this.DragStartEvent = new FrameworkEvent(this.onDragStart, this);
-        this.DragMoveEvent = new FrameworkEvent(this.onDragMove, this);
-        this.DragEndEvent = new FrameworkEvent(this.onDragEnd, this);
-        this.DragCancelEvent = new FrameworkEvent(this.onDragCancel, this);
+        this.DragStartEvent = new Events_1.FrameworkEvent(this.onDragStart, this);
+        this.DragMoveEvent = new Events_1.FrameworkEvent(this.onDragMove, this);
+        this.DragEndEvent = new Events_1.FrameworkEvent(this.onDragEnd, this);
+        this.DragCancelEvent = new Events_1.FrameworkEvent(this.onDragCancel, this);
         this.__previewElem = null;
-        if (!(handler instanceof DragDropHandler))
-            throw new ArgumentTypeException("handler", handler, DragDropHandler);
+        if (!(handler instanceof DragDropHandler_1.default))
+            throw new Exceptions_1.ArgumentTypeException("handler", handler, DragDropHandler_1.default);
         handler.DragStartEvent.attach(this.DragStartEvent);
         handler.DragMoveEvent.attach(this.DragMoveEvent);
         handler.DragEndEvent.attach(this.DragEndEvent);
@@ -72,3 +74,4 @@ export default class DragEmulator {
         this.removePreviewElement();
     }
 }
+exports.default = DragEmulator;

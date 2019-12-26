@@ -3,42 +3,43 @@ import { Type, Member } from "../Types/Types";
 export declare const InterfaceDifferenceKind: Enumeration<import("../Enumeration").EnumerationValue>;
 export declare class InterfaceDifference {
     constructor(analizedType: Type, analizedInterface: Interface, propertyName: string, differenceType: number);
-    get analizedType(): Type;
+    readonly analizedType: Type;
     private __analizedType;
-    get analizedInterface(): Interface;
+    readonly analizedInterface: Interface;
     private __analizedInterface;
-    get propertyName(): string | symbol;
+    readonly propertyName: string | symbol;
     private __propertyName;
-    get differenceType(): number;
+    readonly differenceType: number;
     private __differenceType;
 }
 export declare class InterfaceDifferAnalysis {
     constructor(analizedType: Type, analizedInterface: Interface, ...differences: InterfaceDifference[]);
-    get analizedType(): Type;
+    readonly analizedType: Type;
     private __analizedType;
-    get analizedInterface(): Interface;
+    readonly analizedInterface: Interface;
     private __analizedInterface;
-    get differences(): InterfaceDifference[];
+    readonly differences: InterfaceDifference[];
     private __differences;
 }
 export declare const InterfaceMemberType: Enumeration<import("../Enumeration").EnumerationValue>;
 export declare class InterfaceMember {
     static __extractFromMember(member: Member): InterfaceMember;
     constructor(key: string | symbol, memberType: number, valueType?: Type, attributes?: number, isOptional?: any);
-    get key(): string | symbol;
+    readonly key: string | symbol;
     private __key;
-    get memberType(): number;
+    readonly memberType: number;
     private __memberType;
-    get valueType(): Type;
+    readonly valueType: Type;
     private __valueType;
-    get attributes(): number;
+    readonly attributes: number;
     private __attributes;
-    get isOptional(): boolean;
+    readonly isOptional: boolean;
     private __isOptional;
 }
 export declare class Interface {
     static extract(type: Type): Interface;
+    static differ(type: Type, _interface: Interface): InterfaceDifferAnalysis;
     constructor(...members: InterfaceMember[]);
-    get members(): InterfaceMember[];
+    readonly members: InterfaceMember[];
     private __members;
 }

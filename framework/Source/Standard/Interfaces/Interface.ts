@@ -71,15 +71,15 @@ export class InterfaceMember {
 
     constructor(key: string | symbol, memberType: number, valueType?: Type, attributes?: number, isOptional?) {
         if (typeof key !== "string" && typeof key !== "symbol")
-            throw new ArgumentTypeException(`key`, Type.of(key));
+            throw new ArgumentTypeException(`key`, key, String);
         if (typeof memberType !== "number")
-            throw new ArgumentTypeException(`memberType`, Type.of(memberType));
+            throw new ArgumentTypeException(`memberType`, memberType, Number);
         if (valueType !== undefined && !(valueType instanceof Type))
-            throw new ArgumentTypeException(`valueType`, Type.of(valueType));
+            throw new ArgumentTypeException(`valueType`, valueType, Type);
         if (attributes !== undefined && typeof attributes !== "number")
-            throw new ArgumentTypeException(`attributes`, Type.of(attributes));
+            throw new ArgumentTypeException(`attributes`, attributes, Number);
         if (isOptional !== undefined && typeof isOptional !== "boolean")
-            throw new ArgumentTypeException(`isOptional`, Type.of(isOptional));
+            throw new ArgumentTypeException(`isOptional`, isOptional, Boolean);
 
         valueType = valueType === undefined ? null : valueType;
         attributes = attributes === undefined ? MemberAttributes.Writable : attributes;
@@ -117,9 +117,21 @@ export class Interface {
         }
 
         if (!(type instanceof Type))
-            throw new ArgumentTypeException("type");
+            throw new ArgumentTypeException("type", type, Type);
 
         return new Interface(...generateMembersFromType());
+    }
+
+    static differ(type: Type, _interface: Interface): InterfaceDifferAnalysis {
+
+
+        function* analizeMembers() {
+            for (let member of type.getMembers()) {
+                yield null;
+            }
+        }
+
+        return new InterfaceDifferAnalysis(type, _interface, ...generateMember);
     }
 
     constructor(...members: InterfaceMember[]) {

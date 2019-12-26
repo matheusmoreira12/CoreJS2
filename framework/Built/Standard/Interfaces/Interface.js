@@ -1,11 +1,13 @@
-﻿import { Enumeration } from "../Enumeration";
-import { Type, MemberType, MemberAttributes } from "../Types/Types";
-import { ArgumentTypeException } from "../Exceptions";
-export const InterfaceDifferenceKind = new Enumeration([
+﻿"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Enumeration_1 = require("../Enumeration");
+const Types_1 = require("../Types/Types");
+const Exceptions_1 = require("../Exceptions");
+exports.InterfaceDifferenceKind = new Enumeration_1.Enumeration([
     "MissingProperty",
     "IncorrectType"
 ]);
-export class InterfaceDifference {
+class InterfaceDifference {
     constructor(analizedType, analizedInterface, propertyName, differenceType) {
         this.__analizedType = analizedType;
         this.__analizedInterface = analizedInterface;
@@ -17,7 +19,8 @@ export class InterfaceDifference {
     get propertyName() { return this.__propertyName; }
     get differenceType() { return this.__differenceType; }
 }
-export class InterfaceDifferAnalysis {
+exports.InterfaceDifference = InterfaceDifference;
+class InterfaceDifferAnalysis {
     constructor(analizedType, analizedInterface, ...differences) {
         this.__analizedType = analizedType;
         this.__analizedInterface = analizedInterface;
@@ -27,24 +30,25 @@ export class InterfaceDifferAnalysis {
     get analizedInterface() { return this.__analizedInterface; }
     get differences() { return this.__differences; }
 }
-export const InterfaceMemberType = new Enumeration([
+exports.InterfaceDifferAnalysis = InterfaceDifferAnalysis;
+exports.InterfaceMemberType = new Enumeration_1.Enumeration([
     "Property",
     "Function"
 ]);
-export class InterfaceMember {
+class InterfaceMember {
     constructor(key, memberType, valueType, attributes, isOptional) {
         if (typeof key !== "string" && typeof key !== "symbol")
-            throw new ArgumentTypeException(`key`, Type.of(key));
+            throw new Exceptions_1.ArgumentTypeException(`key`, key, String);
         if (typeof memberType !== "number")
-            throw new ArgumentTypeException(`memberType`, Type.of(memberType));
-        if (valueType !== undefined && !(valueType instanceof Type))
-            throw new ArgumentTypeException(`valueType`, Type.of(valueType));
+            throw new Exceptions_1.ArgumentTypeException(`memberType`, memberType, Number);
+        if (valueType !== undefined && !(valueType instanceof Types_1.Type))
+            throw new Exceptions_1.ArgumentTypeException(`valueType`, valueType, Types_1.Type);
         if (attributes !== undefined && typeof attributes !== "number")
-            throw new ArgumentTypeException(`attributes`, Type.of(attributes));
+            throw new Exceptions_1.ArgumentTypeException(`attributes`, attributes, Number);
         if (isOptional !== undefined && typeof isOptional !== "boolean")
-            throw new ArgumentTypeException(`isOptional`, Type.of(isOptional));
+            throw new Exceptions_1.ArgumentTypeException(`isOptional`, isOptional, Boolean);
         valueType = valueType === undefined ? null : valueType;
-        attributes = attributes === undefined ? MemberAttributes.Writable : attributes;
+        attributes = attributes === undefined ? Types_1.MemberAttributes.Writable : attributes;
         isOptional = isOptional === undefined ? false : isOptional;
         this.__key = key;
         this.__memberType = memberType;
@@ -55,10 +59,10 @@ export class InterfaceMember {
     static __extractFromMember(member) {
         function convertMemberType(memberType) {
             switch (memberType) {
-                case MemberType.Property:
-                    return InterfaceMemberType.Property;
-                case MemberType.Function:
-                    return InterfaceMemberType.Property;
+                case Types_1.MemberType.Property:
+                    return exports.InterfaceMemberType.Property;
+                case Types_1.MemberType.Function:
+                    return exports.InterfaceMemberType.Property;
             }
             return null;
         }
@@ -73,7 +77,8 @@ export class InterfaceMember {
     get attributes() { return this.__attributes; }
     get isOptional() { return this.__isOptional; }
 }
-export class Interface {
+exports.InterfaceMember = InterfaceMember;
+class Interface {
     constructor(...members) {
         this.__members = members;
     }
@@ -83,9 +88,18 @@ export class Interface {
             for (let member of members)
                 yield InterfaceMember.__extractFromMember(member);
         }
-        if (!(type instanceof Type))
-            throw new ArgumentTypeException("type");
+        if (!(type instanceof Types_1.Type))
+            throw new Exceptions_1.ArgumentTypeException("type", type, Types_1.Type);
         return new Interface(...generateMembersFromType());
+    }
+    static differ(type, _interface) {
+        function* analizeMembers() {
+            for (let member of type.getMembers()) {
+                yield null;
+            }
+        }
+        return new InterfaceDifferAnalysis(type, _interface, ...generateMember);
     }
     get members() { return this.__members; }
 }
+exports.Interface = Interface;

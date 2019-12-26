@@ -1,30 +1,32 @@
-﻿import { InvalidOperationException } from "../Standard/Exceptions";
-import { PropertyAttributeBinding } from "./Bindings";
-import { BooleanAttributeValueConverter, FrameworkProperty } from "./user-interface";
-import DragDropHandler from "./DragDropHandler";
-import { FrameworkEvent, NativeEvent } from "../Standard/Events";
-export class Widget {
+﻿"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Exceptions_1 = require("../Standard/Exceptions");
+const Bindings_1 = require("./Bindings");
+const user_interface_1 = require("./user-interface");
+const DragDropHandler_1 = require("./DragDropHandler");
+const Events_1 = require("../Standard/Events");
+class Widget {
     constructor(namespaceURI, qualifiedName) {
         //Helper Class Instances
-        this.__dragDropHandler = new DragDropHandler(this);
-        this.DragStartEvent = new FrameworkEvent(this.__onDragStart.bind(this));
-        this.DragMoveEvent = new FrameworkEvent(this.__onDragMove.bind(this));
-        this.DragEndEvent = new FrameworkEvent(this.__onDragEnd.bind(this));
-        this.DragCancelEvent = new FrameworkEvent(this.__onDragCancel.bind(this));
-        this.DragEnterEvent = new FrameworkEvent(this.__onDragEnter.bind(this));
-        this.DragOverEvent = new FrameworkEvent(this.__onDragOver.bind(this));
-        this.DragLeaveEvent = new FrameworkEvent(this.__onDragLeave.bind(this));
-        this.DragDropEvent = new FrameworkEvent(this.__onDragDrop.bind(this));
-        this.MouseEnterEvent = new NativeEvent(this, "mouseenter", this.__onMouseEnter.bind(this));
-        this.MouseLeaveEvent = new NativeEvent(this, "mouseleave", this.__onMouseLeave.bind(this));
-        this.MouseDownEvent = new NativeEvent(this, "mousedown", this.__onMouseDown.bind(this));
-        this.MouseMoveEvent = new NativeEvent(this, "mousemove", this.__onMouseMove.bind(this));
-        this.MouseUpEvent = new NativeEvent(this, "mouseup", this.__onMouseUp.bind(this));
-        this.ClickEvent = new NativeEvent(this, "click", this.__onClick.bind(this));
+        this.__dragDropHandler = new DragDropHandler_1.default(this);
+        this.DragStartEvent = new Events_1.FrameworkEvent(this.__onDragStart.bind(this));
+        this.DragMoveEvent = new Events_1.FrameworkEvent(this.__onDragMove.bind(this));
+        this.DragEndEvent = new Events_1.FrameworkEvent(this.__onDragEnd.bind(this));
+        this.DragCancelEvent = new Events_1.FrameworkEvent(this.__onDragCancel.bind(this));
+        this.DragEnterEvent = new Events_1.FrameworkEvent(this.__onDragEnter.bind(this));
+        this.DragOverEvent = new Events_1.FrameworkEvent(this.__onDragOver.bind(this));
+        this.DragLeaveEvent = new Events_1.FrameworkEvent(this.__onDragLeave.bind(this));
+        this.DragDropEvent = new Events_1.FrameworkEvent(this.__onDragDrop.bind(this));
+        this.MouseEnterEvent = new Events_1.NativeEvent(this, "mouseenter", this.__onMouseEnter.bind(this));
+        this.MouseLeaveEvent = new Events_1.NativeEvent(this, "mouseleave", this.__onMouseLeave.bind(this));
+        this.MouseDownEvent = new Events_1.NativeEvent(this, "mousedown", this.__onMouseDown.bind(this));
+        this.MouseMoveEvent = new Events_1.NativeEvent(this, "mousemove", this.__onMouseMove.bind(this));
+        this.MouseUpEvent = new Events_1.NativeEvent(this, "mouseup", this.__onMouseUp.bind(this));
+        this.ClickEvent = new Events_1.NativeEvent(this, "click", this.__onClick.bind(this));
         if (new.target === Widget)
-            throw new InvalidOperationException("Invalid constructor");
+            throw new Exceptions_1.InvalidOperationException("Invalid constructor");
         //Create Bindings
-        new PropertyAttributeBinding(this, Widget.isDraggableProperty, this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
+        new Bindings_1.PropertyAttributeBinding(this, Widget.isDraggableProperty, this, "draggable", { valueConverter: new user_interface_1.BooleanAttributeValueConverter() });
         //Attach Event Handlers
         //  Drag/Drop Handler Events
         this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
@@ -122,16 +124,17 @@ export class Widget {
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
 }
+exports.Widget = Widget;
 //Framework Properties
 //  State Properties
 //      Mouse State Properties
 //          Is Mouse Over Property
-Widget.isMouseOverProperty = new FrameworkProperty("isMouseOver", { defaultValue: false });
+Widget.isMouseOverProperty = new user_interface_1.FrameworkProperty("isMouseOver", { defaultValue: false });
 //      Drag State Properties
 //          Is Dragging Property
-Widget.isDraggingProperty = new FrameworkProperty("isDragging", { defaultValue: false });
+Widget.isDraggingProperty = new user_interface_1.FrameworkProperty("isDragging", { defaultValue: false });
 //          Is Drag Over Property
-Widget.isDragOverProperty = new FrameworkProperty("isDragOver", { defaultValue: false });
+Widget.isDragOverProperty = new user_interface_1.FrameworkProperty("isDragOver", { defaultValue: false });
 //  Drag Properties
-Widget.isDraggableProperty = new FrameworkProperty("isDraggable", { defaultValue: false });
+Widget.isDraggableProperty = new user_interface_1.FrameworkProperty("isDraggable", { defaultValue: false });
 Object.setPrototypeOf(Widget, Object.getPrototypeOf(HTMLElement));

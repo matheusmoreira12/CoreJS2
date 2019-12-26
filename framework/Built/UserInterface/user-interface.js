@@ -1,9 +1,11 @@
-﻿import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
-import { InterfaceMember, Interface, InterfaceMemberType } from "../Standard/Interfaces/Interface";
-import { FrameworkEvent, BroadcastFrameworkEvent } from "../Standard/Events";
-import { InvalidOperationException, ArgumentTypeException } from "../Standard/Exceptions";
-import { Collection } from "../Standard/Collections";
-export class BooleanAttributeValueConverter {
+﻿"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const ContextSelectionFlags_1 = require("../Standard/ContextSelectionFlags");
+const Interface_1 = require("../Standard/Interfaces/Interface");
+const Events_1 = require("../Standard/Events");
+const Exceptions_1 = require("../Standard/Exceptions");
+const Collections_1 = require("../Standard/Collections");
+class BooleanAttributeValueConverter {
     convertBack(value) {
         if (value === null)
             return null;
@@ -19,7 +21,8 @@ export class BooleanAttributeValueConverter {
         return "";
     }
 }
-export class JSONAttributeValueConverter {
+exports.BooleanAttributeValueConverter = BooleanAttributeValueConverter;
+class JSONAttributeValueConverter {
     convertBack(value) {
         return JSON.parse(value);
     }
@@ -27,15 +30,17 @@ export class JSONAttributeValueConverter {
         return JSON.stringify(value);
     }
 }
-export class FlagsAttributeValueConverter {
+exports.JSONAttributeValueConverter = JSONAttributeValueConverter;
+class FlagsAttributeValueConverter {
     convertBack(value) {
-        return ContextSelectionFlags.parse(value);
+        return ContextSelectionFlags_1.ContextSelectionFlags.parse(value);
     }
     convert(value) {
         return value.toString();
     }
 }
-export class EnumerationAttributeValueConverter {
+exports.FlagsAttributeValueConverter = FlagsAttributeValueConverter;
+class EnumerationAttributeValueConverter {
     constructor(enumeration) {
         this.__enumeration = enumeration;
     }
@@ -50,17 +55,18 @@ export class EnumerationAttributeValueConverter {
         return this.__enumeration.toString(value);
     }
 }
+exports.EnumerationAttributeValueConverter = EnumerationAttributeValueConverter;
 const DEFAULT_FRAMEWORK_PROPERTY_OPTIONS = {
     defaultValue: null
 };
-export const IFrameworkPropertyOptions = new Interface(new InterfaceMember("defaultValue", InterfaceMemberType.Property));
+exports.IFrameworkPropertyOptions = new Interface_1.Interface(new Interface_1.InterfaceMember("defaultValue", Interface_1.InterfaceMemberType.Property));
 /**
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
  */
-export class FrameworkProperty {
+class FrameworkProperty {
     constructor(name, options) {
-        this.ChangeEvent = new FrameworkEvent();
+        this.ChangeEvent = new Events_1.FrameworkEvent();
         this.__storedValues = new WeakMap();
         options = Object.assign({}, DEFAULT_FRAMEWORK_PROPERTY_OPTIONS, options);
         this.__name = name;
@@ -88,15 +94,16 @@ export class FrameworkProperty {
     get name() { return this.__name; }
     get options() { return this.__options; }
 }
+exports.FrameworkProperty = FrameworkProperty;
 /**
  * FrameworkAction base class
  * Represents an user-initiated action.
  */
-export class FrameworkAction {
+class FrameworkAction {
     constructor() {
         if (this.constructor === FrameworkAction)
-            throw new InvalidOperationException("Invalid constructor");
-        this.__ExecutedEvent = new FrameworkEvent();
+            throw new Exceptions_1.InvalidOperationException("Invalid constructor");
+        this.__ExecutedEvent = new Events_1.FrameworkEvent();
     }
     execute(data) {
         this.__ExecutedEvent.invoke(this, {
@@ -105,31 +112,34 @@ export class FrameworkAction {
     }
     get ExecutedEvent() { return this.__ExecutedEvent; }
 }
+exports.FrameworkAction = FrameworkAction;
 /**
  * Trigger base class
  */
-export class Trigger {
+class Trigger {
     constructor() {
         if (new.target === Trigger)
-            throw new InvalidOperationException("Invalid constructor");
+            throw new Exceptions_1.InvalidOperationException("Invalid constructor");
     }
 }
+exports.Trigger = Trigger;
 /**
  *
  */
-export class Setter {
+class Setter {
 }
+exports.Setter = Setter;
 /**
  * PropertyTrigger class
  * Triggers a group of action when the specified property matches the specified value.
  */
-export class PropertyTrigger extends Trigger {
+class PropertyTrigger extends Trigger {
     constructor(target, targetProperty, value, ...actions) {
         super();
         if (typeof target !== "object")
-            throw new ArgumentTypeException("target", target, Object);
+            throw new Exceptions_1.ArgumentTypeException("target", target, Object);
         if (!(targetProperty instanceof FrameworkProperty))
-            throw new ArgumentTypeException("targetProperty", targetProperty, FrameworkProperty);
+            throw new Exceptions_1.ArgumentTypeException("targetProperty", targetProperty, FrameworkProperty);
         this.__target = target;
         this.__targetProperty = targetProperty;
         this.__value = value;
@@ -146,17 +156,18 @@ export class PropertyTrigger extends Trigger {
     get value() { return this.__value; }
     get setters() { return this.__setters; }
 }
+exports.PropertyTrigger = PropertyTrigger;
 /**
  * EventTrigger class
  * Triggers a group of actions upon the firing of an event.
  */
-export class EventTrigger extends Trigger {
+class EventTrigger extends Trigger {
     constructor(targetEvent, ...actions) {
         super();
-        if (!(targetEvent instanceof FrameworkEvent))
-            throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);
+        if (!(targetEvent instanceof Events_1.FrameworkEvent))
+            throw new Exceptions_1.ArgumentTypeException("targetEvent", targetEvent, Events_1.FrameworkEvent);
         this.__targetEvent = targetEvent;
-        this.__actions = new Collection(...actions);
+        this.__actions = new Collections_1.Collection(...actions);
         targetEvent.attach(this.__targetEvent_handler, this);
     }
     __targetEvent_handler() {
@@ -178,14 +189,15 @@ export class EventTrigger extends Trigger {
     get targetEvent() { return this.__targetEvent; }
     get actions() { return this.__actions; }
 }
+exports.EventTrigger = EventTrigger;
 /**
  * Visual State Manager
  *  Manages the interactions between user interface and logic.
  */
 class VisualStateManager {
     constructor() {
-        this.serverTaskStartedEvent = new BroadcastFrameworkEvent("ServerTask_started", this._onServerTaskStarted, this);
-        this.serverTaskFinishedEvent = new BroadcastFrameworkEvent("ServerTask_finished", this._onServerTaskFinished, this);
+        this.serverTaskStartedEvent = new Events_1.BroadcastFrameworkEvent("ServerTask_started", this._onServerTaskStarted, this);
+        this.serverTaskFinishedEvent = new Events_1.BroadcastFrameworkEvent("ServerTask_finished", this._onServerTaskFinished, this);
     }
     _onServerTaskStarted() {
         mainSpinner.hidden = false;
@@ -194,11 +206,11 @@ class VisualStateManager {
         mainSpinner.hidden = true;
     }
 }
-export const visualStateManager = new VisualStateManager();
+exports.visualStateManager = new VisualStateManager();
 /**
  *
  */
-export const Utils = {
+exports.Utils = {
     selectAllText(elem) {
         var range = document.createRange();
         range.selectNodeContents(elem);
@@ -299,9 +311,9 @@ export const Utils = {
 /**
  *
  */
-export class Timer {
+class Timer {
     constructor(delayMillis = 100, isPeriodic = true) {
-        this._TickEvent = new FrameworkEvent();
+        this._TickEvent = new Events_1.FrameworkEvent();
         this.__delayMillis = delayMillis;
         this.__isPeriodic = isPeriodic;
     }
@@ -324,3 +336,4 @@ export class Timer {
     get isPeriodic() { return this.__isPeriodic; }
     get TickEvent() { return this.__TickEvent; }
 }
+exports.Timer = Timer;

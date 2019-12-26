@@ -35,9 +35,9 @@ export declare class FrameworkProperty {
     get(target: any): any;
     set(target: any, value: any): void;
     ChangeEvent: FrameworkEvent;
-    get name(): string;
+    readonly name: string;
     private __name;
-    get options(): FrameworkPropertyOptions;
+    readonly options: FrameworkPropertyOptions;
     private __options;
     private __storedValues;
 }
@@ -48,7 +48,7 @@ export declare class FrameworkProperty {
 export declare abstract class FrameworkAction {
     constructor();
     execute(data?: Dictionary<string, any>): void;
-    get ExecutedEvent(): FrameworkEvent;
+    readonly ExecutedEvent: FrameworkEvent;
     private __ExecutedEvent;
 }
 /**
@@ -69,13 +69,13 @@ export declare class Setter {
 export declare class PropertyTrigger extends Trigger {
     constructor(target: object, targetProperty: FrameworkProperty, value: any, ...actions: FrameworkAction[]);
     private __targetProperty_onChange;
-    get target(): object;
+    readonly target: object;
     private __target;
-    get targetProperty(): FrameworkProperty;
+    readonly targetProperty: FrameworkProperty;
     private __targetProperty;
-    get value(): any;
+    readonly value: any;
     private __value;
-    get setters(): Collection<Setter>;
+    readonly setters: Collection<Setter>;
     private __setters;
 }
 /**
@@ -86,9 +86,9 @@ export declare class EventTrigger extends Trigger {
     constructor(targetEvent: FrameworkEvent, ...actions: FrameworkAction[]);
     private __targetEvent_handler;
     protected __executeActions(data?: Dictionary<string, any>): void;
-    get targetEvent(): FrameworkEvent;
+    readonly targetEvent: FrameworkEvent;
     private __targetEvent;
-    get actions(): Collection<FrameworkAction>;
+    readonly actions: Collection<FrameworkAction>;
     private __actions;
 }
 /**
@@ -128,11 +128,11 @@ export declare class Timer {
     start(): void;
     stop(): void;
     _TickEvent: FrameworkEvent;
-    get delayMillis(): number;
+    readonly delayMillis: number;
     private __delayMillis;
-    get isPeriodic(): boolean;
+    readonly isPeriodic: boolean;
     private __isPeriodic;
-    get TickEvent(): FrameworkEvent;
+    readonly TickEvent: FrameworkEvent;
     private __TickEvent;
     private __timeoutHandle;
 }

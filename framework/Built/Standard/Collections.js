@@ -1,11 +1,13 @@
-﻿import { ArgumentOutOfRangeException, KeyNotFoundException } from "./Exceptions";
-import { Enumeration } from "./Enumeration";
-import { FrameworkEvent } from "./Events";
+﻿"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Exceptions_1 = require("./Exceptions");
+const Enumeration_1 = require("./Enumeration");
+const Events_1 = require("./Events");
 /**
  * Collection Class
  * Represents a collection of values.
  */
-export class Collection extends Array {
+class Collection extends Array {
     constructor(...args) {
         super(...args);
     }
@@ -13,9 +15,9 @@ export class Collection extends Array {
     get last() { return this[this.length - 1]; }
     *getRange(index, itemCount) {
         if (index < 0 || index >= this.length)
-            throw new ArgumentOutOfRangeException("index");
+            throw new Exceptions_1.ArgumentOutOfRangeException("index");
         if (itemCount < 0 || itemCount + index >= this.length)
-            throw new ArgumentOutOfRangeException("itemCount");
+            throw new Exceptions_1.ArgumentOutOfRangeException("itemCount");
         for (let i = index; i < index + itemCount; i++)
             yield this[i];
     }
@@ -33,9 +35,9 @@ export class Collection extends Array {
     }
     move(oldIndex, newIndex) {
         if (oldIndex < 0 || oldIndex >= this.length)
-            throw new ArgumentOutOfRangeException("oldIndex");
+            throw new Exceptions_1.ArgumentOutOfRangeException("oldIndex");
         if (newIndex < 0 || newIndex >= this.length)
-            throw new ArgumentOutOfRangeException("newIndex");
+            throw new Exceptions_1.ArgumentOutOfRangeException("newIndex");
         let item = this.removeAt(oldIndex);
         if (newIndex > oldIndex)
             newIndex--; //Compensate for the item removal
@@ -43,42 +45,43 @@ export class Collection extends Array {
     }
     swap(index1, index2) {
         if (index1 < 0 || index1 >= this.length)
-            throw new ArgumentOutOfRangeException("index1");
+            throw new Exceptions_1.ArgumentOutOfRangeException("index1");
         if (index2 < 0 || index2 >= this.length)
-            throw new ArgumentOutOfRangeException("index2");
+            throw new Exceptions_1.ArgumentOutOfRangeException("index2");
         [this[index1], this[index2]] = [this[index2], this[index1]];
     }
     replace(oldItem, newItem) {
         let index = this.indexOf(oldItem);
         if (index === -1)
-            throw new KeyNotFoundException();
+            throw new Exceptions_1.KeyNotFoundException();
         this[index] = newItem;
     }
     removeAt(index) {
         if (index < 0 || index >= this.length)
-            throw new ArgumentOutOfRangeException("index");
+            throw new Exceptions_1.ArgumentOutOfRangeException("index");
         return this.splice(index, 1)[0];
     }
     remove(item) {
         let index = this.indexOf(item);
         if (index === -1)
-            throw new KeyNotFoundException();
+            throw new Exceptions_1.KeyNotFoundException();
         this.removeAt(index);
     }
 }
+exports.Collection = Collection;
 /*
  * ObservableCollection class
  * Creates a collection observable via the "change" event.
  */
-export const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove: 2 });
-export class ObservableCollection extends Collection {
+exports.ObservableCollectionChangeAction = new Enumeration_1.Enumeration({ Add: 1, Remove: 2 });
+class ObservableCollection extends Collection {
     constructor() {
         super(...arguments);
-        this.__ChangeEvent = new FrameworkEvent();
+        this.__ChangeEvent = new Events_1.FrameworkEvent();
     }
     __notifySplice(start, deleteCount, ...items) {
-        let action = (items.length > 0 ? ObservableCollectionChangeAction.Add : 0) |
-            (deleteCount > 0 ? ObservableCollectionChangeAction.Remove : 0);
+        let action = (items.length > 0 ? exports.ObservableCollectionChangeAction.Add : 0) |
+            (deleteCount > 0 ? exports.ObservableCollectionChangeAction.Remove : 0);
         if (action === 0)
             return;
         const oldItems = Array.from(this.getRange(start, deleteCount));
@@ -93,7 +96,7 @@ export class ObservableCollection extends Collection {
     __notifyPush(...items) {
         const newIndex = this.length - 1;
         this.ChangeEvent.invoke(this, {
-            action: ObservableCollectionChangeAction.Add,
+            action: exports.ObservableCollectionChangeAction.Add,
             oldIndex: null,
             oldItems: [],
             newIndex,
@@ -103,7 +106,7 @@ export class ObservableCollection extends Collection {
     __notifyPop() {
         const oldIndex = this.length - 1, oldItem = this.last;
         this.ChangeEvent.invoke(this, {
-            action: ObservableCollectionChangeAction.Remove,
+            action: exports.ObservableCollectionChangeAction.Remove,
             oldIndex,
             oldItems: [oldItem],
             newIndex: null,
@@ -124,10 +127,11 @@ export class ObservableCollection extends Collection {
     }
     get ChangeEvent() { return this.__ChangeEvent; }
 }
+exports.ObservableCollection = ObservableCollection;
 /**
  * KeyValuePair class
  */
-export class KeyValuePair {
+class KeyValuePair {
     constructor(key, value) {
         this.__key = key;
         this.__value = value;
@@ -139,11 +143,12 @@ export class KeyValuePair {
     get key() { return this.__key; }
     get value() { return this.__value; }
 }
+exports.KeyValuePair = KeyValuePair;
 /**
  * Dictionary class
  *
  */
-export class Dictionary extends Collection {
+class Dictionary extends Collection {
     static fromMap(map) {
         function* getItems() {
             for (let mapItem of map)
@@ -171,9 +176,9 @@ export class Dictionary extends Collection {
     }
     set(key, value) {
         if (key === undefined)
-            throw new ArgumentOutOfRangeException("key");
+            throw new Exceptions_1.ArgumentOutOfRangeException("key");
         if (value === undefined)
-            throw new ArgumentOutOfRangeException("value");
+            throw new Exceptions_1.ArgumentOutOfRangeException("value");
         if (this.has(key))
             this.delete(key);
         this.add(new KeyValuePair(key, value));
@@ -189,29 +194,30 @@ export class Dictionary extends Collection {
     delete(key) {
         const item = this.find(item => item.key === key);
         if (item === undefined)
-            throw new KeyNotFoundException("key");
+            throw new Exceptions_1.KeyNotFoundException("key");
         this.remove(item);
     }
 }
+exports.Dictionary = Dictionary;
 /*
  * ObservableDictionary class
  * Creates a dictionary observable via the "change" event.
  */
-export const ObservableDictionaryChangeAction = new Enumeration([
+exports.ObservableDictionaryChangeAction = new Enumeration_1.Enumeration([
     "Add",
     "Change",
     "Delete"
 ]);
-export class ObservableDictionary extends Dictionary {
+class ObservableDictionary extends Dictionary {
     constructor() {
         super(...arguments);
-        this.__ChangeEvent = new FrameworkEvent();
+        this.__ChangeEvent = new Events_1.FrameworkEvent();
     }
     __notifySet(key, value) {
         if (this.has(key)) {
             let oldValue = this.get(value);
             this.ChangeEvent.invoke(this, {
-                action: ObservableDictionaryChangeAction.Change,
+                action: exports.ObservableDictionaryChangeAction.Change,
                 key,
                 oldValue,
                 newValue: value,
@@ -219,7 +225,7 @@ export class ObservableDictionary extends Dictionary {
         }
         else
             this.ChangeEvent.invoke(this, {
-                action: ObservableDictionaryChangeAction.Add,
+                action: exports.ObservableDictionaryChangeAction.Add,
                 key,
                 oldValue: undefined,
                 newValue: value
@@ -230,7 +236,7 @@ export class ObservableDictionary extends Dictionary {
             return;
         let oldValue = this.get(key);
         this.ChangeEvent.invoke(this, {
-            action: ObservableDictionaryChangeAction.Delete,
+            action: exports.ObservableDictionaryChangeAction.Delete,
             key,
             oldValue,
             newValue: undefined
@@ -246,3 +252,4 @@ export class ObservableDictionary extends Dictionary {
     }
     get ChangeEvent() { return this.__ChangeEvent; }
 }
+exports.ObservableDictionary = ObservableDictionary;

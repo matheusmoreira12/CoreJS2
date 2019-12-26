@@ -88,19 +88,41 @@ export class Type {
 
         function* selectMembers(this: Type, members: Iterable<Member>) {
             function memberTypeMatches(memberType) {
-                if (!MemberSelectionType.contains(MemberSelectionType.Function, selectionType) && MemberType.contains(MemberType.Function, memberType)) return false;
-                if (!MemberSelectionType.contains(MemberSelectionType.Property, selectionType) && MemberType.contains(MemberType.Property, memberType)) return false;
-                if (!MemberSelectionType.contains(MemberSelectionType.Field, selectionType) && MemberType.contains(MemberType.Field, memberType)) return false;
-                if (!MemberSelectionType.contains(MemberSelectionType.Static, selectionType) && MemberType.contains(MemberType.Static, memberType)) return false;
-                if (!MemberSelectionType.contains(MemberSelectionType.Instance, selectionType) && MemberType.contains(MemberType.Instance, memberType)) return false;
+                let selectionHasFunction: boolean = MemberSelectionType.contains(MemberSelectionType.Function, selectionType),
+                    selectionHasProperty: boolean = MemberSelectionType.contains(MemberSelectionType.Property, selectionType),
+                    selectionHasField: boolean = MemberSelectionType.contains(MemberSelectionType.Field, selectionType),
+                    selectionHasStatic: boolean = MemberSelectionType.contains(MemberSelectionType.Static, selectionType),
+                    selectionHasInstance: boolean = MemberSelectionType.contains(MemberSelectionType.Instance, selectionType);
+
+                let memberIsFunction: boolean = MemberType.contains(MemberType.Function, memberType),
+                    memberIsProperty: boolean = MemberType.contains(MemberType.Property, memberType),
+                    memberIsField: boolean = MemberType.contains(MemberType.Field, memberType),
+                    memberIsStatic: boolean = MemberType.contains(MemberType.Static, memberType),
+                    memberIsInstance: boolean = MemberType.contains(MemberType.Instance, memberType);
+
+                if (!selectionHasFunction && memberIsFunction ||
+                    !selectionHasProperty && memberIsProperty ||
+                    !selectionHasField && memberIsField ||
+                    !selectionHasStatic && memberIsStatic ||
+                    !selectionHasInstance && memberIsInstance)
+                    return false;
 
                 return true;
             }
 
             function memberAttributesMatch(memberAttributes) {
-                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes)) return false;
-                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Configurable, memberAttributes)) return false;
-                if (MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, selectionAttributes) && !MemberAttributes.contains(MemberAttributes.Writable, memberAttributes)) return false;
+                let selectionHasEnumerable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes),
+                    selectionHasConfigurable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, selectionAttributes),
+                    selectionHasWritable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, selectionAttributes);
+
+                let memberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes),
+                    memberIsConfigurable = MemberAttributes.contains(MemberAttributes.Configurable, memberAttributes),
+                    memberIsWritable = MemberAttributes.contains(MemberAttributes.Writable, memberAttributes);
+
+                if (selectionHasEnumerable && !memberIsEnumerable ||
+                    selectionHasConfigurable && !memberIsConfigurable ||
+                    selectionHasWritable && !memberIsWritable)
+                    return false;
 
                 return true;
             }
@@ -114,21 +136,22 @@ export class Type {
         }
 
         if (selectionType !== undefined && typeof selectionType !== "number")
-            throw new InvalidTypeException("selectionType", typeof selectionType);
+            throw new InvalidTypeException("selectionType", selectionType, Number);
         if (selectionAttributes !== undefined && typeof selectionAttributes !== "number")
-            throw new InvalidTypeException("selectionAttributes", typeof selectionAttributes);
+            throw new InvalidTypeException("selectionAttributes", selectionAttributes, Number);
 
         selectionType = selectionType === undefined ? MemberSelectionType.Any : selectionType;
         selectionAttributes = selectionAttributes === undefined ? MemberSelectionAttributes.Any : selectionAttributes;
 
         let members = generateMembers.call(this);
 
-        if (selectionType === MemberSelectionType.Any && selectionAttributes === MemberSelectionAttributes.Any)
-            yield* members;
-        else {
+        let resultsNeedSelection = selectionType === MemberSelectionType.Any && selectionAttributes === MemberSelectionAttributes.Any;
+        if (resultsNeedSelection) {
             let selectedMembers = selectMembers.call(this, members);
             yield* selectedMembers;
         }
+        else
+            yield* members;
     }
 
     * getMembers(selectionType?: number, selectionAttributes?: number) {
@@ -166,50 +189,11 @@ export class Type {
     }
 
     implements(_interface) {
-        function getMemberByKey(members, key) {
-            return members.find(m => m.key === key);
-        }
-
-        function attributesMatch(memberAttributes, interfaceMemberAttributes) {
-            return MemberAttributes.contains(interfaceMemberAttributes, memberAttributes);
-        }
-
-        function membersMatch(member, interfaceMember) {
-            if (!member) {
-                if (interfaceMember.isOptional)
-                    return true;
-
-                return false;
-            }
-
-            if (interfaceMember.type instanceof Type) {
-                if (!member.type.equalsOrExtends(interfaceMember.type))
-                    return false;
-            }
-            else if (interfaceMember.type instanceof Interface) {
-                if (!member.type.implements(interfaceMember.type))
-                    return false;
-            }
-
-            if (!attributesMatch(member.attributes, interfaceMember.attributes))
-                return false;
-
+        let analysis = Interface.differ(this, _interface);
+        if (analysis.isEmpty)
             return true;
-        }
 
-        if (!Type.of(_interface).equalsOrExtends(Type.get(Interface)))
-            throw new ArgumentTypeException("interface", Type.of(_interface), Type.get(Interface));
-
-        let members = [...this.getMembers(MemberSelectionType.Property | MemberSelectionType.Function)];
-
-        for (let interfaceMember of _interface.members) {
-            let member = getMemberByKey(members, interfaceMember.key);
-
-            if (!membersMatch(member, interfaceMember))
-                return false;
-        }
-
-        return true;
+        return false;
     }
 
     * getParentTypes() {
@@ -268,7 +252,8 @@ export const MemberType = new Enumeration({
     Property: 1,
     Function: 2,
     Field: 4,
-    Static: 8
+    Instance: 8,
+    Static: 16
 });
 
 export class Member {

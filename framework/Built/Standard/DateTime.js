@@ -1,8 +1,10 @@
-﻿import { RegExpXContext } from "../Strings/RegExpXContext";
-import { ArgumentTypeException, ArgumentOutOfRangeException } from "./Exceptions";
-import { Type } from "./Types/Types";
-import { Enumeration } from "./Enumeration";
-const REGEXPX_CONTEXT = new RegExpXContext();
+﻿"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const RegExpXContext_1 = require("../Strings/RegExpXContext");
+const Exceptions_1 = require("./Exceptions");
+const Types_1 = require("./Types/Types");
+const Enumeration_1 = require("./Enumeration");
+const REGEXPX_CONTEXT = new RegExpXContext_1.RegExpXContext();
 REGEXPX_CONTEXT.declareNamedPattern("year", `y{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("month", `M{1,4}`);
 REGEXPX_CONTEXT.declareNamedPattern("day", `d{1,4}`);
@@ -27,7 +29,7 @@ const subtractDateTimes = (a, b) => new TimeSpan(a.ticks - b.ticks);
 const addTimeSpanToDateTime = (a, b) => new DateTime(a.ticks + b.ticks);
 const subtractTimeSpanFromDateTime = (a, b) => new DateTime(a.ticks - b.ticks);
 const DEFAULT_TIMESPAN_FORMAT = "d.hh:mm:ss.fffffff";
-export class TimeSpan {
+class TimeSpan {
     constructor(ticks) {
         this.__ticks = ticks;
     }
@@ -96,7 +98,7 @@ export class TimeSpan {
     multiply(value) {
         if (typeof value === "number")
             return multiplyTimeSpanByNumber(this, value);
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(Number));
+        throw new Exceptions_1.ArgumentTypeException("value", Types_1.Type.of(value), Types_1.Type.get(Number));
     }
     divide(value) { return this.multiply(1 / value); }
     add(value) {
@@ -104,12 +106,12 @@ export class TimeSpan {
             return addTimeSpanToDateTime(value, this);
         else if (value instanceof TimeSpan)
             return addTimeSpans(value, this);
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(DateTime));
+        throw new Exceptions_1.ArgumentTypeException("value", Types_1.Type.of(value), Types_1.Type.get(DateTime));
     }
     subtract(value) {
         if (value instanceof TimeSpan)
             return subtractTimeSpans(this, value);
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(TimeSpan));
+        throw new Exceptions_1.ArgumentTypeException("value", Types_1.Type.of(value), Types_1.Type.get(TimeSpan));
     }
     get totalTicks() {
         return this.__ticks;
@@ -149,6 +151,7 @@ export class TimeSpan {
         return Math.trunc(secs % 1 * Math.pow(10, precision));
     }
 }
+exports.TimeSpan = TimeSpan;
 const GregorianCalendar = {
     getIsCenturialYear(year) {
         return year % 100 === 0;
@@ -158,7 +161,7 @@ const GregorianCalendar = {
     },
     getDaysInMonth(month, year) {
         if (month <= 0 || month > MONTHS_IN_YEAR)
-            throw new ArgumentOutOfRangeException("month");
+            throw new Exceptions_1.ArgumentOutOfRangeException("month");
         switch (month) {
             case 2:
                 return this.getIsLeapYear(year) ? 29 : 28;
@@ -195,24 +198,24 @@ const GregorianCalendar = {
             second: sec,
             minute: min,
             hour,
-            timeOfDay: hour >= 12 ? TimeOfDay.AnteMeridiem : TimeOfDay.PostMeridiem
+            timeOfDay: hour >= 12 ? exports.TimeOfDay.AnteMeridiem : exports.TimeOfDay.PostMeridiem
         };
     },
     getEra(ticks) {
-        return ticks > 0 ? DateTimeEra.AnnoDomini : DateTimeEra.BeforeChrist;
+        return ticks > 0 ? exports.DateTimeEra.AnnoDomini : exports.DateTimeEra.BeforeChrist;
     }
 };
-export const DateTimeEra = new Enumeration([
+exports.DateTimeEra = new Enumeration_1.Enumeration([
     "BeforeChrist",
     "AnnoDomini"
 ]);
-export const TimeOfDay = new Enumeration([
+exports.TimeOfDay = new Enumeration_1.Enumeration([
     "AnteMeridiem",
     "PostMeridiem"
 ]);
 const EPOCH_TO_NATIVE = new Date(Date.UTC(1, 0, 1, 0, 0, 0, 0)).setUTCFullYear(1);
 const DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.fffffff z";
-export class DateTime {
+class DateTime {
     constructor(ticks) {
         this.__ticks = ticks;
     }
@@ -259,7 +262,7 @@ export class DateTime {
             return getPaddedValue(hours, quantifier);
         };
         const getTimeOfDayString = quantifier => {
-            const timeOfDayStr = this.timeOfDay == TimeOfDay.AnteMeridiem ? "AM" : "PM";
+            const timeOfDayStr = this.timeOfDay == exports.TimeOfDay.AnteMeridiem ? "AM" : "PM";
             return timeOfDayStr.slice(0, quantifier - 1);
         };
         const getMinuteString = quantifier => {
@@ -309,12 +312,12 @@ export class DateTime {
             return subtractDateTimes(this, value);
         else if (value instanceof TimeSpan)
             return subtractTimeSpanFromDateTime(this, value);
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(DateTime));
+        throw new Exceptions_1.ArgumentTypeException("value", Types_1.Type.of(value), Types_1.Type.get(DateTime));
     }
     add(value) {
         if (value instanceof TimeSpan)
             return addTimeSpanToDateTime(this, value);
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(TimeSpan));
+        throw new Exceptions_1.ArgumentTypeException("value", Types_1.Type.of(value), Types_1.Type.get(TimeSpan));
     }
     get era() {
         return GregorianCalendar.getEra(this.__ticks);
@@ -349,3 +352,4 @@ export class DateTime {
         return Math.trunc(secs % 1 * Math.pow(10, precision));
     }
 }
+exports.DateTime = DateTime;
