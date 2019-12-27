@@ -1,16 +1,14 @@
 ﻿import { Widget } from "./Widget";
 
-export type Constructor<T> = (...args: any[]) => T;
-
 export class WidgetMetadata {
-    constructor(widgetConstructor: Constructor<Widget>, namespaceURI: string, qualifiedName: string) {
-        this.__widgetConstructor = widgetConstructor;
+    constructor(widgetConstructor: new() => Widget, namespaceURI: string, qualifiedName: string) {
+        this.__WidgetClass = widgetConstructor;
         this.__namespaceURI = namespaceURI;
         this.__qualifiedName = qualifiedName;
     }
 
-    get widgetClass(): Constructor<Widget> { return this.__widgetConstructor; }
-    private __widgetConstructor: Constructor<Widget>;
+    get WidgetClass(): new () => Widget { return this.__WidgetClass; }
+    private __WidgetClass: new () => Widget;
 
     get namespaceURI(): string { return this.__namespaceURI; }
     private __namespaceURI: string;

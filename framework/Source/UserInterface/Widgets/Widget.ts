@@ -1,11 +1,14 @@
-import { InvalidOperationException } from "../Standard/Exceptions";
-import { PropertyAttributeBinding } from "./Bindings";
-import { BooleanAttributeValueConverter, FrameworkProperty } from "./user-interface";
-import DragDropHandler from "./DragDropHandler";
-import { FrameworkEvent, NativeEvent } from "../Standard/Events";
+import { InvalidOperationException } from "../../Standard/Exceptions";
+import { PropertyAttributeBinding } from "../Bindings";
+import { BooleanAttributeValueConverter, FrameworkProperty } from "../user-interface";
+import DragDropHandler from "../DragDropHandler";
+import { FrameworkEvent, NativeEvent } from "../../Standard/Events";
+import { Destructible } from "../../Standard/Destructible";
 
-export abstract class Widget {
+export abstract class Widget extends Destructible {
     constructor(namespaceURI, qualifiedName) {
+        super();
+
         if (new.target === Widget)
             throw new InvalidOperationException("Invalid constructor");
 
@@ -31,12 +34,6 @@ export abstract class Widget {
 
     //Helper Class Instances
     private __dragDropHandler = new DragDropHandler(this);
-
-    protected connectedCallback() {
-    }
-
-    protected disconnectedCallback() {
-    }
 
     //Drag/Drop Handler Event Listeners
     private __dragDropHandler__onRequestDragStart(sender, args) {
@@ -170,4 +167,4 @@ export abstract class Widget {
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
 }
 
-Object.setPrototypeOf(Widget, Object.getPrototypeOf(HTMLElement));
+Object.setPrototypeOf(Widget, HTMLElement);
