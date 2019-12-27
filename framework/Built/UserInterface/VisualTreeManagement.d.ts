@@ -6,9 +6,9 @@ export declare abstract class VisualTreeNode {
     private __setAttribute;
     private __removeAttribute;
     private __childNodes_onChange;
-    readonly childNodes: ObservableCollection<VisualTreeNode>;
+    get childNodes(): ObservableCollection<VisualTreeNode>;
     protected __childNodes: ObservableCollection<VisualTreeNode>;
-    readonly domNode: Node;
+    get domNode(): Node;
     protected __domNode: Node;
 }
 export declare class VisualTreeElement extends VisualTreeNode {

@@ -1,10 +1,8 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const exceptions_1 = require("./exceptions");
-const Enumeration_1 = require("./Enumeration");
-const Events_1 = require("./Events");
-const Interface_1 = require("./Interfaces/Interface");
-class ServerTaskException extends exceptions_1.FrameworkException {
+﻿import { ArgumentTypeException, FrameworkException } from "./exceptions";
+import { Enumeration } from "./Enumeration";
+import { BroadcastFrameworkEvent } from "./Events";
+import { Interface, InterfaceMember, InterfaceMemberType } from "./Interfaces/Interface";
+export class ServerTaskException extends FrameworkException {
     constructor(serverMessage, serverErrorCode, message, innerException) {
         message = message || `Server task failed in the server side with status code $serverErrorCode and message "$serverMessage".`;
         super(message, innerException);
@@ -12,12 +10,11 @@ class ServerTaskException extends exceptions_1.FrameworkException {
         this.data["serverErrorCode"] = serverErrorCode;
     }
 }
-exports.ServerTaskException = ServerTaskException;
 const DEFAULT_SERVER_TASK_OPTIONS = {
     timeout: Number.POSITIVE_INFINITY,
     maxRetries: 0
 };
-exports.ServerTaskStatus = new Enumeration_1.Enumeration([
+export const ServerTaskStatus = new Enumeration([
     "Pending",
     "Started",
     "Retried",
@@ -29,17 +26,17 @@ exports.ServerTaskStatus = new Enumeration_1.Enumeration([
 /**
  * ServerTask class
  * Extends the promise class, providing server-side error handling logic.*/
-class ServerTask {
+export class ServerTask {
     constructor(promise) {
-        this.__statusChangedEvent = new Events_1.BroadcastFrameworkEvent("ServerTask_statusChanged");
-        this.__startedEvent = new Events_1.BroadcastFrameworkEvent("ServerTask_started");
-        this.__finishedEvent = new Events_1.BroadcastFrameworkEvent("ServerTask_finished");
-        this.__succeededEvent = new Events_1.BroadcastFrameworkEvent("ServerTask_succeeded");
-        this.__failedEvent = new Events_1.BroadcastFrameworkEvent("ServerTask_failed");
-        this.__status = exports.ServerTaskStatus.Pending;
+        this.__statusChangedEvent = new BroadcastFrameworkEvent("ServerTask_statusChanged");
+        this.__startedEvent = new BroadcastFrameworkEvent("ServerTask_started");
+        this.__finishedEvent = new BroadcastFrameworkEvent("ServerTask_finished");
+        this.__succeededEvent = new BroadcastFrameworkEvent("ServerTask_succeeded");
+        this.__failedEvent = new BroadcastFrameworkEvent("ServerTask_failed");
+        this.__status = ServerTaskStatus.Pending;
         this.__error = null;
         if (!(promise instanceof Promise))
-            throw new exceptions_1.ArgumentTypeException("promise", Promise);
+            throw new ArgumentTypeException("promise", Promise);
         this.__loaded = new Promise((resolve, reject) => this._execute(promise, resolve, reject));
     }
     static get [Symbol.species]() { return Promise; }
@@ -49,16 +46,16 @@ class ServerTask {
             this.statusChangedEvent.broadcast(this, { status: status });
         }
         function notifyStart() {
-            notifyStatus.call(this, exports.ServerTaskStatus.Started);
+            notifyStatus.call(this, ServerTaskStatus.Started);
             this.startedEvent.broadcast(this, {});
         }
         function notifySuccess() {
-            notifyStatus.call(this, exports.ServerTaskStatus.Succeeded);
+            notifyStatus.call(this, ServerTaskStatus.Succeeded);
             this.succeededEvent.broadcast(this, {});
             this.finishedEvent.broadcast(this, { error: null });
         }
         function notifyError(error) {
-            notifyStatus.call(this, exports.ServerTaskStatus.Failed);
+            notifyStatus.call(this, ServerTaskStatus.Failed);
             this.__error = error;
             this.failedEvent.broadcast(this, { error: error });
             this.finishedEvent.broadcast(this, {});
@@ -88,12 +85,11 @@ class ServerTask {
     get loaded() { return this.__loaded; }
     ;
 }
-exports.ServerTask = ServerTask;
 /**
  * IValueConverter Interface
  * Exposes a friendly interface for converting values between layers of abstraction.*/
-exports.IValueConverter = new Interface_1.Interface(new Interface_1.InterfaceMember("convert", Interface_1.InterfaceMemberType.Function), new Interface_1.InterfaceMember("convertBack", Interface_1.InterfaceMemberType.Function));
+export const IValueConverter = new Interface(new InterfaceMember("convert", InterfaceMemberType.Function), new InterfaceMember("convertBack", InterfaceMemberType.Function));
 /**
  * ValueValidator Interface
  * Exposes a friendly interface for validating values between layers of abstraction.*/
-exports.IValueValidator = new Interface_1.Interface(new Interface_1.InterfaceMember("validate", Interface_1.InterfaceMemberType.Function));
+export const IValueValidator = new Interface(new InterfaceMember("validate", InterfaceMemberType.Function));

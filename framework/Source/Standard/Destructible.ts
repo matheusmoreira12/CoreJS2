@@ -11,7 +11,7 @@ export abstract class Destructible {
     protected abstract destructor();
 
     destruct() {
-        if (this.isDestructed)
+        if (this.__isDestructed)
             throw new InvalidOperationException("Object has already been destructed.");
 
         this.destructor();

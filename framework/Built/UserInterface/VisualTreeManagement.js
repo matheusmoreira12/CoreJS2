@@ -1,15 +1,13 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Exceptions_1 = require("../Standard/Exceptions");
-const Collections_1 = require("../Standard/Collections");
+﻿import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
+import { ObservableCollectionChangeAction, ObservableCollection } from "../Standard/Collections";
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
-class VisualTreeNode {
+export class VisualTreeNode {
     constructor(domNode) {
-        this.__childNodes = new Collections_1.ObservableCollection();
+        this.__childNodes = new ObservableCollection();
         if (new.target === VisualTreeNode)
-            throw new Exceptions_1.InvalidOperationException("Invalid constructor.");
+            throw new InvalidOperationException("Invalid constructor.");
         if (!(domNode instanceof Node))
-            throw new Exceptions_1.ArgumentTypeException("domNode", domNode, Node);
+            throw new ArgumentTypeException("domNode", domNode, Node);
         this.__domNode = domNode;
         this.__childNodes.ChangeEvent.attach(this.__childNodes_onChange, this);
     }
@@ -33,7 +31,7 @@ class VisualTreeNode {
         this.__domNode.appendChild(treeNode.__domNode);
     }
     __childNodes_onChange(sender, args) {
-        if (Collections_1.ObservableCollectionChangeAction.contains(Collections_1.ObservableCollectionChangeAction.Remove, args.action)) {
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
                 if (item instanceof VisualTreeNode) {
                     if (item instanceof VisualTreeElement)
@@ -42,10 +40,10 @@ class VisualTreeNode {
                         this.__removeAttribute(item);
                 }
                 else
-                    throw new Exceptions_1.InvalidTypeException("item", item, VisualTreeNode);
+                    throw new InvalidTypeException("item", item, VisualTreeNode);
             }
         }
-        if (Collections_1.ObservableCollectionChangeAction.contains(Collections_1.ObservableCollectionChangeAction.Add, args.action)) {
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Add, args.action)) {
             let index = args.newIndex;
             for (let item of args.newItems) {
                 if (item instanceof VisualTreeNode) {
@@ -55,7 +53,7 @@ class VisualTreeNode {
                         this.__setAttribute(item);
                 }
                 else
-                    throw new Exceptions_1.InvalidTypeException("item", item, VisualTreeNode);
+                    throw new InvalidTypeException("item", item, VisualTreeNode);
                 index++;
             }
         }
@@ -63,30 +61,26 @@ class VisualTreeNode {
     get childNodes() { return this.__childNodes; }
     get domNode() { return this.__domNode; }
 }
-exports.VisualTreeNode = VisualTreeNode;
-class VisualTreeElement extends VisualTreeNode {
+export class VisualTreeElement extends VisualTreeNode {
     constructor(qualifiedName, namespaceURI = null) {
         namespaceURI = namespaceURI || DEFAULT_NAMESPACE_URI;
         if (typeof qualifiedName !== "string")
-            throw new Exceptions_1.ArgumentTypeException("qualifiedName", qualifiedName, String);
+            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
         let domElement = document.createElementNS(namespaceURI, qualifiedName);
         super(domElement);
     }
 }
-exports.VisualTreeElement = VisualTreeElement;
-class VisualTreeAttribute extends VisualTreeNode {
+export class VisualTreeAttribute extends VisualTreeNode {
     constructor(qualifiedName, namespaceURI = null) {
         namespaceURI = namespaceURI || DEFAULT_NAMESPACE_URI;
         if (typeof qualifiedName !== "string")
-            throw new Exceptions_1.ArgumentTypeException("qualifiedName", qualifiedName, String);
+            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
         let domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
         super(domAttribute);
     }
 }
-exports.VisualTreeAttribute = VisualTreeAttribute;
-class VisualTree extends VisualTreeNode {
+export class VisualTree extends VisualTreeNode {
     constructor(rootNode) {
         super(rootNode);
     }
 }
-exports.VisualTree = VisualTree;

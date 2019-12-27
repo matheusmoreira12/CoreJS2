@@ -1,13 +1,11 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Enumeration_1 = require("../Standard/Enumeration");
-const user_interface_1 = require("./user-interface");
-const Events_1 = require("../Standard/Events");
-const DragEmulator_1 = require("./DragEmulator");
+﻿import { Enumeration } from "../Standard/Enumeration";
+import { Timer, Utils } from "./user-interface";
+import { BroadcastFrameworkEvent, FrameworkEvent } from "../Standard/Events";
+import DragEmulator from "./DragEmulator";
 const DEFAULT_DRAG_HANDLER_OPTIONS = {
     touchDragStartDelay: 1000
 };
-const DragDropHandlerState = new Enumeration_1.Enumeration([
+const DragDropHandlerState = new Enumeration([
     "Ready",
     "DragStartRequested",
     "DragDragging",
@@ -19,27 +17,27 @@ const DragDropHandlerState = new Enumeration_1.Enumeration([
  * Drag Handler class
  * Makes multi-platform dragging implementation less painful.
  */
-class DragDropHandler {
+export default class DragDropHandler {
     constructor(target) {
-        this.__NotifyDragStartEvent = new Events_1.BroadcastFrameworkEvent("DragDropHandler_NotifyDragStart");
-        this.__NotifyDragMoveEvent = new Events_1.BroadcastFrameworkEvent("DragDropHandler_NotifyDragMove", this.__onNotifyDragMove.bind(this));
-        this.__NotifyDragEndEvent = new Events_1.BroadcastFrameworkEvent("DragDropHandler_NotifyDragEnd", this.__onNotifyDragEnd.bind(this));
-        this.__NotifyDragCancelEvent = new Events_1.BroadcastFrameworkEvent("DragDropHandler_NotifyDragCancel");
-        this.__emulator = new DragEmulator_1.default(this);
+        this.__NotifyDragStartEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragStart");
+        this.__NotifyDragMoveEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragMove", this.__onNotifyDragMove.bind(this));
+        this.__NotifyDragEndEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragEnd", this.__onNotifyDragEnd.bind(this));
+        this.__NotifyDragCancelEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragCancel");
+        this.__emulator = new DragEmulator(this);
         this.__data = null;
         this.__context = null;
         this.__state = DragDropHandlerState.Ready;
-        this.__RequestDragStartEvent = new Events_1.FrameworkEvent();
-        this.__DragStartEvent = new Events_1.FrameworkEvent();
-        this.__DragMoveEvent = new Events_1.FrameworkEvent();
-        this.__DragEndEvent = new Events_1.FrameworkEvent();
-        this.__DragCancelEvent = new Events_1.FrameworkEvent();
-        this.__DragEnterEvent = new Events_1.FrameworkEvent();
-        this.__DragOverEvent = new Events_1.FrameworkEvent();
-        this.__DragLeaveEvent = new Events_1.FrameworkEvent();
-        this.__DragDropEvent = new Events_1.FrameworkEvent();
+        this.__RequestDragStartEvent = new FrameworkEvent();
+        this.__DragStartEvent = new FrameworkEvent();
+        this.__DragMoveEvent = new FrameworkEvent();
+        this.__DragEndEvent = new FrameworkEvent();
+        this.__DragCancelEvent = new FrameworkEvent();
+        this.__DragEnterEvent = new FrameworkEvent();
+        this.__DragOverEvent = new FrameworkEvent();
+        this.__DragLeaveEvent = new FrameworkEvent();
+        this.__DragDropEvent = new FrameworkEvent();
         this.__target = target;
-        let touchDragDelayTimer = new user_interface_1.Timer(1000, false);
+        let touchDragDelayTimer = new Timer(1000, false);
         this.__touchDragDelayTimer = touchDragDelayTimer;
         touchDragDelayTimer.TickEvent.attach(this.__touchDragDelayTimer_onTick, this);
         ///TODO: Re-implement touch drag interaction
@@ -209,8 +207,8 @@ class DragDropHandler {
         if (sender === this)
             return;
         let { clientX, clientY } = args;
-        let visibleRect = user_interface_1.Utils.getElementVisibleRect(this.target);
-        let cursorIsOver = user_interface_1.Utils.pointInRect(visibleRect, new DOMPoint(clientX, clientY));
+        let visibleRect = Utils.getElementVisibleRect(this.target);
+        let cursorIsOver = Utils.pointInRect(visibleRect, new DOMPoint(clientX, clientY));
         switch (this.__state) {
             case DragDropHandlerState.Ready:
             case DragDropHandlerState.DropDragOut:
@@ -255,4 +253,3 @@ class DragDropHandler {
     get DragDropEvent() { return this.__DragDropEvent; }
     get target() { return this.__target; }
 }
-exports.default = DragDropHandler;

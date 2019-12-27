@@ -4,7 +4,7 @@
   "compilerOptions": {
     "declaration": true,
     "emitBOM": true,
-    "module": "CommonJS",
+    "module": "ES6",
     "outDir": "Built/",
     "target": "ES6"
   }

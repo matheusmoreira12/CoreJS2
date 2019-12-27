@@ -1,15 +1,13 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Exceptions_1 = require("./Exceptions");
-const Types_1 = require("./Types/Types");
-class TokenReaderContext {
+﻿import { ArgumentTypeException, FrameworkException } from "./Exceptions";
+import { Type } from "./Types/Types";
+export class TokenReaderContext {
     constructor(arg0, arg1) {
         this.__startIndex = null;
         this.__currentIndex = null;
         this.__parentContext = null;
         this.__tokens = null;
         if (arg0 === undefined)
-            throw new Exceptions_1.FrameworkException(`No overload takes 0 argument.`);
+            throw new FrameworkException(`No overload takes 0 argument.`);
         else {
             if (arg0 instanceof Array) {
                 this.__tokens = arg0;
@@ -19,7 +17,7 @@ class TokenReaderContext {
                     if (typeof arg1 == "number")
                         this.__startIndex = arg1;
                     else
-                        throw new Exceptions_1.ArgumentTypeException("startIndex", Types_1.Type.of(arg1), Types_1.Type.get(Number));
+                        throw new ArgumentTypeException("startIndex", Type.of(arg1), Type.get(Number));
                 }
             }
             else if (arg0 instanceof TokenReaderContext) {
@@ -27,7 +25,7 @@ class TokenReaderContext {
                 this.__currentIndex = this.__startIndex = this.__parentContext.currentIndex;
             }
             else
-                throw new Exceptions_1.ArgumentTypeException("parentContext", Types_1.Type.of(arg0), Types_1.Type.get(Number));
+                throw new ArgumentTypeException("parentContext", Type.of(arg0), Type.get(Number));
         }
     }
     derive() {
@@ -59,10 +57,8 @@ class TokenReaderContext {
     get parentContext() { return this.__parentContext; }
     get tokens() { return this.__tokens; }
 }
-exports.TokenReaderContext = TokenReaderContext;
-class TokenReader extends TokenReaderContext {
+export class TokenReader extends TokenReaderContext {
     constructor(tokens, startIndex) {
         super(tokens, startIndex);
     }
 }
-exports.TokenReader = TokenReader;

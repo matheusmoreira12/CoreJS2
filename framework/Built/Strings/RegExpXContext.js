@@ -1,12 +1,10 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Collections_1 = require("../Standard/Collections");
-const Exceptions_1 = require("../Standard/Exceptions");
-const Types_1 = require("../Standard/Types/Types");
-class RegExpXContext {
+﻿import { Dictionary } from "../Standard/Collections";
+import { IndexOutOfRangeException, ArgumentTypeException } from "../Standard/Exceptions";
+import { Type } from "../Standard/Types/Types";
+export class RegExpXContext {
     constructor(...namedPatterns) {
-        this.__namedPatterns = new Collections_1.Dictionary();
-        this.__namedPatterns = new Collections_1.Dictionary(...namedPatterns);
+        this.__namedPatterns = new Dictionary();
+        this.__namedPatterns = new Dictionary(...namedPatterns);
     }
     derive() {
         return new RegExpXContext(...this.__namedPatterns);
@@ -26,13 +24,12 @@ class RegExpXContext {
     }
     get namedPattern() { return this.__namedPatterns; }
 }
-exports.RegExpXContext = RegExpXContext;
 function computeFinalPattern(pattern, context) {
     function replaceEscapedPattern(match) {
         const name = match.slice(1, match.length - 1); //Performatically extract name from escaped string
         let pattern = context.namedPatterns.get(name);
         if (pattern === undefined)
-            throw new Exceptions_1.IndexOutOfRangeException(`No declared named pattern matches name "${name}".`);
+            throw new IndexOutOfRangeException(`No declared named pattern matches name "${name}".`);
         return pattern;
     }
     if (context === undefined)
@@ -41,14 +38,13 @@ function computeFinalPattern(pattern, context) {
     pattern = pattern.replace(/\$\$/g, "$");
     return pattern;
 }
-class RegExpX extends RegExp {
+export class RegExpX extends RegExp {
     constructor(pattern, flags = "", context) {
         if (context !== undefined && !(context instanceof RegExpXContext))
-            throw new Exceptions_1.ArgumentTypeException("context", Types_1.Type.of(context), Types_1.Type.get(RegExpXContext));
+            throw new ArgumentTypeException("context", Type.of(context), Type.get(RegExpXContext));
         const finalPattern = computeFinalPattern(pattern, context);
         super(finalPattern, flags);
         this.__context = context;
     }
     get context() { return this.__context; }
 }
-exports.RegExpX = RegExpX;

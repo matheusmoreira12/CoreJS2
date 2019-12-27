@@ -1,19 +1,17 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Enumeration_1 = require("../Standard/Enumeration");
-const Exceptions_1 = require("../Standard/Exceptions");
-const Events_1 = require("../Standard/Events");
-const user_interface_1 = require("./user-interface");
-exports.AutoScrollerOrientation = new Enumeration_1.Enumeration([
+﻿import { Enumeration } from "../Standard/Enumeration";
+import { ArgumentNullException, ArgumentTypeException } from "../Standard/Exceptions";
+import { FrameworkEvent } from "../Standard/Events";
+import { Timer, Utils } from "./user-interface";
+export const AutoScrollerOrientation = new Enumeration([
     "Horizontal",
     "Vertical"
 ]);
-exports.AutoScrollerDirection = new Enumeration_1.Enumeration([
+export const AutoScrollerDirection = new Enumeration([
     "None",
     "Forward",
     "Backward"
 ]);
-const AutoScrollerState = new Enumeration_1.Enumeration([
+const AutoScrollerState = new Enumeration([
     "Ready",
     "ScrollNotified",
     "ScrollActive",
@@ -23,23 +21,23 @@ const AutoScrollerState = new Enumeration_1.Enumeration([
  * AutoScroller Class
  * Enables automatic scrolling for the framework widgets.
  */
-class AutoScroller {
+export class AutoScroller {
     constructor(target) {
-        this.__ScrollRequestStartEvent = new Events_1.FrameworkEvent();
-        this.__ScrollStartEvent = new Events_1.FrameworkEvent();
-        this.__ScrollRateChangeEvent = new Events_1.FrameworkEvent();
-        this.__ScrollEndEvent = new Events_1.FrameworkEvent();
-        this.__scrollTimer = new user_interface_1.Timer(10, true);
+        this.__ScrollRequestStartEvent = new FrameworkEvent();
+        this.__ScrollStartEvent = new FrameworkEvent();
+        this.__ScrollRateChangeEvent = new FrameworkEvent();
+        this.__ScrollEndEvent = new FrameworkEvent();
+        this.__scrollTimer = new Timer(10, true);
         this.__rateX = 0;
         this.__rateY = 0;
         this.__stateX = AutoScrollerState.Ready;
         this.__stateY = AutoScrollerState.Ready;
-        this.__directionX = exports.AutoScrollerDirection.None;
-        this.__directionY = exports.AutoScrollerDirection.None;
+        this.__directionX = AutoScrollerDirection.None;
+        this.__directionY = AutoScrollerDirection.None;
         if (!target)
-            throw new Exceptions_1.ArgumentNullException("target");
+            throw new ArgumentNullException("target");
         if (!(target instanceof Element))
-            throw new Exceptions_1.ArgumentTypeException("target", target, Element);
+            throw new ArgumentTypeException("target", target, Element);
         this.__target = target;
         this.__scrollTimer.TickEvent.attach(this.__scrollTimer_onTick, this);
         this.__scrollTimer.start();
@@ -54,11 +52,11 @@ class AutoScroller {
     __doScrollStart(args) {
         let { orientation, direction } = args;
         switch (orientation) {
-            case exports.AutoScrollerOrientation.Vertical:
+            case AutoScrollerOrientation.Vertical:
                 this.__directionY = direction;
                 this.__stateY = AutoScrollerState.ScrollActive;
                 break;
-            case exports.AutoScrollerOrientation.Horizontal:
+            case AutoScrollerOrientation.Horizontal:
                 this.__directionX = direction;
                 this.__stateX = AutoScrollerState.ScrollActive;
                 break;
@@ -68,10 +66,10 @@ class AutoScroller {
     __doScrollRateChange(args) {
         let { orientation, rate } = args;
         switch (orientation) {
-            case exports.AutoScrollerOrientation.Vertical:
+            case AutoScrollerOrientation.Vertical:
                 this.__rateY = rate;
                 break;
-            case exports.AutoScrollerOrientation.Horizontal:
+            case AutoScrollerOrientation.Horizontal:
                 this.__rateX = rate;
                 break;
         }
@@ -80,23 +78,23 @@ class AutoScroller {
     __doScrollEnd(args) {
         let orientation = args.orientation;
         switch (orientation) {
-            case exports.AutoScrollerOrientation.Vertical:
+            case AutoScrollerOrientation.Vertical:
                 this.__stateY = AutoScrollerState.Ready;
-                this.__directionY = exports.AutoScrollerDirection.None;
+                this.__directionY = AutoScrollerDirection.None;
                 break;
-            case exports.AutoScrollerOrientation.Horizontal:
+            case AutoScrollerOrientation.Horizontal:
                 this.__stateX = AutoScrollerState.Ready;
-                this.__directionX = exports.AutoScrollerDirection.None;
+                this.__directionX = AutoScrollerDirection.None;
                 break;
         }
         this.ScrollEndEvent.invoke(this, args);
     }
     __scrollTimer_onTick(sender, args) {
         let directionX = this.__directionX, directionY = this.__directionY, rateX = this.__rateX, rateY = this.__rateY;
-        if (directionX === exports.AutoScrollerDirection.None &&
-            directionY === exports.AutoScrollerDirection.None)
+        if (directionX === AutoScrollerDirection.None &&
+            directionY === AutoScrollerDirection.None)
             return;
-        this.target.scrollBy(directionX === exports.AutoScrollerDirection.Forward ? rateX : -rateX, directionY === exports.AutoScrollerDirection.Forward ? rateY : -rateY);
+        this.target.scrollBy(directionX === AutoScrollerDirection.Forward ? rateX : -rateX, directionY === AutoScrollerDirection.Forward ? rateY : -rateY);
     }
     __window_onMouseMove(evt) {
         const SCROLL_REGION_OFFSET = 50;
@@ -107,8 +105,8 @@ class AutoScroller {
             return;
         let cursorPos = new DOMPoint(clientX, clientY);
         let clientRect = this.target.getBoundingClientRect();
-        let topScrollRegion = user_interface_1.Utils.clipRectSide(clientRect, "top", SCROLL_REGION_OFFSET), rightScrollRegion = user_interface_1.Utils.clipRectSide(clientRect, "right", SCROLL_REGION_OFFSET), bottomScrollRegion = user_interface_1.Utils.clipRectSide(clientRect, "bottom", SCROLL_REGION_OFFSET), leftScrollRegion = user_interface_1.Utils.clipRectSide(clientRect, "left", SCROLL_REGION_OFFSET);
-        let cursorIsInTopScrollRegion = user_interface_1.Utils.pointInRect(topScrollRegion, cursorPos), cursorIsInRightScrollRegion = user_interface_1.Utils.pointInRect(rightScrollRegion, cursorPos), cursorIsInBottomScrollRegion = user_interface_1.Utils.pointInRect(bottomScrollRegion, cursorPos), cursorIsInLeftScrollRegion = user_interface_1.Utils.pointInRect(leftScrollRegion, cursorPos);
+        let topScrollRegion = Utils.clipRectSide(clientRect, "top", SCROLL_REGION_OFFSET), rightScrollRegion = Utils.clipRectSide(clientRect, "right", SCROLL_REGION_OFFSET), bottomScrollRegion = Utils.clipRectSide(clientRect, "bottom", SCROLL_REGION_OFFSET), leftScrollRegion = Utils.clipRectSide(clientRect, "left", SCROLL_REGION_OFFSET);
+        let cursorIsInTopScrollRegion = Utils.pointInRect(topScrollRegion, cursorPos), cursorIsInRightScrollRegion = Utils.pointInRect(rightScrollRegion, cursorPos), cursorIsInBottomScrollRegion = Utils.pointInRect(bottomScrollRegion, cursorPos), cursorIsInLeftScrollRegion = Utils.pointInRect(leftScrollRegion, cursorPos);
         let directionX = this.__directionX, directionY = this.__directionY;
         let stateX = this.__stateX, stateY = this.__stateY;
         switch (stateX) {
@@ -118,35 +116,35 @@ class AutoScroller {
                     if (cursorIsInRightScrollRegion) //Cursor is inside the right zone, request 
                         //scrolling right
                         this.__doRequestScrollStart({
-                            orientation: exports.AutoScrollerOrientation.Horizontal,
-                            direction: exports.AutoScrollerDirection.Forward
+                            orientation: AutoScrollerOrientation.Horizontal,
+                            direction: AutoScrollerDirection.Forward
                         });
                     else if (cursorIsInLeftScrollRegion) //Cursor is inside the left zone, request
                         //scrolling left
                         this.__doRequestScrollStart({
-                            orientation: exports.AutoScrollerOrientation.Horizontal,
-                            direction: exports.AutoScrollerDirection.Backward
+                            orientation: AutoScrollerOrientation.Horizontal,
+                            direction: AutoScrollerDirection.Backward
                         });
                 }
                 break;
             case AutoScrollerState.ScrollActive: //Horizontal scroll is active
-                if (cursorIsInRightScrollRegion && directionX === exports.AutoScrollerDirection.Forward && canScrollX)
+                if (cursorIsInRightScrollRegion && directionX === AutoScrollerDirection.Forward && canScrollX)
                     //Cursor remains in the right scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
-                        orientation: exports.AutoScrollerOrientation.Horizontal,
+                        orientation: AutoScrollerOrientation.Horizontal,
                         rate: cursorPos.x - rightScrollRegion.left
                     });
-                else if (cursorIsInLeftScrollRegion && directionX === exports.AutoScrollerDirection.Backward && canScrollX)
+                else if (cursorIsInLeftScrollRegion && directionX === AutoScrollerDirection.Backward && canScrollX)
                     //Cursor remains in the left scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
-                        orientation: exports.AutoScrollerOrientation.Horizontal,
+                        orientation: AutoScrollerOrientation.Horizontal,
                         rate: leftScrollRegion.right - cursorPos.x
                     });
                 else //Cursor left the active horizontal scrolling region, finish scrolling
                     this.__doScrollEnd({
-                        orientation: exports.AutoScrollerOrientation.Horizontal
+                        orientation: AutoScrollerOrientation.Horizontal
                     });
                 break;
         }
@@ -156,35 +154,35 @@ class AutoScroller {
                     //vertical scrolling zones
                     if (cursorIsInTopScrollRegion) //Cursor is inside the top zone, request scrolling up
                         this.__doRequestScrollStart({
-                            orientation: exports.AutoScrollerOrientation.Vertical,
-                            direction: exports.AutoScrollerDirection.Backward
+                            orientation: AutoScrollerOrientation.Vertical,
+                            direction: AutoScrollerDirection.Backward
                         });
                     else if (cursorIsInBottomScrollRegion) //Cursor is inside the bottom zone. Request 
                         //scrolling down
                         this.__doRequestScrollStart({
-                            orientation: exports.AutoScrollerOrientation.Vertical,
-                            direction: exports.AutoScrollerDirection.Forward
+                            orientation: AutoScrollerOrientation.Vertical,
+                            direction: AutoScrollerDirection.Forward
                         });
                 }
                 break;
             case AutoScrollerState.ScrollActive: //Vertical scroll is acrive
-                if (cursorIsInTopScrollRegion && directionY === exports.AutoScrollerDirection.Backward && canScrollY)
+                if (cursorIsInTopScrollRegion && directionY === AutoScrollerDirection.Backward && canScrollY)
                     //Cursor remains in the top scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
-                        orientation: exports.AutoScrollerOrientation.Vertical,
+                        orientation: AutoScrollerOrientation.Vertical,
                         rate: topScrollRegion.bottom - cursorPos.y
                     });
-                else if (cursorIsInBottomScrollRegion && directionY === exports.AutoScrollerDirection.Forward && canScrollY)
+                else if (cursorIsInBottomScrollRegion && directionY === AutoScrollerDirection.Forward && canScrollY)
                     //Cursor remains in the bottom scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
-                        orientation: exports.AutoScrollerOrientation.Vertical,
+                        orientation: AutoScrollerOrientation.Vertical,
                         rate: cursorPos.y - bottomScrollRegion.top
                     });
                 else //Cursor left the active vertical scrolling zone, finish scrolling
                     this.__doScrollEnd({
-                        orientation: exports.AutoScrollerOrientation.Vertical
+                        orientation: AutoScrollerOrientation.Vertical
                     });
                 break;
         }
@@ -193,13 +191,13 @@ class AutoScroller {
         switch (this.__stateY) {
             case AutoScrollerState.ScrollActive:
                 this.__doScrollEnd({
-                    orientation: exports.AutoScrollerOrientation.Vertical
+                    orientation: AutoScrollerOrientation.Vertical
                 });
         }
         switch (this.__stateX) {
             case AutoScrollerState.ScrollActive:
                 this.__doScrollEnd({
-                    orientation: exports.AutoScrollerOrientation.Horizontal
+                    orientation: AutoScrollerOrientation.Horizontal
                 });
         }
     }
@@ -209,4 +207,3 @@ class AutoScroller {
     get ScrollEndEvent() { return this.__ScrollEndEvent; }
     get target() { return this.__target; }
 }
-exports.AutoScroller = AutoScroller;

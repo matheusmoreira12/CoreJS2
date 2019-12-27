@@ -10,7 +10,7 @@ export declare const ServerTaskStatus: Enumeration<import("./Enumeration").Enume
  * ServerTask class
  * Extends the promise class, providing server-side error handling logic.*/
 export declare class ServerTask {
-    static readonly [Symbol.species]: PromiseConstructor;
+    static get [Symbol.species](): PromiseConstructor;
     constructor(promise: any);
     _execute(promise: any, resolve: any, reject: any): void;
     private __statusChangedEvent;
@@ -21,14 +21,14 @@ export declare class ServerTask {
     private __status;
     private __error;
     private __loaded;
-    readonly statusChangedEvent: BroadcastFrameworkEvent;
-    readonly startedEvent: BroadcastFrameworkEvent;
-    readonly finishedEvent: BroadcastFrameworkEvent;
-    readonly succeededEvent: BroadcastFrameworkEvent;
-    readonly failedEvent: BroadcastFrameworkEvent;
-    readonly status: any;
-    readonly error: any;
-    readonly loaded: Promise<any>;
+    get statusChangedEvent(): BroadcastFrameworkEvent;
+    get startedEvent(): BroadcastFrameworkEvent;
+    get finishedEvent(): BroadcastFrameworkEvent;
+    get succeededEvent(): BroadcastFrameworkEvent;
+    get failedEvent(): BroadcastFrameworkEvent;
+    get status(): any;
+    get error(): any;
+    get loaded(): Promise<any>;
 }
 /**
  * IValueConverter Interface

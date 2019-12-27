@@ -31,14 +31,14 @@ export declare class Member {
     static fromPropertyDescriptor(parentType: Type, key: string | symbol, descriptor: PropertyDescriptor, isStatic?: boolean): Member;
     constructor(key: string | symbol, memberType: number, parentType: Type, attributes: number, type: Type);
     isSame(other: Member): boolean;
-    readonly parentType: Type;
+    get parentType(): Type;
     protected __parentType: Type;
-    readonly type: Type;
+    get type(): Type;
     protected __type: Type;
-    readonly memberType: number;
+    get memberType(): number;
     protected __memberType: number;
-    readonly key: string | symbol;
+    get key(): string | symbol;
     protected __key: string | symbol;
-    readonly attributes: number;
+    get attributes(): number;
     protected __attributes: number;
 }

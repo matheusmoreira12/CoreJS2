@@ -1,16 +1,14 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Enumeration_1 = require("../Enumeration");
-const Exceptions_1 = require("../Exceptions");
-const utils_1 = require("../../Utils/utils");
-const Interface_1 = require("../Interfaces/Interface");
-exports.MemberSelectionAttributes = new Enumeration_1.Enumeration({
+﻿import { Enumeration } from "../Enumeration";
+import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Exceptions";
+import { ObjectUtils } from "../../Utils/utils";
+import { Interface } from "../Interfaces/Interface";
+export const MemberSelectionAttributes = new Enumeration({
     Any: 0,
     Configurable: 1,
     Enumerable: 2,
     Writable: 4,
 });
-exports.MemberSelectionType = new Enumeration_1.Enumeration({
+export const MemberSelectionType = new Enumeration({
     Property: 1,
     Function: 2,
     Field: 4,
@@ -18,7 +16,7 @@ exports.MemberSelectionType = new Enumeration_1.Enumeration({
     Static: 16,
     Any: 31,
 });
-class Type {
+export class Type {
     constructor() {
         this.__instance = null;
         this.__hasInstance = false;
@@ -28,7 +26,7 @@ class Type {
     }
     static get(_class) {
         if (!(_class instanceof Function))
-            throw new Exceptions_1.ArgumentTypeException("_class");
+            throw new ArgumentTypeException("_class");
         let result = new Type();
         result.__initializeWithClass(_class);
         return result;
@@ -41,7 +39,7 @@ class Type {
     __initializeWithInstance(instance) {
         this.__instance = instance;
         this.__hasInstance = true;
-        let instanceHasConstructor = utils_1.ObjectUtils.hasPrototype(instance);
+        let instanceHasConstructor = ObjectUtils.hasPrototype(instance);
         if (instanceHasConstructor)
             this.__initializeWithClass(instance.constructor);
         this.__initialized = true;
@@ -53,7 +51,7 @@ class Type {
     }
     __checkInitializationStatus() {
         if (!this.__initialized)
-            throw new Exceptions_1.InvalidOperationException("Type has not been initialized.");
+            throw new InvalidOperationException("Type has not been initialized.");
     }
     getName() {
         this.__checkInitializationStatus();
@@ -66,37 +64,27 @@ class Type {
         function* generateMembers() {
             if (!this.__hasClass)
                 return;
-            for (let key of utils_1.ObjectUtils.getOwnPropertyKeys(this.__class)) {
+            for (let key of ObjectUtils.getOwnPropertyKeys(this.__class)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__class, key);
                 yield Member.fromPropertyDescriptor(this, key, descriptor, true);
             }
             if (!this.__hasInstance)
                 return;
-            for (let key of utils_1.ObjectUtils.getOwnPropertyKeys(this.__instance)) {
+            for (let key of ObjectUtils.getOwnPropertyKeys(this.__instance)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__instance, key);
                 yield Member.fromPropertyDescriptor(this, key, descriptor);
             }
         }
         function* selectMembers(members) {
             function memberTypeMatches(memberType) {
-                let selectionHasFunction = exports.MemberSelectionType.contains(exports.MemberSelectionType.Function, selectionType), selectionHasProperty = exports.MemberSelectionType.contains(exports.MemberSelectionType.Property, selectionType), selectionHasField = exports.MemberSelectionType.contains(exports.MemberSelectionType.Field, selectionType), selectionHasStatic = exports.MemberSelectionType.contains(exports.MemberSelectionType.Static, selectionType), selectionHasInstance = exports.MemberSelectionType.contains(exports.MemberSelectionType.Instance, selectionType);
-                let memberIsFunction = exports.MemberType.contains(exports.MemberType.Function, memberType), memberIsProperty = exports.MemberType.contains(exports.MemberType.Property, memberType), memberIsField = exports.MemberType.contains(exports.MemberType.Field, memberType), memberIsStatic = exports.MemberType.contains(exports.MemberType.Static, memberType), memberIsInstance = exports.MemberType.contains(exports.MemberType.Instance, memberType);
-                if (!selectionHasFunction && memberIsFunction ||
-                    !selectionHasProperty && memberIsProperty ||
-                    !selectionHasField && memberIsField ||
-                    !selectionHasStatic && memberIsStatic ||
-                    !selectionHasInstance && memberIsInstance)
-                    return false;
-                return true;
+                const selectionHasFunction = MemberSelectionType.contains(MemberSelectionType.Function, selectionType), selectionHasProperty = MemberSelectionType.contains(MemberSelectionType.Property, selectionType), selectionHasField = MemberSelectionType.contains(MemberSelectionType.Field, selectionType), selectionHasStatic = MemberSelectionType.contains(MemberSelectionType.Static, selectionType), selectionHasInstance = MemberSelectionType.contains(MemberSelectionType.Instance, selectionType);
+                const memberIsFunction = MemberType.contains(MemberType.Function, memberType), memberIsProperty = MemberType.contains(MemberType.Property, memberType), memberIsField = MemberType.contains(MemberType.Field, memberType), memberIsStatic = MemberType.contains(MemberType.Static, memberType), memberIsInstance = MemberType.contains(MemberType.Instance, memberType);
+                return !(!selectionHasFunction && memberIsFunction || !selectionHasProperty && memberIsProperty || !selectionHasField && memberIsField || !selectionHasStatic && memberIsStatic || !selectionHasInstance && memberIsInstance);
             }
             function memberAttributesMatch(memberAttributes) {
-                let selectionHasEnumerable = exports.MemberSelectionAttributes.contains(exports.MemberSelectionAttributes.Enumerable, selectionAttributes), selectionHasConfigurable = exports.MemberSelectionAttributes.contains(exports.MemberSelectionAttributes.Configurable, selectionAttributes), selectionHasWritable = exports.MemberSelectionAttributes.contains(exports.MemberSelectionAttributes.Writable, selectionAttributes);
-                let memberIsEnumerable = exports.MemberAttributes.contains(exports.MemberAttributes.Enumerable, memberAttributes), memberIsConfigurable = exports.MemberAttributes.contains(exports.MemberAttributes.Configurable, memberAttributes), memberIsWritable = exports.MemberAttributes.contains(exports.MemberAttributes.Writable, memberAttributes);
-                if (selectionHasEnumerable && !memberIsEnumerable ||
-                    selectionHasConfigurable && !memberIsConfigurable ||
-                    selectionHasWritable && !memberIsWritable)
-                    return false;
-                return true;
+                const selectionHasEnumerable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes), selectionHasConfigurable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, selectionAttributes), selectionHasWritable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, selectionAttributes);
+                const memberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes), memberIsConfigurable = MemberAttributes.contains(MemberAttributes.Configurable, memberAttributes), memberIsWritable = MemberAttributes.contains(MemberAttributes.Writable, memberAttributes);
+                return !(selectionHasEnumerable && !memberIsEnumerable || selectionHasConfigurable && !memberIsConfigurable || selectionHasWritable && !memberIsWritable);
             }
             for (let member of members) {
                 if (!memberTypeMatches(member.memberType))
@@ -107,13 +95,13 @@ class Type {
             }
         }
         if (selectionType !== undefined && typeof selectionType !== "number")
-            throw new Exceptions_1.InvalidTypeException("selectionType", selectionType, Number);
+            throw new InvalidTypeException("selectionType", selectionType, Number);
         if (selectionAttributes !== undefined && typeof selectionAttributes !== "number")
-            throw new Exceptions_1.InvalidTypeException("selectionAttributes", selectionAttributes, Number);
-        selectionType = selectionType === undefined ? exports.MemberSelectionType.Any : selectionType;
-        selectionAttributes = selectionAttributes === undefined ? exports.MemberSelectionAttributes.Any : selectionAttributes;
+            throw new InvalidTypeException("selectionAttributes", selectionAttributes, Number);
+        selectionType = selectionType === undefined ? MemberSelectionType.Any : selectionType;
+        selectionAttributes = selectionAttributes === undefined ? MemberSelectionAttributes.Any : selectionAttributes;
         let members = generateMembers.call(this);
-        let resultsNeedSelection = selectionType === exports.MemberSelectionType.Any && selectionAttributes === exports.MemberSelectionAttributes.Any;
+        let resultsNeedSelection = selectionType === MemberSelectionType.Any && selectionAttributes === MemberSelectionAttributes.Any;
         if (resultsNeedSelection) {
             let selectedMembers = selectMembers.call(this, members);
             yield* selectedMembers;
@@ -134,7 +122,7 @@ class Type {
     equals(other) {
         this.__checkInitializationStatus();
         if (!(other instanceof Type))
-            throw new Exceptions_1.ArgumentTypeException("other");
+            throw new ArgumentTypeException("other");
         return this.__getEffectiveValue() === other.__getEffectiveValue();
     }
     extends(other) {
@@ -151,7 +139,7 @@ class Type {
     }
     implements(_interface) {
         this.__checkInitializationStatus();
-        let analysis = Interface_1.Interface.differ(this, _interface);
+        let analysis = Interface.differ(this, _interface);
         if (analysis.isEmpty)
             return true;
         return false;
@@ -190,23 +178,22 @@ class Type {
         return null;
     }
 }
-exports.Type = Type;
-exports.MemberAttributes = new Enumeration_1.Enumeration({
+export const MemberAttributes = new Enumeration({
     Configurable: 1,
     Enumerable: 2,
     Writable: 4
 });
-exports.MemberType = new Enumeration_1.Enumeration({
+export const MemberType = new Enumeration({
     Property: 1,
     Function: 2,
     Field: 4,
     Instance: 8,
     Static: 16
 });
-class Member {
+export class Member {
     constructor(key, memberType, parentType, attributes, type) {
         if (this.constructor === Member)
-            throw new Exceptions_1.InvalidOperationException("Invalid constructor");
+            throw new InvalidOperationException("Invalid constructor");
         this.__key = key;
         this.__memberType = memberType;
         this.__parentType = parentType;
@@ -215,14 +202,11 @@ class Member {
     }
     static fromPropertyDescriptor(parentType, key, descriptor, isStatic = false) {
         function getAttributesFromDescriptor(descriptor) {
-            return (descriptor.writable ? exports.MemberAttributes.Writable : 0) |
-                (descriptor.enumerable ? exports.MemberAttributes.Enumerable : 0) |
-                (descriptor.configurable ? exports.MemberAttributes.Configurable : 0);
+            return (descriptor.writable ? MemberAttributes.Writable : 0) | (descriptor.enumerable ? MemberAttributes.Enumerable : 0) | (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
         function getMemberType(value) {
-            let memberIsFunction = value instanceof Function, memberIsProperty = !!descriptor.get || !!descriptor.set;
-            return (isStatic ? exports.MemberType.Static : exports.MemberType.Instance) |
-                (memberIsFunction ? exports.MemberType.Function : memberIsProperty ? exports.MemberType.Property : exports.MemberType.Field);
+            const memberIsFunction = value instanceof Function, memberIsProperty = !!descriptor.get || !!descriptor.set;
+            return (isStatic ? MemberType.Static : MemberType.Instance) | (memberIsFunction ? MemberType.Function : memberIsProperty ? MemberType.Property : MemberType.Field);
         }
         const attributes = getAttributesFromDescriptor(descriptor);
         const value = descriptor.value;
@@ -235,7 +219,7 @@ class Member {
             return false;
         if (this.__memberType !== other.memberType)
             return false;
-        if (this.__memberType === exports.MemberType.Property && this.__type.equals(other.__type))
+        if (this.__memberType === MemberType.Property && this.__type.equals(other.__type))
             return false;
         return true;
     }
@@ -245,4 +229,3 @@ class Member {
     get key() { return this.__key; }
     get attributes() { return this.__attributes; }
 }
-exports.Member = Member;

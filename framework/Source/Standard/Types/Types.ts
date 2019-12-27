@@ -90,43 +90,31 @@ export class Type {
 
         function* selectMembers(this: Type, members: Iterable<Member>): Generator<Member> {
             function memberTypeMatches(memberType: number): boolean {
-                let selectionHasFunction: boolean = MemberSelectionType.contains(MemberSelectionType.Function, selectionType),
+                const selectionHasFunction: boolean = MemberSelectionType.contains(MemberSelectionType.Function, selectionType),
                     selectionHasProperty: boolean = MemberSelectionType.contains(MemberSelectionType.Property, selectionType),
                     selectionHasField: boolean = MemberSelectionType.contains(MemberSelectionType.Field, selectionType),
                     selectionHasStatic: boolean = MemberSelectionType.contains(MemberSelectionType.Static, selectionType),
                     selectionHasInstance: boolean = MemberSelectionType.contains(MemberSelectionType.Instance, selectionType);
 
-                let memberIsFunction: boolean = MemberType.contains(MemberType.Function, memberType),
+                const memberIsFunction: boolean = MemberType.contains(MemberType.Function, memberType),
                     memberIsProperty: boolean = MemberType.contains(MemberType.Property, memberType),
                     memberIsField: boolean = MemberType.contains(MemberType.Field, memberType),
                     memberIsStatic: boolean = MemberType.contains(MemberType.Static, memberType),
                     memberIsInstance: boolean = MemberType.contains(MemberType.Instance, memberType);
 
-                if (!selectionHasFunction && memberIsFunction ||
-                    !selectionHasProperty && memberIsProperty ||
-                    !selectionHasField && memberIsField ||
-                    !selectionHasStatic && memberIsStatic ||
-                    !selectionHasInstance && memberIsInstance)
-                    return false;
-
-                return true;
+                return !(!selectionHasFunction && memberIsFunction || !selectionHasProperty && memberIsProperty || !selectionHasField && memberIsField || !selectionHasStatic && memberIsStatic || !selectionHasInstance && memberIsInstance);
             }
 
             function memberAttributesMatch(memberAttributes: number): boolean {
-                let selectionHasEnumerable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes),
+                const selectionHasEnumerable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, selectionAttributes),
                     selectionHasConfigurable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, selectionAttributes),
                     selectionHasWritable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, selectionAttributes);
 
-                let memberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes),
+                const memberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes),
                     memberIsConfigurable = MemberAttributes.contains(MemberAttributes.Configurable, memberAttributes),
                     memberIsWritable = MemberAttributes.contains(MemberAttributes.Writable, memberAttributes);
 
-                if (selectionHasEnumerable && !memberIsEnumerable ||
-                    selectionHasConfigurable && !memberIsConfigurable ||
-                    selectionHasWritable && !memberIsWritable)
-                    return false;
-
-                return true;
+                return !(selectionHasEnumerable && !memberIsEnumerable || selectionHasConfigurable && !memberIsConfigurable || selectionHasWritable && !memberIsWritable);
             }
 
             for (let member of members) {
@@ -271,16 +259,14 @@ export const MemberType = new Enumeration({
 export class Member {
     static fromPropertyDescriptor(parentType: Type, key: string | symbol, descriptor: PropertyDescriptor, isStatic: boolean = false) {
         function getAttributesFromDescriptor(descriptor) {
-            return (descriptor.writable ? MemberAttributes.Writable : 0) |
-                (descriptor.enumerable ? MemberAttributes.Enumerable : 0) |
-                (descriptor.configurable ? MemberAttributes.Configurable : 0);
+            return (descriptor.writable ? MemberAttributes.Writable : 0) | (descriptor.enumerable ? MemberAttributes.Enumerable : 0) | (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
 
         function getMemberType(value) {
-            let memberIsFunction: boolean = value instanceof Function,
+            const memberIsFunction: boolean = value instanceof Function,
                 memberIsProperty: boolean = !!descriptor.get || !!descriptor.set;
-            return (isStatic ? MemberType.Static : MemberType.Instance) |
-                (memberIsFunction ? MemberType.Function : memberIsProperty ? MemberType.Property : MemberType.Field);
+
+            return (isStatic ? MemberType.Static : MemberType.Instance) | (memberIsFunction ? MemberType.Function : memberIsProperty ? MemberType.Property : MemberType.Field);
         }
 
         const attributes = getAttributesFromDescriptor(descriptor);

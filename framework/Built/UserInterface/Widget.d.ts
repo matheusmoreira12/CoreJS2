@@ -43,11 +43,15 @@ export declare abstract class Widget {
     private __onClick;
     ClickEvent: NativeEvent;
     static isMouseOverProperty: FrameworkProperty;
-    isMouseOver: any;
+    get isMouseOver(): any;
+    set isMouseOver(value: any);
     static isDraggingProperty: FrameworkProperty;
-    isDragging: any;
+    get isDragging(): any;
+    set isDragging(value: any);
     static isDragOverProperty: FrameworkProperty;
-    isDragOver: any;
+    get isDragOver(): any;
+    set isDragOver(value: any);
     static isDraggableProperty: FrameworkProperty;
-    isDraggable: any;
+    get isDraggable(): any;
+    set isDraggable(value: any);
 }

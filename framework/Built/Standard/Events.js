@@ -1,21 +1,19 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Collections_1 = require("./Collections");
-const Exceptions_1 = require("./Exceptions");
-const Types_1 = require("./Types/Types");
-const Destructible_1 = require("./Destructible");
+﻿import { Dictionary, Collection } from "./Collections";
+import { ArgumentTypeException } from "./Exceptions";
+import { Type } from "./Types/Types";
+import { Destructible } from "./Destructible";
 /**
  * FrameworkEvent class
  * Enables event creation and manipulation, avoiding the use of callbacks.*/
-class FrameworkEvent extends Destructible_1.Destructible {
+export class FrameworkEvent extends Destructible {
     constructor(defaultListener, defaultListenerThisArg) {
         super();
-        this.__listeners = new Collections_1.Dictionary();
+        this.__listeners = new Dictionary();
         if (defaultListener !== undefined) {
             if (defaultListener instanceof Function)
                 this.attach(defaultListener, defaultListenerThisArg);
             else
-                throw new Exceptions_1.ArgumentTypeException("defaultListener", Types_1.Type.of(defaultListener), Types_1.Type.get(Function));
+                throw new ArgumentTypeException("defaultListener", Type.of(defaultListener), Type.get(Function));
         }
     }
     static attachMultiple(listener, ...events) {
@@ -32,7 +30,7 @@ class FrameworkEvent extends Destructible_1.Destructible {
     }
     attach(listener, thisArg) {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
-            throw new Exceptions_1.ArgumentTypeException("listener", Types_1.Type.of(listener), [Types_1.Type.get(Function), Types_1.Type.get(FrameworkEvent)]);
+            throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
         if (this.__listeners.has(listener))
             return false;
         this.__listeners.set(listener, {
@@ -42,7 +40,7 @@ class FrameworkEvent extends Destructible_1.Destructible {
     }
     detach(listener) {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
-            throw new Exceptions_1.ArgumentTypeException("listener", Types_1.Type.of(listener), [Types_1.Type.get(Function), Types_1.Type.get(FrameworkEvent)]);
+            throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
         if (!this.__listeners.has(listener))
             return false;
         this.__listeners.delete(listener);
@@ -76,12 +74,11 @@ class FrameworkEvent extends Destructible_1.Destructible {
         this.__detachAll();
     }
 }
-exports.FrameworkEvent = FrameworkEvent;
 /**
  * NativeEvent class
  * Routes DOM Events, enabling native event integration.
  */
-class NativeEvent extends FrameworkEvent {
+export class NativeEvent extends FrameworkEvent {
     constructor(target, nativeEventName, defaultListener, defaultListenerThisArg) {
         super(defaultListener, defaultListenerThisArg);
         this.__target_nativeEvent_handler = ((event) => {
@@ -100,11 +97,10 @@ class NativeEvent extends FrameworkEvent {
         super.destructor();
     }
 }
-exports.NativeEvent = NativeEvent;
 /**
  * BroadcastFrameworkEvent Class
  * Enables the broadcasting of framework events.*/
-class BroadcastFrameworkEvent extends FrameworkEvent {
+export class BroadcastFrameworkEvent extends FrameworkEvent {
     constructor(name, defaultListener, defaultListenerThisArg) {
         super(defaultListener, defaultListenerThisArg);
         this.__onEventBroadcast = function (sender, args) {
@@ -114,7 +110,7 @@ class BroadcastFrameworkEvent extends FrameworkEvent {
         this.__onRoutedEvent = function (sender, args) {
             this.broadcast(sender, args);
         };
-        this.__routedEvents = new Collections_1.Collection();
+        this.__routedEvents = new Collection();
         this.__name = name;
         BroadcastFrameworkEvent.__EventBroadcastEvent.attach(this.__onEventBroadcast, this);
     }
@@ -127,7 +123,7 @@ class BroadcastFrameworkEvent extends FrameworkEvent {
     }
     route(baseEvent) {
         if (!(baseEvent instanceof FrameworkEvent))
-            throw new Exceptions_1.ArgumentTypeException("baseEvent");
+            throw new ArgumentTypeException("baseEvent");
         if (this.__routedEvents.indexOf(baseEvent) !== -1)
             return false;
         baseEvent.attach(this.__onRoutedEvent, this);
@@ -136,7 +132,7 @@ class BroadcastFrameworkEvent extends FrameworkEvent {
     }
     unroute(baseEvent) {
         if (!(baseEvent instanceof FrameworkEvent))
-            throw new Exceptions_1.ArgumentTypeException("baseEvent");
+            throw new ArgumentTypeException("baseEvent");
         if (this.__routedEvents.indexOf(baseEvent) == -1)
             return false;
         baseEvent.detach(this.__onRoutedEvent);
@@ -153,12 +149,11 @@ class BroadcastFrameworkEvent extends FrameworkEvent {
         super.destructor();
     }
 }
-exports.BroadcastFrameworkEvent = BroadcastFrameworkEvent;
 BroadcastFrameworkEvent.__EventBroadcastEvent = new FrameworkEvent();
 /**
  * FrameworkCustomEvent class
  * Simplifies DOM custom event creation and manipulation.*/
-class FrameworkCustomEvent extends FrameworkEvent {
+export class FrameworkCustomEvent extends FrameworkEvent {
     constructor(target, eventName, defaultListener, defaultListenerThisArg) {
         super(defaultListener, defaultListenerThisArg);
         this.__target_customEvent_handler = ((event) => {
@@ -183,4 +178,3 @@ class FrameworkCustomEvent extends FrameworkEvent {
         super.destructor();
     }
 }
-exports.FrameworkCustomEvent = FrameworkCustomEvent;

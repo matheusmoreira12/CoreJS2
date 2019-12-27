@@ -1,54 +1,51 @@
-﻿"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Enumeration_1 = require("../Standard/Enumeration");
-const Interface_1 = require("../Standard/Interfaces/Interface");
-const Types_1 = require("../Standard/Types/Types");
-const Standard_1 = require("../Standard/Standard");
-const Exceptions_1 = require("../Standard/Exceptions");
-const user_interface_1 = require("./user-interface");
-const Destructible_1 = require("../Standard/Destructible");
-exports.BindingDirection = new Enumeration_1.Enumeration({
+﻿import { Enumeration } from "../Standard/Enumeration";
+import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/Interface";
+import { Type } from "../Standard/Types/Types";
+import { IValueConverter } from "../Standard/Standard";
+import { ArgumentTypeException, InvalidOperationException } from "../Standard/Exceptions";
+import { FrameworkProperty } from "./user-interface";
+import { Destructible } from "../Standard/Destructible";
+export const BindingDirection = new Enumeration({
     Both: 3,
     ToTarget: 1,
     ToSource: 2
 });
-exports.IBindingOptions = new Interface_1.Interface(new Interface_1.InterfaceMember("direction", Interface_1.InterfaceMemberType.Property, Types_1.Type.get(Number), undefined, true), new Interface_1.InterfaceMember("valueConverter", Interface_1.InterfaceMemberType.Property, Types_1.Type.get(Standard_1.IValueConverter), undefined, true));
+export const IBindingOptions = new Interface(new InterfaceMember("direction", InterfaceMemberType.Property, Type.get(Number), undefined, true), new InterfaceMember("valueConverter", InterfaceMemberType.Property, Type.get(IValueConverter), undefined, true));
 ;
 const DEFAULT_BINDING_OPTIONS = {
-    direction: exports.BindingDirection.Both,
+    direction: BindingDirection.Both,
     valueConverter: null
 };
 /**
  * Binding base class
  *
  */
-class Binding extends Destructible_1.Destructible {
+export class Binding extends Destructible {
     constructor(options = null) {
         if (new.target === Binding)
-            throw new Exceptions_1.InvalidOperationException("Invalid constructor.");
+            throw new InvalidOperationException("Invalid constructor.");
         super();
-        if (options !== null && !Types_1.Type.of(options).implements(exports.IBindingOptions))
-            throw new Exceptions_1.ArgumentTypeException("options", Types_1.Type.of(options), exports.IBindingOptions);
+        if (options !== null && !Type.of(options).implements(IBindingOptions))
+            throw new ArgumentTypeException("options", Type.of(options), IBindingOptions);
         this.__options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
     }
     get options() { return this.__options; }
 }
-exports.Binding = Binding;
 /**
  * PropertyBinding class
  * Allows the binding of two framework properties.
  */
-class PropertyBinding extends Binding {
+export class PropertyBinding extends Binding {
     constructor(source, sourceProperty, target, targetProperty, options) {
         super(options);
         if (!(source instanceof Object))
-            throw new Exceptions_1.ArgumentTypeException("source", source, Object);
-        if (!(sourceProperty instanceof user_interface_1.FrameworkProperty))
-            throw new Exceptions_1.ArgumentTypeException("sourceProperty", sourceProperty, user_interface_1.FrameworkProperty);
+            throw new ArgumentTypeException("source", source, Object);
+        if (!(sourceProperty instanceof FrameworkProperty))
+            throw new ArgumentTypeException("sourceProperty", sourceProperty, FrameworkProperty);
         if (!(target instanceof Object))
-            throw new Exceptions_1.ArgumentTypeException("target", target, Object);
-        if (!(targetProperty instanceof user_interface_1.FrameworkProperty))
-            throw new Exceptions_1.ArgumentTypeException("targetProperty", targetProperty, Object);
+            throw new ArgumentTypeException("target", target, Object);
+        if (!(targetProperty instanceof FrameworkProperty))
+            throw new ArgumentTypeException("targetProperty", targetProperty, Object);
         this.__source = source;
         this.__sourceProperty = sourceProperty;
         this.__target = target;
@@ -59,7 +56,7 @@ class PropertyBinding extends Binding {
     updateTargetProperty(value) {
         const options = this.__options;
         const direction = options.direction;
-        if (!exports.BindingDirection.contains(exports.BindingDirection.ToTarget, direction))
+        if (!BindingDirection.contains(BindingDirection.ToTarget, direction))
             return;
         const valueConverter = options.valueConverter;
         if (valueConverter !== null)
@@ -74,7 +71,7 @@ class PropertyBinding extends Binding {
     updateSourceProperty(value) {
         const options = this.__options;
         const direction = options.direction;
-        if (!exports.BindingDirection.contains(exports.BindingDirection.ToSource, direction))
+        if (!BindingDirection.contains(BindingDirection.ToSource, direction))
             return;
         const valueConverter = options.valueConverter;
         if (valueConverter !== null)
@@ -95,12 +92,11 @@ class PropertyBinding extends Binding {
         this.targetProperty.ChangeEvent.detach(this.targetProperty_onChange);
     }
 }
-exports.PropertyBinding = PropertyBinding;
 /**
  * PropertyAttributeBinding class
  * Allows the binding of an attribute to a framework property.
  */
-class PropertyAttributeBinding extends Binding {
+export class PropertyAttributeBinding extends Binding {
     constructor(source, sourceProperty, targetElement, targetAttributeName, options) {
         super(options);
         this.__target_attributeSet_handler = (() => {
@@ -108,13 +104,13 @@ class PropertyAttributeBinding extends Binding {
         }).bind(this);
         this.__isUpdadingFlag = false;
         if (!(source instanceof Object))
-            throw new Exceptions_1.ArgumentTypeException("source", source, Object);
-        if (!(sourceProperty instanceof user_interface_1.FrameworkProperty))
-            throw new Exceptions_1.ArgumentTypeException("sourceProperty", sourceProperty, user_interface_1.FrameworkProperty);
+            throw new ArgumentTypeException("source", source, Object);
+        if (!(sourceProperty instanceof FrameworkProperty))
+            throw new ArgumentTypeException("sourceProperty", sourceProperty, FrameworkProperty);
         if (!(targetElement instanceof Element))
-            throw new Exceptions_1.ArgumentTypeException("targetElement", targetElement, Element);
+            throw new ArgumentTypeException("targetElement", targetElement, Element);
         if (typeof targetAttributeName !== "string")
-            throw new Exceptions_1.ArgumentTypeException("targetAttributeName", targetAttributeName, String);
+            throw new ArgumentTypeException("targetAttributeName", targetAttributeName, String);
         this.__source = source;
         this.__sourceProperty = sourceProperty;
         this.__targetElement = targetElement;
@@ -140,7 +136,7 @@ class PropertyAttributeBinding extends Binding {
     __updateTargetAttribute(value) {
         const options = this.__options;
         const direction = options.direction;
-        if (!exports.BindingDirection.contains(exports.BindingDirection.ToTarget, direction))
+        if (!BindingDirection.contains(BindingDirection.ToTarget, direction))
             return;
         if (this.__isUpdadingFlag)
             return;
@@ -162,7 +158,7 @@ class PropertyAttributeBinding extends Binding {
     __updateSourceProperty() {
         const options = this.__options;
         const direction = options.direction;
-        if (!exports.BindingDirection.contains(exports.BindingDirection.ToSource, direction))
+        if (!BindingDirection.contains(BindingDirection.ToSource, direction))
             return;
         if (this.__isUpdadingFlag)
             return;
@@ -190,4 +186,3 @@ class PropertyAttributeBinding extends Binding {
         this.__attributeObserver.disconnect();
     }
 }
-exports.PropertyAttributeBinding = PropertyAttributeBinding;
