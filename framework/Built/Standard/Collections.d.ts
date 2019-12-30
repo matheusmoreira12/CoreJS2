@@ -7,8 +7,8 @@ import { FrameworkEvent } from "./Events";
 export declare class Collection<T> extends Array<T> {
     constructor(length: number);
     constructor(...items: T[]);
-    get first(): T;
-    get last(): T;
+    readonly first: T;
+    readonly last: T;
     getRange(index: any, itemCount: any): Generator<T>;
     add(item: T): void;
     addMultiple(items: Iterable<T>): void;
@@ -28,7 +28,7 @@ export declare class ObservableCollection<T> extends Collection<T> {
     splice(start: number, deleteCount: number, ...items: T[]): T[];
     push(...items: T[]): number;
     pop(): T;
-    get ChangeEvent(): FrameworkEvent;
+    readonly ChangeEvent: FrameworkEvent;
     __ChangeEvent: FrameworkEvent;
 }
 export declare type ObservableCollectionChangeArgs<T> = {
@@ -47,9 +47,9 @@ export declare class KeyValuePair<TKey, TValue> {
         1: TValue;
     }): KeyValuePair<TKey, TValue>;
     constructor(key: TKey, value: TValue);
-    get key(): TKey;
+    readonly key: TKey;
     private __key;
-    get value(): TValue;
+    readonly value: TValue;
     private __value;
 }
 /**
@@ -72,7 +72,7 @@ export declare class ObservableDictionary<TKey, TValue> extends Dictionary<TKey,
     private __notifyDelete;
     set(key: TKey, value: TValue): void;
     delete(key: TKey): void;
-    get ChangeEvent(): FrameworkEvent;
+    readonly ChangeEvent: FrameworkEvent;
     __ChangeEvent: FrameworkEvent;
 }
 export declare type ObservableDictionaryChangeArgs<TKey, TValue> = {

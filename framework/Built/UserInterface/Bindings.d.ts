@@ -15,7 +15,7 @@ export interface BindingOptions {
  */
 export declare abstract class Binding extends Destructible {
     constructor(options?: BindingOptions);
-    get options(): BindingOptions;
+    readonly options: BindingOptions;
     protected __options: BindingOptions;
 }
 /**
@@ -28,13 +28,13 @@ export declare class PropertyBinding extends Binding {
     sourceProperty_onChange(sender: any, args: any): void;
     updateSourceProperty(value: any): void;
     targetProperty_onChange(sender: any, args: any): void;
-    get source(): object;
+    readonly source: object;
     private __source;
-    get sourceProperty(): FrameworkProperty;
+    readonly sourceProperty: FrameworkProperty;
     private __sourceProperty;
-    get target(): object;
+    readonly target: object;
     private __target;
-    get targetProperty(): FrameworkProperty;
+    readonly targetProperty: FrameworkProperty;
     private __targetProperty;
     destructor(): void;
 }
@@ -50,13 +50,13 @@ export declare class PropertyAttributeBinding extends Binding {
     private __sourceProperty_onChange;
     private __updateSourceProperty;
     private __target_attributeSet_handler;
-    get source(): object;
+    readonly source: object;
     private __source;
-    get sourceProperty(): FrameworkProperty;
+    readonly sourceProperty: FrameworkProperty;
     private __sourceProperty;
-    get targetElement(): Element;
+    readonly targetElement: Element;
     private __targetElement;
-    get targetAttributeName(): string;
+    readonly targetAttributeName: string;
     private __targetAttributeName;
     private __isUpdadingFlag;
     private __attributeObserver;

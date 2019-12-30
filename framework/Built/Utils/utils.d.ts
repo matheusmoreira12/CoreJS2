@@ -1,10 +1,4 @@
-﻿export declare const ObjectUtils: {
-    hasPrototype(obj: object): boolean;
-    getOwnPropertyKeys(obj: object): (string | symbol)[];
-    crudeCopy(source: object, dest: object): object;
-    deepEquals(obj1: any, obj2: any): boolean;
-};
-export declare const ArrayUtils: {
+﻿export declare const ArrayUtils: {
     detectArrayChanges(cached: any, current: any, addCallback: any, removeCallback: any, replaceCallback: any): void;
 };
 export declare const DomUtils: {

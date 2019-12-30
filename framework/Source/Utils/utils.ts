@@ -1,57 +1,5 @@
 import { ArgumentException } from "../Standard/Exceptions";
 
-export const ObjectUtils = {
-    hasPrototype(obj: object): boolean {
-        if (obj === null) return false;
-        if (obj === undefined) return false;
-
-        const prototype = Object.getPrototypeOf(obj);
-        if (prototype === undefined) return false;
-
-        return true;
-    },
-
-    getOwnPropertyKeys(obj: object): (string | symbol)[] {
-        return [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
-    },
-
-    crudeCopy(source: object, dest: object) {
-        function overwriteProperty(dest, key, desc) {
-            delete dest[key];
-            Object.defineProperty(dest, key, desc);
-        }
-
-        if (!this.hasPrototype(source))
-            throw new ArgumentException("source", `Value is null, undefined or does not implement the property "prototype".`);
-        if (!this.hasPrototype(dest))
-            throw new ArgumentException("dest", `Value is null, undefined or does not implement the property "prototype".`);
-
-        for (let key of this.getOwnPropertyKeys(source)) {
-            const destDesc = Object.getOwnPropertyDescriptor(dest, key);
-            if (destDesc && !destDesc.configurable) continue;
-
-            const sourceDesc = Object.getOwnPropertyDescriptor(source, key);
-            overwriteProperty(dest, key, sourceDesc);
-        }
-
-        return dest;
-    },
-
-    deepEquals(obj1, obj2) {
-        if (obj1 instanceof Object) {
-            //Check each property value
-            for (let prop in obj1)
-                if (!this.deepEquals(obj1[prop], obj2[prop])) return false;
-
-            return true;
-        }
-
-        if (obj1 !== obj2) return false;
-
-        return true;
-    }
-};
-
 export const ArrayUtils = {
 
     detectArrayChanges(cached, current, addCallback, removeCallback, replaceCallback) {
