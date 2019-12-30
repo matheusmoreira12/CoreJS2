@@ -1,10 +1,13 @@
-ï»¿import { StringUtils } from "./StringUtils.js";
+import StringUtils from "./StringUtils";
+
 const GEN_DELIMS = [":", "/", "?", "#", "[", "]", "@"];
-const SUB_DELIMS = ["!", "$", "&", "ï¿½", "(", ")", "*", "+", ",", ";", "="];
+const SUB_DELIMS = ["!", "$", "&", "’", "(", ")", "*", "+", ",", ";", "="];
 const RESERVED_CHARS = [..."!*'();:@&=$+,/?#[]"];
+
 function isAllowedChar(char) {
-    return char && !RESERVED_CHARS.includes(char);
+    return char && RESERVED_CHARS.indexOf(char) == -1;
 }
+
 export class URLTokenifier {
     tokenify(str) {
         function readProtocol() {
@@ -27,6 +30,7 @@ export class URLTokenifier {
             i = j;
             return null;
         }
+
         function readHostname() {
             function* readHostnameItems() {
                 function readHostnameLabel() {
@@ -37,9 +41,10 @@ export class URLTokenifier {
                         return {
                             type: "label",
                             value: str.slice(j, i)
-                        };
+                        }
                     return null;
                 }
+
                 function readDot() {
                     if (str[i] === ".") {
                         i++;
@@ -47,13 +52,16 @@ export class URLTokenifier {
                     }
                     return null;
                 }
+
                 function readHostnameItem() {
                     return readHostnameLabel() || readDot();
                 }
+
                 let item;
                 while ((item = readHostnameItem()) !== null)
                     yield item;
             }
+
             const items = [...readHostnameItems()];
             if (items.length > 0)
                 return {
@@ -62,6 +70,7 @@ export class URLTokenifier {
                 };
             return null;
         }
+
         function readPort() {
             const j = i;
             if (str[i] === ":") {
@@ -78,6 +87,7 @@ export class URLTokenifier {
             i = j;
             return null;
         }
+
         function readPath() {
             function* readPathItems() {
                 function readPathItem() {
@@ -89,10 +99,11 @@ export class URLTokenifier {
                             return {
                                 type: "segment",
                                 value: str.slice(j, i)
-                            };
+                            }
                         }
                         return null;
                     }
+
                     function readSlash() {
                         if (str[i] === "/") {
                             i++;
@@ -100,20 +111,24 @@ export class URLTokenifier {
                         }
                         return null;
                     }
+
                     return readSlash() || readPathSegment();
                 }
+
                 let item;
                 while ((item = readPathItem()) !== null)
                     yield item;
             }
+
             const items = [...readPathItems()];
             if (items.length > 0)
                 return {
                     type: "path",
                     items
-                };
+                }
             return null;
         }
+
         function readQuery() {
             function* readQueryItems() {
                 function readAmp() {
@@ -123,13 +138,14 @@ export class URLTokenifier {
                     }
                     return null;
                 }
+
                 function readParameter() {
                     const j = i;
                     while (isAllowedChar(str[i]))
                         i++;
                     const key = str.slice(j, i);
                     if (str[i] === "=") {
-                        i++;
+                        i++
                         const k = i;
                         while (isAllowedChar(str[i]))
                             i++;
@@ -142,13 +158,16 @@ export class URLTokenifier {
                     }
                     return null;
                 }
+
                 function readQueryItem() {
                     return readAmp() || readParameter();
                 }
+
                 let item;
                 while ((item = readQueryItem()) !== null)
                     yield item;
             }
+
             const j = i;
             if (str[i] === "?") {
                 i++;
@@ -162,6 +181,7 @@ export class URLTokenifier {
             i = j;
             return null;
         }
+
         function readFragment() {
             const j = i;
             if (str[i] === "#") {
@@ -178,43 +198,54 @@ export class URLTokenifier {
             i = j;
             return null;
         }
+
         function* readItems() {
             const protocol = readProtocol();
             if (protocol !== null)
                 yield protocol;
+
             const hostname = readHostname();
             if (hostname !== null) {
                 yield hostname;
+
                 const port = readPort();
                 if (port !== null)
                     yield port;
+
                 const path = readPath();
                 if (path !== null) {
                     yield path;
+
                     const query = readQuery();
                     if (query !== null)
                         yield query;
+
                     const fragment = readFragment();
                     if (fragment !== null)
                         yield fragment;
                 }
             }
         }
+
         let i = 0;
+
         const items = [...readItems()];
         return {
             type: "url",
             items
         };
     }
+
     detokenify(token) {
         function writeProtocol(token) {
             str += `${token.value}://`;
         }
+
         function writeHostname(token) {
             function writeLabel(token) {
                 str += token.value;
             }
+
             for (let item of token.items)
                 switch (item.type) {
                     case "label":
@@ -225,13 +256,16 @@ export class URLTokenifier {
                         break;
                 }
         }
+
         function writePort(token) {
             str += `:${token.value}`;
         }
+
         function writePath(token) {
             function writeSegment(token) {
                 str += token.value;
             }
+
             for (let item of token.items)
                 switch (item.type) {
                     case "segment":
@@ -242,11 +276,14 @@ export class URLTokenifier {
                         break;
                 }
         }
+
         function writeQuery(token) {
             function writeParameter(token) {
                 str += `${token.key}=${token.value}`;
             }
+
             str += "?";
+
             for (let item of token.items)
                 switch (item.type) {
                     case "parameter":
@@ -257,11 +294,14 @@ export class URLTokenifier {
                         break;
                 }
         }
+
         function writeFragment(token) {
             str += `#${token.value}`;
         }
+
         if (!token || token.type !== "url")
             return null;
+
         let str = "";
         for (let item of token.items) {
             switch (item.type) {
@@ -272,22 +312,23 @@ export class URLTokenifier {
                     writeHostname(item);
                     break;
                 case "port":
-                    writePort(item);
+                    writePort(item)
                     break;
                 case "path":
-                    writePath(item);
+                    writePath(item)
                     break;
                 case "query":
-                    writeQuery(item);
+                    writeQuery(item)
                     break;
                 case "fragment":
-                    writeFragment(item);
+                    writeFragment(item)
                     break;
             }
         }
         return str;
     }
 }
+
 class URLPath {
     static fromToken(token) {
         function* getSegments(tokens) {
@@ -296,18 +337,23 @@ class URLPath {
                     yield token.value;
             }
         }
+
         if (!token || token.type !== "path")
             return null;
+
         const segments = [...getSegments(token.items)];
         return new URLPath(segments);
     }
+
     constructor(segments) {
         if (segments === null)
             segments = [];
         if (!(segments instanceof Array))
             throw `Invalid value for parameter "segments". A value of type Array was expected.`;
+
         this.segments = segments;
     }
+
     toToken() {
         function* getItems() {
             for (let i = 0; i < this.segments.length; i++) {
@@ -320,16 +366,19 @@ class URLPath {
                 };
             }
         }
+
         const items = [...getItems.call(this)];
         return {
             type: "path",
             items
         };
     }
+
     collapse() {
         const resultSegments = [];
         for (let i = 0; i < this.segments.length; i++) {
-            const segment = this.segments[i], lastSegment = this.segments[i - 1];
+            const segment = this.segments[i],
+                lastSegment = this.segments[i - 1];
             switch (segment) {
                 case ".":
                     break;
@@ -344,12 +393,16 @@ class URLPath {
         return new URLPath(resultSegments);
     }
 }
+
+
 class URLQueryParameter {
     static fromToken(token) {
         if (!token || token.type !== "parameter")
             return null;
+
         return new URLQueryParameter(token.key, token.value);
     }
+
     constructor(key, value) {
         if (typeof key !== "string")
             throw `Invalid value for parameter "key". A value of type String was expected.`;
@@ -358,6 +411,7 @@ class URLQueryParameter {
         this.key = key;
         this.value = value;
     }
+
     toToken() {
         return {
             type: "parameter",
@@ -366,6 +420,7 @@ class URLQueryParameter {
         };
     }
 }
+
 class URLQuery {
     static fromToken(token) {
         function* getParameters(tokens) {
@@ -374,18 +429,23 @@ class URLQuery {
                     yield URLQueryParameter.fromToken(token);
             }
         }
+
         if (!token || token.type !== "query")
             return null;
-        const parameters = [...getParameters(token.items)];
+
+        const parameters = [...getParameters(token.items)]
         return new URLQuery(parameters);
     }
+
     constructor(parameters = null) {
         if (parameters === null)
             parameters = [];
         if (!(parameters instanceof Array))
             throw `Invalid value for parameter "parameters". A value of type Array was expected.`;
+
         this.parameters = parameters;
     }
+
     toToken() {
         function* getItems() {
             for (let i = 0; i < this.parameters.length; i++) {
@@ -393,16 +453,19 @@ class URLQuery {
                     yield {
                         type: "amp"
                     };
+
                 yield this.parameters[i].toToken();
             }
         }
+
         const items = [...getItems.call(this)];
         return {
             type: "query",
             items
-        };
+        }
     }
 }
+
 export class URLHostname {
     static fromToken(token) {
         function* getLabels(tokens) {
@@ -411,16 +474,20 @@ export class URLHostname {
                     yield token.value;
             }
         }
+
         if (!token || token.type !== "hostname")
             return null;
+
         const labels = [...getLabels(token.items)];
-        return new URLHostname(labels);
+        return new URLHostname(labels)
     }
+
     constructor(labels) {
         if (!(labels instanceof Array))
             throw `Invalid value for parameter "labels". A value of type Array was expected.`;
         this.labels = labels;
     }
+
     toToken() {
         function* getItems() {
             for (let i = 0; i < this.labels.length; i++) {
@@ -428,24 +495,34 @@ export class URLHostname {
                     yield {
                         type: "dot"
                     };
+
                 yield {
                     type: "label",
                     value: this.labels[i]
                 };
             }
         }
+
         const items = [...getItems.call(this)];
         return {
             type: "hostname",
             items
-        };
+        }
     }
 }
+
 export class URLData {
     static fromToken(token) {
         if (!token || token.type !== "url")
             return null;
-        let protocol = null, hostname = null, port = null, path = null, query = null, fragment = null;
+
+        let protocol = null,
+            hostname = null,
+            port = null,
+            path = null,
+            query = null,
+            fragment = null;
+
         for (let item of token.items) {
             switch (item.type) {
                 case "protocol":
@@ -468,14 +545,17 @@ export class URLData {
                     break;
             }
         }
-        return new URLData(hostname, path, protocol, port, query, fragment);
+
+        return new URLData(hostname, path, protocol, port, query, fragment)
     }
+
     static parse(value) {
         if (typeof value !== "string")
             throw `Invalid value for parameter "value". A value of type String was expected.`;
         const token = new URLTokenifier().tokenify(value);
         return this.fromToken(token);
     }
+
     constructor(hostname, path, protocol = null, port = null, query = null, fragment = null) {
         if (!(hostname instanceof URLHostname))
             throw `Invalid value for parameter "hostname". A value of type URLHostname was expected.`;
@@ -489,6 +569,7 @@ export class URLData {
             throw `Invalid value for parameter "query". A value of type URLQuery was expected.`;
         if (fragment !== null && typeof fragment !== "string")
             throw `Invalid value for parameter "fragment". A value of type String was expected.`;
+
         this.protocol = protocol;
         this.hostname = hostname;
         this.path = path;
@@ -496,6 +577,7 @@ export class URLData {
         this.query = query;
         this.fragment = fragment;
     }
+
     toToken() {
         function* getItems() {
             if (this.protocol)
@@ -503,35 +585,45 @@ export class URLData {
                     type: "protocol",
                     value: this.protocol
                 };
+
             yield this.hostname.toToken();
+
             if (this.port)
                 yield {
                     type: "port",
                     value: this.port
                 };
+
             yield this.path.toToken();
+
             if (this.query)
                 yield this.query.toToken();
+
             if (this.fragment)
                 yield {
                     type: "fragment",
                     value: this.fragment
                 };
         }
+
         const items = [...getItems.call(this)];
         return {
             type: "url",
             items
-        };
+        }
     }
+
     toString() {
-        const token = this.toToken(), tokenifier = new URLTokenifier();
+        const token = this.toToken(),
+            tokenifier = new URLTokenifier();
         return tokenifier.detokenify(token);
     }
+
     collapse() {
         return new URLData(this.hostname, this.path.collapse(), this.protocol, this.port, this.query, this.fragment);
     }
 }
+
 export const URLUtils = {
     levelUp(url) {
         return URLData.parse(url + "/../").collapse().toString();

@@ -1,6 +1,6 @@
-import { ObjectUtils } from "./ObjectUtils";
+import ObjectUtils from "./Utils/ObjectUtils";
 
-export const STATUS = ObjectUtils.deepFreeze({
+export const STATUS = ObjectUtils.getDeepReadonly({
     INFORMATIONAL: {
         CONTINUE: 100,
         SWITCHING_PROTOCOL: 101,

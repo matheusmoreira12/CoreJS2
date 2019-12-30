@@ -1,4 +1,4 @@
-import { ArgumentException } from "../Standard/Exceptions";
+import ObjectUtils from "../CoreBase/Utils/ObjectUtils";
 
 export const ArrayUtils = {
 

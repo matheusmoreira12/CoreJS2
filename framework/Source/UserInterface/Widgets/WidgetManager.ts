@@ -2,7 +2,7 @@
 import { WidgetMetadata } from "./WidgetMetadata";
 import { Widget } from "./Widget";
 import { InvalidOperationException, ArgumentTypeException } from "../../Standard/Exceptions";
-import { ObjectUtils, DeepReadonly, DeepClone } from "../../CoreBase/ObjectUtils";
+import ObjectUtils, { DeepClone } from "../../CoreBase/Utils/ObjectUtils";
 import { Type } from "../../Standard/Types/Types";
 
 const registeredWidgets: Collection<WidgetMetadata> = new Collection();
