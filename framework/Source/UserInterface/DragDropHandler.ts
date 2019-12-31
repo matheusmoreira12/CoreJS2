@@ -1,5 +1,6 @@
 ﻿import { Enumeration } from "../Standard/Enumeration.js";
-import { Timer, Utils } from "./user-interface.js";
+import { Utils } from "./user-interface.js";
+import { Timer } from "./Timer.js";
 import { BroadcastFrameworkEvent, FrameworkEvent } from "../Standard/Events.js";
 import DragEmulator from "./DragEmulator.js";
 
@@ -21,12 +22,11 @@ const DragDropHandlerState = new Enumeration([
  * Makes multi-platform dragging implementation less painful.
  */
 export class DragDropHandler {
-    constructor(target) {
+    constructor(target: Element) {
         this.__target = target;
 
         let touchDragDelayTimer = new Timer(1000, false);
         this.__touchDragDelayTimer = touchDragDelayTimer;
-
         touchDragDelayTimer.TickEvent.attach(this.__touchDragDelayTimer_onTick, this);
 
         ///TODO: Re-implement touch drag interaction
@@ -49,7 +49,7 @@ export class DragDropHandler {
     private __onTouchStart(evt) {
         if (evt.touches.length !== 1) return;
 
-        this.__touchDragDelayTimer.start();
+        this.__touchDragDelayTimer.reset();
     }
 
     private __onTouchMove(evt) {
@@ -325,8 +325,6 @@ export class DragDropHandler {
     private __NotifyDragEndEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragEnd", this.__onNotifyDragEnd.bind(this));
     private __NotifyDragCancelEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragCancel");
 
-    private __emulator = new DragEmulator(this);
-
     private __data = null;
     private __context = null;
     private __acceptsDrag: boolean;
@@ -363,6 +361,8 @@ export class DragDropHandler {
     get DragDropEvent() { return this.__DragDropEvent; }
     private __DragDropEvent = new FrameworkEvent();
 
-    get target() { return this.__target; }
+    private __emulator = new DragEmulator(this);
+
+    get target(): Element { return this.__target; }
     private __target: Element;
 }

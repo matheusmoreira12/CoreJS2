@@ -1,7 +1,8 @@
 ﻿import { Enumeration } from "../Standard/Enumeration.js";
 import { ArgumentNullException, ArgumentTypeException } from "../Standard/Exceptions.js";
 import { FrameworkEvent } from "../Standard/Events.js";
-import { Timer, Utils } from "./user-interface.js";
+import { Utils } from "./user-interface.js";
+import { Timer } from "./Timer";
 
 export const AutoScrollerOrientation = new Enumeration([
     "Horizontal",
@@ -33,7 +34,7 @@ export class AutoScroller {
         this.__target = target;
 
         this.__scrollTimer.TickEvent.attach(this.__scrollTimer_onTick, this);
-        this.__scrollTimer.start();
+        this.__scrollTimer.reset();
 
         window.addEventListener("mousemove", this.__window_onMouseMove.bind(this));
     }

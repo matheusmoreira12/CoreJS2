@@ -5,19 +5,25 @@ import { DragDropHandler } from "../DragDropHandler.js";
 import { FrameworkEvent, NativeEvent } from "../../Standard/Events.js";
 import { Destructible } from "../../Standard/Destructible.js";
 
-export abstract class Widget extends Object.assign(class a { }, Destructible, HTMLElement) {
-    constructor(namespaceURI, qualifiedName) {
+///TODO: fix this mess
+
+export abstract class Widget extends Destructible {
+    constructor(namespaceURI: string, qualifiedName: string) {
         super();
 
-        if (new.target === Widget)
-            throw new InvalidOperationException("Invalid constructor");
+        let element = document.createElementNS(namespaceURI, qualifiedName);
+        Object.setPrototypeOf(this, Object.getPrototypeOf(element))
+        Object.setPrototypeOf(element, this);
+
+        /*if (new.target === Widget)
+            throw new InvalidOperationException("Invalid constructor");*/
 
         //Create Bindings
         new PropertyAttributeBinding(this, Widget.isDraggableProperty, <HTMLElement><unknown>this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
 
         //Attach Event Handlers
         //  Drag/Drop Handler Events
-        this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
+        /*this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
         this.__dragDropHandler.DragStartEvent.attach(this.__dragDropHandler__onDragStart, this);
         this.__dragDropHandler.DragMoveEvent.attach(this.__dragDropHandler__onDragMove, this);
         this.__dragDropHandler.DragEndEvent.attach(this.__dragDropHandler__onDragEnd, this);
@@ -25,13 +31,9 @@ export abstract class Widget extends Object.assign(class a { }, Destructible, HT
         this.__dragDropHandler.DragEnterEvent.attach(this.__dragDropHandler__onDragEnter, this);
         this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
-        this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
-
-        let element = document.createElementNS(namespaceURI, qualifiedName);
-        Object.setPrototypeOf(element, this);
-        return <Widget><unknown>element;
+        this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);*/
     }
-
+    /*
     //Helper Class Instances
     private __dragDropHandler = new DragDropHandler(this);
 
@@ -165,4 +167,5 @@ export abstract class Widget extends Object.assign(class a { }, Destructible, HT
     static isDraggableProperty = new FrameworkProperty("isDraggable", { defaultValue: false });
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
+    */
 }

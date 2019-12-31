@@ -103,8 +103,12 @@ export class Interface {
             }
 
             const instanceMembers: Generator<Member> = type.getMembers(MemberSelectionType.Instance | MemberSelectionType.Property | MemberSelectionType.Function);
-            for (let member of instanceMembers)
-                yield <InterfaceMember>generateInterfaceMember(member);
+            for (let member of instanceMembers) {
+                const interfaceMember = generateInterfaceMember(member);
+                if (interfaceMember === undefined)
+                    continue;
+                yield interfaceMember;
+            }
         }
 
         if (!(type instanceof Type))
@@ -114,8 +118,8 @@ export class Interface {
     }
 
     static differ(type: Type, _interface: Interface): InterfaceDifferAnalysis {
-        function* analizeMembers(): boolean {
-            function memberAttributesMatch(interfaceMemberAttributes: number, typeMemberAttributes: number) {
+        function* analizeMembers(): Generator<InterfaceDifference> {
+            function memberAttributesMatch(interfaceMemberAttributes: number, typeMemberAttributes: number): boolean {
                 const memberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, interfaceMemberAttributes),
                     memberIsConfigurable = MemberAttributes.contains(MemberAttributes.Configurable, interfaceMemberAttributes),
                     memberIsWritable = MemberAttributes.contains(MemberAttributes.Writable, interfaceMemberAttributes);
@@ -141,9 +145,11 @@ export class Interface {
                 return interfaceMemberValueType === null || (interfaceMemberValueType instanceof Type && interfaceMemberValueType.equals(typeMemberValueType)) || (interfaceMemberValueType instanceof Interface && typeMemberValueType.implements(interfaceMemberValueType))
             }
 
-            function getMemberDifferenceType(interfaceMember: InterfaceMember, typeMember: Member | undefined) {
-                if (typeMember === undefined)
-                    return InterfaceDifferenceKind.Missing;
+            function getMemberDifferenceType(interfaceMember: InterfaceMember, typeMember: Member | undefined): number {
+                if (typeMember === undefined) {
+                    if (!interfaceMember.isOptional)
+                        return InterfaceDifferenceKind.Missing;
+                }
                 else {
                     if (!memberAttributesMatch(interfaceMember.attributes, typeMember.attributes))
                         return InterfaceDifferenceKind.MissingAttributes;
@@ -152,7 +158,7 @@ export class Interface {
                     else if (!memberValueTypeMatches(interfaceMember.type, typeMember.type))
                         return InterfaceDifferenceKind.IncorrectType;
                 }
-                return null;
+                return -1;
             }
 
             let typeMembers = [...type.getMembers(MemberSelectionType.Instance)];
@@ -160,7 +166,7 @@ export class Interface {
                 let typeMember = typeMembers.find(m => m.key == interfaceMember.key);
 
                 let differenceType = getMemberDifferenceType(interfaceMember, typeMember);
-                if (differenceType === null)
+                if (differenceType == -1)
                     continue;
 
                 yield new InterfaceDifference(type, _interface, interfaceMember.key, differenceType);
@@ -176,4 +182,6 @@ export class Interface {
 
     get members(): InterfaceMember[] { return this.__members; }
     private __members: InterfaceMember[];
+
+    get isEmpty(): boolean { return this.members.length == 0; }
 }

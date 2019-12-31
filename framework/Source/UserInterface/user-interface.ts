@@ -52,12 +52,12 @@ export class EnumerationAttributeValueConverter<T> implements ValueConverter {
 
     convertBack(value: string): T {
         if (value === null) return null;
-        return this.__enumeration.parse(value);
+        return this.__enumeration.fromLabel(value);
     }
 
     convert(value: T): string {
         if (value === null) return null;
-        return this.__enumeration.toString(value);
+        return this.__enumeration.getLabel(value);
     }
 
     private __enumeration: Enumeration<T>;
@@ -404,46 +404,3 @@ export const Utils = {
     }
 };
 
-/**
- * 
- */
-export class Timer {
-    constructor(delayMillis = 100, isPeriodic = true) {
-        this.__delayMillis = delayMillis;
-        this.__isPeriodic = isPeriodic;
-    }
-
-    start() {
-        this.stop();
-
-        function onTimeout() {
-            this._TickEvent.invoke(this);
-
-            if (this.isPeriodic)
-                this.start();
-        }
-
-        this.__timeoutHandle = setTimeout(onTimeout.bind(this), this.delayMillis);
-    }
-
-    stop() {
-        if (!this.__timeoutHandle) return;
-
-        clearTimeout(this.__timeoutHandle);
-
-        this.__timeoutHandle = null;
-    }
-
-    _TickEvent = new FrameworkEvent();
-
-    get delayMillis(): number { return this.__delayMillis; }
-    private __delayMillis: number;
-
-    get isPeriodic(): boolean { return this.__isPeriodic; }
-    private __isPeriodic: boolean;
-
-    get TickEvent(): FrameworkEvent { return this.__TickEvent; }
-    private __TickEvent: FrameworkEvent;
-
-    private __timeoutHandle: number;
-}

@@ -104,7 +104,7 @@ export class Enumeration<T = EnumerationValue> {
         }
     }
 
-    toString(value: T): string {
+    getLabel(value: T): string {
         function toString_number(this: Enumeration<T>): string {
             function convertExact(this: Enumeration<T>): string | undefined {
                 return MapUtils.invert(this.__flagsMap).get(value);
@@ -161,11 +161,11 @@ export class Enumeration<T = EnumerationValue> {
             return toString_boolean.call(this);
     }
 
-    parse(value: string): T {
+    fromLabel(label: string): T | undefined {
         function parse_number(this: Enumeration<T>): number {
             let result: number = 0;
 
-            let flags = value.split(/\s*,\s*/);
+            let flags = label.split(/\s*,\s*/);
             for (let flag of flags) {
                 let value: T = this[flag];
                 if (value === undefined)
@@ -179,30 +179,32 @@ export class Enumeration<T = EnumerationValue> {
         }
 
         function parse_string(this: Enumeration<T>): string {
-            const result: string = this[value];
+            const result: string = this[label];
             if (result !== undefined)
                 return result;
 
-            throw new KeyNotFoundException(`Key ${value} does not exist in Enumeration ${this.constructor.name}.`);
+            throw new KeyNotFoundException(`Key ${label} does not exist in Enumeration ${this.constructor.name}.`);
         }
 
         function parse_boolean(this: Enumeration<T>): boolean {
-            const result = this.__flagsMap.get(value);
+            const result = this.__flagsMap.get(label);
             if (result !== undefined)
                 return <boolean><unknown>result;
 
-            throw new KeyNotFoundException(`Key ${value} does not exist in Enumeration ${this.constructor.name}.`);
+            throw new KeyNotFoundException(`Key ${label} does not exist in Enumeration ${this.constructor.name}.`);
         }
 
-        if (typeof value !== "string")
-            throw new ArgumentTypeException("value", typeof value);
+        if (typeof label !== "string")
+            throw new ArgumentTypeException("value", typeof label);
 
         if (this.__type == Enumeration.TYPE_NUMBER)
-            return parse_number.call(this);
+            return <T><unknown>parse_number.call(this);
         else if (this.__type == Enumeration.TYPE_STRING)
-            return parse_string.call(this);
+            return <T><unknown>parse_string.call(this);
         else if (this.__type == Enumeration.TYPE_BOOLEAN)
-            return parse_boolean.call(this);
+            return <T><unknown>parse_boolean.call(this);
+
+        return undefined;
     }
 
     private __type: number;
