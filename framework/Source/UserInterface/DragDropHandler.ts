@@ -20,7 +20,7 @@ const DragDropHandlerState = new Enumeration([
  * Drag Handler class
  * Makes multi-platform dragging implementation less painful.
  */
-export default class DragDropHandler {
+export class DragDropHandler {
     constructor(target) {
         this.__target = target;
 

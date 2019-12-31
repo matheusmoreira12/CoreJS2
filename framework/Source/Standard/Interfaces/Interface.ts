@@ -58,7 +58,7 @@ export class InterfaceMember {
             throw new ArgumentTypeException(`key`, key, String);
         if (typeof memberType !== "number")
             throw new ArgumentTypeException(`memberType`, memberType, Number);
-        if (type !== undefined && !(type instanceof Type))
+        if (type !== undefined && !(type instanceof Type) && !(type instanceof Interface))
             throw new ArgumentTypeException(`valueType`, type, Type);
         if (attributes !== undefined && typeof attributes !== "number")
             throw new ArgumentTypeException(`attributes`, attributes, Number);

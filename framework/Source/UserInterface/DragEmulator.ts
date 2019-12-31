@@ -1,12 +1,12 @@
 ﻿import { ArgumentTypeException } from "../Standard/Exceptions.js";
 import { FrameworkEvent } from "../Standard/Events.js";
-import DragDropHandler from "./DragDropHandler.js";
+import { DragDropHandler } from "./DragDropHandler.js";
 
 /**
  * 
  */
 export default class DragEmulator {
-    constructor(handler) {
+    constructor(handler: DragDropHandler) {
         if (!(handler instanceof DragDropHandler)) throw new ArgumentTypeException("handler", handler, DragDropHandler);
 
         handler.DragStartEvent.attach(this.DragStartEvent);

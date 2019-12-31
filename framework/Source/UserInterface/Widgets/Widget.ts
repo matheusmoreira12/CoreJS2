@@ -1,11 +1,11 @@
 import { InvalidOperationException } from "../../Standard/Exceptions.js";
 import { PropertyAttributeBinding } from "../Bindings.js";
 import { BooleanAttributeValueConverter, FrameworkProperty } from "../user-interface.js";
-import DragDropHandler from "../DragDropHandler.js";
+import { DragDropHandler } from "../DragDropHandler.js";
 import { FrameworkEvent, NativeEvent } from "../../Standard/Events.js";
 import { Destructible } from "../../Standard/Destructible.js";
 
-export abstract class Widget extends Destructible {
+export abstract class Widget extends Object.assign(class a { }, Destructible, HTMLElement) {
     constructor(namespaceURI, qualifiedName) {
         super();
 
@@ -166,5 +166,3 @@ export abstract class Widget extends Destructible {
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
 }
-
-Object.setPrototypeOf(Widget, HTMLElement);
