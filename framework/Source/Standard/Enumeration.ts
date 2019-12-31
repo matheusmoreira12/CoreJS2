@@ -70,9 +70,14 @@ export class Enumeration<T = EnumerationValue> {
             return (<number><unknown>value & <number><unknown>flag) == <number><unknown>flag;
         else if (this.__type == Enumeration.TYPE_STRING)
             return setContainsString(<string><unknown>flag, <string><unknown>value);
+
+        return false;
     }
 
     constructor(descriptor: string[] | { [key: string]: T }) {
+        this.__flagsMap = new Map();
+        this.__type = -1;
+
         for (let { key, value } of getEnumerationFlags(descriptor)) {
             if (typeof key === "string") {
                 if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
@@ -83,7 +88,7 @@ export class Enumeration<T = EnumerationValue> {
             if (type === null)
                 throw new InvalidTypeException(`descriptor[${key}]`, typeof value, ["number", "string", "bool", "bigint"])
             else {
-                if (this.__type === undefined)
+                if (this.__type === -1)
                     this.__type = type;
                 else if (this.__type !== type)
                     throw new InvalidOperationException("The provided descriptor contains values of mixed types.");
@@ -100,8 +105,8 @@ export class Enumeration<T = EnumerationValue> {
     }
 
     toString(value: T): string {
-        function toString_number(this: Enumeration<T>): number {
-            function convertExact(this: Enumeration<T>): string {
+        function toString_number(this: Enumeration<T>): string {
+            function convertExact(this: Enumeration<T>): string | undefined {
                 return MapUtils.invert(this.__flagsMap).get(value);
             }
 
@@ -123,7 +128,7 @@ export class Enumeration<T = EnumerationValue> {
             throw new InvalidOperationException("Cannot convert Enumeration value to String. The specified value is not valid.");
         }
 
-        function toString_string(this: Enumeration<T>) {
+        function toString_string(this: Enumeration<T>): string {
             const result = [];
             const valuesMap = MapUtils.invert(this.__flagsMap);
             const valueItems = splitSetString(<string><unknown>value);
@@ -134,10 +139,10 @@ export class Enumeration<T = EnumerationValue> {
 
                 result.push(flag);
             }
-            return result;
+            return joinIntoSetStr(result);
         }
 
-        function toString_boolean(this: Enumeration<T>) {
+        function toString_boolean(this: Enumeration<T>): string {
             let result = MapUtils.invert(this.__flagsMap).get(value);
             if (result !== undefined)
                 return result;

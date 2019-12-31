@@ -1,16 +1,17 @@
-﻿import { Collection, Dictionary } from "../../Standard/Collections.js";
-import { WidgetMetadata } from "./WidgetMetadata.js";
+﻿import { WidgetMetadata } from "./WidgetMetadata.js";
 import { Widget } from "./Widget.js";
 import { InvalidOperationException, ArgumentTypeException } from "../../Standard/Exceptions.js";
 import ObjectUtils, { DeepClone } from "../../CoreBase/Utils/ObjectUtils.js";
 import { Type } from "../../Standard/Types/Types.js";
+import { Collection } from "../../Standard/Collections/Collection.js";
+import { Dictionary } from "../../Standard/Collections/Dictionary";
 
 const registeredWidgets: Collection<WidgetMetadata> = new Collection();
 
 const activeInstances: Dictionary<WidgetMetadata, Collection<Widget>> = new Dictionary();
 
-function getRegisteredWidgetByName(namespaceURI: string, qualifiedName: string): WidgetMetadata | undefined {
-    return registeredWidgets.find(m => m.namespaceURI === namespaceURI || m.qualifiedName === qualifiedName);
+function getRegisteredWidgetByName(qualifiedName: string, namespaceURI: string): WidgetMetadata | undefined {
+    return registeredWidgets.find(m => m.namespaceURI === namespaceURI && m.qualifiedName === qualifiedName);
 }
 
 function getRegisteredWidgetByConstructor(widgetConstructor: new () => Widget): WidgetMetadata | undefined {
@@ -22,30 +23,52 @@ function registerWidget(metadata: WidgetMetadata) {
     activeInstances.set(metadata, new Collection());
 }
 
-function initializeWidgetInstance(metadata: WidgetMetadata): boolean {
-    const activeWidgetInstances: Collection<Widget> = activeInstances.get(metadata);
-    if (activeWidgetInstances === undefined)
-        return false;
-
+function initializeWidgetInstance(metadata: WidgetMetadata, node: Node): void {
     const WidgetClass: new () => Widget = metadata.WidgetClass;
     const widgetInstance: Widget = new WidgetClass();
 
+    const activeWidgetInstances = activeInstances.get(metadata);
+    if (!activeWidgetInstances)
+        return;
+
     activeWidgetInstances.add(widgetInstance);
-    return true;
 }
 
-function terminateWidgetInstance(instance: Widget) {
+function initializeWidgetInstanceByNode(node: Node) {
+    const metadata = getRegisteredWidgetByName(node.nodeName, <string>node.namespaceURI);
+    if (!metadata)
+        return;
 
+    initializeWidgetInstance(metadata, node);
 }
 
-function terminateWidgetIntances(instances: Iterable<Widget>) {
+function finalizeWidgetInstance(metadata: WidgetMetadata, instance: Widget): void {
+    instance.destruct();
 
+    const activeWidgetInstances = activeInstances.get(metadata);
+    if (!activeWidgetInstances)
+        return;
+
+    activeWidgetInstances.remove(instance);
+}
+
+function finalizeWidgetInstanceByNode(node: Node) {
+    const metadata = getRegisteredWidgetByName(node.nodeName, <string>node.namespaceURI);
+    if (!metadata)
+        return;
+
+    finalizeWidgetInstance(metadata, node);
+}
+
+function finalizeWidgetIntances(metadata: WidgetMetadata, instances: Iterable<Widget>) {
+    for (let instance of instances)
+        finalizeWidgetInstance(metadata, instance);
 }
 
 function unregisterWidget(metadata: WidgetMetadata, force: boolean = false) {
     if (activeInstances.has(metadata)) {
         if (force)
-            terminateWidgetIntances(activeInstances.get(metadata));
+            finalizeWidgetIntances(metadata, activeInstances.get(metadata));
         else
             return false;
     }
@@ -102,14 +125,11 @@ export default WidgetManager;
 function domMutated_handler(mutations: MutationRecord[]) {
     for (let mutation of mutations) {
         if (mutation.type == "childList") {
-            for (let addedNode of mutation.addedNodes) {
-                const widget: WidgetMetadata = getRegisteredWidgetByName(addedNode.namespaceURI, addedNode.nodeName);
-                activateWidget(widget, addedNode);
-            }
-            for (let removedNode of mutation.removedNodes) {
-                const widget: WidgetMetadata = getRegisteredWidgetByName(removedNode.namespaceURI, removedNode.nodeName);
-                deactivateWidget(widget, removedNode);
-            }
+            for (let addedNode of mutation.addedNodes)
+                initializeWidgetInstanceByNode(addedNode);
+
+            for (let removedNode of mutation.removedNodes)
+                finalizeWidgetInstanceByNode(removedNode);
         }
     }
 }

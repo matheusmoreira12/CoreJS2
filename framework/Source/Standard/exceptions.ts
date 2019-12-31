@@ -58,7 +58,7 @@ export class IndexOutOfRangeException extends FrameworkException {
 
 export class InvalidOperationException extends FrameworkException {
     constructor(message?: string, innerException?: any) {
-        message = message || "Requirements for the current operation were not met.";
+        message = message || "Conditions for the current operation were not met.";
 
         super(message, innerException);
     }
@@ -66,7 +66,7 @@ export class InvalidOperationException extends FrameworkException {
 
 export class InvalidTypeException extends FrameworkException {
     constructor(name?: string, type?: any, expectedType?: any, message?: string, innerException?: any) {
-        message = message || "Variable has an invalid _type.";
+        message = message || "Variable has an invalid type.";
 
         super(message, innerException);
 
@@ -104,7 +104,7 @@ export class ArgumentException extends FrameworkException {
 
 export class ArgumentTypeException extends ArgumentException {
     constructor(argumentName?: string, _type?: any, expectedType?: any, message?: string, innerException?: any) {
-        message = message || "Argument is of incorrect _type.";
+        message = message || "Argument is of incorrect type.";
         _type = _type instanceof Function ? _type : _type ? _type.constructor : null;
 
         super(argumentName, message, innerException);

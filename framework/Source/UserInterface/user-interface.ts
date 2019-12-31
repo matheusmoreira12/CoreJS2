@@ -4,7 +4,8 @@ import { ValueConverter } from "../Standard/Standard.js";
 import { InterfaceMember, Interface, InterfaceMemberType } from "../Standard/Interfaces/Interface.js";
 import { FrameworkEvent, BroadcastFrameworkEvent } from "../Standard/Events.js";
 import { InvalidOperationException, ArgumentTypeException, ArgumentNullException } from "../Standard/Exceptions.js";
-import { Collection, Dictionary } from "../Standard/Collections.js";
+import { Collection } from "../Standard/Collections/Collection.js";
+import { Dictionary } from "../Standard/Collections/Dictionary.js";
 
 export class BooleanAttributeValueConverter implements ValueConverter {
     convertBack(value): boolean {

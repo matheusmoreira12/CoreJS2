@@ -14,7 +14,7 @@ export const BindingDirection = new Enumeration({
 
 export const IBindingOptions = new Interface(
     new InterfaceMember("direction", InterfaceMemberType.Property, Type.get(Number), undefined, true),
-    new InterfaceMember("valueConverter", InterfaceMemberType.Property, Type.get(IValueConverter), undefined, true),
+    new InterfaceMember("valueConverter", InterfaceMemberType.Property, IValueConverter, undefined, true),
 );
 
 export interface BindingOptions {

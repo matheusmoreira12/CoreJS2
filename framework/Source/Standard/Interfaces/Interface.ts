@@ -53,27 +53,23 @@ export const InterfaceMemberType = new Enumeration([
 ]);
 
 export class InterfaceMember {
-    constructor(key: string | symbol, memberType: number, valueType?: Type, attributes?: number, isOptional?) {
+    constructor(key: string | symbol, memberType: number, type?: Type | Interface, attributes?: number, isOptional?) {
         if (typeof key !== "string" && typeof key !== "symbol")
             throw new ArgumentTypeException(`key`, key, String);
         if (typeof memberType !== "number")
             throw new ArgumentTypeException(`memberType`, memberType, Number);
-        if (valueType !== undefined && !(valueType instanceof Type))
-            throw new ArgumentTypeException(`valueType`, valueType, Type);
+        if (type !== undefined && !(type instanceof Type))
+            throw new ArgumentTypeException(`valueType`, type, Type);
         if (attributes !== undefined && typeof attributes !== "number")
             throw new ArgumentTypeException(`attributes`, attributes, Number);
         if (isOptional !== undefined && typeof isOptional !== "boolean")
             throw new ArgumentTypeException(`isOptional`, isOptional, Boolean);
 
-        valueType = valueType === undefined ? null : valueType;
-        attributes = attributes === undefined ? MemberAttributes.Enumerable : attributes;
-        isOptional = isOptional === undefined ? false : isOptional;
-
         this.__key = key;
         this.__memberType = memberType;
-        this.__type = valueType;
-        this.__attributes = attributes;
-        this.__isOptional = isOptional;
+        this.__type = type === undefined ? null : type;
+        this.__attributes = attributes === undefined ? MemberAttributes.Enumerable : attributes;
+        this.__isOptional = isOptional === undefined ? false : isOptional;
     }
 
     get key() { return this.__key; }
@@ -82,8 +78,8 @@ export class InterfaceMember {
     get memberType(): number { return this.__memberType; }
     private __memberType: number;
 
-    get type(): Type { return this.__type; }
-    private __type: Type;
+    get type(): Type | Interface | null { return this.__type; }
+    private __type: Type | Interface | null;
 
     get attributes(): number { return this.__attributes; }
     private __attributes: number;
@@ -95,18 +91,20 @@ export class InterfaceMember {
 export class Interface {
     static extract(type: Type) {
         function* generateInterfaceMembers(): Generator<InterfaceMember> {
-            function generateInterfaceMember(member: Member): InterfaceMember {
+            function generateInterfaceMember(member: Member): InterfaceMember | undefined {
                 let memberIsFunction: boolean = MemberType.contains(MemberType.Function, member.memberType),
                     memberIsProperty: boolean = MemberType.contains(MemberType.Property, member.memberType);
                 if (memberIsFunction)
                     return new InterfaceMember(member.key, InterfaceMemberType.Function, member.type, member.attributes);
                 else if (memberIsProperty)
                     return new InterfaceMember(member.key, InterfaceMemberType.Property, member.type, member.attributes);
+
+                return undefined;
             }
 
             const instanceMembers: Generator<Member> = type.getMembers(MemberSelectionType.Instance | MemberSelectionType.Property | MemberSelectionType.Function);
             for (let member of instanceMembers)
-                yield generateInterfaceMember(member);
+                yield <InterfaceMember>generateInterfaceMember(member);
         }
 
         if (!(type instanceof Type))
@@ -139,15 +137,19 @@ export class Interface {
                 return !(memberIsProperty && !typeMemberIsProperty || memberIsFunction && !typeMemberIsFunction);
             }
 
-            function getMemberDifferenceType(member: InterfaceMember, typeMember: Member) {
+            function memberValueTypeMatches(interfaceMemberValueType: Type | Interface | null, typeMemberValueType: Type): boolean {
+                return interfaceMemberValueType === null || (interfaceMemberValueType instanceof Type && interfaceMemberValueType.equals(typeMemberValueType)) || (interfaceMemberValueType instanceof Interface && typeMemberValueType.implements(interfaceMemberValueType))
+            }
+
+            function getMemberDifferenceType(interfaceMember: InterfaceMember, typeMember: Member | undefined) {
                 if (typeMember === undefined)
                     return InterfaceDifferenceKind.Missing;
                 else {
-                    if (!memberAttributesMatch(member.attributes, typeMember.attributes))
+                    if (!memberAttributesMatch(interfaceMember.attributes, typeMember.attributes))
                         return InterfaceDifferenceKind.MissingAttributes;
-                    else if (!memberTypeMatches(member.memberType, typeMember.memberType))
+                    else if (!memberTypeMatches(interfaceMember.memberType, typeMember.memberType))
                         return InterfaceDifferenceKind.Invalid;
-                    else if (member.type.equals(typeMember.memberType))
+                    else if (!memberValueTypeMatches(interfaceMember.type, typeMember.type))
                         return InterfaceDifferenceKind.IncorrectType;
                 }
                 return null;
