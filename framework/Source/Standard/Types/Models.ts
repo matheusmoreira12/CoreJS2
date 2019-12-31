@@ -1,7 +1,7 @@
-import { Closure, Shell } from "./Standard.Closures.js";
-import { FormatException, ArgumentTypeException } from "./exceptions.js";
-import { Type } from "./Standard.Types.js";
-import { Enumeration } from "./Standard.Enumeration.js";
+import { Closure, Shell } from "./Standard.Closures.js.js";
+import { FormatException, ArgumentTypeException } from "./exceptions.js.js";
+import { Type } from "./Standard.Types.js.js";
+import { Enumeration } from "./Standard.Enumeration.js.js";
 
 function treatString(str) {
     str = str.replace("\n", " ");

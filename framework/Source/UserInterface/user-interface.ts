@@ -1,10 +1,10 @@
-import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags";
-import { Enumeration } from "../Standard/Enumeration";
-import { ValueConverter } from "../Standard/Standard";
-import { InterfaceMember, Interface, InterfaceMemberType } from "../Standard/Interfaces/Interface";
-import { FrameworkEvent, BroadcastFrameworkEvent } from "../Standard/Events";
-import { InvalidOperationException, ArgumentTypeException, ArgumentNullException } from "../Standard/Exceptions";
-import { Collection, Dictionary } from "../Standard/Collections";
+import { ContextSelectionFlags } from "../Standard/ContextSelectionFlags.js";
+import { Enumeration } from "../Standard/Enumeration.js";
+import { ValueConverter } from "../Standard/Standard.js";
+import { InterfaceMember, Interface, InterfaceMemberType } from "../Standard/Interfaces/Interface.js";
+import { FrameworkEvent, BroadcastFrameworkEvent } from "../Standard/Events.js";
+import { InvalidOperationException, ArgumentTypeException, ArgumentNullException } from "../Standard/Exceptions.js";
+import { Collection, Dictionary } from "../Standard/Collections.js";
 
 export class BooleanAttributeValueConverter implements ValueConverter {
     convertBack(value): boolean {

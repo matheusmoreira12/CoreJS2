@@ -1,5 +1,5 @@
-import { AsynchronousResolver } from "./Resolvers.js";
-import { Immediate } from "./Immediate.js";
+import { AsynchronousResolver } from "./Resolvers.js.js";
+import { Immediate } from "./Immediate.js.js";
 
 const NAMESPACE_SEPARATOR = "::";
 
@@ -253,7 +253,7 @@ window.addEventListener("unload", unload_handler);
  * - Imports are solved asynchronously. Once the requested resource is exported, its import promise resolves. Please note that: if a resource is never
  * exported, its promise will never be resolved.
  *
- *  import { Module } from "<relative path to Modules.js>";
+ *  import { Module } from "<relative path to Modules.js>.js";
  *
  *  Module.declare("Demo", async function (context) {
  *      context.module("SubModule1", async function (context) {

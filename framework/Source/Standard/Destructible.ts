@@ -1,4 +1,4 @@
-import { InvalidOperationException } from "./Exceptions";
+import { InvalidOperationException } from "./Exceptions.js";
 
 const allDestructibles = [];
 

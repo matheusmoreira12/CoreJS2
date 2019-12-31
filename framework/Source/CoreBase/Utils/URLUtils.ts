@@ -1,4 +1,4 @@
-import StringUtils from "./StringUtils";
+import StringUtils from "./StringUtils.js";
 
 const GEN_DELIMS = [":", "/", "?", "#", "[", "]", "@"];
 const SUB_DELIMS = ["!", "$", "&", "’", "(", ")", "*", "+", ",", ";", "="];

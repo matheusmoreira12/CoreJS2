@@ -1,5 +1,5 @@
-import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
-import { MapUtils } from "../Utils/utils";
+import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions.js";
+import { MapUtils } from "../Utils/utils.js";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 

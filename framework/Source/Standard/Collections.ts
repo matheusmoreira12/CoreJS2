@@ -1,6 +1,6 @@
-import { ArgumentOutOfRangeException, KeyNotFoundException } from "./Exceptions";
-import { Enumeration } from "./Enumeration";
-import { FrameworkEvent } from "./Events";
+import { ArgumentOutOfRangeException, KeyNotFoundException } from "./Exceptions.js";
+import { Enumeration } from "./Enumeration.js";
+import { FrameworkEvent } from "./Events.js";
 
 /**
  * Collection Class

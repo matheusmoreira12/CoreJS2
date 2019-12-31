@@ -1,4 +1,4 @@
-﻿import { ArgumentTypeException } from "./Exceptions";
+﻿import { ArgumentTypeException } from "./Exceptions.js";
 /**
  * ContextSelectionFlags Class
  * Allows the selection of individual flags.*/

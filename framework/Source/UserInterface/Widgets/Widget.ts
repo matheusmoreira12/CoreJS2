@@ -1,9 +1,9 @@
-import { InvalidOperationException } from "../../Standard/Exceptions";
-import { PropertyAttributeBinding } from "../Bindings";
-import { BooleanAttributeValueConverter, FrameworkProperty } from "../user-interface";
-import DragDropHandler from "../DragDropHandler";
-import { FrameworkEvent, NativeEvent } from "../../Standard/Events";
-import { Destructible } from "../../Standard/Destructible";
+import { InvalidOperationException } from "../../Standard/Exceptions.js";
+import { PropertyAttributeBinding } from "../Bindings.js";
+import { BooleanAttributeValueConverter, FrameworkProperty } from "../user-interface.js";
+import DragDropHandler from "../DragDropHandler.js";
+import { FrameworkEvent, NativeEvent } from "../../Standard/Events.js";
+import { Destructible } from "../../Standard/Destructible.js";
 
 export abstract class Widget extends Destructible {
     constructor(namespaceURI, qualifiedName) {

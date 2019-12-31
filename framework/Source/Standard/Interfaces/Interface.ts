@@ -1,6 +1,6 @@
-﻿import { Enumeration } from "../Enumeration";
-import { Type, MemberType, MemberAttributes, Member, MemberSelectionType } from "../Types/Types";
-import { ArgumentTypeException } from "../Exceptions";
+﻿import { Enumeration } from "../Enumeration.js";
+import { Type, MemberType, MemberAttributes, Member, MemberSelectionType } from "../Types/Types.js";
+import { ArgumentTypeException } from "../Exceptions.js";
 
 export const InterfaceDifferenceKind = new Enumeration([
     "Missing",

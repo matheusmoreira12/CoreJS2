@@ -1,7 +1,7 @@
-﻿import { Enumeration } from "../Standard/Enumeration";
-import { ArgumentNullException, ArgumentTypeException } from "../Standard/Exceptions";
-import { FrameworkEvent } from "../Standard/Events";
-import { Timer, Utils } from "./user-interface";
+﻿import { Enumeration } from "../Standard/Enumeration.js";
+import { ArgumentNullException, ArgumentTypeException } from "../Standard/Exceptions.js";
+import { FrameworkEvent } from "../Standard/Events.js";
+import { Timer, Utils } from "./user-interface.js";
 
 export const AutoScrollerOrientation = new Enumeration([
     "Horizontal",

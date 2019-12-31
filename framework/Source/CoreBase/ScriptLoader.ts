@@ -1,6 +1,6 @@
-import { IdentifierGenerator } from "./IdentifierGenerator.js";
-import { Ajax } from "./Ajax.js";
-import { URLUtils, URLData } from "./URLUtils.js";
+import { IdentifierGenerator } from "./IdentifierGenerator.js.js";
+import { Ajax } from "./Ajax.js.js";
+import { URLUtils, URLData } from "./URLUtils.js.js";
 
 const CURRENT_MODULE_URL = URLData.parse(import.meta.url);
 const CORE_BASE_URL = URLData.parse(CURRENT_MODULE_URL + "/..").collapse().toString();

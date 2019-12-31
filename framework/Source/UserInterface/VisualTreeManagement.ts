@@ -1,5 +1,5 @@
-import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
-import { ObservableCollectionChangeAction, ObservableCollection, ObservableCollectionChangeArgs } from "../Standard/Collections";
+import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions.js";
+import { ObservableCollectionChangeAction, ObservableCollection, ObservableCollectionChangeArgs } from "../Standard/Collections.js";
 
 const DEFAULT_NAMESPACE_URI = "http://www.w3.org/1999/xhtml";
 

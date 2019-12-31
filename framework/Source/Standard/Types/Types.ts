@@ -1,7 +1,7 @@
-import { Enumeration } from "../Enumeration";
-import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Exceptions";
-import ObjectUtils from "../../CoreBase/Utils/ObjectUtils";
-import { Interface } from "../Interfaces/Interface";
+import { Enumeration } from "../Enumeration.js";
+import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Exceptions.js";
+import ObjectUtils from "../../CoreBase/Utils/ObjectUtils.js";
+import { Interface } from "../Interfaces/Interface.js";
 
 export const MemberSelectionAttributes = new Enumeration({
     Any: 0,

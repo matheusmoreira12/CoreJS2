@@ -1,10 +1,10 @@
-import { Enumeration } from "../Standard/Enumeration";
-import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/Interface";
-import { Type } from "../Standard/Types/Types";
-import { IValueConverter, ValueConverter } from "../Standard/Standard";
-import { ArgumentTypeException, InvalidOperationException } from "../Standard/Exceptions";
-import { FrameworkProperty } from "./user-interface";
-import { Destructible } from "../Standard/Destructible";
+import { Enumeration } from "../Standard/Enumeration.js";
+import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/Interface.js";
+import { Type } from "../Standard/Types/Types.js";
+import { IValueConverter, ValueConverter } from "../Standard/Standard.js";
+import { ArgumentTypeException, InvalidOperationException } from "../Standard/Exceptions.js";
+import { FrameworkProperty } from "./user-interface.js";
+import { Destructible } from "../Standard/Destructible.js";
 
 export const BindingDirection = new Enumeration({
     Both: 3,

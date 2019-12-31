@@ -1,4 +1,4 @@
-import ObjectUtils from "../CoreBase/Utils/ObjectUtils";
+import ObjectUtils from "../CoreBase/Utils/ObjectUtils.js";
 
 export const ArrayUtils = {
 

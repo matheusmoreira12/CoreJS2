@@ -1,7 +1,7 @@
-import { Dictionary, Collection } from "./Collections";
-import { ArgumentTypeException } from "./Exceptions";
-import { Type } from "./Types/Types";
-import { Destructible } from "./Destructible";
+import { Dictionary, Collection } from "./Collections.js";
+import { ArgumentTypeException } from "./Exceptions.js";
+import { Type } from "./Types/Types.js";
+import { Destructible } from "./Destructible.js";
 
 type EventListenerData = { thisArg: any };
 

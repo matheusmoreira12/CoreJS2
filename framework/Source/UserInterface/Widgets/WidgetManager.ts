@@ -1,30 +1,57 @@
-﻿import { Collection } from "../../Standard/Collections";
-import { WidgetMetadata } from "./WidgetMetadata";
-import { Widget } from "./Widget";
-import { InvalidOperationException, ArgumentTypeException } from "../../Standard/Exceptions";
-import ObjectUtils, { DeepClone } from "../../CoreBase/Utils/ObjectUtils";
-import { Type } from "../../Standard/Types/Types";
+﻿import { Collection, Dictionary } from "../../Standard/Collections.js";
+import { WidgetMetadata } from "./WidgetMetadata.js";
+import { Widget } from "./Widget.js";
+import { InvalidOperationException, ArgumentTypeException } from "../../Standard/Exceptions.js";
+import ObjectUtils, { DeepClone } from "../../CoreBase/Utils/ObjectUtils.js";
+import { Type } from "../../Standard/Types/Types.js";
 
 const registeredWidgets: Collection<WidgetMetadata> = new Collection();
 
-function getRegisteredWidgetByName(namespaceURI: string, qualifiedName: string): WidgetMetadata {
+const activeInstances: Dictionary<WidgetMetadata, Collection<Widget>> = new Dictionary();
+
+function getRegisteredWidgetByName(namespaceURI: string, qualifiedName: string): WidgetMetadata | undefined {
     return registeredWidgets.find(m => m.namespaceURI === namespaceURI || m.qualifiedName === qualifiedName);
 }
 
-function getRegisteredWidgetByConstructor(widgetConstructor: new () => Widget): WidgetMetadata {
+function getRegisteredWidgetByConstructor(widgetConstructor: new () => Widget): WidgetMetadata | undefined {
     return registeredWidgets.find(m => m.WidgetClass === widgetConstructor);
 }
 
-function activateWidget(widget: WidgetMetadata, node: Node): void {
-    const WidgetClass = widget.WidgetClass;
-    const widgetInstance = new WidgetClass();
-    Object.setPrototypeOf(widgetInstance, node);
-
-    widget.__activeInstances.add(widgetInstance);
+function registerWidget(metadata: WidgetMetadata) {
+    registeredWidgets.add(metadata);
+    activeInstances.set(metadata, new Collection());
 }
 
-function deactivateWidget(widget: WidgetMetadata, node: Node) {
+function initializeWidgetInstance(metadata: WidgetMetadata): boolean {
+    const activeWidgetInstances: Collection<Widget> = activeInstances.get(metadata);
+    if (activeWidgetInstances === undefined)
+        return false;
 
+    const WidgetClass: new () => Widget = metadata.WidgetClass;
+    const widgetInstance: Widget = new WidgetClass();
+
+    activeWidgetInstances.add(widgetInstance);
+    return true;
+}
+
+function terminateWidgetInstance(instance: Widget) {
+
+}
+
+function terminateWidgetIntances(instances: Iterable<Widget>) {
+
+}
+
+function unregisterWidget(metadata: WidgetMetadata, force: boolean = false) {
+    if (activeInstances.has(metadata)) {
+        if (force)
+            terminateWidgetIntances(activeInstances.get(metadata));
+        else
+            return false;
+    }
+
+    activeInstances.delete(metadata);
+    return true;
 }
 
 const WidgetManager = {
@@ -56,7 +83,7 @@ const WidgetManager = {
             throw new InvalidOperationException("Cannot register widget. The specified widget constructor is already in use.");
 
         const metadata: WidgetMetadata = new WidgetMetadata(widgetConstructor, namespaceURI, qualifiedName);
-        registeredWidgets.add(metadata);
+        registerWidget(metadata);
     },
 
     deregister(widgetConstructor: new () => Widget): void {
