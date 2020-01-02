@@ -3,8 +3,11 @@ import { MapUtils } from "../Utils/utils.js";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
+type ObjectDescriptor<T> = { [key: string]: T };
+type ArrayDescriptor = string[];
+
 export type EnumerationValue = number | string | boolean | bigint;
-export type EnumerationDescriptor<T> = Array<string> | { [key: string]: T };
+export type EnumerationDescriptor<T> = ObjectDescriptor<T> | ArrayDescriptor;
 
 function splitSetString(setStr: string): string[] {
     return setStr.split("\s*,\s*");
@@ -19,17 +22,17 @@ function setContainsString(str: string, setStr: string): boolean {
     return setStrs.indexOf(str) !== -1;
 }
 
-function* getEnumerationFlags<T = EnumerationValue>(descriptor: EnumerationDescriptor<T>) {
+function* getEnumerationFlags<T = EnumerationValue>(descriptor: EnumerationDescriptor<T>): Generator<{ key: string, value: T }> {
     if (typeof descriptor != "object")
         throw new ArgumentTypeException("descriptor", typeof descriptor, "object");
 
     if (<any>descriptor instanceof Array) {
-        for (let i = 0; i < (<[]>descriptor).length; i++)
-            yield { key: descriptor[i], value: i }
+        for (let i = 0; i < (<ArrayDescriptor>descriptor).length; i++)
+            yield { key: (<ArrayDescriptor>descriptor)[i], value: <T><unknown>i }
     }
     else {
         for (let key in descriptor)
-            yield { key, value: descriptor[key] };
+            yield { key, value: (<ObjectDescriptor<T>>descriptor)[key] };
     }
 }
 
@@ -42,7 +45,8 @@ function inferEnumerationTypeFromValue<T = EnumerationValue>(value: T): number {
         case "boolean":
             return Enumeration.TYPE_BOOLEAN;
     }
-    return null;
+
+    return Enumeration.TYPE_INVALID;
 }
 
 function typeMatchesEnumerationType<T = EnumerationValue>(value: T, enumerationType: number): boolean {
@@ -56,9 +60,10 @@ function typeMatchesEnumerationType<T = EnumerationValue>(value: T, enumerationT
  * Represents an enumeration of options.
  */
 export class Enumeration<T = EnumerationValue> {
-    static get TYPE_NUMBER() { return 0 }
-    static get TYPE_STRING() { return 1 }
-    static get TYPE_BOOLEAN() { return 2 }
+    static get TYPE_INVALID() { return -1; }
+    static get TYPE_NUMBER() { return 0; }
+    static get TYPE_STRING() { return 1; }
+    static get TYPE_BOOLEAN() { return 2; }
 
     contains(flag: T, value: T): boolean {
         if (!typeMatchesEnumerationType(flag, this.__type))
@@ -74,7 +79,7 @@ export class Enumeration<T = EnumerationValue> {
         return false;
     }
 
-    constructor(descriptor: string[] | { [key: string]: T }) {
+    constructor(descriptor: EnumerationDescriptor<T>) {
         this.__flagsMap = new Map();
         this.__type = -1;
 
@@ -104,7 +109,7 @@ export class Enumeration<T = EnumerationValue> {
         }
     }
 
-    getLabel(value: T): string {
+    getLabel(value: T): string | null {
         function toString_number(this: Enumeration<T>): string {
             function convertExact(this: Enumeration<T>): string | undefined {
                 return MapUtils.invert(this.__flagsMap).get(value);
@@ -159,9 +164,11 @@ export class Enumeration<T = EnumerationValue> {
             return toString_string.call(this);
         else if (this.__type == Enumeration.TYPE_BOOLEAN)
             return toString_boolean.call(this);
+
+        return null;
     }
 
-    fromLabel(label: string): T | undefined {
+    fromLabel(label: string): T | null {
         function parse_number(this: Enumeration<T>): number {
             let result: number = 0;
 
@@ -204,7 +211,7 @@ export class Enumeration<T = EnumerationValue> {
         else if (this.__type == Enumeration.TYPE_BOOLEAN)
             return <T><unknown>parse_boolean.call(this);
 
-        return undefined;
+        return null;
     }
 
     private __type: number;
