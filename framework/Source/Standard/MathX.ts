@@ -17,6 +17,10 @@ const MathX = {
     round(value: number, decimalPlaces: number = 0): number {
         let multiplier = this.pow10(decimalPlaces);
         return Math.round(value * multiplier) / multiplier;
+    },
+
+    limitToBounds(value: number, min: number, max: number): number {
+        return Math.max(min, Math.min(max, value));
     }
 };
 export default MathX;

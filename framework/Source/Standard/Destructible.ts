@@ -1,6 +1,6 @@
 import { InvalidOperationException } from "./Exceptions.js";
 
-const allDestructibles = [];
+const allDestructibles: Destructible[] = [];
 
 export abstract class Destructible {
     constructor() {
@@ -8,7 +8,7 @@ export abstract class Destructible {
             throw new InvalidOperationException("Invalid constructor.");
     }
 
-    protected abstract destructor();
+    protected abstract destructor(): void;
 
     destruct() {
         if (this.__isDestructed)

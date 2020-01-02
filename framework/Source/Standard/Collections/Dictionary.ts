@@ -7,7 +7,7 @@ import { ArgumentOutOfRangeException, KeyNotFoundException } from "../Exceptions
  *
  */
 export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TValue>> {
-    static fromMap<TKey, TValue>(map: Map<TKey, TValue>) {
+    static fromMap<TKey, TValue>(map: Map<TKey, TValue>): Dictionary<TKey, TValue> {
         function* getItems() {
             for (let mapItem of map)
                 yield KeyValuePair.fromMapItem(mapItem);
@@ -39,7 +39,7 @@ export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TVal
         return this.get(key) !== undefined;
     }
 
-    set(key: TKey, value: TValue) {
+    set(key: TKey, value: TValue): void {
         if (key === undefined)
             throw new ArgumentOutOfRangeException("key");
         if (value === undefined)
@@ -51,12 +51,12 @@ export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TVal
         this.add(new KeyValuePair(key, value));
     }
 
-    *getKeys() {
+    *getKeys(): Generator<TKey> {
         for (let item of this)
             yield item.key;
     }
 
-    *getValues() {
+    *getValues(): Generator<TValue> {
         for (let item of this)
             yield item.value;
     }
