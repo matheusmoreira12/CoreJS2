@@ -12,7 +12,7 @@ export const IValueConverter = new Interface(
 );
 
 export interface ValueConverter {
-    convert: (value: any) => string,
+    convert: (value: any) => string | null,
     convertBack: (value: string) => any
 }
 

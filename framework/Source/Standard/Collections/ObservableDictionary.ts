@@ -17,7 +17,7 @@ export const ObservableDictionaryChangeAction = new Enumeration([
 export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
     private __notifySet(key: TKey, value: TValue) {
         if (this.has(key)) {
-            let oldValue = this.get(value);
+            let oldValue = this.get(key);
 
             this.ChangeEvent.invoke(this, {
                 action: ObservableDictionaryChangeAction.Change,

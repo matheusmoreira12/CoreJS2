@@ -12,7 +12,7 @@ export class RegExpXContext {
         return new RegExpXContext(...this.__namedPatterns);
     }
 
-    declareNamedPattern(name, pattern) {
+    declareNamedPattern(name: string, pattern: string) {
         if (this.__namedPatterns.has(name))
             return false;
 
@@ -20,25 +20,29 @@ export class RegExpXContext {
         return true;
     }
 
-    deleteNamedPattern(name) {
+    deleteNamedPattern(name: string) {
         return this.__namedPatterns.delete(name);
     }
 
-    createRegExpX(pattern, flags = "") {
+    createRegExpX(pattern: string, flags?: string) {
+        flags = flags === undefined ? "" : flags;
+
         let result = new RegExpX(pattern, flags, this);
         return result;
     }
 
-    public get namedPattern() { return this.__namedPatterns; }
+    public get namedPatterns() { return this.__namedPatterns; }
     private __namedPatterns: Dictionary<string, string> = new Dictionary();
 }
 
-function computeFinalPattern(pattern, context) {
-    function replaceEscapedPattern(match) {
+function computeFinalPattern(pattern: string, context: RegExpXContext | undefined) {
+    function replaceEscapedPattern(match: string) {
         const name = match.slice(1, match.length - 1); //Performatically extract name from escaped string
-        let pattern = context.namedPatterns.get(name);
+
+        let pattern = (<RegExpXContext>context).namedPatterns.get(name);
         if (pattern === undefined)
             throw new IndexOutOfRangeException(`No declared named pattern matches name "${name}".`);
+
         return pattern;
     }
 
@@ -52,7 +56,7 @@ function computeFinalPattern(pattern, context) {
 }
 
 export class RegExpX extends RegExp {
-    constructor(pattern, flags = "", context?: RegExpXContext) {
+    constructor(pattern: string, flags = "", context?: RegExpXContext) {
         if (context !== undefined && !(context instanceof RegExpXContext))
             throw new ArgumentTypeException("context", Type.of(context), Type.get(RegExpXContext));
 
@@ -62,6 +66,6 @@ export class RegExpX extends RegExp {
         this.__context = context;
     }
 
-    get context(): RegExpXContext { return this.__context; }
-    private __context: RegExpXContext;
+    get context(): RegExpXContext | undefined { return this.__context; }
+    private __context: RegExpXContext | undefined;
 }

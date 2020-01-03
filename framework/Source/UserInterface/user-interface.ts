@@ -8,7 +8,7 @@ import { Collection } from "../Standard/Collections/Collection.js";
 import { Dictionary } from "../Standard/Collections/Dictionary.js";
 
 export class BooleanAttributeValueConverter implements ValueConverter {
-    convertBack(value): boolean {
+    convertBack(value: string): boolean | null {
         if (value === null) return null;
 
         if (value === "false") return false;
@@ -16,7 +16,7 @@ export class BooleanAttributeValueConverter implements ValueConverter {
         return true;
     }
 
-    convert(value): string {
+    convert(value: boolean): string | null {
         if (value === null) return null;
 
         if (value === false) return "false";
@@ -26,11 +26,11 @@ export class BooleanAttributeValueConverter implements ValueConverter {
 }
 
 export class JSONAttributeValueConverter implements ValueConverter {
-    convertBack(value): JSON {
+    convertBack(value: string): JSON {
         return JSON.parse(value);
     }
 
-    convert(value): string {
+    convert(value: JSON): string {
         return JSON.stringify(value);
     }
 }
@@ -40,7 +40,7 @@ export class FlagsAttributeValueConverter implements ValueConverter {
         return ContextSelectionFlags.parse(value);
     }
 
-    convert(value): string {
+    convert(value: ContextSelectionFlags): string {
         return value.toString();
     }
 }

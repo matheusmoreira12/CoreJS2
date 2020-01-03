@@ -1,4 +1,6 @@
-﻿const WebColors = new ColorPalette({
+﻿import { ColorPalette } from "./ColorPalette";
+
+const WebColors = new ColorPalette({
     Pink: 0xFFC0CB,
     LightPink: 0xFFB6C1,
     HotPink: 0xFF69B4,

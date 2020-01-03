@@ -9,14 +9,14 @@ export type DeepClone<T> = {
 };
 
 const ObjectUtils = {
-    getOwnPropertyKeys(obj: any): (string | symbol)[] {
+    getOwnPropertyKeys<T>(obj: T): (string | symbol)[] {
         return [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
     },
 
-    copyProperty(src: object, dest: object, key: string | number | symbol, overwrite: boolean = true, bind: boolean = false): boolean {
-        if (!dest.hasOwnProperty(key) || overwrite && (delete dest[key])) {
+    copyProperty<T, U>(src: T, dest: U, key: keyof T, overwrite: boolean = true, bind: boolean = false): boolean {
+        if (!(<any>dest).hasOwnProperty(key) || overwrite && (delete dest[<keyof U><unknown>key])) {
             const srcDesc = Object.getOwnPropertyDescriptor(src, key);
-            const destDesc = { ...srcDesc };
+            const destDesc: PropertyDescriptor = { ...srcDesc };
 
             if (bind) {
                 if (destDesc.value instanceof Function)
@@ -36,28 +36,21 @@ const ObjectUtils = {
             return false;
     },
 
-    crudeCopy(src: object, dest: object, overwrite: boolean = true, bind: boolean = false) {
-        if (!this.hasPrototype(src))
-            throw new ArgumentException("src", `Value is null, undefined or does not implement the property "prototype".`);
-        if (!this.hasPrototype(dest))
-            throw new ArgumentException("dest", `Value is null, undefined or does not implement the property "prototype".`);
-
+    crudeCopy<T extends Object, U extends Object>(src: T, dest: U, overwrite: boolean = true, bind: boolean = false): void {
         for (let key of this.getOwnPropertyKeys(src))
-            this.copyProperty(src, dest, key, overwrite, bind);
-
-        return dest;
+            this.copyProperty(src, dest, <keyof T>key, overwrite, bind);
     },
 
-    deepEquals(obj1: any, obj2: any) {
+    deepEquals<T, U>(obj1: T, obj2: U) {
         if (obj1 !== null && typeof obj1 === "object") {
             //Check each property value
-            for (let prop of this.getOwnPropertyKeys())
-                if (!this.deepEquals(obj1[prop], obj2[prop])) return false;
+            for (let prop of this.getOwnPropertyKeys(obj1))
+                if (!this.deepEquals(obj1[<keyof T><unknown>prop], obj2[<keyof U>prop])) return false;
 
             return true;
         }
 
-        if (obj1 !== obj2) return false;
+        if (<any>obj1 !== <any>obj2) return false;
 
         return true;
     },
@@ -67,13 +60,13 @@ const ObjectUtils = {
     },
 
     getDeepReadonly<T>(obj: T): DeepReadonly<T> {
-        function getFrozen(obj) {
+        function getFrozen(this: typeof ObjectUtils, obj: any): DeepReadonly<any> {
             if (obj === null || typeof obj !== "object")
                 return obj;
 
             let frozenObj = this.getBlank(obj);
             for (let key of this.getOwnPropertyKeys(obj))
-                frozenObj[key] = getFrozen(obj[key]);
+                frozenObj[key] = getFrozen.call(this, obj[key]);
 
             return Object.freeze(frozenObj);
         }
@@ -82,29 +75,33 @@ const ObjectUtils = {
     },
 
     getDeepClone<T>(obj: T): DeepClone<T> {
-        function getClone(obj) {
+        function getClone<U>(this: typeof ObjectUtils, obj: U): DeepClone<U> {
             if (obj === null || typeof obj !== "object" || "isActiveClone" in obj)
                 return obj;
 
             let clonedObj = this.getBlank(obj);
             for (let key of this.getOwnPropertyKeys(obj))
-                clonedObj[key] = getClone(obj[key]);
+                clonedObj[key] = getClone.call(this, obj[<keyof U>key]);
+
+            return clonedObj;
         }
 
-        return getClone.call(this, obj);
+        return <T>getClone.call(this, obj);
     },
 
     getBoundClone<T>(obj: T): DeepClone<T> {
-        function getBoundClone(obj) {
+        function getBoundClone<U>(this: typeof ObjectUtils, obj: U): DeepClone<U>  {
             if (obj === null || typeof obj !== "object")
                 return obj;
 
             let boundCloneObj = this.getBlank(obj);
             for (let key of this.getOwnPropertyKeys(obj))
-                this.copyProperty(obj, boundCloneObj, key, true, true);
+                this.copyProperty(obj, boundCloneObj, <keyof U>key, true, true);
+
+            return boundCloneObj;
         }
 
-        return getBoundClone.call(this, obj);
+        return <T>getBoundClone.call(this, obj);
     }
 };
 export default ObjectUtils;
