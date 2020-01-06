@@ -7,7 +7,7 @@ export class FrameworkException extends Error {
         for (let field of this.data) {
             let [fieldName, fieldValue] = field;
 
-            result += `\n     ${fieldName.padEnd(20)} : ${fieldValue}`;
+            result += `\n\t${fieldName.padEnd(20)} : ${fieldValue}`;
         }
 
         result += `\nStack trace: ${this.stack}`;
