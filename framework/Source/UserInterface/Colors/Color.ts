@@ -6,20 +6,20 @@ import { ColorHSL } from "./ColorHSL.js";
 import { ColorHSLA } from "./ColorHSLA.js";
 
 export abstract class Color extends Number {
-    constructor(value: number) {
-        if (new.target === Color)
-            throw new InvalidOperationException("Invalid constructor.");
-        super(value);
-    }
-
-    fromRGBAHex(value: number): ColorRGBA {
+    static fromRGBAHex(value: number): ColorRGBA {
         let { r, g, b, a } = ColorConversion.convertToRGBA(value);
         return new ColorRGBA(r, g, b, a);
     }
 
-    fromRGBHex(value: number): ColorRGB {
+    static fromRGBHex(value: number): ColorRGB {
         let { r, g, b } = ColorConversion.convertToRGBA(value);
         return new ColorRGB(r, g, b);
+    }
+
+    constructor(value: number) {
+        if (new.target === Color)
+            throw new InvalidOperationException("Invalid constructor.");
+        super(value);
     }
 
     toRGBA(): ColorRGBA {
