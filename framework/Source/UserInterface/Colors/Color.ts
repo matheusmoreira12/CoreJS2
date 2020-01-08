@@ -12,6 +12,16 @@ export abstract class Color extends Number {
         super(value);
     }
 
+    fromRGBAHex(value: number): ColorRGBA {
+        let { r, g, b, a } = ColorConversion.convertToRGBA(value);
+        return new ColorRGBA(r, g, b, a);
+    }
+
+    fromRGBHex(value: number): ColorRGB {
+        let { r, g, b } = ColorConversion.convertToRGBA(value);
+        return new ColorRGB(r, g, b);
+    }
+
     toRGBA(): ColorRGBA {
         const value = Number(this);
         const { r, g, b, a } = ColorConversion.convertToRGBA(value);
