@@ -30,6 +30,62 @@ const ColorConversion = {
             byteA = Math.round(a * 255);
 
         return byteR << (BITS_PER_NIBBLE * 6) | byteG << (BITS_PER_NIBBLE * 4) | byteB << (BITS_PER_NIBBLE * 2) | byteA;
+    },
+
+    convertRGBtoHSL({ r, g, b }: { r: number, g: number, b: number }): { h: number, s: number, l: number } {
+        function getHue(): number {
+            if (d != 0) {
+                if (cmax == r)
+                    return 60 * ((g - b) / d) % 6;
+                else if (cmax == g)
+                    return 60 * (((b - r) / d) + 2);
+                else if (cmax == b)
+                    return 60 * (((r - g) / d) + 4);
+            }
+
+            return 0;
+        }
+
+        function getSaturation(): number {
+            if (d != 0)
+                return d / (1 - Math.abs(2 * l - 1));
+
+            return 0;
+        }
+
+        const cmax = Math.max(r, g, b),
+            cmin = Math.min(r, g, b),
+            d = cmax - cmin,
+            h = getHue(),
+            s = getSaturation(),
+            l = d / 2;
+
+        return { h, s, l };
+    },
+
+    convertHSLtoRGB({ h, s, l }: { h: number, s: number, l: number }): { r: number, g: number, b: number } {
+        function getRGB(): [number, number, number] {
+            if (h >= 300)
+                return [c, 0, x];
+            if (h >= 240)
+                return [x, 0, c];
+            if (h >= 180)
+                return [0, x, c];
+            if (h >= 120)
+                return [0, c, x];
+            if (h >= 60)
+                return [x, c, 0];
+
+            return [c, x, 0];
+        }
+
+        const c = (1 - Math.abs(2 * l - 1)) * s,
+            x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+            m = l - c / 2;
+
+        const [_r, _g, _b] = getRGB();
+
+        return { r: (_r + m), g: (_g + m), b: (_b + m) };
     }
 };
 export default ColorConversion;
