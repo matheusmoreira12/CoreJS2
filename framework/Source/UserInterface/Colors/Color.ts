@@ -26,7 +26,7 @@ export abstract class Color extends Number {
 
     toHSL(): ColorHSL {
         const value = Number(this);
-        const rgb = ColorConversion.convertToRGBA(value);
+        const { a, ...rgb } = ColorConversion.convertToRGBA(value);
         const { h, s, l } = ColorConversion.convertRGBtoHSL(rgb);
         return new ColorHSL(h, s, l);
     }
