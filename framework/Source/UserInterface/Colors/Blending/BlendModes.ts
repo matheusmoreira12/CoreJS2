@@ -1,6 +1,5 @@
-import { BlendMode } from "./BlendMode";
+import { SeparableBlendMode, NonSeparableBlendMode } from "./BlendMode";
 import { Color } from "../Color";
-import { ColorRGB } from "../ColorRGB";
 import { ColorHSL } from "../ColorHSL";
 
 const f_normal = (cb: number, cs: number): number => cs;
@@ -74,25 +73,37 @@ const f_luminosity = (cb: Color, cs: Color) => {
 };
 
 const BlendModes = {
-    Normal: new SeparableBlendMode(f_normal),
+    get Normal() { return new SeparableBlendMode(f_normal) },
 
-    Multiply: new SeparableBlendMode(f_multiply),
+    get Multiply() { return new SeparableBlendMode(f_multiply) },
 
-    Screen: new SeparableBlendMode(f_screen),
+    get Screen() { return new SeparableBlendMode(f_screen) },
 
-    Overlay: new SeparableBlendMode(f_overlay),
+    get Overlay() { return new SeparableBlendMode(f_overlay) },
 
-    Darken: new SeparableBlendMode(f_darken),
+    get Darken() { return new SeparableBlendMode(f_darken) },
 
-    Lighten: new SeparableBlendMode(f_lighten),
+    get Lighten() { return new SeparableBlendMode(f_lighten) },
 
-    Hue: new NonSeparableBlendMode(f_hue),
+    get ColorDodge() { return new SeparableBlendMode(f_colorDodge) },
 
-    Saturation: new NonSeparableBlendMode(f_saturation),
+    get ColorBurn() { return new SeparableBlendMode(f_colorBurn) },
 
-    Color: new NonSeparableBlendMode(f_color),
+    get HardLight() { return new SeparableBlendMode(f_hardLight) },
 
-    Luminosity: new NonSeparableBlendMode(f_luminosity)
+    get SoftLight() { return new SeparableBlendMode(f_softLight) },
+
+    get Difference() { return new SeparableBlendMode(f_difference) },
+
+    get Exclusion() { return new SeparableBlendMode(f_exclusion) },
+
+    get Hue() { return new NonSeparableBlendMode(f_hue) },
+
+    get Saturation() { return new NonSeparableBlendMode(f_saturation) },
+
+    get Color() { return new NonSeparableBlendMode(f_color) },
+
+    get Luminosity() { return new NonSeparableBlendMode(f_luminosity) }
 };
 
 export default BlendModes;
