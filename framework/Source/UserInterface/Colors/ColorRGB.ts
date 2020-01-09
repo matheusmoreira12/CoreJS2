@@ -1,7 +1,7 @@
 ﻿import ColorConversion from "./ColorConversion.js";
 import { Color } from "./Color.js";
 
-export class ColorRGB extends Color {
+export class ColorRGB extends Number {
     constructor(r: number, g: number, b: number) {
         const value = ColorConversion.convertFromRGBA({ r, g, b, a: 1 });
         super(value);

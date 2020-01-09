@@ -1,4 +1,4 @@
-﻿import { Color } from "./Color";
+﻿import { Color } from "./Color.js";
 
 const WebColors = {
     get Pink() { return Color.fromRGBAHex(0xFFC0CBFF) },
@@ -141,6 +141,7 @@ const WebColors = {
     get SlateGray() { return Color.fromRGBAHex(0x708090FF) },
     get DarkSlateGray() { return Color.fromRGBAHex(0x2F4F4FFF) },
     get Black() { return Color.fromRGBAHex(0x000000FF) },
+    get Transparent() { return Color.fromRGBAHex(0x00000000) }
 };
 
 export default WebColors;

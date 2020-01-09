@@ -1,14 +1,11 @@
 import MathX from "../../Standard/MathX.js";
 
-const BYTE_MASK = 0xFF,
-    BITS_PER_NIBBLE = 4;
-
 const ColorConversion = {
-    convertToRGBA(value: number) {
-        const byteR = (value >>> (BITS_PER_NIBBLE * 6)) & BYTE_MASK,
-            byteG = (value >>> (BITS_PER_NIBBLE * 4)) & BYTE_MASK,
-            byteB = (value >>> (BITS_PER_NIBBLE * 2)) & BYTE_MASK,
-            byteA = value & BYTE_MASK;
+    convertToRGBA(value: number): { r: number, g: number, b: number, a: number } {
+        const byteR = (value >>> 24) & 0xFF,
+            byteG = (value >>> 16) & 0xFF,
+            byteB = (value >>> 8) & 0xFF,
+            byteA = value & 0xFF;
 
         return {
             r: byteR / 255,
@@ -29,7 +26,7 @@ const ColorConversion = {
             byteB = Math.round(b * 255),
             byteA = Math.round(a * 255);
 
-        return byteR << (BITS_PER_NIBBLE * 6) | byteG << (BITS_PER_NIBBLE * 4) | byteB << (BITS_PER_NIBBLE * 2) | byteA;
+        return Number(BigInt(byteR) << 24n | BigInt(byteG) << 16n | BigInt(byteB) << 8n | BigInt(byteA));
     },
 
     convertRGBtoHSL({ r, g, b }: { r: number, g: number, b: number }): { h: number, s: number, l: number } {

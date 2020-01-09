@@ -1,8 +1,8 @@
-import { SeparableBlendMode, NonSeparableBlendMode } from "./BlendMode";
-import { Color } from "../Color";
-import { ColorHSL } from "../ColorHSL";
+import { SeparableBlendMode, NonSeparableBlendMode } from "./BlendMode.js";
+import { Color } from "../Color.js";
+import { ColorHSL } from "../ColorHSL.js";
 
-const f_normal = (cb: number, cs: number): number => cs;
+const f_normal = (_cb: number, cs: number): number => cs;
 
 const f_multiply = (cb: number, cs: number) => cb * cs;
 
@@ -18,7 +18,7 @@ function f_colorDodge(cb: number, cs: number): number {
     if (cb == 0)
         return 0;
     if (cb == 1)
-        return 1
+        return 1;
     return Math.min(1, cb / (1 - cs));
 }
 

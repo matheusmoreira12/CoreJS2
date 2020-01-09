@@ -1,5 +1,5 @@
-﻿import MathX from "../../Standard/MathX";
-import { Color } from "./Color";
+﻿import MathX from "../../Standard/MathX.js";
+import { Color } from "./Color.js";
 
 const ColorUtils = {
     colorToString(color: Color) {
