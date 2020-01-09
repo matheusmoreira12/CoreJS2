@@ -1,7 +1,7 @@
 import { Color } from "./Color.js";
 import ColorConversion from "./ColorConversion.js";
 
-export class ColorHSLA extends Number {
+export class ColorHSLA extends Color {
     constructor(h: number, s: number, l: number, a: number) {
         const rgb = ColorConversion.convertHSLtoRGB({ h, s, l });
         const value = ColorConversion.convertFromRGBA({ ...rgb, a });
