@@ -1,10 +1,10 @@
-import { Color } from "./Color.js";
-import ColorConversion from "./ColorConversion.js";
+import { Color } from "./index.js";
+import { ColorConversion } from "./index.js";
 
 export class ColorHSL extends Color {
     constructor(h: number, s: number, l: number) {
-        const rgb = ColorConversion.convertHSLtoRGB({ h, s, l });
-        const value = ColorConversion.convertFromRGBA({ ...rgb, a: 1 });
+        const rgb = ColorConversion.convertHSLtoRGB(h, s, l);
+        const value = ColorConversion.convertFromRGBA(rgb.r, rgb.g, rgb.b, 1);
         super(value);
 
         this.__h = h;

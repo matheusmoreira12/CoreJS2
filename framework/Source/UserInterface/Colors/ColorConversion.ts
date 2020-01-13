@@ -15,7 +15,12 @@ const ColorConversion = {
         };
     },
 
-    convertFromRGBA({ r, g, b, a }: { r: number, g: number, b: number, a: number }): number {
+    convertToRGB(value: number): { r: number, g: number, b: number } {
+        const { a, ...rgb } = this.convertToRGBA(value);
+        return rgb;
+    },
+
+    convertFromRGBA(r: number, g: number, b: number, a: number): number {
         r = MathX.limitToBounds(r, 0, 1);
         g = MathX.limitToBounds(g, 0, 1);
         b = MathX.limitToBounds(b, 0, 1);
@@ -29,17 +34,20 @@ const ColorConversion = {
         return Number(BigInt(byteR) << 24n | BigInt(byteG) << 16n | BigInt(byteB) << 8n | BigInt(byteA));
     },
 
-    convertRGBtoHSL({ r, g, b }: { r: number, g: number, b: number }): { h: number, s: number, l: number } {
+    convertFromRGB(r: number, g: number, b: number): number {
+        return this.convertFromRGBA(r, g, b, 1);
+    },
+
+    convertRGBtoHSL(r: number, g: number, b: number): { h: number, s: number, l: number } {
         function getHue(): number {
             if (d != 0) {
                 if (cmax == r)
-                    return 60 * ((g - b) / d) % 6;
-                else if (cmax == g)
-                    return 60 * (((b - r) / d) + 2);
-                else if (cmax == b)
-                    return 60 * (((r - g) / d) + 4);
+                    return 60 * (((g - b) / d) % 6);
+                if (cmax == g)
+                    return 60 * ((b - r) / d + 2);
+                if (cmax == b)
+                    return 60 * ((r - g) / d + 4);
             }
-
             return 0;
         }
 
@@ -54,13 +62,13 @@ const ColorConversion = {
             cmin = Math.min(r, g, b),
             d = cmax - cmin,
             h = getHue(),
-            s = getSaturation(),
-            l = d / 2;
+            l = (cmax + cmin) / 2,
+            s = getSaturation();
 
         return { h, s, l };
     },
 
-    convertHSLtoRGB({ h, s, l }: { h: number, s: number, l: number }): { r: number, g: number, b: number } {
+    convertHSLtoRGB(h: number, s: number, l: number): { r: number, g: number, b: number } {
         function getRGB(): [number, number, number] {
             if (h >= 300)
                 return [c, 0, x];

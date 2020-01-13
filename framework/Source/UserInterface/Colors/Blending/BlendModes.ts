@@ -1,4 +1,5 @@
-import { SeparableBlendMode, NonSeparableBlendMode } from "./BlendMode.js";
+import { NonSeparableBlendMode } from "./NonSeparableBlendMode";
+import { SeparableBlendMode } from "./SeparableBlendMode";
 import { Color } from "../Color.js";
 import { ColorHSL } from "../ColorHSL.js";
 

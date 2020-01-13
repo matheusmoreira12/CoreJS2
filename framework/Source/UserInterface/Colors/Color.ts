@@ -1,27 +1,29 @@
-﻿import ColorConversion from "./ColorConversion.js";
+﻿import { ColorConversion } from "./index.js";
 import { InvalidOperationException } from "../../Standard/Exceptions.js";
-import { ColorRGBA } from "./ColorRGBA.js";
-import { ColorRGB } from "./ColorRGB.js";
-import { ColorHSL } from "./ColorHSL.js";
-import { ColorHSLA } from "./ColorHSLA.js";
+import { ColorRGBA } from "./index.js";
+import { ColorRGB } from "./index.js";
+import { ColorHSL } from "./index.js";
+import { ColorHSLA } from "./index.js";
+import { BlendMode } from "./Blending/index.js";
 
 export abstract class Color extends Number {
     static fromRGBAHex(value: number): ColorRGBA {
-        let { r, g, b, a } = ColorConversion.convertToRGBA(value);
+        const { r, g, b, a } = ColorConversion.convertToRGBA(value);
         return new ColorRGBA(r, g, b, a);
     }
 
     static fromRGBHex(value: number): ColorRGB {
-        let { r, g, b } = ColorConversion.convertToRGBA(value);
+        const { r, g, b } = ColorConversion.convertToRGB(value);
         return new ColorRGB(r, g, b);
     }
 
     constructor(value: number) {
         if (new.target === Color)
             throw new InvalidOperationException("Invalid constructor.");
+
         super(value);
     }
-
+         
     toRGBA(): ColorRGBA {
         const value = Number(this);
         const { r, g, b, a } = ColorConversion.convertToRGBA(value);
@@ -30,21 +32,25 @@ export abstract class Color extends Number {
 
     toRGB(): ColorRGB {
         const value = Number(this);
-        const { r, g, b } = ColorConversion.convertToRGBA(value);
+        const { r, g, b } = ColorConversion.convertToRGB(value);
         return new ColorRGB(r, g, b);
     }
 
     toHSL(): ColorHSL {
         const value = Number(this);
-        const { a, ...rgb } = ColorConversion.convertToRGBA(value);
-        const { h, s, l } = ColorConversion.convertRGBtoHSL(rgb);
+        const rgb = ColorConversion.convertToRGB(value);
+        const { h, s, l } = ColorConversion.convertRGBtoHSL(rgb.r, rgb.g, rgb.b);
         return new ColorHSL(h, s, l);
     }
 
     toHSLA(): ColorHSLA {
         const value = Number(this);
-        const { a, ...rgb } = ColorConversion.convertToRGBA(value);
-        const { h, s, l } = ColorConversion.convertRGBtoHSL(rgb);
-        return new ColorHSLA(h, s, l, a);
+        const rgba = ColorConversion.convertToRGBA(value);
+        const { h, s, l } = ColorConversion.convertRGBtoHSL(rgba.r, rgba.g, rgba.b);
+        return new ColorHSLA(h, s, l, rgba.a);
+    }
+
+    blend(color: Color, blendMode: BlendMode): Color {
+        return blendMode.blend(this, color);
     }
 }
