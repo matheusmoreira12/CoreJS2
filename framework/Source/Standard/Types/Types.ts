@@ -260,20 +260,20 @@ export const MemberType = new Enumeration({
 
 export class Member<TParent = any, TValue = any> {
     static fromPropertyDescriptor<TParent>(parentType: Type<TParent>, key: keyof TParent, descriptor: PropertyDescriptor, isStatic: boolean = false): Member<TParent, any> {
-        function getAttributesFromDescriptor(descriptor: PropertyDescriptor): number {
+        function getAttributesFromDescriptor(): number {
             return (descriptor.writable ? MemberAttributes.Writable : 0) | (descriptor.enumerable ? MemberAttributes.Enumerable : 0) | (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
 
-        function getMemberType(value: any): number {
+        function getMemberType(): number {
             const memberIsFunction: boolean = value instanceof Function,
                 memberIsProperty: boolean = !!descriptor.get || !!descriptor.set;
 
             return (isStatic ? MemberType.Static : MemberType.Instance) | (memberIsFunction ? MemberType.Function : memberIsProperty ? MemberType.Property : MemberType.Field);
         }
 
-        const attributes = getAttributesFromDescriptor(descriptor);
-        const value = descriptor.value;
-        const memberType = getMemberType(value);
+        const attributes = getAttributesFromDescriptor();
+        const value = <TParent[typeof key]>descriptor.value;
+        const memberType = getMemberType();
         const type = Type.of(value);
         return new Member(key, memberType, parentType, attributes, type);
     }
