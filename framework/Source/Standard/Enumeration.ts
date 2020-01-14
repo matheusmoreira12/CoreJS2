@@ -41,9 +41,9 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
  */
 export class Enumeration {
     contains(flag: number, value: number): boolean {
-        if (typeof flag == "number")
+        if (typeof flag != "number")
             throw new ArgumentTypeException("flag", flag, Number);
-        if (typeof value == "number")
+        if (typeof value != "number")
             throw new ArgumentTypeException("value", value, Number);
 
         return (value & flag) == flag;

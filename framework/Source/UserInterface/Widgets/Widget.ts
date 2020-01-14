@@ -19,11 +19,11 @@ export abstract class Widget extends Destructible {
             throw new InvalidOperationException("Invalid constructor");*/
 
         //Create Bindings
-        new PropertyAttributeBinding(this, Widget.isDraggableProperty, <HTMLElement><unknown>this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
+        new PropertyAttributeBinding(this, Widget.isDraggableProperty, this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
 
         //Attach Event Handlers
         //  Drag/Drop Handler Events
-        /*this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
+        this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
         this.__dragDropHandler.DragStartEvent.attach(this.__dragDropHandler__onDragStart, this);
         this.__dragDropHandler.DragMoveEvent.attach(this.__dragDropHandler__onDragMove, this);
         this.__dragDropHandler.DragEndEvent.attach(this.__dragDropHandler__onDragEnd, this);
@@ -31,9 +31,9 @@ export abstract class Widget extends Destructible {
         this.__dragDropHandler.DragEnterEvent.attach(this.__dragDropHandler__onDragEnter, this);
         this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
-        this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);*/
+        this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
     }
-    /*
+    
     //Helper Class Instances
     private __dragDropHandler = new DragDropHandler(this);
 
@@ -167,5 +167,4 @@ export abstract class Widget extends Destructible {
     static isDraggableProperty = new FrameworkProperty("isDraggable", { defaultValue: false });
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
-    */
 }

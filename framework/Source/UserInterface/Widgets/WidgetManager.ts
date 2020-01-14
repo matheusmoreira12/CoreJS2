@@ -1,5 +1,5 @@
-﻿import { WidgetMetadata } from "./WidgetMetadata.js";
-import { Widget } from "./Widget.js";
+﻿import { WidgetMetadata } from "./index.js";
+import { Widget } from "./index.js";
 import { InvalidOperationException, ArgumentTypeException } from "../../Standard/Exceptions.js";
 import ObjectUtils, { DeepClone } from "../../CoreBase/Utils/ObjectUtils.js";
 import { Type } from "../../Standard/Types/Types.js";

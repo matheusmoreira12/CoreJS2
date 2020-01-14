@@ -6,6 +6,10 @@ import { Type } from "../Standard/Types/Types.js";
 
 window["Type"] = Type;
 
+import { Interface } from "../Standard/Interfaces/Interface.js";
+
+window["Interface"] = Interface;
+
 import WebColors from "../UserInterface/Colors/WebColors.js";
 //import { ColorRGB } from "../UserInterface/Colors/ColorRGB.js";
 //import { ColorHSL } from "../UserInterface/Colors/ColorHSL.js";

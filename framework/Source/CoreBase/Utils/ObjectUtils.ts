@@ -9,8 +9,9 @@ export type DeepClone<T> = {
 };
 
 const ObjectUtils = {
-    getOwnPropertyKeys<T>(obj: T): (string | symbol)[] {
-        return [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
+    getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
+        let keys: (string | symbol)[] = [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
+        return <(keyof T)[]>keys;
     },
 
     copyProperty<T, U>(src: T, dest: U, key: keyof T, overwrite: boolean = true, bind: boolean = false): boolean {
@@ -45,7 +46,7 @@ const ObjectUtils = {
         if (obj1 !== null && typeof obj1 === "object") {
             //Check each property value
             for (let prop of this.getOwnPropertyKeys(obj1))
-                if (!this.deepEquals(obj1[<keyof T><unknown>prop], obj2[<keyof U>prop])) return false;
+                if (!this.deepEquals(obj1[prop], obj2[<keyof U><unknown>prop])) return false;
 
             return true;
         }
@@ -90,7 +91,7 @@ const ObjectUtils = {
     },
 
     getBoundClone<T>(obj: T): DeepClone<T> {
-        function getBoundClone<U>(this: typeof ObjectUtils, obj: U): DeepClone<U>  {
+        function getBoundClone<U>(this: typeof ObjectUtils, obj: U): DeepClone<U> {
             if (obj === null || typeof obj !== "object")
                 return obj;
 

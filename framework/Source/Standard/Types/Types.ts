@@ -3,6 +3,8 @@ import { InvalidOperationException, ArgumentTypeException, InvalidTypeException 
 import ObjectUtils from "../../CoreBase/Utils/ObjectUtils.js";
 import { Interface } from "../Interfaces/Interface.js";
 
+export type Class<T> = (new () => T);
+
 export const MemberSelectionAttributes = new Enumeration({
     Any: 0,
     Configurable: 1,
@@ -19,8 +21,8 @@ export const MemberSelectionType = new Enumeration({
     Any: 31,
 });
 
-export class Type {
-    static get(_class: new () => any): Type {
+export class Type<T = any> {
+    static get<T>(_class: Class<T>): Type<T> {
         if (!(_class instanceof Function))
             throw new ArgumentTypeException("_class");
 
@@ -30,25 +32,25 @@ export class Type {
         return result;
     }
 
-    static of(instance: any): Type {
+    static of<T>(instance: T): Type<T> {
         let result = new Type();
         result.__initializeWithInstance(instance);
 
         return result;
     }
 
-    private __initializeWithInstance(instance: new () => any): void {
+    private __initializeWithInstance(instance: T): void {
         this.__instance = instance;
         this.__hasInstance = true;
 
         let instanceHasConstructor = instance !== null && instance !== undefined;
         if (instanceHasConstructor)
-            this.__initializeWithClass(instance.constructor);
+            this.__initializeWithClass(<Class<T>>(<object><unknown>instance).constructor);
 
         this.__initialized = true;
     }
 
-    private __initializeWithClass(_class: any): void {
+    private __initializeWithClass(_class: Class<T>): void {
         this.__class = _class;
         this.__hasClass = true;
 
@@ -66,13 +68,13 @@ export class Type {
         if (!this.__hasClass)
             return String(this.__instance);
 
-        return this.__class.name;
+        return (<Class<any>>this.__class).name;
     }
 
     * getOwnMembers(selectionType?: number, selectionAttributes?: number): Generator<Member> {
         this.__checkInitializationStatus();
 
-        function* generateMembers(this: Type): Generator<Member> {
+        function* generateMembers(this: Type<T>): Generator<Member> {
             if (!this.__hasClass) return;
 
             for (let key of ObjectUtils.getOwnPropertyKeys(this.__class)) {
@@ -88,7 +90,7 @@ export class Type {
             }
         }
 
-        function* selectMembers(this: Type, members: Iterable<Member>): Generator<Member> {
+        function* selectMembers(this: Type<T>, members: Iterable<Member>): Generator<Member> {
             function memberTypeMatches(memberType: number): boolean {
                 const selectionHasFunction: boolean = MemberSelectionType.contains(MemberSelectionType.Function, <number>selectionType),
                     selectionHasProperty: boolean = MemberSelectionType.contains(MemberSelectionType.Property, <number>selectionType),
@@ -158,7 +160,7 @@ export class Type {
         return this.__class;
     }
 
-    equals(other: Type): boolean {
+    equals(other: Type<any>): boolean {
         this.__checkInitializationStatus();
 
         if (!(other instanceof Type))
@@ -167,7 +169,7 @@ export class Type {
         return this.__getEffectiveValue() === other.__getEffectiveValue();
     }
 
-    extends(other: Type): boolean {
+    extends(other: Type<any>): boolean {
         this.__checkInitializationStatus();
 
         for (let type of this.getParentTypes()) {
@@ -178,7 +180,7 @@ export class Type {
         return false;
     }
 
-    equalsOrExtends(other: Type): boolean {
+    equalsOrExtends(other: Type<any>): boolean {
         this.__checkInitializationStatus();
 
         return this.equals(other) || this.extends(other);
@@ -194,7 +196,7 @@ export class Type {
         return false;
     }
 
-    * getParentTypes(): Generator<Type> {
+    * getParentTypes(): Generator<Type<any>> {
         let parentType = this.getParentType();
         if (parentType === null)
             return;
@@ -208,7 +210,7 @@ export class Type {
         return parentInstance;
     }
 
-    private __getParentClass(_class: new () => any) {
+    private __getParentClass(_class: Class<any>) {
         let parentClass = Object.getPrototypeOf(_class);
         if (parentClass instanceof Function)
             return parentClass;
@@ -226,7 +228,7 @@ export class Type {
                     return Type.of(parentInstance);
             }
             else {
-                let parentClass = this.__getParentClass(this.__class);
+                let parentClass = this.__getParentClass(<Class<any>>this.__class);
                 if (parentClass !== null)
                     return Type.get(parentClass);
             }
@@ -235,9 +237,9 @@ export class Type {
         return null;
     }
 
-    private __instance: any = null;
+    private __instance: any | undefined;
     private __hasInstance: boolean = false;
-    private __class: Function = null;
+    private __class: Class<any> | undefined = undefined;
     private __hasClass: boolean = false;
     private __initialized: boolean = false;
 }
@@ -256,13 +258,13 @@ export const MemberType = new Enumeration({
     Static: 16
 });
 
-export class Member {
-    static fromPropertyDescriptor(parentType: Type, key: string | symbol, descriptor: PropertyDescriptor, isStatic: boolean = false) {
-        function getAttributesFromDescriptor(descriptor) {
+export class Member<TParent = any, TValue = any> {
+    static fromPropertyDescriptor<TParent>(parentType: Type<TParent>, key: keyof TParent, descriptor: PropertyDescriptor, isStatic: boolean = false): Member<TParent, any> {
+        function getAttributesFromDescriptor(descriptor: PropertyDescriptor): number {
             return (descriptor.writable ? MemberAttributes.Writable : 0) | (descriptor.enumerable ? MemberAttributes.Enumerable : 0) | (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
 
-        function getMemberType(value) {
+        function getMemberType(value: any): number {
             const memberIsFunction: boolean = value instanceof Function,
                 memberIsProperty: boolean = !!descriptor.get || !!descriptor.set;
 
@@ -276,7 +278,7 @@ export class Member {
         return new Member(key, memberType, parentType, attributes, type);
     }
 
-    constructor(key: string | symbol, memberType: number, parentType: Type, attributes: number, type: Type) {
+    constructor(key: keyof TParent, memberType: number, parentType: Type<TParent>, attributes: number, type: Type<TValue>) {
         this.__key = key;
         this.__memberType = memberType;
         this.__parentType = parentType;
@@ -292,17 +294,17 @@ export class Member {
         return true;
     }
 
-    get parentType(): Type { return this.__parentType; }
-    protected __parentType: Type;
+    get parentType(): Type<TParent> { return this.__parentType; }
+    protected __parentType: Type<TParent>;
 
-    get type(): Type { return this.__type; }
-    protected __type: Type;
+    get type(): Type<TValue> { return this.__type; }
+    protected __type: Type<TValue>;
 
     get memberType(): number { return this.__memberType; }
     protected __memberType: number;
 
-    get key(): string | symbol { return this.__key; }
-    protected __key: string | symbol;
+    get key(): keyof TParent { return this.__key; }
+    protected __key: keyof TParent;
 
     get attributes(): number { return this.__attributes; }
     protected __attributes: number;
