@@ -1,5 +1,5 @@
 export class Immediate {
-    constructor(callback, thisArg = globalThis) {
+    constructor(callback: Function, thisArg?: any) {
         this.__callback = callback;
         this.__thisArg = thisArg;
         this.__timeoutHandle = null;
@@ -19,5 +19,5 @@ export class Immediate {
 
     __callback: Function;
     __thisArg: object;
-    __timeoutHandle: number;
+    __timeoutHandle: number | null;
 }

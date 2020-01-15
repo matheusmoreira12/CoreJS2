@@ -1,4 +1,4 @@
-import { Widget } from "../UserInterface/Widgets/Widget.js";
+import { Widget } from "../UserInterface/Widgets/index.js";
 
 window["Widget"] = Widget;
 
@@ -10,10 +10,6 @@ import { Interface } from "../Standard/Interfaces/Interface.js";
 
 window["Interface"] = Interface;
 
-import WebColors from "../UserInterface/Colors/WebColors.js";
-//import { ColorRGB } from "../UserInterface/Colors/ColorRGB.js";
-//import { ColorHSL } from "../UserInterface/Colors/ColorHSL.js";
+import { WebColors } from "../UserInterface/Colors/index.js";
 
 window["WebColors"] = WebColors;
-//window.ColorRGB = ColorRGB;
-//window.ColorHSL = ColorHSL;

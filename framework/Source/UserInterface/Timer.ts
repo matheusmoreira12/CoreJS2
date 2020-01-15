@@ -1,9 +1,9 @@
-﻿import { FrameworkEvent } from "../Standard/Events.js";
+﻿import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events.js";
 import { Destructible } from "../Standard/Destructible.js";
 
-/**
- *
- */
+export class TickEvent extends FrameworkEventArgs {
+}
+
 export class Timer extends Destructible {
     constructor(delayMillis = 100, isPeriodic = true) {
         super();
@@ -18,17 +18,18 @@ export class Timer extends Destructible {
         this.__TickEvent.invoke(this, {});
 
         if (this.isPeriodic)
-            this.reset();
+            this.__reset();
     }).bind(this);
 
     private __timeout_handle: number | null;
 
-    reset() {
-        this.stop();
+    private __reset() {
+        this.__stop();
 
         this.__timeout_handle = setTimeout(this.__timeout_handler, this.delayMillis);
     }
-    stop() {
+
+    private __stop() {
         if (!this.__timeout_handle)
             return;
 
@@ -42,11 +43,22 @@ export class Timer extends Destructible {
     get isPeriodic(): boolean { return this.__isPeriodic; }
     private __isPeriodic: boolean;
 
+    get isEnabled() { return this.__isEnabled; }
+    set isEnabled(value) {
+        if (value)
+            this.__reset();
+        else
+            this.__stop();
+
+        this.__isEnabled = value;
+    }
+    private __isEnabled: boolean = false;
+
     get TickEvent(): FrameworkEvent { return this.__TickEvent; }
     private __TickEvent: FrameworkEvent;
 
     destructor() {
-        this.stop();
+        this.__stop();
         this.TickEvent.destruct();
     }
 }

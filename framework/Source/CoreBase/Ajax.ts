@@ -84,26 +84,30 @@ export enum AjaxReadyState {
     Done = 4
 };
 
-export enum AjaxMethod {
-    Get = "GET",
-    Head = "HEAD",
-    Post = "POST",
-    Put = "PUT",
-    Delete = "DELETE",
-    Connect = "CONNECT",
-    Options = "OPTIONS",
-    Trace = "TRACE",
-    Patch = "PATCH"
-}
+export enum AjaxMethod { Get, Head, Post, Put, Delete, Connect, Options, Trace, Patch }
 
-export enum AjaxResponseType {
-    Default = "",
-    ArrayBuffer = "arraybuffer",
-    Blob = "blob",
-    Document = "document",
-    JSON = "json",
-    Text = "text"
-}
+const AJAX_METHOD_MAP = [
+    { key: AjaxMethod.Get, value: "GET" },
+    { key: AjaxMethod.Head, value: "HEAD" },
+    { key: AjaxMethod.Post, value: "POST" },
+    { key: AjaxMethod.Put, value: "PUT" },
+    { key: AjaxMethod.Delete, value: "DELETE" },
+    { key: AjaxMethod.Connect, value: "CONNECT" },
+    { key: AjaxMethod.Options, value: "OPTIONS" },
+    { key: AjaxMethod.Trace, value: "TRACE" },
+    { key: AjaxMethod.Patch, value: "PATCH" },
+];
+
+export enum AjaxResponseType { Other, Default, ArrayBuffer, Blob, Document, JSON, Text }
+
+const AJAX_RESPONSE_TYPE_MAP = [
+    { key: AjaxResponseType.Default, value: "" },
+    { key: AjaxResponseType.ArrayBuffer, value: "arraybuffer" },
+    { key: AjaxResponseType.Blob, value: "blob" },
+    { key: AjaxResponseType.Document, value: "document" },
+    { key: AjaxResponseType.JSON, value: "json" },
+    { key: AjaxResponseType.Text, value: "text" },
+];
 
 export type AjaxOptions = {
     mimeType?: string,
@@ -134,13 +138,13 @@ export type AjaxTimeoutEventHandler = (this: Ajax) => void;
 export class Ajax {
     static send(method: AjaxMethod, url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
         return new Promise((resolve, reject) => {
-            let ajax = new Ajax(AjaxMethod[method], url, events, options);
+            let ajax = new Ajax(method, url, events, options);
 
             ajax.__onload = (response: any) => {
                 resolve(response);
             };
 
-            ajax.__onerror = (status: number, statusText: string) => {
+            ajax.__onerror = (status: number | undefined, statusText: string | undefined) => {
                 reject(`Server responded with status ${status} (${statusText})`);
             };
         });
@@ -214,7 +218,7 @@ export class Ajax {
         request.open(AjaxMethod[method], url);
 
         if (responseType !== undefined)
-            request.responseType = responseType;
+            request.responseType = <XMLHttpRequestResponseType>((AJAX_RESPONSE_TYPE_MAP.find(i => i.key == responseType) || {}).value || "");
         if (mimeType !== undefined)
             request.overrideMimeType(mimeType);
 
@@ -239,8 +243,10 @@ export class Ajax {
             this.__onerror.call(this, this.__xhr.status, this.__xhr.statusText);
     }
     __request_onload_handler(this: Ajax, evt: ProgressEvent) {
+        const responseType: AjaxResponseType = (AJAX_RESPONSE_TYPE_MAP.find(i => i.value == this.__xhr.responseType) || {}).key || AjaxResponseType.Other;
+
         if (this.__onload)
-            this.__onload.call(this, this.__xhr.response, this.__xhr.responseType);
+            this.__onload.call(this, this.__xhr.response, responseType);
     }
     __request_onloadend_handler(this: Ajax, evt: ProgressEvent) {
         if (this.__onloadend)
@@ -258,19 +264,19 @@ export class Ajax {
         if (this.__ontimeout)
             this.__ontimeout.call(this);
     }
-    __request_onreadystatechange_handler(this: Ajax, evt: ProgressEvent) {
+    __request_onreadystatechange_handler(this: Ajax, evt: Event) {
         if (this.__onreadystatechange)
             this.__onreadystatechange.call(this, this.__xhr.readyState);
     }
 
-    private __onabort: AjaxAbortEventHandler;
-    private __onerror: AjaxErrorEventHandler;
-    private __onload: AjaxLoadEventHandler;
-    private __onloadend: AjaxLoadEndEventHandler;
-    private __onloadstart: AjaxLoadStartEventHandler;
-    private __onprogress: AjaxProgressEventHandler;
-    private __onreadystatechange: AjaxReadyStateChangeEventHandler;
-    private __ontimeout: AjaxTimeoutEventHandler;
+    private __onabort: AjaxAbortEventHandler | null = null;
+    private __onerror: AjaxErrorEventHandler | null = null;
+    private __onload: AjaxLoadEventHandler | null = null;
+    private __onloadend: AjaxLoadEndEventHandler | null = null;
+    private __onloadstart: AjaxLoadStartEventHandler | null = null;
+    private __onprogress: AjaxProgressEventHandler | null = null;
+    private __onreadystatechange: AjaxReadyStateChangeEventHandler | null = null;
+    private __ontimeout: AjaxTimeoutEventHandler | null = null;
     private __xhr: XMLHttpRequest;
 
     get method(): AjaxMethod { return this.__method; }

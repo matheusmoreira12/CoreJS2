@@ -1,10 +1,8 @@
-﻿import { WidgetMetadata } from "./index.js";
-import { Widget } from "./index.js";
+﻿import { WidgetMetadata, Widget } from "./index.js";
 import { InvalidOperationException, ArgumentTypeException } from "../../Standard/Exceptions.js";
 import ObjectUtils, { DeepClone } from "../../CoreBase/Utils/ObjectUtils.js";
 import { Type } from "../../Standard/Types/Types.js";
-import { Collection } from "../../Standard/Collections/Collection.js";
-import { Dictionary } from "../../Standard/Collections/Dictionary";
+import { Collection, Dictionary } from "../../Standard/Collections/index.js";
 
 const registeredWidgets: Collection<WidgetMetadata> = new Collection();
 

@@ -1,5 +1,7 @@
+export type CompareSelectPredicate<T, U, TResult> = (a: T, b: U, quit: () => void, skip: () => void) => TResult;
+
 const ArrayUtils = {
-    * compareSelect(a, b, predicate) {
+    * compareSelect<T, U, TResult>(a: T[], b: U[], predicate: CompareSelectPredicate<T, U, TResult>) {
         let length = a.length;
         if (b.length > length)
             length = b.length;
@@ -8,10 +10,7 @@ const ArrayUtils = {
             let isQuitting = false,
                 isSkipping = false;
 
-            let x = predicate(a[i], b[i], {
-                quit: () => isQuitting = true,
-                skip: () => isSkipping = true
-            });
+            let x = predicate(a[i], b[i], () => isQuitting = true, () => isSkipping = true);
 
             if (isQuitting)
                 break;

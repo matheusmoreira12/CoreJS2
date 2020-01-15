@@ -1,6 +1,6 @@
-﻿import { Collection } from "./Collection.js";
-import { Enumeration } from "../Enumeration.js";
-import { FrameworkEvent } from "../Events.js";
+﻿import { Collection } from "./index.js";
+import { Enumeration } from "../index.js";
+import { FrameworkEvent } from "../index.js";
 
 export type ObservableCollectionChangeArgs<T> = { action: number, oldItems: T[], oldIndex: number, newItems: T[], newIndex: number };
 

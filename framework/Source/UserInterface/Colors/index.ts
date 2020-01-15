@@ -1,5 +1,5 @@
-import WebColors from "./WebColors.js";
 import ColorConversion from "./ColorConversion.js";
+import WebColors from "./WebColors.js";
 
 export { ColorConversion };
 

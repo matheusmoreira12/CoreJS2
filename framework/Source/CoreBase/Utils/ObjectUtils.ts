@@ -1,5 +1,3 @@
-import { ArgumentException } from "../../Standard/Exceptions.js";
-
 export type DeepReadonly<T> = {
     readonly [P in keyof T]: DeepReadonly<T[P]>;
 };

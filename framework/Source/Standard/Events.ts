@@ -1,16 +1,19 @@
-import { ArgumentTypeException } from "./Exceptions.js";
+import { ArgumentTypeException, Destructible } from "./index.js";
 import { Type } from "./Types/Types.js";
-import { Destructible } from "./Destructible.js";
-import { Dictionary } from "./Collections/Dictionary.js";
-import { Collection } from "./Collections/Collection.js";
+import { Dictionary, Collection } from "./Collections/index.js";
 
-type FrameworkEventListener<TArgs extends object> = (sender: any, args: TArgs) => void;
-type FrameworkEventListenerData = { thisArg: any };
+export type FrameworkEventListener<TArgs extends object> = (sender: any, args: TArgs) => void;
+
+export type FrameworkEventListenerData = { thisArg: any };
+
+export class FrameworkEventArgs {
+    static get Empty() { return new FrameworkEventArgs(); }
+}
 
 /**
  * FrameworkEvent class
  * Enables event creation and manipulation, avoiding the use of callbacks.*/
-export class FrameworkEvent<TArgs extends object> extends Destructible {
+export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArgs> extends Destructible {
     static attachMultiple<TArgs extends object>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
         for (let event of events)
             event.attach(listener);
