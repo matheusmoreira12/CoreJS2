@@ -1,9 +1,6 @@
-import { ArgumentTypeException } from "../index.js";
-import { Class } from "./index.js";
-import { InvalidOperationException, InvalidTypeException } from "../index.js";
-import { MemberInfo } from "./index.js";
+import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../index.js";
 import ObjectUtils from "../../CoreBase/Utils/ObjectUtils.js";
-import { MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types.js";
+import { Class, MemberInfo, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./index.js";
 import { Interface } from "../Interfaces/Interface.js";
 
 export class Type<T = any> {
@@ -64,14 +61,14 @@ export class Type<T = any> {
 
             for (let key of ObjectUtils.getOwnPropertyKeys(this.__class)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__class, key);
-                yield MemberInfo.fromPropertyDescriptor(this, key, <PropertyDescriptor>descriptor, true);
+                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>key, <PropertyDescriptor>descriptor, true);
             }
 
             if (!this.__hasInstance) return;
 
             for (let key of ObjectUtils.getOwnPropertyKeys(this.__instance)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__instance, key);
-                yield MemberInfo.fromPropertyDescriptor(this, key, <PropertyDescriptor>descriptor);
+                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>key, <PropertyDescriptor>descriptor);
             }
         }
 

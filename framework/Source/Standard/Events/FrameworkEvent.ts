@@ -1,8 +1,8 @@
 import { Destructible } from "../index.js";
 import { FrameworkEventArgs } from "./index.js";
-import { FrameworkEventListener } from "./Events.js";
-import { ArgumentTypeException } from "../Exceptions.js";
-import { Type } from "../Types/Types.js";
+import { FrameworkEventListener } from "./index.js";
+import { ArgumentTypeException } from "../index.js";
+import { Type } from "../Types/index.js";
 import { Dictionary } from "../Collections/index.js";
 
 /**

@@ -1,4 +1,4 @@
-const StringUtils = {
+export const StringUtils = {
     *getCharRange(start, end) {
         const j = start.charCodeAt(0),
             k = end.charCodeAt(0);
@@ -26,7 +26,6 @@ const StringUtils = {
         return char && WORD_CHARS.indexOf(char) != -1;
     }
 };
-export default StringUtils;
 
 export const NUMERIC_CHARS = [...StringUtils.getCharRange("0", "9")];
 export const LOWER_CASE_LETTER_CHARS = [...StringUtils.getCharRange("a", "z")];

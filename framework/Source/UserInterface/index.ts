@@ -9,6 +9,9 @@ export * from "./Animations.js";
 export * from "./Animations.js";
 export * from "./Animations.js";
 
+import * as DOMUtils from "./DOMUtils.js";
+export { DOMUtils };
+
 import * as Colors from "./Colors/index.js";
 export { Colors };
 

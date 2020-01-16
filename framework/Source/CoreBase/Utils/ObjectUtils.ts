@@ -6,7 +6,7 @@ export type DeepClone<T> = {
     readonly [P in keyof T]: T[P]
 };
 
-const ObjectUtils = {
+export const ObjectUtils = {
     getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
         let keys: (string | symbol)[] = [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
         return <(keyof T)[]>keys;
@@ -103,4 +103,3 @@ const ObjectUtils = {
         return <T>getBoundClone.call(this, obj);
     }
 };
-export default ObjectUtils;

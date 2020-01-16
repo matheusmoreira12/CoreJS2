@@ -1,3 +1,5 @@
+import { Type, MemberAttributes, MemberType } from "./index.js";
+
 export class MemberInfo<TParent = any, TValue = any> {
     static fromPropertyDescriptor<TParent>(parentType: Type<TParent>, key: keyof TParent, descriptor: PropertyDescriptor, isStatic: boolean = false): MemberInfo<TParent, any> {
         function getAttributesFromDescriptor(): number {

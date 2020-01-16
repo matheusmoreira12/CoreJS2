@@ -1,8 +1,8 @@
-﻿import { Enumeration } from "../Standard/Enumeration.js";
-import { ArgumentNullException, ArgumentTypeException } from "../Standard/Exceptions.js";
-import { FrameworkEvent } from "../Standard/Events.js";
-import { Utils } from "./user-interface.js";
-import { Timer } from "./Timer";
+﻿import { Enumeration } from "../Standard/index.js";
+import { ArgumentNullException, ArgumentTypeException } from "../Standard/index.js";
+import { FrameworkEvent } from "../Standard/Events/index.js";
+import { DOMUtils } from "index.js";
+import { Timer } from "./index.js";
 
 export const AutoScrollerOrientation = new Enumeration([
     "Horizontal",
@@ -132,15 +132,15 @@ export class AutoScroller {
 
         let clientRect = this.target.getBoundingClientRect();
 
-        let topScrollRegion = Utils.clipRectSide(clientRect, "top", SCROLL_REGION_OFFSET),
-            rightScrollRegion = Utils.clipRectSide(clientRect, "right", SCROLL_REGION_OFFSET),
-            bottomScrollRegion = Utils.clipRectSide(clientRect, "bottom", SCROLL_REGION_OFFSET),
-            leftScrollRegion = Utils.clipRectSide(clientRect, "left", SCROLL_REGION_OFFSET);
+        let topScrollRegion = DOMUtils.clipRectSide(clientRect, "top", SCROLL_REGION_OFFSET),
+            rightScrollRegion = DOMUtils.clipRectSide(clientRect, "right", SCROLL_REGION_OFFSET),
+            bottomScrollRegion = DOMUtils.clipRectSide(clientRect, "bottom", SCROLL_REGION_OFFSET),
+            leftScrollRegion = DOMUtils.clipRectSide(clientRect, "left", SCROLL_REGION_OFFSET);
 
-        let cursorIsInTopScrollRegion = Utils.pointInRect(topScrollRegion, cursorPos),
-            cursorIsInRightScrollRegion = Utils.pointInRect(rightScrollRegion, cursorPos),
-            cursorIsInBottomScrollRegion = Utils.pointInRect(bottomScrollRegion, cursorPos),
-            cursorIsInLeftScrollRegion = Utils.pointInRect(leftScrollRegion, cursorPos);
+        let cursorIsInTopScrollRegion = DOMUtils.pointInRect(topScrollRegion, cursorPos),
+            cursorIsInRightScrollRegion = DOMUtils.pointInRect(rightScrollRegion, cursorPos),
+            cursorIsInBottomScrollRegion = DOMUtils.pointInRect(bottomScrollRegion, cursorPos),
+            cursorIsInLeftScrollRegion = DOMUtils.pointInRect(leftScrollRegion, cursorPos);
 
         let directionX = this.__directionX, directionY = this.__directionY;
 

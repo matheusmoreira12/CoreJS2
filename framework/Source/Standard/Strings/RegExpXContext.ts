@@ -1,6 +1,6 @@
-import { IndexOutOfRangeException, ArgumentTypeException } from "../Standard/index.js";
-import { Type } from "../Standard/Types/Types.js";
-import { KeyValuePair, Dictionary } from "../Standard/Collections/index.js";
+import { IndexOutOfRangeException, ArgumentTypeException } from "../index.js";
+import { Type } from "../Types/index.js";
+import { KeyValuePair, Dictionary } from "../Collections/index.js";
 
 export class RegExpXContext {
     constructor(...namedPatterns: KeyValuePair<string, string>[]) {

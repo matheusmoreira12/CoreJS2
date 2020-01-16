@@ -1,5 +1,4 @@
-import { AsynchronousResolver } from "./Resolvers.js.js";
-import { Immediate } from "./Immediate.js.js";
+import { AsynchronousResolver, Immediate } from "./index.js";
 
 const NAMESPACE_SEPARATOR = "::";
 

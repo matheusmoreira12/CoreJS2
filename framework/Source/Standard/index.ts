@@ -13,10 +13,13 @@ import * as Events from "./Events/index.js";
 export { Events };
 
 import * as Interfaces from "./Interfaces/Interface.js";
-export { Interfaces }
+export { Interfaces };
 
 import * as ServerTasks from "./ServerTasks/index.js";
-export { ServerTasks }
+export { ServerTasks };
 
-import * as Types from "./Types/Types.js";
-export { Types }
+import * as Types from "./Types/index.js";
+export { Types };
+
+import * as URLs from "./URLs/index.js";
+export { URLs };
