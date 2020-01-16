@@ -13,7 +13,7 @@ export class ColorRGBA extends Color {
     }
 
     toString() {
-        return `rgb(${this.r * 100}%, ${this.g * 100}%, ${this.b * 100}%, ${this.a * 100}%)`;
+        return `rgba(${this.r * 100}%, ${this.g * 100}%, ${this.b * 100}%, ${this.a * 100}%)`;
     }
 
     public get r(): number { return this.__r; }

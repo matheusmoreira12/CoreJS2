@@ -10,6 +10,6 @@ import { Interface } from "../Standard/Interfaces/Interface.js";
 
 window["Interface"] = Interface;
 
-import { WebColors } from "../UserInterface/Colors/index.js";
+import * as Colors from "../UserInterface/Colors/index.js";
 
-window["WebColors"] = WebColors;
+window["Colors"] = Colors;

@@ -102,6 +102,16 @@ export class ArgumentException extends FrameworkException {
     }
 }
 
+export class ArgumentMissingException extends ArgumentException {
+    constructor(argumentName?: string, message?: string, innerException?: any) {
+        message = message || "Argument is missing.";
+
+        super(message, innerException);
+
+        this._data.set("argumentName", argumentName);
+    }
+}
+
 export class ArgumentTypeException extends ArgumentException {
     constructor(argumentName?: string, _type?: any, expectedType?: any, message?: string, innerException?: any) {
         message = message || "Argument is of incorrect type.";

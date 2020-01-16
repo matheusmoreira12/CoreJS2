@@ -1,17 +1,18 @@
 import { InterfaceMember, Interface, InterfaceMemberType } from "../Standard/Interfaces/Interface.js";
-import { ContextSelectionFlags, Enumeration, ValueConverter, FrameworkEvent, BroadcastFrameworkEvent, InvalidOperationException, ArgumentTypeException } from "../Standard/index.js";
+import { ContextSelectionFlags, Enumeration, ValueConverter, FrameworkEvent, BroadcastFrameworkEvent, InvalidOperationException, ArgumentTypeException, FrameworkEventArgs, ArgumentException, ArgumentMissingException } from "../Standard/index.js";
 import { Collection, Dictionary } from "../Standard/Collections/index.js";
 
 export class BooleanAttributeValueConverter implements ValueConverter {
-    convertBack(value: string): boolean | null {
-        if (value === null) return null;
-
-        if (value === "false") return false;
+    convertBack(value: string | null): boolean | null {
+        if (value === null)
+            return null;
+        if (value === "false")
+            return false;
 
         return true;
     }
 
-    convert(value: boolean): string | null {
+    convert(value: boolean | null): string | null {
         if (value === null) return null;
 
         if (value === false) return "false";
@@ -21,41 +22,57 @@ export class BooleanAttributeValueConverter implements ValueConverter {
 }
 
 export class JSONAttributeValueConverter implements ValueConverter {
-    convertBack(value: string): JSON {
+    convertBack(value: string | null): JSON | null {
+        if (value === null)
+            return null;
+
         return JSON.parse(value);
     }
 
-    convert(value: JSON): string {
+    convert(value: JSON | null): string | null {
+        if (value === null)
+            return null;
+
         return JSON.stringify(value);
     }
 }
 
 export class FlagsAttributeValueConverter implements ValueConverter {
-    convertBack(value: string): ContextSelectionFlags {
+    convertBack(value: string | null): ContextSelectionFlags | null {
+        if (value === null)
+            return null;
+
         return ContextSelectionFlags.parse(value);
     }
 
-    convert(value: ContextSelectionFlags): string {
+    convert(value: ContextSelectionFlags | null): string | null {
+        if (value === null)
+            return null;
+
         return value.toString();
     }
 }
 
-export class EnumerationAttributeValueConverter<T> implements ValueConverter {
-    constructor(enumeration: Enumeration<T>) {
+export class EnumerationAttributeValueConverter implements ValueConverter {
+    constructor(enumeration: Enumeration) {
         this.__enumeration = enumeration;
     }
 
-    convertBack(value: string): T {
-        if (value === null) return null;
+    convertBack(value: string | null): number | null {
+        if (value === null)
+            return null;
+
         return this.__enumeration.fromLabel(value);
     }
 
-    convert(value: T): string {
-        if (value === null) return null;
+    convert(value: number | null): string | null {
+        if (value === null)
+            return null;
+
         return this.__enumeration.getLabel(value);
     }
 
-    private __enumeration: Enumeration<T>;
+    private __enumeration: Enumeration;
 }
 
 const DEFAULT_FRAMEWORK_PROPERTY_OPTIONS = {
@@ -70,6 +87,44 @@ export interface FrameworkPropertyOptions {
     defaultValue?: any
 }
 
+export type PropertyChangeEvent = FrameworkEvent<PropertyChangeEventArgs>;
+
+/**
+ * PropertyChangeEventArgs class
+ * Arguments for the PropertyChangeEvent event.
+ */
+export class PropertyChangeEventArgs extends FrameworkEventArgs {
+    constructor(target: object, property: FrameworkProperty, oldValue: any, newValue: any) {
+        if (!(target instanceof Object))
+            throw new ArgumentTypeException("target", target, Object);
+        if (!(property instanceof FrameworkProperty))
+            throw new ArgumentTypeException("property", property, FrameworkProperty);
+        if (arguments.length < 3)
+            throw new ArgumentMissingException("oldValue");
+        if (arguments.length < 4)
+            throw new ArgumentMissingException("newValue");
+
+        super();
+
+        this.__target = target;
+        this.__property = property;
+        this.__oldValue = oldValue;
+        this.__newValue = newValue;
+    }
+
+    get target(): object { return this.__target; }
+    private __target: object;
+
+    get property(): FrameworkProperty { return this.__property; }
+    private __property: FrameworkProperty;
+
+    get oldValue(): any { return this.__oldValue; }
+    private __oldValue: any;
+
+    get newValue(): any { return this.__newValue; }
+    private __newValue: any;
+}
+
 /**
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
@@ -82,7 +137,7 @@ export class FrameworkProperty {
         this.__options = options;
     }
 
-    get(target) {
+    get(target: object) {
         const options = this.__options;
         const storedValues = this.__storedValues;
         if (!storedValues.has(target))
@@ -91,7 +146,7 @@ export class FrameworkProperty {
         return storedValues.get(target);
     }
 
-    set(target, value) {
+    set(target: object, value: any) {
         const oldValue = this.get(target);
 
         const storedValues = this.__storedValues;
@@ -114,7 +169,7 @@ export class FrameworkProperty {
     get options(): FrameworkPropertyOptions { return this.__options; }
     private __options: FrameworkPropertyOptions;
 
-    private __storedValues = new WeakMap();
+    private __storedValues = new WeakMap<object, any>();
 }
 
 /**
@@ -161,7 +216,7 @@ export class Setter {
  */
 
 export class PropertyTrigger extends Trigger {
-    constructor(target: object, targetProperty: FrameworkProperty, value: any, ...actions: FrameworkAction[]) {
+    constructor(target: object, targetProperty: FrameworkProperty<any>, value: any, ...actions: FrameworkAction[]) {
         super();
 
         if (typeof target !== "object") throw new ArgumentTypeException("target", target, Object);
@@ -176,7 +231,7 @@ export class PropertyTrigger extends Trigger {
         targetProperty.ChangeEvent.attach(this.__targetProperty_onChange, this);
     }
 
-    private __targetProperty_onChange(sender, args) {
+    private __targetProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.target !== this.target)
             return;
         if (args.newValue !== this.value)
