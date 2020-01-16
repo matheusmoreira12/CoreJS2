@@ -10,6 +10,10 @@ export class ColorRGB extends Color {
         this.__b = b;
     }
 
+    toString() {
+        return `rgb(${this.r * 100}%, ${this.g * 100}%, ${this.b * 100}%)`;
+    }
+
     public get r(): number { return this.__r; }
     private __r: number;
 

@@ -23,6 +23,8 @@ export abstract class Color extends Number {
 
         super(value);
     }
+
+    abstract toString(): string;
          
     toRGBA(): ColorRGBA {
         const value = Number(this);

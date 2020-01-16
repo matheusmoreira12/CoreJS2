@@ -13,6 +13,10 @@ export class ColorHSLA extends Color {
         this.__a = a;
     }
 
+    toString() {
+        return `hsla(${this.h}deg, ${this.s * 100}%, ${this.l * 100}%, ${this.a * 100}%)`;
+    }
+
     get h(): number { return this.__h; }
     private __h: number;
 
