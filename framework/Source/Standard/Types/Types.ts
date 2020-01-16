@@ -160,7 +160,7 @@ export class Type<T = any> {
         return this.__class;
     }
 
-    equals(other: Type<any>): boolean {
+    equals(other: Type): boolean {
         this.__checkInitializationStatus();
 
         if (!(other instanceof Type))
@@ -169,7 +169,7 @@ export class Type<T = any> {
         return this.__getEffectiveValue() === other.__getEffectiveValue();
     }
 
-    extends(other: Type<any>): boolean {
+    extends(other: Type): boolean {
         this.__checkInitializationStatus();
 
         for (let type of this.getParentTypes()) {
@@ -180,10 +180,21 @@ export class Type<T = any> {
         return false;
     }
 
-    equalsOrExtends(other: Type<any>): boolean {
+    matches(other: Type | Interface): boolean {
         this.__checkInitializationStatus();
 
-        return this.equals(other) || this.extends(other);
+        if (other instanceof Interface)
+            return this.implements(other);
+        else
+            return this.equals(other) || this.extends(other);
+    }
+
+    matchesAny(...others: (Type | Interface)[]) {
+        for (let other of others) {
+            if (this.matches(other))
+                return true;
+        }
+        return false;
     }
 
     implements(_interface: Interface) {
@@ -196,7 +207,7 @@ export class Type<T = any> {
         return false;
     }
 
-    * getParentTypes(): Generator<Type<any>> {
+    * getParentTypes(): Generator<Type> {
         let parentType = this.getParentType();
         if (parentType === null)
             return;

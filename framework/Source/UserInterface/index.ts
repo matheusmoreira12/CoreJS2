@@ -9,7 +9,7 @@ export * from "./Bindings.js";
 export * from "./DragDropHandler.js";
 export * from "./DragEmulator.js";
 export * from "./Timer.js";
-export * from "./ValueConverters.js";
+export * from "./ValueConverter.js";
 export * from "./Animations.js";
 export * from "./Animations.js";
 export * from "./Animations.js";
