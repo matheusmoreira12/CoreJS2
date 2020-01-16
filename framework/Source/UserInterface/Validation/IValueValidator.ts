@@ -1,5 +1,8 @@
-import { Interface, InterfaceMember, InterfaceMemberType } from "./Interfaces/Interface.js";
+import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/Interface";
 
+export interface IValueValidator {
+    validate?: (value: any) => boolean
+}
 
 /**
  * ValueValidator Interface 

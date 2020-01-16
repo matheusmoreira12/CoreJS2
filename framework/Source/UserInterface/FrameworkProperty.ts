@@ -1,6 +1,8 @@
 import { Type } from "../Standard/Types/Types";
 import { Interface } from "../Standard/Interfaces/Interface";
 import { ArgumentMissingException, ArgumentTypeException } from "../Standard/index";
+import { FrameworkEvent } from "../Standard/Events/index";
+import { PropertyChangeEvent, PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
 export class FrameworkPropertyOptions {
     constructor(valueType: Type | Interface | null, defaultValue: any) {
@@ -17,7 +19,10 @@ export class FrameworkPropertyOptions {
         this.__defaultValue = defaultValue;
     }
 
+    get valueType(): Type | Interface | null { return this.__valueType; }
     private __valueType: Type | Interface | null;
+
+    get defaultValue(): any { return this.__defaultValue; }
     private __defaultValue: any;
 }
 
@@ -27,8 +32,6 @@ export class FrameworkPropertyOptions {
  */
 export class FrameworkProperty {
     constructor(name: string, options: FrameworkPropertyOptions) {
-        options = Object.assign({}, DEFAULT_FRAMEWORK_PROPERTY_OPTIONS, options);
-
         this.__name = name;
         this.__options = options;
     }
@@ -49,15 +52,15 @@ export class FrameworkProperty {
         storedValues.set(target, value);
 
         if (value !== oldValue)
-            this.ChangeEvent.invoke(this, {
-                target: target,
-                property: this,
-                oldValue: oldValue,
-                newValue: value
-            });
+            this.__invokeOnChange(new PropertyChangeEventArgs(target, this, oldValue, value));
     }
 
-    ChangeEvent = new FrameworkEvent();
+    get ChangeEvent(): PropertyChangeEvent { return this.__ChangeEvent; }
+    private __ChangeEvent: PropertyChangeEvent = new FrameworkEvent();
+
+    __invokeOnChange(args: PropertyChangeEventArgs) {
+        this.ChangeEvent.invoke(this, args);
+    }
 
     get name(): string { return this.__name; }
     private __name: string;

@@ -1,18 +1,6 @@
-﻿import { ArgumentTypeException } from "../Exceptions";
-import { Enumeration } from "../Enumeration";
-import { BroadcastFrameworkEvent } from "../Events";
-import { Interface, InterfaceMember, InterfaceMemberType } from "../Interfaces/Interface";
-import { Type } from "../Types/Types";
-
-const DEFAULT_SERVER_TASK_OPTIONS = {
-    timeout: Number.POSITIVE_INFINITY,
-    maxRetries: 0
-};
-
-export const IServerTaskOptions = new Interface(
-    new InterfaceMember("timeout", InterfaceMemberType.Property, Type.of(Number)),
-    new InterfaceMember("maxRetries", InterfaceMemberType.Property, Type.of(Number)),
-);
+﻿import { ArgumentTypeException } from "../Exceptions.js";
+import { Enumeration } from "../Enumeration.js";
+import { BroadcastFrameworkEvent } from "../Events/index.js";
 
 export const ServerTaskStatus = new Enumeration([
     "Pending",

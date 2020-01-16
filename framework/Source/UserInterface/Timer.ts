@@ -1,4 +1,4 @@
-﻿import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events.js";
+﻿import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
 import { Destructible } from "../Standard/Destructible.js";
 
 export class TickEvent extends FrameworkEventArgs {

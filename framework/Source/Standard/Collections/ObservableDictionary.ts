@@ -1,5 +1,6 @@
 import { Dictionary } from "./index.js";
-import { Enumeration, FrameworkEvent } from "../index.js";
+import { Enumeration } from "../index.js";
+import { FrameworkEvent } from "../Events/index.js";
 
 export type ObservableDictionaryChangeArgs<TKey, TValue> = { action: number, key: TKey, oldValue: TValue, newValue: TValue };
 
