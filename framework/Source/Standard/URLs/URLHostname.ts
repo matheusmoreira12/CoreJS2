@@ -11,6 +11,10 @@ export class URLHostname {
 
         if (!token || token.type !== "hostname")
             return null;
+
+        if (!token.items)
+            return null;
+
         return new URLHostname(...generateLabels(token.items));
     }
     constructor(...labels: string[]) {
