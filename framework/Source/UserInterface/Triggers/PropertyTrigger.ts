@@ -1,9 +1,16 @@
+import { Trigger } from "./index.js";
+import { FrameworkProperty } from "../index.js";
+import { ArgumentTypeException } from "../../Standard/index.js";
+import { PropertyChangeEventArgs } from "../PropertyChangeEvent.js";
+import { Collection } from "../../Standard/Collections/index.js";
+import { Setter } from "../Setters/index.js";
+
 /**
  * PropertyTrigger class
  * Triggers a group of setters when the specified property matches the specified value.
  */
 export class PropertyTrigger extends Trigger {
-    constructor(target: object, targetProperty: FrameworkProperty<any>, value: any, ...actions: FrameworkAction[]) {
+    constructor(target: object, targetProperty: FrameworkProperty, value: any, ...setters: Setter[]) {
         super();
 
         if (typeof target !== "object") throw new ArgumentTypeException("target", target, Object);
@@ -14,6 +21,7 @@ export class PropertyTrigger extends Trigger {
         this.__target = target;
         this.__targetProperty = targetProperty;
         this.__value = value;
+        this.__setters = new Collection(...setters);
 
         targetProperty.ChangeEvent.attach(this.__targetProperty_onChange, this);
     }

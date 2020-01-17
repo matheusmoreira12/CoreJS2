@@ -1,13 +1,3 @@
-
-
-/**
- * 
- */
-export class Setter {
-
-}
-
-
 /** 
  * Visual State Manager
  *  Manages the interactions between user interface and logic. 

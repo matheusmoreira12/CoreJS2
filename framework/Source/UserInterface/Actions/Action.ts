@@ -1,10 +1,14 @@
+import { InvalidOperationException } from "../../Standard/index.js";
+import { FrameworkEvent } from "../../Standard/Events/index.js";
+import { Dictionary } from "../../Standard/Collections/index.js";
+
 /**
  * FrameworkAction base class
  * Represents an user-initiated action.
  */
-export abstract class FrameworkAction {
+export abstract class Action {
     constructor() {
-        if (this.constructor === FrameworkAction) throw new InvalidOperationException("Invalid constructor");
+        if (this.constructor === Action) throw new InvalidOperationException("Invalid constructor");
 
         this.__ExecutedEvent = new FrameworkEvent();
     }
