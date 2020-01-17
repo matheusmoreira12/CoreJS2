@@ -1,4 +1,4 @@
-import { URLToken } from "./URLTokenifier";
+import { URLToken } from "./index.js";
 
 class URLPath {
     static fromToken(token: URLToken) {

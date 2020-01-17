@@ -1,4 +1,4 @@
-﻿import { URLQueryParameter } from "./URLQueryParameter";
+﻿import { URLQueryParameter } from "./index.js";
 export class URLQuery {
     static fromToken(token) {
         function* getParameters(tokens) {

@@ -1,4 +1,4 @@
-import { ArgumentTypeException, FormatException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "./Exceptions.js";
+import { ArgumentTypeException, FormatException, InvalidOperationException, KeyNotFoundException } from "./Exceptions.js";
 import { MapUtils } from "../CoreBase/Utils/index.js";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;

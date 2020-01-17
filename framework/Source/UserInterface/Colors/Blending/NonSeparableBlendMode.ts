@@ -1,5 +1,5 @@
 ﻿import { Color } from "../index.js";
-import { BlendMode } from "./index";
+import { BlendMode } from "./index.js";
 
 export type NonSeparableBlendModeFunction = (cb: Color, cs: Color) => Color;
 

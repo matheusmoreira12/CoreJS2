@@ -1,5 +1,4 @@
-﻿import { URLQuery } from "./URLQuery";
-import { URLHostname } from "./URLHostname";
+﻿import { URLQuery, URLHostname } from "./index.js";
 export class URL {
     static fromToken(token) {
         if (!token || token.type !== "url")

@@ -1,4 +1,4 @@
-import ObjectUtils from "./Utils/ObjectUtils.js";
+import { ObjectUtils } from "./Utils/index.js";
 
 export const STATUS = ObjectUtils.getDeepReadonly({
     INFORMATIONAL: {

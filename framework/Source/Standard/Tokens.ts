@@ -1,5 +1,5 @@
-import { ArgumentTypeException, FrameworkException } from "./Exceptions.js";
-import { Type } from "./Types/Types.js";
+import { ArgumentTypeException, FrameworkException } from "./index.js";
+import { Type } from "./Types/index.js";
 
 export class TokenReaderContext<T> {
     constructor(tokens: T[], startIndex?: number);
