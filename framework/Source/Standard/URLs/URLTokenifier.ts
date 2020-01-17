@@ -4,7 +4,7 @@ export type URLToken = {
     type: string,
     key?: string,
     value?: string,
-    items: URLToken[]
+    items?: URLToken[]
 };
 
 const GEN_DELIMS = [":", "/", "?", "#", "[", "]", "@"];
@@ -38,9 +38,9 @@ export class URLTokenifier {
             return null;
         }
 
-        function readHostname() {
-            function* readHostnameItems() {
-                function readHostnameLabel() {
+        function readHostname(): URLToken | null {
+            function* readHostnameItems(): Generator<URLToken> {
+                function readHostnameLabel(): URLToken | null {
                     const j = i;
                     while (StringUtils.isWordChar(str[i]))
                         i++;
@@ -52,7 +52,7 @@ export class URLTokenifier {
                     return null;
                 }
 
-                function readDot() {
+                function readDot(): URLToken | null {
                     if (str[i] === ".") {
                         i++;
                         return { type: "dot" };
@@ -60,7 +60,7 @@ export class URLTokenifier {
                     return null;
                 }
 
-                function readHostnameItem() {
+                function readHostnameItem(): URLToken | null {
                     return readHostnameLabel() || readDot();
                 }
 
@@ -78,7 +78,7 @@ export class URLTokenifier {
             return null;
         }
 
-        function readPort() {
+        function readPort(): URLToken | null {
             const j = i;
             if (str[i] === ":") {
                 i++;
@@ -95,9 +95,9 @@ export class URLTokenifier {
             return null;
         }
 
-        function readPath() {
-            function* readPathItems() {
-                function readPathItem() {
+        function readPath(): URLToken | null {
+            function* readPathItems(): Generator<URLToken> {
+                function readPathItem(): URLToken | null {
                     function readPathSegment() {
                         const j = i;
                         while (isAllowedChar(str[i]))
@@ -111,7 +111,7 @@ export class URLTokenifier {
                         return null;
                     }
 
-                    function readSlash() {
+                    function readSlash(): URLToken | null {
                         if (str[i] === "/") {
                             i++;
                             return { type: "slash" };
@@ -136,8 +136,8 @@ export class URLTokenifier {
             return null;
         }
 
-        function readQuery() {
-            function* readQueryItems() {
+        function readQuery(): URLToken | null {
+            function* readQueryItems(): Generator<URLToken> {
                 function readAmp() {
                     if (str[i] === "&") {
                         i++;
@@ -146,7 +146,7 @@ export class URLTokenifier {
                     return null;
                 }
 
-                function readParameter() {
+                function readParameter(): URLToken | null {
                     const j = i;
                     while (isAllowedChar(str[i]))
                         i++;
@@ -166,7 +166,7 @@ export class URLTokenifier {
                     return null;
                 }
 
-                function readQueryItem() {
+                function readQueryItem(): URLToken | null {
                     return readAmp() || readParameter();
                 }
 
@@ -189,7 +189,7 @@ export class URLTokenifier {
             return null;
         }
 
-        function readFragment() {
+        function readFragment(): URLToken | null {
             const j = i;
             if (str[i] === "#") {
                 i++;
@@ -206,7 +206,7 @@ export class URLTokenifier {
             return null;
         }
 
-        function* readItems() {
+        function* readItems(): Generator<URLToken> {
             const protocol = readProtocol();
             if (protocol !== null)
                 yield protocol;
@@ -243,7 +243,7 @@ export class URLTokenifier {
         };
     }
 
-    detokenify(token: URLToken): string {
+    detokenify(token: URLToken): string | null {
         function writeProtocol(token: URLToken) {
             str += `${token.value}://`;
         }
@@ -252,6 +252,9 @@ export class URLTokenifier {
             function writeLabel(token: URLToken) {
                 str += token.value;
             }
+
+            if (!token.items)
+                return;
 
             for (let item of token.items)
                 switch (item.type) {
@@ -273,6 +276,9 @@ export class URLTokenifier {
                 str += token.value;
             }
 
+            if (!token.items)
+                return;
+
             for (let item of token.items)
                 switch (item.type) {
                     case "segment":
@@ -290,6 +296,9 @@ export class URLTokenifier {
             }
 
             str += "?";
+
+            if (!token.items)
+                return;
 
             for (let item of token.items)
                 switch (item.type) {
@@ -310,6 +319,10 @@ export class URLTokenifier {
             return null;
 
         let str = "";
+
+        if (!token.items)
+            return null;
+
         for (let item of token.items) {
             switch (item.type) {
                 case "protocol":
