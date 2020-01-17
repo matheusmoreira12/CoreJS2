@@ -1,22 +1,21 @@
 import { URLToken } from "./index.js";
 
-class URLPath {
+export class URLPath {
     static fromToken(token: URLToken) {
-        function* getSegments(tokens: URLToken[]) {
+        function* generateSegments(tokens: URLToken[]): Generator<string> {
             for (let token of tokens) {
                 if (token.type === "segment")
-                    yield token.value;
+                    yield token.value || "";
             }
         }
 
         if (!token || token.type !== "path")
             return null;
 
-        const segments = [...getSegments(token.items)];
-        return new URLPath(segments);
+        return new URLPath(...generateSegments(token.items));
     }
 
-    constructor(segments) {
+    constructor(...segments: string[]) {
         if (segments === null)
             segments = [];
         if (!(segments instanceof Array))
@@ -26,7 +25,7 @@ class URLPath {
     }
 
     toToken() {
-        function* getItems() {
+        function* getItems(this: URLPath) {
             for (let i = 0; i < this.segments.length; i++) {
                 yield {
                     type: "slash"
@@ -46,7 +45,7 @@ class URLPath {
     }
 
     collapse() {
-        const resultSegments = [];
+        const resultSegments: string[] = [];
         for (let i = 0; i < this.segments.length; i++) {
             const segment = this.segments[i],
                 lastSegment = this.segments[i - 1];
@@ -61,6 +60,8 @@ class URLPath {
                     break;
             }
         }
-        return new URLPath(resultSegments);
+        return new URLPath(...resultSegments);
     }
+
+    segments: string[];
 }

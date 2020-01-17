@@ -37,23 +37,24 @@ export class DragDropHandler extends Destructible {
         this.__touchDragDelayTimer = touchDragDelayTimer;
         touchDragDelayTimer.TickEvent.attach(this.__touchDragDelayTimer_onTick, this);
 
-        //Target touch events
+        //ATTACH EVENT HANDLERS
+        //DOM Touch Events
         target.addEventListener("touchstart", this.__target_touchstart_handler);
         target.addEventListener("touchmove", this.__target_touchmove_handler);
         target.addEventListener("touchend", this.__target_touchend_handler);
         target.addEventListener("touchcancel", this.__target_touchcancel_handler);
 
+        //DOM Mouse Events
         target.addEventListener("mousedown", this.__target_mousedown_handler);
         window.addEventListener("mousemove", this.__window_mousemove_handler);
         window.addEventListener("mouseup", this.__window_mouseup_handler);
 
+        //Drag/Drop Notification Events Routing
         this.__NotifyDragStartEvent.route(this.DragStartEvent);
         this.__NotifyDragMoveEvent.route(this.DragMoveEvent);
         this.__NotifyDragEndEvent.route(this.DragEndEvent);
         this.__NotifyDragCancelEvent.route(this.DragCancelEvent);
     }
-
-    ///TODO: Implement drag and drop logic
 
     private __target_touchstart_handler = ((evt: Event) => {
         if ((<TouchEvent>evt).touches.length !== 1) return;
@@ -150,15 +151,16 @@ export class DragDropHandler extends Destructible {
     }).bind(this);
 
     private __window_mousemove_handler = ((evt: Event) => {
-        let { clientX, clientY } = evt;
+        let clientX = (<MouseEvent>evt).clientX,
+            clientY = (<MouseEvent>evt).clientY;
 
         let args = {
             clientX,
             clientY,
-            pageX: evt.pageX,
-            pageY: evt.pageY,
-            screenX: evt.screenX,
-            screenY: evt.screenY
+            pageX: (<MouseEvent>evt).pageX,
+            pageY: (<MouseEvent>evt).pageY,
+            screenX: (<MouseEvent>evt).screenX,
+            screenY: (<MouseEvent>evt).screenY
         };
 
         switch (this.__state) {
@@ -374,6 +376,22 @@ export class DragDropHandler extends Destructible {
     private __options: IDragDropHandlerOptions;
 
     protected destructor(): void {
-        this.__target.removeEventListener("", handler)
+        //DETACH EVENT HANDLERS
+        //DOM Touch Events
+        this.__target.addEventListener("touchstart", this.__target_touchstart_handler);
+        this.__target.addEventListener("touchmove", this.__target_touchmove_handler);
+        this.__target.addEventListener("touchend", this.__target_touchend_handler);
+        this.__target.addEventListener("touchcancel", this.__target_touchcancel_handler);
+
+        //DOM Mouse Events
+        this.__target.addEventListener("mousedown", this.__target_mousedown_handler);
+        window.addEventListener("mousemove", this.__window_mousemove_handler);
+        window.addEventListener("mouseup", this.__window_mouseup_handler);
+
+        //Drag/Drop Notification Events Routing
+        this.__NotifyDragStartEvent.destruct();
+        this.__NotifyDragMoveEvent.destruct();
+        this.__NotifyDragEndEvent.destruct();
+        this.__NotifyDragCancelEvent.destruct();
     }
 }

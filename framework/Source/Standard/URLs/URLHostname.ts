@@ -1,23 +1,25 @@
-﻿export class URLHostname {
-    static fromToken(token) {
-        function* getLabels(tokens) {
+﻿import { URLToken } from "./index";
+
+export class URLHostname {
+    static fromToken(token: URLToken) {
+        function* generateLabels(tokens: URLToken[]): Generator<string> {
             for (let token of tokens) {
                 if (token.type === "label")
-                    yield token.value;
+                    yield token.value || "";
             }
         }
+
         if (!token || token.type !== "hostname")
             return null;
-        const labels = [...getLabels(token.items)];
-        return new URLHostname(labels);
+        return new URLHostname(...generateLabels(token.items));
     }
-    constructor(labels) {
+    constructor(...labels: string[]) {
         if (!(labels instanceof Array))
             throw `Invalid value for parameter "labels". A value of type Array was expected.`;
         this.labels = labels;
     }
     toToken() {
-        function* getItems() {
+        function* getItems(this: URLHostname) {
             for (let i = 0; i < this.labels.length; i++) {
                 if (i > 0)
                     yield {
@@ -35,4 +37,6 @@
             items
         };
     }
+
+    labels: string[];
 }

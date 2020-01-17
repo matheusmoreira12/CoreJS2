@@ -1,6 +1,7 @@
-﻿import { URLQuery, URLHostname } from "./index.js";
+﻿import { URLQuery, URLHostname, URLToken, URLPath, URLTokenifier } from "./index.js";
+
 export class URL {
-    static fromToken(token) {
+    static fromToken(token: URLToken) {
         if (!token || token.type !== "url")
             return null;
         let protocol = null, hostname = null, port = null, path = null, query = null, fragment = null;
@@ -28,24 +29,24 @@ export class URL {
         }
         return new URL(hostname, path, protocol, port, query, fragment);
     }
-    static parse(value) {
+    static parse(value: string) {
         if (typeof value !== "string")
             throw `Invalid value for parameter "value". A value of type String was expected.`;
         const token = new URLTokenifier().tokenify(value);
         return this.fromToken(token);
     }
-    constructor(hostname, path, protocol = null, port = null, query = null, fragment = null) {
+    constructor(hostname: URLHostname, path: URLPath, protocol?: string, port?: number, query?: URLQuery, fragment?: string) {
         if (!(hostname instanceof URLHostname))
             throw `Invalid value for parameter "hostname". A value of type URLHostname was expected.`;
         if (!(path instanceof URLPath))
             throw `Invalid value for parameter "path". A value of type URLPath was expected.`;
-        if (protocol !== null && typeof protocol !== "string")
+        if (protocol !== undefined && typeof protocol !== "string")
             throw `Invalid value for parameter "protocol". A value of type String was expected.`;
-        if (port !== null && typeof port !== "number")
+        if (port !== undefined && typeof port !== "number")
             throw `Invalid value for parameter "port". A value of type String was expected.`;
-        if (query !== null && !(query instanceof URLQuery))
+        if (query !== undefined && !(query instanceof URLQuery))
             throw `Invalid value for parameter "query". A value of type URLQuery was expected.`;
-        if (fragment !== null && typeof fragment !== "string")
+        if (fragment !== undefined && typeof fragment !== "string")
             throw `Invalid value for parameter "fragment". A value of type String was expected.`;
         this.protocol = protocol;
         this.hostname = hostname;
@@ -54,6 +55,7 @@ export class URL {
         this.query = query;
         this.fragment = fragment;
     }
+
     toToken() {
         function* getItems() {
             if (this.protocol)
@@ -82,11 +84,20 @@ export class URL {
             items
         };
     }
+
     toString() {
         const token = this.toToken(), tokenifier = new URLTokenifier();
         return tokenifier.detokenify(token);
     }
+
     collapse() {
         return new URL(this.hostname, this.path.collapse(), this.protocol, this.port, this.query, this.fragment);
     }
+
+    protocol: string | undefined;
+    hostname: URLHostname;
+    path: URLPath;
+    port: number | undefined;
+    query: URLQuery | undefined;
+    fragment: string | undefined;
 }

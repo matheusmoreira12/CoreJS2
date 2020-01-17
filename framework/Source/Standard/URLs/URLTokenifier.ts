@@ -16,7 +16,7 @@ function isAllowedChar(char: string) {
 }
 
 export class URLTokenifier {
-    tokenify(str: string) {
+    tokenify(str: string): URLToken {
         function readProtocol() {
             const j = i;
             while (StringUtils.isLowerCaseLetter(str[i]))
@@ -243,7 +243,7 @@ export class URLTokenifier {
         };
     }
 
-    detokenify(token: URLToken) {
+    detokenify(token: URLToken): string {
         function writeProtocol(token: URLToken) {
             str += `${token.value}://`;
         }

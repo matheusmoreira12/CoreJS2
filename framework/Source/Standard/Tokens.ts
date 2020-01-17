@@ -5,6 +5,10 @@ export class TokenReaderContext<T> {
     constructor(tokens: T[], startIndex?: number);
     constructor(parentContext: TokenReaderContext<T>);
     constructor(arg0: T[] | TokenReaderContext<T>, arg1?: number) {
+        this.__startIndex = 0;
+        this.__tokens = [];
+        this.__currentIndex = 0;
+
         if (arg0 === undefined)
             throw new FrameworkException(`No overload takes 0 argument.`);
         else {
@@ -41,11 +45,11 @@ export class TokenReaderContext<T> {
         return this.__currentIndex--;
     }
 
-    jump(count) {
+    jump(count: number) {
         return this.__currentIndex += count;
     }
 
-    goto(index) {
+    goto(index: number) {
         this.currentIndex = index;
     }
 
@@ -60,18 +64,18 @@ export class TokenReaderContext<T> {
         return null;
     }
 
-    get startIndex() { return this.__startIndex; }
-    private __startIndex = null;
+    get startIndex(): number { return this.__startIndex; }
+    private __startIndex: number;
 
-    get currentIndex() { return this.__currentIndex; }
-    set currentIndex(value) { this.__currentIndex = value; }
-    private __currentIndex = null;
+    get currentIndex(): number { return this.__currentIndex; }
+    set currentIndex(value: number) { this.__currentIndex = value; }
+    private __currentIndex: number;
 
-    get parentContext() { return this.__parentContext; }
-    private __parentContext = null;
+    get parentContext(): TokenReaderContext<T> | null { return this.__parentContext; }
+    private __parentContext: TokenReaderContext<T> | null = null;
 
-    get tokens() { return this.__tokens; }
-    private __tokens = null;
+    get tokens(): T[] { return this.__tokens; }
+    private __tokens: T[];
 }
 
 export class TokenReader<T> extends TokenReaderContext<T> {
