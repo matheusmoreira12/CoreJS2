@@ -1,11 +1,12 @@
 ﻿import { Enumeration } from "../Standard/Enumeration.js";
-import { Utils } from "./user-interface.js";
 import { Timer } from "./Timer.js";
-import { BroadcastFrameworkEvent, FrameworkEvent } from "../Standard/Events/index.js";
+import { BroadcastFrameworkEvent, FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
 import DragEmulator from "./DragEmulator.js";
+import { Destructible } from "../Standard/index.js";
+import { DOMUtils } from "./index.js";
 
 const DEFAULT_DRAG_HANDLER_OPTIONS = {
-    touchDragStartDelay: 1000
+    touchDragStartDelay: 1
 };
 
 const DragDropHandlerState = new Enumeration([
@@ -17,26 +18,34 @@ const DragDropHandlerState = new Enumeration([
     "DropRejected"
 ]);
 
+interface IDragDropHandlerOptions {
+    touchDragStartDelay?: number
+}
+
 /**
  * Drag Handler class
  * Makes multi-platform dragging implementation less painful.
  */
-export class DragDropHandler {
-    constructor(target: Element) {
-        this.__target = target;
+export class DragDropHandler extends Destructible {
+    constructor(target: Element, options?: IDragDropHandlerOptions) {
+        super();
 
-        let touchDragDelayTimer = new Timer(1000, false);
+        this.__target = target;
+        this.__options = Object.assign({}, DEFAULT_DRAG_HANDLER_OPTIONS, options);
+
+        let touchDragDelayTimer = new Timer((this.__options.touchDragStartDelay || 0) * 1000, false);
         this.__touchDragDelayTimer = touchDragDelayTimer;
         touchDragDelayTimer.TickEvent.attach(this.__touchDragDelayTimer_onTick, this);
 
-        ///TODO: Re-implement touch drag interaction
-        ///        target.addEventListener("touchstart", this._onTouchStart.bind(this));
-        ///        target.addEventListener("touchmove", this._onTouchMove.bind(this));
-        ///        target.addEventListener("touchend", this._onTouchEnd.bind(this));
-        ///        target.addEventListener("touchcancel", this._onTouchCancel.bind(this));
-        target.addEventListener("mousedown", this.__target_onMouseDown.bind(this));
-        window.addEventListener("mousemove", this.__window_onMouseMove.bind(this));
-        window.addEventListener("mouseup", this.__window_onMouseUp.bind(this));
+        //Target touch events
+        target.addEventListener("touchstart", this.__target_touchstart_handler);
+        target.addEventListener("touchmove", this.__target_touchmove_handler);
+        target.addEventListener("touchend", this.__target_touchend_handler);
+        target.addEventListener("touchcancel", this.__target_touchcancel_handler);
+
+        target.addEventListener("mousedown", this.__target_mousedown_handler);
+        window.addEventListener("mousemove", this.__window_mousemove_handler);
+        window.addEventListener("mouseup", this.__window_mouseup_handler);
 
         this.__NotifyDragStartEvent.route(this.DragStartEvent);
         this.__NotifyDragMoveEvent.route(this.DragMoveEvent);
@@ -46,20 +55,21 @@ export class DragDropHandler {
 
     ///TODO: Implement drag and drop logic
 
-    private __onTouchStart(evt) {
-        if (evt.touches.length !== 1) return;
+    private __target_touchstart_handler = ((evt: Event) => {
+        if ((<TouchEvent>evt).touches.length !== 1) return;
 
-        this.__touchDragDelayTimer.reset();
-    }
+        this.__touchDragDelayTimer.isEnabled = true;
+    }).bind(this);
 
-    private __onTouchMove(evt) {
-        this.__touchDragDelayTimer.stop();
+    private __target_touchmove_handler = ((evt: Event) => {
+        this.__touchDragDelayTimer.isEnabled = false;
 
-        if (evt.touches.length !== 1) return;
+        const touches = (<TouchEvent>evt).touches;
+        if (touches.length !== 1) return;
 
-        let touch = evt.touches[0];
+        const touch = touches[0];
 
-        let args = {
+        const args = {
             clientX: touch.clientX,
             clientY: touch.clientY,
             pageX: touch.pageX,
@@ -79,10 +89,10 @@ export class DragDropHandler {
                 this.__doDragMove(args);
                 break;
         }
-    }
+    }).bind(this);
 
-    private __onTouchEnd(evt) {
-        this.__touchDragDelayTimer.stop();
+    private __target_touchend_handler = ((evt: Event) => {
+        this.__touchDragDelayTimer.isEnabled = false;
 
         switch (this.__state) {
             case DragDropHandlerState.DragStartRequested:
@@ -97,10 +107,10 @@ export class DragDropHandler {
                 this.__state = DragDropHandlerState.Ready;
                 break;
         }
-    }
+    }).bind(this);
 
-    private __onTouchCancel(evt) {
-        this.__touchDragDelayTimer.stop();
+    private __target_touchcancel_handler = ((evt: Event) => {
+        this.__touchDragDelayTimer.isEnabled = false;
 
         switch (this.__state) {
             case DragDropHandlerState.DragStartRequested:
@@ -110,9 +120,9 @@ export class DragDropHandler {
                 this.__state = DragDropHandlerState.Ready;
                 break;
         }
-    }
+    }).bind(this);
 
-    private __target_onMouseDown(evt) {
+    private __target_mousedown_handler = ((evt: Event) => {
         switch (this.__state) {
             case DragDropHandlerState.Ready:
                 this.__doRequestDragStart();
@@ -122,9 +132,9 @@ export class DragDropHandler {
         }
 
         evt.preventDefault();
-    }
+    }).bind(this);
 
-    private __window_onMouseUp(evt) {
+    private __window_mouseup_handler = ((evt: Event) => {
         switch (this.__state) {
             case DragDropHandlerState.DragStartRequested:
                 this.__doDragCancel();
@@ -137,9 +147,9 @@ export class DragDropHandler {
                 this.__state = DragDropHandlerState.Ready;
                 break;
         }
-    }
+    }).bind(this);
 
-    private __window_onMouseMove(evt) {
+    private __window_mousemove_handler = ((evt: Event) => {
         let { clientX, clientY } = evt;
 
         let args = {
@@ -166,9 +176,9 @@ export class DragDropHandler {
                 this.__doDragMove(args);
                 break;
         }
-    }
+    }).bind(this);
 
-    private __touchDragDelayTimer_onTick(sender, args) {
+    private __touchDragDelayTimer_onTick(sender: any, args: FrameworkEventArgs) {
         switch (this.__state) {
             case DragDropHandlerState.Ready:
                 this.__doRequestDragStart();
@@ -188,13 +198,13 @@ export class DragDropHandler {
         this.__acceptsDrag = acceptsDrag;
     }
 
-    private __doDragStart(args) {
+    private __doDragStart(args: {}) {
         let data = null;
         let context = null;
 
         this.DragStartEvent.invoke(this, {
-            setData(value) { data = value; },
-            setContext(value) { context = value; },
+            setData(value: string) { data = value; },
+            setContext(value: string) { context = value; },
             ...args
         });
 
@@ -202,11 +212,11 @@ export class DragDropHandler {
         this.__context = context;
     }
 
-    private __doDragMove(args) {
+    private __doDragMove(args: {}) {
         this.DragMoveEvent.invoke(this, args);
     }
 
-    private __doDragEnd(args) {
+    private __doDragEnd(args: {}) {
         this.DragEndEvent.invoke(this, args);
     }
 
@@ -214,10 +224,8 @@ export class DragDropHandler {
         this.DragCancelEvent.invoke(this, {});
     }
 
-    private __doDragEnter(args) {
-        let { _sourceHandler: sourceHandler } = args;
-
-        let context = sourceHandler._context;
+    private __doDragEnter(args: { _sourceHandler: DragDropHandler }) {
+        let context = args._sourceHandler.__context;
         let acceptsDrop = false;
 
         this.DragEnterEvent.invoke(this, {
@@ -231,22 +239,20 @@ export class DragDropHandler {
         this.__acceptsDrop = acceptsDrop;
     }
 
-    private __doDragOver(args) {
+    private __doDragOver(args: {}) {
         this.DragOverEvent.invoke(this, {
             ...args
         });
     }
 
-    private __doDragLeave(args) {
+    private __doDragLeave(args: {}) {
         this.DragLeaveEvent.invoke(this, {
             ...args
         });
     }
 
-    private __doDragDrop(args) {
-        let { _sourceHandler: sourceHandler } = args;
-
-        let data = sourceHandler._data;
+    private __doDragDrop(args: { _sourceHandler: DragDropHandler }) {
+        let data = args._sourceHandler.__data;
 
         this.DragDropEvent.invoke(this, {
             getData() { return data; },
@@ -256,19 +262,19 @@ export class DragDropHandler {
         data = null;
     }
 
-    private __onNotifyDragMove(sender, args) {
+    private __onNotifyDragMove(sender: any, args: { clientX: number, clientY: number }) {
         if (sender === this) return;
 
-        let { clientX, clientY } = args;
+        const visibleRect = DOMUtils.getElementVisibleRect(this.target);
+        if (!visibleRect)
+            return;
 
-        let visibleRect = Utils.getElementVisibleRect(this.target);
-
-        let cursorIsOver = Utils.pointInRect(visibleRect, new DOMPoint(clientX, clientY));
+        const cursorIsOverVisibleRect = DOMUtils.pointInRect(visibleRect, new DOMPoint(args.clientX, args.clientY));
 
         switch (this.__state) {
             case DragDropHandlerState.Ready:
             case DragDropHandlerState.DropDragOut:
-                if (cursorIsOver) {
+                if (cursorIsOverVisibleRect) {
                     this.__doDragEnter({
                         _sourceHandler: sender,
                         ...args
@@ -287,7 +293,7 @@ export class DragDropHandler {
                     ...args
                 });
 
-                if (!cursorIsOver) {
+                if (!cursorIsOverVisibleRect) {
                     this.__doDragLeave({
                         _sourceHandler: sender,
                         ...args
@@ -299,7 +305,7 @@ export class DragDropHandler {
         }
     }
 
-    private __onNotifyDragEnd(sender, args) {
+    private __onNotifyDragEnd(sender: any, args: {}) {
         if (sender === this) return;
 
         let _args = {
@@ -309,13 +315,11 @@ export class DragDropHandler {
 
         switch (this.__state) {
             case DragDropHandlerState.DropDragIn:
-
                 this.__doDragDrop(_args);
                 break;
 
             case DragDropHandlerState.DropRejected:
                 this.__state = DragDropHandlerState.Ready;
-
                 break;
         }
     }
@@ -327,8 +331,8 @@ export class DragDropHandler {
 
     private __data = null;
     private __context = null;
-    private __acceptsDrag: boolean;
-    private __acceptsDrop: boolean;
+    private __acceptsDrag: boolean = false;
+    private __acceptsDrop: boolean = false;
 
     private __state = DragDropHandlerState.Ready;
 
@@ -365,4 +369,11 @@ export class DragDropHandler {
 
     get target(): Element { return this.__target; }
     private __target: Element;
+
+    get options(): IDragDropHandlerOptions { return this.__options; }
+    private __options: IDragDropHandlerOptions;
+
+    protected destructor(): void {
+        this.__target.removeEventListener("", handler)
+    }
 }

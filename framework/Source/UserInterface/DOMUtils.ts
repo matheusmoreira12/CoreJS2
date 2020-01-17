@@ -115,18 +115,18 @@ export function* getElementsUnderCursor(elems: Iterable<Element>, cursorPos: DOM
     }
 }
 
-export function getElementVisibleRect(elem: Element) {
-    let result = null;
+export function getElementVisibleRect(elem: Element): DOMRect | null {
+    let result: DOMRect | null = null;
 
     for (let _elem of getElementTree(elem)) {
         let boundingRect = _elem.getBoundingClientRect();
 
-        if (!result)
-            result = boundingRect;
-        else
+        if (result) {
             result = intersectRects(<DOMRect>result, <DOMRect>boundingRect);
-
-        if (result.left >= result.right || result.top >= result.bottom) break;
+            if (result.left >= result.right || result.top >= result.bottom) break;
+        }
+        else
+            result = <DOMRect>boundingRect;
     }
 
     return result;
