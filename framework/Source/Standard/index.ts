@@ -12,7 +12,7 @@ export { Collections };
 import * as Events from "./Events/index.js";
 export { Events };
 
-import * as Interfaces from "./Interfaces/Interface.js";
+import * as Interfaces from "./Interfaces/index.js";
 export { Interfaces };
 
 import * as ServerTasks from "./ServerTasks/index.js";

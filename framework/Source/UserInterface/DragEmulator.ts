@@ -1,6 +1,6 @@
 ﻿import { ArgumentTypeException } from "../Standard/Exceptions.js";
-import { FrameworkEvent } from "../Standard/Events.js";
-import { DragDropHandler } from "./DragDropHandler.js";
+import { FrameworkEvent } from "../Standard/Events/index.js";
+import { DragDropHandler } from "./index.js";
 
 /**
  * 

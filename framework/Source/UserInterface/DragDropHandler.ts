@@ -1,7 +1,7 @@
 ﻿import { Enumeration } from "../Standard/Enumeration.js";
 import { Utils } from "./user-interface.js";
 import { Timer } from "./Timer.js";
-import { BroadcastFrameworkEvent, FrameworkEvent } from "../Standard/Events.js";
+import { BroadcastFrameworkEvent, FrameworkEvent } from "../Standard/Events/index.js";
 import DragEmulator from "./DragEmulator.js";
 
 const DEFAULT_DRAG_HANDLER_OPTIONS = {

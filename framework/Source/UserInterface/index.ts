@@ -1,6 +1,5 @@
 export * from "./Animations.js";
 export * from "./AutoScroller.js";
-export * from "./Bindings.js";
 export * from "./DragDropHandler.js";
 export * from "./DragEmulator.js";
 export * from "./Timer.js";
@@ -20,6 +19,9 @@ export { Validation };
 
 import * as ValueConverters from "./ValueConverters/index.js";
 export { ValueConverters };
+
+import * as Bindings from "./Bindings/index.js";
+export { Bindings };
 
 import * as Widgets from "./Widgets/index.js";
 export { Widgets };
