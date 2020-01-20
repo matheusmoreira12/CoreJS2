@@ -1,5 +1,5 @@
 import { Trigger } from "./index.js";
-import { DependencyProperty, PropertyChangeEventArgs } from "../DependencyObjects/index.js";
+import { FrameworkProperty, PropertyChangeEventArgs } from "../DependencyObjects/index.js";
 import { ArgumentTypeException } from "../../Standard/index.js";
 import { Collection } from "../../Standard/Collections/index.js";
 import { Setter } from "../Setters/index.js";
@@ -9,13 +9,13 @@ import { Setter } from "../Setters/index.js";
  * Triggers a group of setters when the specified property matches the specified value.
  */
 export class PropertyTrigger extends Trigger {
-    constructor(target: object, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
+    constructor(target: object, targetProperty: FrameworkProperty, value: any, ...setters: Setter[]) {
         super();
 
         if (typeof target !== "object") throw new ArgumentTypeException("target", target, Object);
 
-        if (!(targetProperty instanceof DependencyProperty)) throw new ArgumentTypeException("targetProperty",
-            targetProperty, DependencyProperty);
+        if (!(targetProperty instanceof FrameworkProperty)) throw new ArgumentTypeException("targetProperty",
+            targetProperty, FrameworkProperty);
 
         this.__target = target;
         this.__targetProperty = targetProperty;
@@ -35,8 +35,8 @@ export class PropertyTrigger extends Trigger {
     get target(): object { return this.__target; }
     private __target: object;
 
-    get targetProperty(): DependencyProperty { return this.__targetProperty; }
-    private __targetProperty: DependencyProperty;
+    get targetProperty(): FrameworkProperty { return this.__targetProperty; }
+    private __targetProperty: FrameworkProperty;
 
     get value(): any { return this.__value; }
     private __value: any;

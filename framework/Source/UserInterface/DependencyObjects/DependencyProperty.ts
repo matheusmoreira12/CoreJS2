@@ -4,7 +4,7 @@ import { ArgumentMissingException, ArgumentTypeException } from "../../Standard/
 import { FrameworkEvent } from "../../Standard/Events/index.js";
 import { PropertyChangeEvent, PropertyChangeEventArgs } from "./DependencyPropertyChangeEvent.js";
 
-export class DependencyPropertyOptions {
+export class FrameworkPropertyOptions {
     constructor(valueType: Type | Interface | null, defaultValue: any) {
         if (arguments.length < 1)
             throw new ArgumentMissingException("valueType");
@@ -30,8 +30,8 @@ export class DependencyPropertyOptions {
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
  */
-export class DependencyProperty {
-    constructor(name: string, options: DependencyPropertyOptions) {
+export class FrameworkProperty {
+    constructor(name: string, options: FrameworkPropertyOptions) {
         this.__name = name;
         this.__options = options;
     }
@@ -65,8 +65,8 @@ export class DependencyProperty {
     get name(): string { return this.__name; }
     private __name: string;
 
-    get options(): DependencyPropertyOptions { return this.__options; }
-    private __options: DependencyPropertyOptions;
+    get options(): FrameworkPropertyOptions { return this.__options; }
+    private __options: FrameworkPropertyOptions;
 
     private __storedValues = new WeakMap<object, any>();
 }

@@ -35,7 +35,7 @@ export const ObjectUtils = {
             return false;
     },
 
-    crudeCopy<T extends Object, U extends Object>(src: T, dest: U, overwrite: boolean = true, bind: boolean = false): void {
+    crudeCopy<T, U>(src: T, dest: U, overwrite: boolean = true, bind: boolean = false): void {
         for (let key of this.getOwnPropertyKeys(src))
             this.copyProperty(src, dest, <keyof T>key, overwrite, bind);
     },

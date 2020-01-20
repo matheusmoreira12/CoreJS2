@@ -3,7 +3,7 @@ import { PropertyAttributeBinding } from "../Bindings/index.js";
 import { DragDropHandler } from "../index.js";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index.js";
-import { DependencyProperty } from "../DependencyObjects/index.js";
+import { FrameworkProperty } from "../DependencyObjects/index.js";
 
 ///TODO: fix this mess
 
@@ -148,23 +148,23 @@ export abstract class Widget extends Destructible {
     //  State Properties
     //      Mouse State Properties
     //          Is Mouse Over Property
-    static isMouseOverProperty = new DependencyProperty("isMouseOver", { defaultValue: false });
+    static isMouseOverProperty = new FrameworkProperty("isMouseOver", { defaultValue: false });
     get isMouseOver() { return Widget.isMouseOverProperty.get(this); }
     set isMouseOver(value) { Widget.isMouseOverProperty.set(this, value); }
 
     //      Drag State Properties
     //          Is Dragging Property
-    static isDraggingProperty = new DependencyProperty("isDragging", { defaultValue: false });
+    static isDraggingProperty = new FrameworkProperty("isDragging", { defaultValue: false });
     get isDragging() { return Widget.isDraggingProperty.get(this); }
     set isDragging(value) { Widget.isDraggingProperty.set(this, value); }
 
     //          Is Drag Over Property
-    static isDragOverProperty = new DependencyProperty("isDragOver", { defaultValue: false });
+    static isDragOverProperty = new FrameworkProperty("isDragOver", { defaultValue: false });
     get isDragOver() { return Widget.isDragOverProperty.get(this); }
     set isDragOver(value) { Widget.isDragOverProperty.set(this, value); }
 
     //  Drag Properties
-    static isDraggableProperty = new DependencyProperty("isDraggable", { defaultValue: false });
+    static isDraggableProperty = new FrameworkProperty("isDraggable", { defaultValue: false });
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
 }

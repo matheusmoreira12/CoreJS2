@@ -5,6 +5,8 @@ import { ArgumentTypeException } from "../index.js";
 import { Type } from "../Types/index.js";
 import { Dictionary } from "../Collections/index.js";
 
+type FrameworkEventListenerData = { thisArg: any };
+
 /**
  * FrameworkEvent class
  * Enables event creation and manipulation, avoiding the use of callbacks.*/

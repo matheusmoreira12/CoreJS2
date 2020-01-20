@@ -1,18 +1,38 @@
 import { ObjectUtils } from "../../CoreBase/Utils/index.js";
+import { ArgumentMissingException } from "../Exceptions.js";
 
-function createMixin(...classes: any[]): any {
-    let result = ObjectUtils.getBlank(classes[0]);
-    for (let i = 1; i < classes.length; i++)
-        ObjectUtils.crudeCopy(classes[i], result);
+function createMixin(...objs: any): any {
+    let result: MixinBase = ObjectUtils.getBlank(objs[0]);
+    result.isMixin = true;
+    result.mixinObjects = objs;
+
+    for (let i = 0; i < objs.length; i++)
+        ObjectUtils.crudeCopy(objs[i], result, false, true);
+
     return result;
 }
 
-export type Mixin<T1, T2, T3 = undefined, T4 = undefined, T5 = undefined, T6 = undefined, T7 = undefined, T8 = undefined, T9 = undefined, T10 = undefined> = {
-    [P in keyof (T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8 | T9 | T10)]: keyof (T1 | T2 | T3 | T4 | T5 | T6 | T7 | T8 | T9 | T10)[P];
-}
+export type MixinBase = {
+    isMixin: boolean;
+    mixinObjects: any[];
+};
 
 export namespace Mixin {
-    export function create<T1, T2, T3 = undefined, T4 = undefined, T5 = undefined, T6 = undefined, T7 = undefined, T8 = undefined, T9 = undefined, T10 = undefined>(class1: new () => T1, class2: new () => T2, class3?: new () => T3, class4?: new () => T4, class5?: new () => T5, class6?: new () => T6, class7?: new () => T7, class8?: new () => T8, class9?: new () => T9, class10?: new () => T10): Mixin<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> {
-        return <Mixin<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>>createMixin(class1, class2, class3, class4, class5, class6, class7, class8, class9, class10);
+    export function create<T1, T2>(obj1: T1, obj2: T2): T1 & T2 & MixinBase;
+    export function create<T1, T2, T3>(obj1: T1, obj2: T2, obj3?: T3): T1 & T2 & T3 & MixinBase;
+    export function create<T1, T2, T3, T4>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4): T1 & T2 & T3 & T4 & MixinBase;
+    export function create<T1, T2, T3, T4, T5>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5): T1 & T2 & T3 & T4 & T5 & MixinBase;
+    export function create<T1, T2, T3, T4, T5, T6>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6): T1 & T2 & T3 & T4 & T5 & T6 & MixinBase;
+    export function create<T1, T2, T3, T4, T5, T6, T7>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7): T1 & T2 & T3 & T4 & T5 & T6 & T7 & MixinBase;
+    export function create<T1, T2, T3, T4, T5, T6, T7, T8>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7, obj8?: T8): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & MixinBase;
+    export function create<T1, T2, T3, T4, T5, T6, T7, T8, T9>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7, obj8?: T8, obj9?: T9): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & MixinBase;
+    export function create<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7, obj8?: T8, obj9?: T9, obj10?: T10): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & T10 & MixinBase;
+    export function create(...objs: any[]): any {
+        if (arguments.length < 1)
+            throw new ArgumentMissingException("obj1");
+        if (arguments.length < 1)
+            throw new ArgumentMissingException("obj2");
+
+        return createMixin(...objs);
     }
 }
