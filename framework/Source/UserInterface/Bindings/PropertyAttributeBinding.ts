@@ -1,5 +1,5 @@
 import { Binding, IBindingOptions, BindingDirection } from "./index.js";
-import { FrameworkProperty } from "../DependencyObjects/index.js";
+import { DependencyProperty } from "../DependencyObjects/index.js";
 import { ArgumentTypeException } from "../../Standard/index.js";
 
 /**
@@ -7,13 +7,13 @@ import { ArgumentTypeException } from "../../Standard/index.js";
  * Allows the binding of an attribute to a framework property.
  */
 export class PropertyAttributeBinding extends Binding {
-    constructor(source: object, sourceProperty: FrameworkProperty, targetElement: Element, targetAttributeName: string, options?: IBindingOptions) {
+    constructor(source: object, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, options?: IBindingOptions) {
         super(options);
 
         if (!(source instanceof Object))
             throw new ArgumentTypeException("source", source, Object);
-        if (!(sourceProperty instanceof FrameworkProperty))
-            throw new ArgumentTypeException("sourceProperty", sourceProperty, FrameworkProperty);
+        if (!(sourceProperty instanceof DependencyProperty))
+            throw new ArgumentTypeException("sourceProperty", sourceProperty, DependencyProperty);
         if (!(targetElement instanceof Element))
             throw new ArgumentTypeException("targetElement", targetElement, Element);
         if (typeof targetAttributeName !== "string")
@@ -104,7 +104,7 @@ export class PropertyAttributeBinding extends Binding {
     private __source: object;
 
     get sourceProperty() { return this.__sourceProperty; }
-    private __sourceProperty: FrameworkProperty;
+    private __sourceProperty: DependencyProperty;
 
     get targetElement() { return this.__targetElement; }
     private __targetElement: Element;

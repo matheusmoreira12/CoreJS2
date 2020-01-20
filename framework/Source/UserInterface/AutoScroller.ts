@@ -27,19 +27,19 @@ const AutoScrollerState = new Enumeration([
  * Enables automatic scrolling for the framework widgets.
  */
 export class AutoScroller {
-    constructor(target) {
+    constructor(target: Element) {
         if (!target) throw new ArgumentNullException("target");
         if (!(target instanceof Element)) throw new ArgumentTypeException("target", target, Element);
 
         this.__target = target;
 
         this.__scrollTimer.TickEvent.attach(this.__scrollTimer_onTick, this);
-        this.__scrollTimer.reset();
+        this.__scrollTimer.isEnabled = true;
 
         window.addEventListener("mousemove", this.__window_onMouseMove.bind(this));
     }
 
-    private __doRequestScrollStart(args) {
+    private __doRequestScrollStart(args: { orientation: number, direction: number }) {
         let scrollAccepted = false;
 
         this.ScrollRequestStartEvent.invoke(this, {
@@ -51,17 +51,15 @@ export class AutoScroller {
             this.__doScrollStart(args);
     }
 
-    private __doScrollStart(args) {
-        let { orientation, direction } = args;
-
-        switch (orientation) {
+    private __doScrollStart(args: { orientation: number, direction: number }) {
+        switch (args.orientation) {
             case AutoScrollerOrientation.Vertical:
-                this.__directionY = direction;
+                this.__directionY = args.direction;
                 this.__stateY = AutoScrollerState.ScrollActive;
                 break;
 
             case AutoScrollerOrientation.Horizontal:
-                this.__directionX = direction;
+                this.__directionX = args.direction;
                 this.__stateX = AutoScrollerState.ScrollActive;
                 break;
         }
@@ -69,26 +67,22 @@ export class AutoScroller {
         this.ScrollStartEvent.invoke(this, args);
     }
 
-    private __doScrollRateChange(args) {
-        let { orientation, rate } = args;
-
-        switch (orientation) {
+    private __doScrollRateChange(args: { orientation: number, rate: number }) {
+        switch (args.orientation) {
             case AutoScrollerOrientation.Vertical:
-                this.__rateY = rate;
+                this.__rateY = args.rate;
                 break;
 
             case AutoScrollerOrientation.Horizontal:
-                this.__rateX = rate;
+                this.__rateX = args.rate;
                 break;
         }
 
         this.ScrollRateChangeEvent.invoke(this, args);
     }
 
-    private __doScrollEnd(args) {
-        let orientation = args.orientation;
-
-        switch (orientation) {
+    private __doScrollEnd(args: { orientation: number }) {
+        switch (args.orientation) {
             case AutoScrollerOrientation.Vertical:
                 this.__stateY = AutoScrollerState.Ready;
                 this.__directionY = AutoScrollerDirection.None;
@@ -103,7 +97,7 @@ export class AutoScroller {
         this.ScrollEndEvent.invoke(this, args);
     }
 
-    private __scrollTimer_onTick(sender, args) {
+    private __scrollTimer_onTick(sender: any, args: {}) {
         let directionX = this.__directionX,
             directionY = this.__directionY,
             rateX = this.__rateX,
@@ -116,47 +110,43 @@ export class AutoScroller {
             directionY === AutoScrollerDirection.Forward ? rateY : -rateY);
     }
 
-    private __window_onMouseMove(evt) {
+    private __window_onMouseMove(evt: Event) {
         const SCROLL_REGION_OFFSET = 50;
 
-        let { clientX, clientY } = evt;
+        const clientX = (<MouseEvent>evt).clientX,
+            clientY = (<MouseEvent>evt).clientY;
 
-        let computedStyle = getComputedStyle(this.target);
+        const computedStyle = getComputedStyle(this.target);
 
-        let canScrollX = computedStyle.overflowX === "scroll" || computedStyle.overflowX === "auto",
+        const canScrollX = computedStyle.overflowX === "scroll" || computedStyle.overflowX === "auto",
             canScrollY = computedStyle.overflowY === "scroll" || computedStyle.overflowY === "auto";
 
         if (!canScrollX && !canScrollY) return;
 
-        let cursorPos = new DOMPoint(clientX, clientY);
+        const cursorPos = new DOMPoint(clientX, clientY);
+        const clientRect = <DOMRect>this.target.getBoundingClientRect();
 
-        let clientRect = this.target.getBoundingClientRect();
-
-        let topScrollRegion = DOMUtils.clipRectSide(clientRect, "top", SCROLL_REGION_OFFSET),
+        const topScrollRegion = DOMUtils.clipRectSide(clientRect, "top", SCROLL_REGION_OFFSET),
             rightScrollRegion = DOMUtils.clipRectSide(clientRect, "right", SCROLL_REGION_OFFSET),
             bottomScrollRegion = DOMUtils.clipRectSide(clientRect, "bottom", SCROLL_REGION_OFFSET),
             leftScrollRegion = DOMUtils.clipRectSide(clientRect, "left", SCROLL_REGION_OFFSET);
 
-        let cursorIsInTopScrollRegion = DOMUtils.pointInRect(topScrollRegion, cursorPos),
-            cursorIsInRightScrollRegion = DOMUtils.pointInRect(rightScrollRegion, cursorPos),
-            cursorIsInBottomScrollRegion = DOMUtils.pointInRect(bottomScrollRegion, cursorPos),
-            cursorIsInLeftScrollRegion = DOMUtils.pointInRect(leftScrollRegion, cursorPos);
+        const isCursorInTopScrollRegion = DOMUtils.pointInRect(topScrollRegion, cursorPos),
+            isCursorInRightScrollRegion = DOMUtils.pointInRect(rightScrollRegion, cursorPos),
+            isCursorInBottomScrollRegion = DOMUtils.pointInRect(bottomScrollRegion, cursorPos),
+            isCursorInLeftScrollRegion = DOMUtils.pointInRect(leftScrollRegion, cursorPos);
 
-        let directionX = this.__directionX, directionY = this.__directionY;
-
-        let stateX = this.__stateX, stateY = this.__stateY;
-
-        switch (stateX) {
+        switch (this.__stateX) {
             case AutoScrollerState.Ready: //Horizontal scroll is ready
                 if (canScrollX) { //Horizontal scroll is possible, check if cursor is inside any of the 
                     //horizontal scrolling zones
-                    if (cursorIsInRightScrollRegion) //Cursor is inside the right zone, request 
+                    if (isCursorInRightScrollRegion) //Cursor is inside the right zone, request 
                         //scrolling right
                         this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Horizontal,
                             direction: AutoScrollerDirection.Forward
                         });
-                    else if (cursorIsInLeftScrollRegion) //Cursor is inside the left zone, request
+                    else if (isCursorInLeftScrollRegion) //Cursor is inside the left zone, request
                         //scrolling left
                         this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Horizontal,
@@ -166,14 +156,14 @@ export class AutoScroller {
                 break;
 
             case AutoScrollerState.ScrollActive: //Horizontal scroll is active
-                if (cursorIsInRightScrollRegion && directionX === AutoScrollerDirection.Forward && canScrollX)
+                if (isCursorInRightScrollRegion && this.__directionX === AutoScrollerDirection.Forward && canScrollX)
                     //Cursor remains in the right scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Horizontal,
                         rate: cursorPos.x - rightScrollRegion.left
                     });
-                else if (cursorIsInLeftScrollRegion && directionX === AutoScrollerDirection.Backward && canScrollX)
+                else if (isCursorInLeftScrollRegion && this.__directionX === AutoScrollerDirection.Backward && canScrollX)
                     //Cursor remains in the left scroll region and horizontal scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
@@ -187,16 +177,16 @@ export class AutoScroller {
                 break;
         }
 
-        switch (stateY) {
+        switch (this.__stateY) {
             case AutoScrollerState.Ready: //Vertical scroll is ready
                 if (canScrollY) { //Vertical scroll is possible, check if cursor is inside any of the 
                     //vertical scrolling zones
-                    if (cursorIsInTopScrollRegion) //Cursor is inside the top zone, request scrolling up
+                    if (isCursorInTopScrollRegion) //Cursor is inside the top zone, request scrolling up
                         this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Vertical,
                             direction: AutoScrollerDirection.Backward
                         });
-                    else if (cursorIsInBottomScrollRegion) //Cursor is inside the bottom zone. Request 
+                    else if (isCursorInBottomScrollRegion) //Cursor is inside the bottom zone. Request 
                         //scrolling down
                         this.__doRequestScrollStart({
                             orientation: AutoScrollerOrientation.Vertical,
@@ -206,14 +196,14 @@ export class AutoScroller {
                 break;
 
             case AutoScrollerState.ScrollActive: //Vertical scroll is acrive
-                if (cursorIsInTopScrollRegion && directionY === AutoScrollerDirection.Backward && canScrollY)
+                if (isCursorInTopScrollRegion && this.__directionY === AutoScrollerDirection.Backward && canScrollY)
                     //Cursor remains in the top scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
                         orientation: AutoScrollerOrientation.Vertical,
                         rate: topScrollRegion.bottom - cursorPos.y
                     });
-                else if (cursorIsInBottomScrollRegion && directionY === AutoScrollerDirection.Forward && canScrollY)
+                else if (isCursorInBottomScrollRegion && this.__directionY === AutoScrollerDirection.Forward && canScrollY)
                     //Cursor remains in the bottom scroll region and vertical scroll is still possible, 
                     //carry on and update scrolling rate
                     this.__doScrollRateChange({
@@ -228,20 +218,16 @@ export class AutoScroller {
         }
     }
 
-    private __target_onMouseLeave(evt) {
-        switch (this.__stateY) {
-            case AutoScrollerState.ScrollActive:
-                this.__doScrollEnd({
-                    orientation: AutoScrollerOrientation.Vertical
-                });
-        }
+    private __target_onMouseLeave(evt: Event) {
+        if (this.__stateY == AutoScrollerState.ScrollActive)
+            this.__doScrollEnd({
+                orientation: AutoScrollerOrientation.Vertical
+            });
 
-        switch (this.__stateX) {
-            case AutoScrollerState.ScrollActive:
-                this.__doScrollEnd({
-                    orientation: AutoScrollerOrientation.Horizontal
-                });
-        }
+        if (this.__stateX == AutoScrollerState.ScrollActive)
+            this.__doScrollEnd({
+                orientation: AutoScrollerOrientation.Horizontal
+            });
     }
 
     get ScrollRequestStartEvent(): FrameworkEvent { return this.__ScrollRequestStartEvent; }
