@@ -1,5 +1,5 @@
 import { Binding, IBindingOptions, BindingDirection } from "./index.js";
-import { FrameworkProperty } from "../index.js";
+import { FrameworkProperty } from "../DependencyObjects/index.js";
 import { ArgumentTypeException } from "../../Standard/index.js";
 
 /**

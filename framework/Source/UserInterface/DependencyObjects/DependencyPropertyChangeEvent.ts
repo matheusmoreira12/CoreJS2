@@ -1,6 +1,6 @@
-import { FrameworkEventArgs, FrameworkEvent } from "../Standard/Events/index.js";
+import { FrameworkEventArgs, FrameworkEvent } from "../../Standard/Events/index.js";
 import { FrameworkProperty } from "./index.js";
-import { ArgumentMissingException, ArgumentTypeException } from "../Standard/index.js";
+import { ArgumentMissingException, ArgumentTypeException } from "../../Standard/index.js";
 
 export type PropertyChangeEvent = FrameworkEvent<PropertyChangeEventArgs>;
 

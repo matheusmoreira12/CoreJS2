@@ -1,8 +1,8 @@
-import { Type } from "../Standard/Types/index.js";
-import { Interface } from "../Standard/Interfaces/index.js";
-import { ArgumentMissingException, ArgumentTypeException } from "../Standard/index.js";
-import { FrameworkEvent } from "../Standard/Events/index.js";
-import { PropertyChangeEvent, PropertyChangeEventArgs } from "./PropertyChangeEvent.js";
+import { Type } from "../../Standard/Types/index.js";
+import { Interface } from "../../Standard/Interfaces/index.js";
+import { ArgumentMissingException, ArgumentTypeException } from "../../Standard/index.js";
+import { FrameworkEvent } from "../../Standard/Events/index.js";
+import { PropertyChangeEvent, PropertyChangeEventArgs } from "./DependencyPropertyChangeEvent.js";
 
 export class FrameworkPropertyOptions {
     constructor(valueType: Type | Interface | null, defaultValue: any) {

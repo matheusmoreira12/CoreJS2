@@ -1,7 +1,6 @@
 import { Trigger } from "./index.js";
-import { FrameworkProperty } from "../index.js";
+import { FrameworkProperty, PropertyChangeEventArgs } from "../DependencyObjects/index.js";
 import { ArgumentTypeException } from "../../Standard/index.js";
-import { PropertyChangeEventArgs } from "../PropertyChangeEvent.js";
 import { Collection } from "../../Standard/Collections/index.js";
 import { Setter } from "../Setters/index.js";
 

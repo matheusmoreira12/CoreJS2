@@ -9,6 +9,3 @@ export { ColorConversion };
 
 import WebColors from "./WebColors.js";
 export { WebColors };
-
-import * as Blending from "./Blending/index.js";
-export { Blending };

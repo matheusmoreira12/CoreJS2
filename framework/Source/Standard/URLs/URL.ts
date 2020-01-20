@@ -39,12 +39,14 @@ export class URL {
 
         return new URL(hostname, path, protocol, port, query, fragment);
     }
+
     static parse(value: string) {
         if (typeof value !== "string")
             throw `Invalid value for parameter "value". A value of type String was expected.`;
         const token = new URLTokenifier().tokenify(value);
         return this.fromToken(token);
     }
+
     constructor(hostname: URLHostname, path: URLPath, protocol?: string | null, port?: number | null, query?: URLQuery | null, fragment?: string | null) {
         if (!(hostname instanceof URLHostname))
             throw `Invalid value for parameter "hostname". A value of type URLHostname was expected.`;
@@ -78,28 +80,34 @@ export class URL {
     }
 
     toToken(): URLToken {
-        function* getItems(this: URL) {
+        function* generateItems(this: URL) {
             if (this.protocol)
                 yield {
                     type: "protocol",
                     value: this.protocol
                 };
+
             yield this.hostname.toToken();
+
             if (this.port)
                 yield {
                     type: "port",
                     value: String(this.port)
                 };
+
             yield this.path.toToken();
+
             if (this.query)
                 yield this.query.toToken();
+
             if (this.fragment)
                 yield {
                     type: "fragment",
                     value: this.fragment
                 };
         }
-        const items = [...getItems.call(this)];
+
+        const items = [...generateItems.call(this)];
         return {
             type: "url",
             items
