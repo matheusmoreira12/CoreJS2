@@ -1,10 +1,14 @@
 ﻿import { URLQuery, URLHostname, URLToken, URLPath, URLTokenifier } from "./index.js";
 
 export class URL {
-    static fromToken(token: URLToken) {
+    static fromToken(token: URLToken): URL | null {
         if (!token || token.type !== "url")
             return null;
         let protocol = null, hostname = null, port = null, path = null, query = null, fragment = null;
+
+        if (!token.items)
+            return null;
+
         for (let item of token.items) {
             switch (item.type) {
                 case "protocol":
@@ -27,6 +31,12 @@ export class URL {
                     break;
             }
         }
+
+        if (!hostname)
+            return null;
+        if (!path)
+            return null;
+
         return new URL(hostname, path, protocol, port, query, fragment);
     }
     static parse(value: string) {
@@ -35,19 +45,30 @@ export class URL {
         const token = new URLTokenifier().tokenify(value);
         return this.fromToken(token);
     }
-    constructor(hostname: URLHostname, path: URLPath, protocol?: string, port?: number, query?: URLQuery, fragment?: string) {
+    constructor(hostname: URLHostname, path: URLPath, protocol?: string | null, port?: number | null, query?: URLQuery | null, fragment?: string | null) {
         if (!(hostname instanceof URLHostname))
             throw `Invalid value for parameter "hostname". A value of type URLHostname was expected.`;
         if (!(path instanceof URLPath))
             throw `Invalid value for parameter "path". A value of type URLPath was expected.`;
-        if (protocol !== undefined && typeof protocol !== "string")
+
+        if (protocol === undefined)
+            protocol = null;
+        if (port === undefined)
+            port = null;
+        if (query === undefined)
+            query = null;
+        if (fragment === undefined)
+            fragment = null;
+
+        if (protocol !== null && typeof protocol !== "string")
             throw `Invalid value for parameter "protocol". A value of type String was expected.`;
-        if (port !== undefined && typeof port !== "number")
+        if (port !== null && typeof port !== "number")
             throw `Invalid value for parameter "port". A value of type String was expected.`;
-        if (query !== undefined && !(query instanceof URLQuery))
+        if (query !== null && !(query instanceof URLQuery))
             throw `Invalid value for parameter "query". A value of type URLQuery was expected.`;
-        if (fragment !== undefined && typeof fragment !== "string")
+        if (fragment !== null && typeof fragment !== "string")
             throw `Invalid value for parameter "fragment". A value of type String was expected.`;
+
         this.protocol = protocol;
         this.hostname = hostname;
         this.path = path;
@@ -56,8 +77,8 @@ export class URL {
         this.fragment = fragment;
     }
 
-    toToken() {
-        function* getItems() {
+    toToken(): URLToken {
+        function* getItems(this: URL) {
             if (this.protocol)
                 yield {
                     type: "protocol",
@@ -67,7 +88,7 @@ export class URL {
             if (this.port)
                 yield {
                     type: "port",
-                    value: this.port
+                    value: String(this.port)
                 };
             yield this.path.toToken();
             if (this.query)
@@ -85,7 +106,7 @@ export class URL {
         };
     }
 
-    toString() {
+    toString(): string | null {
         const token = this.toToken(), tokenifier = new URLTokenifier();
         return tokenifier.detokenify(token);
     }
@@ -94,10 +115,10 @@ export class URL {
         return new URL(this.hostname, this.path.collapse(), this.protocol, this.port, this.query, this.fragment);
     }
 
-    protocol: string | undefined;
+    protocol: string | null;
     hostname: URLHostname;
     path: URLPath;
-    port: number | undefined;
-    query: URLQuery | undefined;
-    fragment: string | undefined;
+    port: number | null;
+    query: URLQuery | null;
+    fragment: string | null;
 }

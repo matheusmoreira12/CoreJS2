@@ -12,7 +12,7 @@ export class URLPath {
         if (!token || token.type !== "path")
             return null;
 
-        return new URLPath(...generateSegments(token.items));
+        return new URLPath(...generateSegments(<URLToken[]>token.items));
     }
 
     constructor(...segments: string[]) {
