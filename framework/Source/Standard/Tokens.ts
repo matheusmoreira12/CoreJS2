@@ -1,5 +1,4 @@
 import { ArgumentTypeException, FrameworkException } from "./index.js";
-import { Type } from "./Types/index.js";
 
 export class TokenReaderContext<T> {
     constructor(tokens: T[], startIndex?: number);
@@ -21,7 +20,7 @@ export class TokenReaderContext<T> {
                     if (typeof arg1 == "number")
                         this.__startIndex = arg1;
                     else
-                        throw new ArgumentTypeException("startIndex", Type.of(arg1), Type.get(Number));
+                        throw new ArgumentTypeException("startIndex", arg1, Number);
                 }
             }
             else if (arg0 instanceof TokenReaderContext) {
@@ -29,7 +28,7 @@ export class TokenReaderContext<T> {
                 this.__currentIndex = this.__startIndex = this.__parentContext.currentIndex;
             }
             else
-                throw new ArgumentTypeException("parentContext", Type.of(arg0), Type.get(Number));
+                throw new ArgumentTypeException("parentContext", arg0, Number);
         }
     }
 

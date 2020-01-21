@@ -1,3 +1,6 @@
+import { FrameworkEventListener } from "./Events.js";
+import { FrameworkEvent } from "./FrameworkEvent.js";
+
 /**
  * NativeEvent class
  * Routes DOM Events, enabling native event integration.

@@ -1,5 +1,4 @@
-import { IndexOutOfRangeException, ArgumentTypeException } from "../index.js";
-import { Type } from "../Types/index.js";
+import { IndexOutOfRangeException, ArgumentTypeException } from "../Exceptions.js";
 import { KeyValuePair, Dictionary } from "../Collections/index.js";
 
 export class RegExpXContext {
@@ -57,7 +56,7 @@ function computeFinalPattern(pattern: string, context: RegExpXContext | undefine
 export class RegExpX extends RegExp {
     constructor(pattern: string, flags = "", context?: RegExpXContext) {
         if (context !== undefined && !(context instanceof RegExpXContext))
-            throw new ArgumentTypeException("context", Type.of(context), Type.get(RegExpXContext));
+            throw new ArgumentTypeException("context", context, RegExpXContext);
 
         const finalPattern = computeFinalPattern(pattern, context);
         super(finalPattern, flags);

@@ -1,6 +1,5 @@
 import { RegExpXContext } from "./Strings/RegExpXContext.js";
 import { ArgumentTypeException, ArgumentOutOfRangeException } from "./index.js";
-import { Type } from "./Types/index.js";
 import { Enumeration } from "./index.js";
 
 const REGEXPX_CONTEXT = new RegExpXContext();
@@ -68,7 +67,7 @@ export class TimeSpan {
         ///TODO: Implement a non-hardcoded way of converting a DateTime to string using the specified format
 
         const getPaddedValue = (value, quantifier) => {
-            return String(value).padLeft(quantifier, "0");
+            return String(value).padStart(quantifier, "0");
         };
 
         const getDaysString = quantifier => {
@@ -120,7 +119,7 @@ export class TimeSpan {
         if (typeof value === "number")
             return multiplyTimeSpanByNumber(this, value);
 
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(Number));
+        throw new ArgumentTypeException("value", value, Number);
     }
 
     divide(value: number): TimeSpan { return this.multiply(1 / value); }
@@ -133,14 +132,14 @@ export class TimeSpan {
         else if (value instanceof TimeSpan)
             return addTimeSpans(value, this);
 
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(DateTime));
+        throw new ArgumentTypeException("value", value, DateTime);
     }
 
     subtract(value: TimeSpan): TimeSpan {
         if (value instanceof TimeSpan)
             return subtractTimeSpans(this, value);
 
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(TimeSpan));
+        throw new ArgumentTypeException("value", value, TimeSpan);
     }
 
     get totalTicks() {
@@ -303,7 +302,7 @@ export class DateTime {
         ///TODO: Implement a non-hardcoded way of converting a TimeSpan to string using the specified format
 
         const getPaddedValue = (value, quantifier) => {
-            return String(value).padLeft(quantifier, "0");
+            return String(value).padStart(quantifier, "0");
         };
 
         const getYearString = quantifier => {
@@ -399,14 +398,14 @@ export class DateTime {
         else if (value instanceof TimeSpan)
             return subtractTimeSpanFromDateTime(this, value);
 
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(DateTime));
+        throw new ArgumentTypeException("value", value, DateTime);
     }
 
     add(value: TimeSpan): DateTime {
         if (value instanceof TimeSpan)
             return addTimeSpanToDateTime(this, value);
 
-        throw new ArgumentTypeException("value", Type.of(value), Type.get(TimeSpan));
+        throw new ArgumentTypeException("value", value, TimeSpan);
     }
 
     get era(): number {

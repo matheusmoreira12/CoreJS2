@@ -1,4 +1,7 @@
 export class AsynchronousResolver {
+    resolved: Promise<unknown>;
+    resolve: (value: any) => void;
+    reject: (error: any) => void;
     static get STATUS_REJECTED() { return -1; }
     static get STATUS_PENDING() { return 0; }
     static get STATUS_RESOLVED() { return 1; }

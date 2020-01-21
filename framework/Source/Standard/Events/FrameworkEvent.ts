@@ -2,7 +2,6 @@ import { Destructible } from "../index.js";
 import { FrameworkEventArgs } from "./index.js";
 import { FrameworkEventListener } from "./index.js";
 import { ArgumentTypeException } from "../index.js";
-import { Type } from "../Types/index.js";
 import { Dictionary } from "../Collections/index.js";
 
 type FrameworkEventListenerData = { thisArg: any };
@@ -28,7 +27,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
             if (defaultListener instanceof Function)
                 this.attach(defaultListener, defaultListenerThisArg);
             else
-                throw new ArgumentTypeException("defaultListener", Type.of(defaultListener), Type.get(Function));
+                throw new ArgumentTypeException("defaultListener", defaultListener, Function);
         }
     }
 
@@ -39,7 +38,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
 
     attach(listener: FrameworkEventListener<TArgs> | FrameworkEvent<TArgs>, thisArg?: any): boolean {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
-            throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
+            throw new ArgumentTypeException("listener", listener, [Function, FrameworkEvent]);
 
         if (this.__listeners.has(listener))
             return false;
@@ -52,7 +51,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
 
     detach(listener: FrameworkEventListener<TArgs> | FrameworkEvent<TArgs>): boolean {
         if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
-            throw new ArgumentTypeException("listener", Type.of(listener), [Type.get(Function), Type.get(FrameworkEvent)]);
+            throw new ArgumentTypeException("listener", listener, [Function, FrameworkEvent]);
 
         if (!this.__listeners.has(listener))
             return false;

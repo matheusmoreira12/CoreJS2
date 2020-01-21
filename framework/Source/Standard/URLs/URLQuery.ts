@@ -1,5 +1,6 @@
 ﻿import { URLQueryParameter } from "./index.js";
 export class URLQuery {
+    parameters: any[];
     static fromToken(token) {
         function* getParameters(tokens) {
             for (let token of tokens) {
