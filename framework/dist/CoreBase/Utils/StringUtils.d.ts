@@ -1,0 +1,11 @@
+export declare function getCharRange(start: string[1], end: string[1]): Generator<string, void, unknown>;
+export declare function isNumericChar(char: string[1]): boolean | "";
+export declare function isLowerCaseLetter(char: string[1]): boolean | "";
+export declare function isUpperCaseLetter(char: string[1]): boolean | "";
+export declare function isLetter(char: string[1]): boolean | "";
+export declare function isWordChar(char: string[1]): boolean | "";
+export declare const NUMERIC_CHARS: any[];
+export declare const LOWER_CASE_LETTER_CHARS: any[];
+export declare const UPPER_CASE_LETTER_CHARS: any[];
+export declare const LETTER_CHARS: any[];
+export declare const WORD_CHARS: any[];
