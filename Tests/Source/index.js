@@ -1,6 +1,6 @@
-import { Type } from "../../framework/Built/Standard/Types/index.js";
+import * as Core from "../../framework/Build/index.js";
 
-console.log(Type);
+console.log(Core.Standard.Types.Type);
 
 // export const Consolify = new (function () {
 //     const TAB_SPACING = 5;

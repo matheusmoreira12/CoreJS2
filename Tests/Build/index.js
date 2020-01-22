@@ -1,7 +1,5 @@
-// import { Type } from "../../framework/Built/Standard/Types/index.js";
-import { FrameworkEvent } from "../../framework/Built/Standard/Events/index.js";
-
-console.log(FrameworkEvent);
+import * as Core from "../../framework/Build/index.js";
+console.log(Core.Standard.Types.Type);
 // export const Consolify = new (function () {
 //     const TAB_SPACING = 5;
 //     let text = "";

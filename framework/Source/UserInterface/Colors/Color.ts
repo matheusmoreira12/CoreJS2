@@ -4,7 +4,8 @@ import { ColorRGBA } from "./index.js";
 import { ColorRGB } from "./index.js";
 import { ColorHSL } from "./index.js";
 import { ColorHSLA } from "./index.js";
-import { BlendMode } from "./Blending/index.js";
+
+import { Blending } from "./index.js";
 
 export abstract class Color extends Number {
     static fromRGBAHex(value: number): ColorRGBA {
@@ -52,7 +53,7 @@ export abstract class Color extends Number {
         return new ColorHSLA(h, s, l, rgba.a);
     }
 
-    blend(color: Color, blendMode: BlendMode): Color {
+    blend(color: Color, blendMode: Blending.BlendMode): Color {
         return blendMode.blend(this, color);
     }
 }
