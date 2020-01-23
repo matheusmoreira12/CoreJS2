@@ -1,1 +1,1 @@
-export * from "./Setter.js";
+export * from "./Setter";

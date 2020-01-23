@@ -1,31 +1,31 @@
-export * from "./ContextSelectionFlags.js";
-export * from "./DateTime.js";
-export * from "./Destructible.js";
-export * from "./Enumeration.js";
-export * from "./Exceptions.js";
-export * from "./MathX.js";
-export * from "./Tokens.js";
+export * from "./ContextSelectionFlags";
+export * from "./DateTime";
+export * from "./Destructible";
+export * from "./Enumeration";
+export * from "./Exceptions";
+export * from "./MathX";
+export * from "./Tokens";
 
-import * as APIs from "./APIs/index.js";
+import * as APIs from "./APIs/index";
 export { APIs }
 
-import * as Collections from "./Collections/index.js";
+import * as Collections from "./Collections/index";
 export { Collections }
 
-import * as Events from "./Events/index.js";
+import * as Events from "./Events/index";
 export { Events }
 
-import * as Interfaces from "./Interfaces/index.js";
+import * as Interfaces from "./Interfaces/index";
 export { Interfaces }
 
-import * as ServerTasks from "./ServerTasks/index.js";
+import * as ServerTasks from "./ServerTasks/index";
 export { ServerTasks }
 
-import * as Strings from "./Strings/index.js";
+import * as Strings from "./Strings/index";
 export { Strings }
 
-import * as Types from "./Types/index.js";
+import * as Types from "./Types/index";
 export { Types }
 
-import * as URLs from "./URLs/index.js";
+import * as URLs from "./URLs/index";
 export { URLs }

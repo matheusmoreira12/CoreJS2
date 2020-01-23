@@ -1,9 +1,9 @@
-﻿import { Type } from "../Types/Type.js";
-import { InterfaceMember } from "./InterfaceMember.js";
-import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Types/index.js";
-import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces.js";
-import { ArgumentTypeException } from "../Exceptions.js";
-import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index.js";
+﻿import { Type } from "../Types/Type";
+import { InterfaceMember } from "./InterfaceMember";
+import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Types/index";
+import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces";
+import { ArgumentTypeException } from "../Exceptions";
+import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index";
 
 export class Interface {
     static extract(type: Type) {

@@ -1,6 +1,6 @@
-import { RegExpXContext } from "./Strings/RegExpXContext.js";
-import { ArgumentTypeException, ArgumentOutOfRangeException } from "./index.js";
-import { Enumeration } from "./index.js";
+import { RegExpXContext } from "./Strings/RegExpXContext";
+import { ArgumentTypeException, ArgumentOutOfRangeException } from "./index";
+import { Enumeration } from "./index";
 
 const REGEXPX_CONTEXT = new RegExpXContext();
 REGEXPX_CONTEXT.declareNamedPattern("year", `y{1,4}`);

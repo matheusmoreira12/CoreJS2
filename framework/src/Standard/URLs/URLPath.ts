@@ -1,4 +1,4 @@
-import { URLToken } from "./index.js";
+import { URLToken } from "./index";
 
 export class URLPath {
     static fromToken(token: URLToken) {

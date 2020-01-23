@@ -1,4 +1,4 @@
-import * as Core from "../../framework/Build/index.js";
+import * as Core from "../../framework/dist/bundle.js";
 
 console.log(Core.Standard.Types.Type);
 

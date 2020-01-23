@@ -1,7 +1,7 @@
-import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../index.js";
-import { ObjectUtils } from "../../CoreBase/Utils/index.js";
-import { Class, MemberInfo, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./index.js";
-import { Interface } from "../Interfaces/index.js";
+import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../index";
+import { ObjectUtils } from "../../CoreBase/Utils/index";
+import { Class, MemberInfo, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./index";
+import { Interface } from "../Interfaces/index";
 
 export class Type<T = any> {
     static get<T>(_class: Class<T>): Type<T> {

@@ -1,2 +1,2 @@
-export * from "./IValueConverter.js";
-export * from "./ValueConverters.js"
+export * from "./IValueConverter";
+export * from "./ValueConverters"

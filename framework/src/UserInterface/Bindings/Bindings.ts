@@ -1,7 +1,7 @@
-import { Enumeration } from "../../Standard/index.js";
-import { Interface, InterfaceMemberType, InterfaceMember } from "../../Standard/Interfaces/index.js";
-import { Type } from "../../Standard/Types/index.js";
-import { IValueConverter } from "../ValueConverters/index.js";
+import { Enumeration } from "../../Standard/index";
+import { Interface, InterfaceMemberType, InterfaceMember } from "../../Standard/Interfaces/index";
+import { Type } from "../../Standard/Types/index";
+import { IValueConverter } from "../ValueConverters/index";
 
 export const BindingDirection = new Enumeration({
     Both: 3,

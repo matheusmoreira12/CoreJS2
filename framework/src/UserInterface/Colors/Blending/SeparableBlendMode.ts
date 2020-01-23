@@ -1,7 +1,7 @@
-﻿import { Color } from "../index.js";
-import { ColorRGB } from "../index.js";
+﻿import { Color } from "../index";
+import { ColorRGB } from "../index";
 
-import { BlendMode } from "./index.js";
+import { BlendMode } from "./index";
 
 export type SeparableBlendModeFunction = (cb: number, cs: number) => number;
 

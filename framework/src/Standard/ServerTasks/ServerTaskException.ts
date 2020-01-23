@@ -1,4 +1,4 @@
-﻿import { FrameworkException } from "../Exceptions.js";
+﻿import { FrameworkException } from "../Exceptions";
 
 export class ServerTaskException extends FrameworkException {
     constructor(serverMessage?: string, serverErrorCode?: number, message?: string, innerException?: string) {

@@ -1,4 +1,4 @@
-﻿import { Color } from "./index.js";
+﻿import { Color } from "./index";
 
 const WebColors = {
     get Pink() { return Color.fromRGBAHex(0xFFC0CBFF) },

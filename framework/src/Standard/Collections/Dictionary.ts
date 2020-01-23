@@ -1,5 +1,5 @@
-﻿import { Collection, KeyValuePair } from "./index.js";
-import { ArgumentOutOfRangeException, KeyNotFoundException } from "../index.js";
+﻿import { Collection, KeyValuePair } from "./index";
+import { ArgumentOutOfRangeException, KeyNotFoundException } from "../index";
 
 /**
  * Dictionary class

@@ -1,4 +1,4 @@
-import { StringUtils } from "../../CoreBase/Utils/index.js";
+import { StringUtils } from "../../CoreBase/Utils/index";
 
 export type URLToken = {
     type: string,

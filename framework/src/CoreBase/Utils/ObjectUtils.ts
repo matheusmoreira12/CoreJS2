@@ -1,5 +1,5 @@
-import { ArgumentMissingException } from "../../Standard/index.js";
-import { DeepReadonly, DeepClone, MixinBase } from "./index.js";
+import { ArgumentMissingException } from "../../Standard/index";
+import { DeepReadonly, DeepClone, MixinBase } from "./index";
 
 export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
     let keys: (string | symbol)[] = [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];

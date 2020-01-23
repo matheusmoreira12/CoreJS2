@@ -1,3 +1,3 @@
-export * from "./WidgetMetadata.js";
-export * from "./Widget.js";
-export * from "./WidgetManager.js";
+export * from "./WidgetMetadata";
+export * from "./Widget";
+export * from "./WidgetManager";

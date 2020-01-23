@@ -1,3 +1,3 @@
-export * from "./Types.js"
-export * from "./MemberInfo.js";
-export * from "./Type.js";
+export * from "./Types"
+export * from "./MemberInfo";
+export * from "./Type";

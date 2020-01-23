@@ -1,4 +1,4 @@
-﻿import { Widget } from "./index.js";
+﻿import { Widget } from "./index";
 
 export class WidgetMetadata {
     constructor(widgetConstructor: new() => Widget, namespaceURI: string, qualifiedName: string) {

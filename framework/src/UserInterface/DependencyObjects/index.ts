@@ -1,2 +1,2 @@
-export * from "./DependencyProperty.js";
-export * from "./DependencyPropertyChangeEvent.js";
+export * from "./DependencyProperty";
+export * from "./DependencyPropertyChangeEvent";

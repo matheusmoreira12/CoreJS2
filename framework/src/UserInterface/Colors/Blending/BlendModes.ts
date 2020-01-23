@@ -1,5 +1,5 @@
-import { NonSeparableBlendMode, SeparableBlendMode } from "./index.js";
-import { Color, ColorHSL } from "../index.js";
+import { NonSeparableBlendMode, SeparableBlendMode } from "./index";
+import { Color, ColorHSL } from "../index";
 
 const f_normal = (_cb: number, cs: number): number => cs;
 

@@ -1,4 +1,4 @@
-import { InvalidOperationException } from "../../Standard/index.js";
+import { InvalidOperationException } from "../../Standard/index";
 
 /**
  * Trigger base class

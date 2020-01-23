@@ -1,7 +1,7 @@
-import { Type } from "../Types/index.js";
-import { Interface, InterfaceMemberKey } from "./index.js";
-import { ArgumentTypeException } from "../index.js";
-import { MemberAttributes } from "../Types/index.js";
+import { Type } from "../Types/index";
+import { Interface, InterfaceMemberKey } from "./index";
+import { ArgumentTypeException } from "../index";
+import { MemberAttributes } from "../Types/index";
 
 export class InterfaceMember {
     constructor(key: string | number | symbol, memberType: number, type?: Type | Interface, attributes?: number, isOptional?: boolean) {

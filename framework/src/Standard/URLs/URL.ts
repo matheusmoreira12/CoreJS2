@@ -1,4 +1,4 @@
-﻿import { URLQuery, URLHostname, URLToken, URLPath, URLTokenifier } from "./index.js";
+﻿import { URLQuery, URLHostname, URLToken, URLPath, URLTokenifier } from "./index";
 
 export class URL {
     static fromToken(token: URLToken): URL | null {

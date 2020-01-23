@@ -1,7 +1,7 @@
-import BlendModes from "./BlendModes.js";
+import BlendModes from "./BlendModes";
 
-export * from "./BlendMode.js";
-export * from "./SeparableBlendMode.js";
-export * from "./NonSeparableBlendMode.js";
+export * from "./BlendMode";
+export * from "./SeparableBlendMode";
+export * from "./NonSeparableBlendMode";
 
 export { BlendModes };

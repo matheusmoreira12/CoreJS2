@@ -1,8 +1,8 @@
-import { FrameworkEvent } from "../../Standard/Events/index.js";
-import { Trigger } from "./index.js";
-import { ArgumentTypeException } from "../../Standard/index.js";
-import { Collection, Dictionary } from "../../Standard/Collections/index.js";
-import { Action } from "../Actions/index.js";
+import { FrameworkEvent } from "../../Standard/Events/index";
+import { Trigger } from "./index";
+import { ArgumentTypeException } from "../../Standard/index";
+import { Collection, Dictionary } from "../../Standard/Collections/index";
+import { Action } from "../Actions/index";
 
 /**
  * EventTrigger class

@@ -1,9 +1,9 @@
-import { Destructible } from "../../Standard/index.js";
-import { PropertyAttributeBinding } from "../Bindings/index.js";
-import { DragDropHandler } from "../index.js";
-import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
-import { BooleanAttributeValueConverter } from "../ValueConverters/index.js";
-import { FrameworkProperty } from "../DependencyObjects/index.js";
+import { Destructible } from "../../Standard/index";
+import { PropertyAttributeBinding } from "../Bindings/index";
+import { DragDropHandler } from "../index";
+import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
+import { BooleanAttributeValueConverter } from "../ValueConverters/index";
+import { FrameworkProperty } from "../DependencyObjects/index";
 
 ///TODO: fix this mess
 

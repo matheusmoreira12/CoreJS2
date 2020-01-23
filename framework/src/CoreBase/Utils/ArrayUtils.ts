@@ -1,4 +1,4 @@
-import { CompareSelectPredicate } from "./index.js";
+import { CompareSelectPredicate } from "./index";
 
 export function* compareSelect<T, U, TResult>(a: T[], b: U[], predicate: CompareSelectPredicate<T, U, TResult>) {
     let length = a.length;

@@ -1,8 +1,8 @@
-export * from "./Ajax.js";
-export * from "./IdentifierGenerator.js";
-export * from "./Immediate.js";
-export * from "./Resolvers.js";
-//export * from "./Modules.js";
+export * from "./Ajax";
+export * from "./IdentifierGenerator";
+export * from "./Immediate";
+export * from "./Resolvers";
+//export * from "./Modules";
 
-import * as Utils from "./Utils/index.js";
+import * as Utils from "./Utils/index";
 export { Utils }

@@ -1,6 +1,6 @@
-import { Binding, IBindingOptions, BindingDirection } from "./index.js";
-import { FrameworkProperty } from "../DependencyObjects/index.js";
-import { ArgumentTypeException } from "../../Standard/index.js";
+import { Binding, IBindingOptions, BindingDirection } from "./index";
+import { FrameworkProperty } from "../DependencyObjects/index";
+import { ArgumentTypeException } from "../../Standard/index";
 
 /**
  * PropertyAttributeBinding class

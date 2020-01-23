@@ -1,8 +1,8 @@
-import { Destructible } from "../index.js";
-import { FrameworkEventArgs } from "./index.js";
-import { FrameworkEventListener } from "./index.js";
-import { ArgumentTypeException } from "../index.js";
-import { Dictionary } from "../Collections/index.js";
+import { Destructible } from "../index";
+import { FrameworkEventArgs } from "./index";
+import { FrameworkEventListener } from "./index";
+import { ArgumentTypeException } from "../index";
+import { Dictionary } from "../Collections/index";
 
 type FrameworkEventListenerData = { thisArg: any };
 

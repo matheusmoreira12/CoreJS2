@@ -1,1 +1,1 @@
-export * from "./RegExpXContext.js";
+export * from "./RegExpXContext";

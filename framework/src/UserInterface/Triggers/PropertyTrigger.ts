@@ -1,8 +1,8 @@
-import { Trigger } from "./index.js";
-import { FrameworkProperty, PropertyChangeEventArgs } from "../DependencyObjects/index.js";
-import { ArgumentTypeException } from "../../Standard/index.js";
-import { Collection } from "../../Standard/Collections/index.js";
-import { Setter } from "../Setters/index.js";
+import { Trigger } from "./index";
+import { FrameworkProperty, PropertyChangeEventArgs } from "../DependencyObjects/index";
+import { ArgumentTypeException } from "../../Standard/index";
+import { Collection } from "../../Standard/Collections/index";
+import { Setter } from "../Setters/index";
 
 /**
  * PropertyTrigger class

@@ -1,9 +1,9 @@
-﻿import { Enumeration } from "../Standard/Enumeration.js";
-import { Timer } from "./Timer.js";
-import { BroadcastFrameworkEvent, FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
-import DragEmulator from "./DragEmulator.js";
-import { Destructible } from "../Standard/index.js";
-import { DOMUtils } from "./index.js";
+﻿import { Enumeration } from "../Standard/Enumeration";
+import { Timer } from "./Timer";
+import { BroadcastFrameworkEvent, FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index";
+import DragEmulator from "./DragEmulator";
+import { Destructible } from "../Standard/index";
+import { DOMUtils } from "./index";
 
 const DEFAULT_DRAG_HANDLER_OPTIONS = {
     touchDragStartDelay: 1

@@ -1,6 +1,6 @@
-import { IBindingOptions, BindingDirection } from "./index.js";
-import { Destructible, InvalidOperationException, ArgumentTypeException } from "../../Standard/index.js";
-import { Type } from "../../Standard/Types/index.js";
+import { IBindingOptions, BindingDirection } from "./index";
+import { Destructible, InvalidOperationException, ArgumentTypeException } from "../../Standard/index";
+import { Type } from "../../Standard/Types/index";
 
 const DEFAULT_BINDING_OPTIONS = {
     direction: BindingDirection.Both,

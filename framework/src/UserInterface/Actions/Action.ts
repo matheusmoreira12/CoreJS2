@@ -1,6 +1,6 @@
-import { InvalidOperationException } from "../../Standard/index.js";
-import { FrameworkEvent } from "../../Standard/Events/index.js";
-import { Dictionary } from "../../Standard/Collections/index.js";
+import { InvalidOperationException } from "../../Standard/index";
+import { FrameworkEvent } from "../../Standard/Events/index";
+import { Dictionary } from "../../Standard/Collections/index";
 
 /**
  * FrameworkAction base class

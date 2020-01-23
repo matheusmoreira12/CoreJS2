@@ -1,4 +1,4 @@
-import { Enumeration } from "../Enumeration.js";
+import { Enumeration } from "../Enumeration";
 
 export type Class<T> = (new () => T);
 
