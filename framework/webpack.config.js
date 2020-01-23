@@ -1,19 +1,17 @@
 module.exports = {
     entry: './src/index.ts',
     output: {
-        filename: './dist/bundle.js'
+        filename: './bundle.js'
+    },
+    resolve: {
+        extensions: ['.ts', '.js']
     },
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.m?ts$/,
                 exclude: /node_modules/,
-                use: [{
-                    loader: 'babel-loader',
-                    query: {
-                        presets: ['es2015', 'stage-0']
-                    }
-                }]
+                use: 'ts-loader'
             }
         ]
     },
