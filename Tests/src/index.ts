@@ -4,6 +4,20 @@ import MemberType = Core.Standard.Types.MemberType;
 import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 
+import Widget = Core.UserInterface.Widgets.Widget;
+
+export class DataGrid extends Widget {
+    constructor () {
+        super("x:DataGrid");
+    }
+
+    protected destructor(): void {
+        throw new Error("Method not implemented.");
+    }
+}
+
+window.dg = new DataGrid();
+
 export const Consolify = new (function () {
     const TAB_SPACING = 5;
 
@@ -93,7 +107,7 @@ function listMemberInfo(member: MemberInfo) {
 
     const memberIsProperty = MemberType.contains(MemberType.Property, member.memberType),
         memberIsField = MemberType.contains(MemberType.Field, member.memberType);
-    if (memberIsProperty) {
+    if (memberIsProperty || memberIsField) {
         Consolify.writeLn(`- Value type: "${member.type.getName()}"`);
     }
 

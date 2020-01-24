@@ -4,19 +4,20 @@ import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { FrameworkProperty } from "../DependencyObjects/index";
+import { ObjectUtils } from "../../CoreBase/Utils";
 
 ///TODO: fix this mess
 
-export abstract class Widget extends Destructible {
-    constructor(namespaceURI: string, qualifiedName: string) {
+export abstract class Widget extends ObjectUtils.createMixin(Destructible, HTMLElement) {
+    constructor(qualifiedName: string, namespaceURI?: string) {
         super();
 
         let element = document.createElementNS(namespaceURI, qualifiedName);
         Object.setPrototypeOf(this, Object.getPrototypeOf(element))
         Object.setPrototypeOf(element, this);
 
-        /*if (new.target === Widget)
-            throw new InvalidOperationException("Invalid constructor");*/
+        if (new.target === Widget)
+            throw new InvalidOperationException("Invalid constructor");
 
         //Create Bindings
         new PropertyAttributeBinding(this, Widget.isDraggableProperty, this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });

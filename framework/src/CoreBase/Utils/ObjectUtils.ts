@@ -7,18 +7,23 @@ export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
 }
 
 export function copyProperty<T, U>(src: T, dest: U, key: keyof T, overwrite: boolean = true, bind: boolean = false): boolean {
-    if (!(<any>dest).hasOwnProperty(key) || overwrite && (delete dest[<keyof U><unknown>key])) {
+    const oldDestDesc = Object.getOwnPropertyDescriptor(dest, key),
+        isConfigurable = oldDestDesc.configurable;
+
+    if (!(<any>dest).hasOwnProperty(key) || overwrite && isConfigurable) {
+        delete dest[<keyof U><unknown>key];
+
         const srcDesc = Object.getOwnPropertyDescriptor(src, key);
-        const destDesc: PropertyDescriptor = { ...srcDesc };
+        const destDesc: PropertyDescriptor = { ...oldDestDesc, ...srcDesc };
 
         if (bind) {
-            if (destDesc.value instanceof Function)
+            if (typeof destDesc.value == "function")
                 destDesc.value = destDesc.value.bind(src);
 
-            if (destDesc.get instanceof Function)
+            if (typeof destDesc.get == "function")
                 destDesc.get = destDesc.get.bind(src);
 
-            if (destDesc.set instanceof Function)
+            if (typeof destDesc.set == "function")
                 destDesc.set = destDesc.set.bind(src);
         }
 
@@ -48,8 +53,25 @@ export function deepEquals<T, U>(obj1: T, obj2: U) {
     return true;
 }
 
+export function makeNamedFunction(name: string): Function {
+    const factory = new Function(`return function ${name}() {};`);
+    return factory();
+}
+
 export function getBlank(obj: any) {
-    return Object.create(Object.getPrototypeOf(obj));
+    let result: Function | Object = null;
+
+    if (typeof obj == "function")
+        result = makeNamedFunction(obj.name);
+    else if (typeof obj == "object")
+        result = {};
+    else
+        return obj;
+
+    Object.setPrototypeOf(result, Object.getPrototypeOf(obj));
+    Object.setPrototypeOf(result.constructor, Object.getPrototypeOf(obj.constructor));
+
+    return result;
 }
 
 export function getDeepReadonly<T>(obj: T): DeepReadonly<T> {
@@ -109,7 +131,7 @@ export function createMixin<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(obj1: T1, o
 export function createMixin(...objs: any[]): any {
     if (arguments.length < 1)
         throw new ArgumentMissingException("obj1");
-    if (arguments.length < 1)
+    if (arguments.length < 2)
         throw new ArgumentMissingException("obj2");
 
     let result: MixinBase = getBlank(objs[0]);
@@ -117,7 +139,7 @@ export function createMixin(...objs: any[]): any {
     result.baseObjects = objs;
 
     for (let i = 0; i < objs.length; i++)
-        crudeCopy(objs[i], result, false, true);
+        crudeCopy(objs[i], result, true, true);
 
     return result;
 }
