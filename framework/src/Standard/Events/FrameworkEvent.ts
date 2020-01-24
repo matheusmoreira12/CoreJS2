@@ -1,8 +1,8 @@
-import { Destructible } from "../index";
+import { Destructible } from "../Destructible";
 import { FrameworkEventArgs } from "./index";
 import { FrameworkEventListener } from "./index";
 import { ArgumentTypeException } from "../index";
-import { Dictionary } from "../Collections/index";
+import { Dictionary } from "../Collections/Dictionary";
 
 type FrameworkEventListenerData = { thisArg: any };
 

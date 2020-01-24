@@ -1,6 +1,6 @@
-import { Dictionary } from "./index";
-import { Enumeration } from "../index";
-import { FrameworkEvent } from "../Events/index";
+import { Dictionary } from "./Dictionary";
+import { Enumeration } from "../Enumeration";
+import { FrameworkEvent } from "../Events/FrameworkEvent";
 
 export type ObservableDictionaryChangeArgs<TKey, TValue> = { action: number, key: TKey, oldValue: TValue, newValue: TValue };
 
