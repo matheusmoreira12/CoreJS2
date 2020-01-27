@@ -1,20 +1,17 @@
-import { Destructible } from "../../Standard/index";
+import { Destructible, InvalidOperationException } from "../../Standard/index";
 import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { FrameworkProperty } from "../DependencyObjects/index";
-import { ObjectUtils } from "../../CoreBase/Utils";
+import { ObjectUtils } from "../../CoreBase/Utils/index";
+import { createMixin } from "../../CoreBase/Utils/ObjectUtils";
 
 ///TODO: fix this mess
 
-export abstract class Widget extends ObjectUtils.createMixin(Destructible, HTMLElement) {
-    constructor(qualifiedName: string, namespaceURI?: string) {
+export abstract class Widget extends Destructible {
+    constructor() {
         super();
-
-        let element = document.createElementNS(namespaceURI, qualifiedName);
-        Object.setPrototypeOf(this, Object.getPrototypeOf(element))
-        Object.setPrototypeOf(element, this);
 
         if (new.target === Widget)
             throw new InvalidOperationException("Invalid constructor");

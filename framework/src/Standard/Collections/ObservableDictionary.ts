@@ -2,7 +2,12 @@ import { Dictionary } from "./Dictionary";
 import { Enumeration } from "../Enumeration";
 import { FrameworkEvent } from "../Events/FrameworkEvent";
 
-export type ObservableDictionaryChangeArgs<TKey, TValue> = { action: number, key: TKey, oldValue: TValue, newValue: TValue };
+export type ObservableDictionaryChangeArgs<TKey, TValue> = {
+    action: number,
+    key: TKey | null,
+    oldValue: TValue | null,
+    newValue: TValue | null
+};
 
 export const ObservableDictionaryChangeAction = new Enumeration([
     "Add",
@@ -16,13 +21,13 @@ export const ObservableDictionaryChangeAction = new Enumeration([
  */
 export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue> {
     private __notifySet(key: TKey, value: TValue) {
-        if (this.has(key)) {
-            let oldValue = this.get(key);
-
+        const valueHasChanged = this.has(key);
+        if (valueHasChanged) {
+            const oldValue = this.get(key);
             this.ChangeEvent.invoke(this, {
                 action: ObservableDictionaryChangeAction.Change,
                 key,
-                oldValue,
+                oldValue: null,
                 newValue: value,
             });
         }
@@ -30,21 +35,18 @@ export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue>
             this.ChangeEvent.invoke(this, {
                 action: ObservableDictionaryChangeAction.Add,
                 key,
-                oldValue: undefined,
+                oldValue: null,
                 newValue: value
             });
     }
 
     private __notifyDelete(key: TKey) {
-        if (!this.has(key)) return;
-
-        let oldValue = this.get(key);
-
+        const oldValue = this.get(key) || null;
         this.ChangeEvent.invoke(this, {
             action: ObservableDictionaryChangeAction.Delete,
             key,
-            oldValue,
-            newValue: undefined
+            oldValue: oldValue,
+            newValue: null
         });
     }
 
@@ -60,6 +62,6 @@ export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue>
         super.delete(key);
     }
 
-    get ChangeEvent() { return this.__ChangeEvent; }
-    __ChangeEvent = new FrameworkEvent();
+    get ChangeEvent(): FrameworkEvent<ObservableDictionaryChangeArgs<TKey, TValue>> { return this.__ChangeEvent; }
+    private __ChangeEvent: FrameworkEvent<ObservableDictionaryChangeArgs<TKey, TValue>> = new FrameworkEvent();
 }

@@ -1,5 +1,6 @@
 import { ArgumentMissingException } from "../../Standard/index";
 import { DeepReadonly, DeepClone, MixinBase } from "./index";
+import { Class } from "../../Standard/Types/Types";
 
 export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
     let keys: (string | symbol)[] = [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
@@ -8,7 +9,7 @@ export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
 
 export function copyProperty<T, U>(src: T, dest: U, key: keyof T, overwrite: boolean = true, bind: boolean = false): boolean {
     const oldDestDesc = Object.getOwnPropertyDescriptor(dest, key),
-        isConfigurable = oldDestDesc.configurable;
+        isConfigurable = oldDestDesc ? oldDestDesc.configurable : true;
 
     if (!(<any>dest).hasOwnProperty(key) || overwrite && isConfigurable) {
         delete dest[<keyof U><unknown>key];
@@ -59,7 +60,7 @@ export function makeNamedFunction(name: string): Function {
 }
 
 export function getBlank(obj: any) {
-    let result: Function | Object = null;
+    let result: Function | Object | null = null;
 
     if (typeof obj == "function")
         result = makeNamedFunction(obj.name);
@@ -120,26 +121,38 @@ export function getBoundClone<T>(obj: T): DeepClone<T> {
 }
 
 export function createMixin<T1, T2>(obj1: T1, obj2: T2): T1 & T2 & MixinBase;
-export function createMixin<T1, T2, T3>(obj1: T1, obj2: T2, obj3?: T3): T1 & T2 & T3 & MixinBase;
-export function createMixin<T1, T2, T3, T4>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4): T1 & T2 & T3 & T4 & MixinBase;
-export function createMixin<T1, T2, T3, T4, T5>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5): T1 & T2 & T3 & T4 & T5 & MixinBase;
-export function createMixin<T1, T2, T3, T4, T5, T6>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6): T1 & T2 & T3 & T4 & T5 & T6 & MixinBase;
-export function createMixin<T1, T2, T3, T4, T5, T6, T7>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7): T1 & T2 & T3 & T4 & T5 & T6 & T7 & MixinBase;
-export function createMixin<T1, T2, T3, T4, T5, T6, T7, T8>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7, obj8?: T8): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & MixinBase;
-export function createMixin<T1, T2, T3, T4, T5, T6, T7, T8, T9>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7, obj8?: T8, obj9?: T9): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & MixinBase;
-export function createMixin<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(obj1: T1, obj2: T2, obj3?: T3, obj4?: T4, obj5?: T5, obj6?: T6, obj7?: T7, obj8?: T8, obj9?: T9, obj10?: T10): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & T10 & MixinBase;
-export function createMixin(...objs: any[]): any {
+export function createMixin<T1, T2, T3>(obj1: T1, obj2: T2, obj3: T3): T1 & T2 & T3 & MixinBase;
+export function createMixin<T1, T2, T3, T4>(constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4): T1 & T2 & T3 & T4 & MixinBase;
+export function createMixin<T1, T2, T3, T4, T5>(constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5): T1 & T2 & T3 & T4 & T5 & MixinBase;
+export function createMixin<T1, T2, T3, T4, T5, T6>(constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6): T1 & T2 & T3 & T4 & T5 & T6 & MixinBase;
+export function createMixin<T1, T2, T3, T4, T5, T6, T7>(constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6, constructor7: T7): T1 & T2 & T3 & T4 & T5 & T6 & T7 & MixinBase;
+export function createMixin<T1, T2, T3, T4, T5, T6, T7, T8>(constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6, constructor7: T7, constructor8: T8): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & MixinBase;
+export function createMixin<T1, T2, T3, T4, T5, T6, T7, T8, T9>(constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6, constructor7: T7, constructor8: T8, constructor9: T9): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & MixinBase;
+export function createMixin<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6, constructor7: T7, constructor8: T8, constructor9: T9, constructor10: T10): T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & T10 & MixinBase;
+export function createMixin(...constructors: any[]): any {
+    function applyMixins(derivedConstructor: any, baseConstructors: any[]) {
+        for (let baseConstructor of baseConstructors) {
+            const names = Object.getOwnPropertyNames(baseConstructor.prototype);
+            for (let name of names) {
+                const baseDescriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(baseConstructor.prototype, name) || {};
+                if (!baseDescriptor)
+                    continue;
+
+                Object.defineProperty(derivedConstructor.prototype, name, baseDescriptor);
+            }
+        }
+    }
+
     if (arguments.length < 1)
         throw new ArgumentMissingException("obj1");
     if (arguments.length < 2)
         throw new ArgumentMissingException("obj2");
 
-    let result: MixinBase = getBlank(objs[0]);
+    let result: MixinBase = getBlank(constructors[0]);
     result.isMixin = true;
-    result.baseObjects = objs;
+    result.baseObjects = constructors;
 
-    for (let i = 0; i < objs.length; i++)
-        crudeCopy(objs[i], result, true, true);
+    applyMixins(result, constructors);
 
     return result;
 }

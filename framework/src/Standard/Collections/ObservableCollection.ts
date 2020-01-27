@@ -2,9 +2,18 @@
 import { Enumeration } from "../Enumeration";
 import { FrameworkEvent } from "../Events/FrameworkEvent";
 
-export type ObservableCollectionChangeArgs<T> = { action: number, oldItems: T[], oldIndex: number, newItems: T[], newIndex: number };
+export type ObservableCollectionChangeArgs<T> = {
+    action: number,
+    oldItems: T[],
+    oldIndex: number,
+    newItems: T[],
+    newIndex: number
+};
 
-export const ObservableCollectionChangeAction = new Enumeration({ Add: 1, Remove: 2 });
+export const ObservableCollectionChangeAction = new Enumeration({
+    Add: 1,
+    Remove: 2
+});
 
 /*
  * ObservableCollection class
@@ -29,7 +38,7 @@ export class ObservableCollection<T> extends Collection<T> {
         const newIndex = this.length - 1;
         this.ChangeEvent.invoke(this, {
             action: ObservableCollectionChangeAction.Add,
-            oldIndex: null,
+            oldIndex: -1,
             oldItems: [],
             newIndex,
             newItems: items
@@ -41,7 +50,7 @@ export class ObservableCollection<T> extends Collection<T> {
             action: ObservableCollectionChangeAction.Remove,
             oldIndex,
             oldItems: [oldItem],
-            newIndex: null,
+            newIndex: -1,
             newItems: []
         });
     }
@@ -57,6 +66,6 @@ export class ObservableCollection<T> extends Collection<T> {
         this.__notifyPop();
         return super.pop();
     }
-    get ChangeEvent(): FrameworkEvent { return this.__ChangeEvent; }
-    __ChangeEvent = new FrameworkEvent();
+    get ChangeEvent(): FrameworkEvent<ObservableCollectionChangeArgs<T>> { return this.__ChangeEvent; }
+    __ChangeEvent = new FrameworkEvent<ObservableCollectionChangeArgs<T>>();
 }

@@ -7,7 +7,7 @@ export type DeepClone<T> = {
 };
 
 export type MixinBase = {
-    isMixin: boolean;
+    isMixin: true;
     baseObjects: any[];
 };
 
