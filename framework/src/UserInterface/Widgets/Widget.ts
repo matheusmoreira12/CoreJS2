@@ -6,10 +6,11 @@ import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { FrameworkProperty } from "../DependencyObjects/index";
 import { ObjectUtils } from "../../CoreBase/Utils/index";
 import { createMixin } from "../../CoreBase/Utils/ObjectUtils";
+import { VisualTreeElement } from "../VisualTreeManagement";
 
 ///TODO: fix this mess
 
-export abstract class Widget extends Destructible {
+export abstract class Widget extends VisualTreeElement {
     constructor() {
         super();
 

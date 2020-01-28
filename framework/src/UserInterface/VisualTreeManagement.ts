@@ -85,11 +85,24 @@ export abstract class VisualTreeNode extends Destructible {
 }
 
 export class VisualTreeElement extends VisualTreeNode {
-    constructor(qualifiedName: string, namespaceURI?: string) {
+    create(qualifiedName: string, namespaceURI?: string | null) {
+        if (namespaceURI === undefined)
+            namespaceURI = null;
+
+        if (namespaceURI !== null && typeof namespaceURI !== "string")
+            throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
         if (typeof qualifiedName !== "string")
             throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
 
         let domElement = document.createElementNS(namespaceURI || null, qualifiedName);
+        document.adoptNode(domElement);
+        return new VisualTreeElement(domElement);
+    }
+
+    constructor(domElement: Element){
+        if (!(domElement instanceof Element))
+            throw new ArgumentTypeException("domElement", domElement, Element);
+
         super(domElement);
     }
 
@@ -100,11 +113,24 @@ export class VisualTreeElement extends VisualTreeNode {
 }
 
 export class VisualTreeAttribute extends VisualTreeNode {
-    constructor(qualifiedName: string, namespaceURI?: string) {
+    static create(qualifiedName: string, namespaceURI?: string | null) {
+        if (namespaceURI === undefined)
+            namespaceURI = null;
+
+        if (namespaceURI !== null && typeof namespaceURI !== "string")
+            throw new ArgumentTypeException("namespaceURI", qualifiedName, [String, null]);
         if (typeof qualifiedName !== "string")
             throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
 
-        let domAttribute = document.createAttributeNS(namespaceURI || null, qualifiedName);
+        const domAttribute = document.createAttributeNS(namespaceURI || null, qualifiedName);
+        document.adoptNode(domAttribute);
+        return new VisualTreeAttribute(domAttribute);
+    }
+
+    constructor(domAttribute: Attr) {
+        if (!(domAttribute instanceof Attr))
+            throw new ArgumentTypeException("domAttribute", domAttribute, Attr);
+
         super(domAttribute);
     }
 
