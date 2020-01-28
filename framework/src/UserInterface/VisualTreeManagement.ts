@@ -3,11 +3,34 @@ import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, Obser
 import { Destructible } from "../Standard/index";
 
 export abstract class VisualTreeNode extends Destructible {
+    static createElement(qualifiedName: string, namespaceURI?: string | null) {
+        if (typeof qualifiedName !== "string")
+            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
+
+        if (namespaceURI === undefined)
+            return document.createElement(qualifiedName);
+
+        if (namespaceURI !== null && typeof namespaceURI !== "string")
+            throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
+
+        return document.createElementNS(namespaceURI, qualifiedName);
+    }
+
+    static createAttribute(qualifiedName: string, namespaceURI?: string | null) {
+        if (typeof qualifiedName !== "string")
+            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
+
+        if (namespaceURI === undefined)
+            return document.createAttribute(qualifiedName);
+
+        if (namespaceURI !== null && typeof namespaceURI !== "string")
+            throw new ArgumentTypeException("namespaceURI", qualifiedName, [String, null]);
+
+        return document.createAttributeNS(namespaceURI, qualifiedName);
+    }
+
     constructor(domNode: Node) {
         super();
-
-        if (new.target === VisualTreeNode)
-            throw new InvalidOperationException("Invalid constructor.");
 
         if (!(domNode instanceof Node))
             throw new ArgumentTypeException("domNode", domNode, Node);
@@ -45,9 +68,9 @@ export abstract class VisualTreeNode extends Destructible {
         if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
                 if (item instanceof VisualTreeNode) {
-                    if (item instanceof VisualTreeElement)
+                    if (item.__domNode instanceof Element)
                         this.__removeElement(item);
-                    else if (item instanceof VisualTreeAttribute)
+                    else if (item.__domNode instanceof Attr)
                         this.__removeAttribute(item);
                 }
                 else
@@ -59,9 +82,9 @@ export abstract class VisualTreeNode extends Destructible {
             let index = args.newIndex;
             for (let item of args.newItems) {
                 if (item instanceof VisualTreeNode) {
-                    if (item instanceof VisualTreeElement)
+                    if (item.__domNode instanceof Element)
                         this.__insertElement(item, index);
-                    else if (item instanceof VisualTreeAttribute)
+                    else if (item.__domNode instanceof Attr)
                         this.__setAttribute(item);
                 }
                 else
@@ -80,73 +103,9 @@ export abstract class VisualTreeNode extends Destructible {
 
     destructor() {
         //Remove all nodes
+        for (let childNode of this.childNodes)
+            childNode.destruct();
+
         this.childNodes.splice(0, this.childNodes.length);
-    }
-}
-
-export class VisualTreeElement extends VisualTreeNode {
-    create(qualifiedName: string, namespaceURI?: string | null) {
-        if (namespaceURI === undefined)
-            namespaceURI = null;
-
-        if (namespaceURI !== null && typeof namespaceURI !== "string")
-            throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
-        if (typeof qualifiedName !== "string")
-            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-
-        let domElement = document.createElementNS(namespaceURI || null, qualifiedName);
-        document.adoptNode(domElement);
-        return new VisualTreeElement(domElement);
-    }
-
-    constructor(domElement: Element){
-        if (!(domElement instanceof Element))
-            throw new ArgumentTypeException("domElement", domElement, Element);
-
-        super(domElement);
-    }
-
-    destructor() {
-
-        super.destructor();
-    }
-}
-
-export class VisualTreeAttribute extends VisualTreeNode {
-    static create(qualifiedName: string, namespaceURI?: string | null) {
-        if (namespaceURI === undefined)
-            namespaceURI = null;
-
-        if (namespaceURI !== null && typeof namespaceURI !== "string")
-            throw new ArgumentTypeException("namespaceURI", qualifiedName, [String, null]);
-        if (typeof qualifiedName !== "string")
-            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-
-        const domAttribute = document.createAttributeNS(namespaceURI || null, qualifiedName);
-        document.adoptNode(domAttribute);
-        return new VisualTreeAttribute(domAttribute);
-    }
-
-    constructor(domAttribute: Attr) {
-        if (!(domAttribute instanceof Attr))
-            throw new ArgumentTypeException("domAttribute", domAttribute, Attr);
-
-        super(domAttribute);
-    }
-
-    destructor() {
-
-        super.destructor();
-    }
-}
-
-export class VisualTree extends VisualTreeNode {
-    constructor(rootNode: ShadowRoot) {
-        super(rootNode);
-    }
-
-    destructor() {
-
-        super.destructor();
     }
 }

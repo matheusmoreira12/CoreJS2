@@ -5,20 +5,42 @@ import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 
 import Widget = Core.UserInterface.Widgets.Widget;
+import Colors =  Core.UserInterface.Colors;
 
 export class DataGrid extends Widget {
     constructor () {
-        super("x:DataGrid");
+        super(DataGrid.createElement("core:DataGrid", "core"));
     }
 
-    protected destructor(): void {
+    destructor(): void {
         throw new Error("Method not implemented.");
     }
 }
 
 window.dg = new DataGrid();
 
-export const Consolify = new (function () {
+window.st = <HTMLStyleElement>document.createElementNS(document.lookupNamespaceURI(null), "style");
+st.type = "text/css";
+st.innerHTML = `
+    @namespace core url(core); 
+
+    core|DataGrid { 
+        display: inline-block; 
+        width: 200px; 
+        height: 200px; 
+        background: ${Colors.WebColors.Red.toString()}; 
+    }
+
+    core|DataGrid:hover {
+        background: ${Colors.WebColors.IndianRed.toString()};
+    }
+`;
+
+dg.domNode.appendChild(st);
+
+document.body.appendChild(dg.domNode);
+
+/*export const Consolify = new (function () {
     const TAB_SPACING = 5;
 
     let text = "";
@@ -199,4 +221,4 @@ export function doListTypeInfo(method) {
     Consolify.dump(typeDataOutputText, "value");
 }
 
-window.Tests = Object.assign({}, window.Tests, { doListTypeInfo });
+window.Tests = Object.assign({}, window.Tests, { doListTypeInfo });*/

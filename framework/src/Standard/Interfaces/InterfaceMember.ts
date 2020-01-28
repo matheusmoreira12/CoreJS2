@@ -4,23 +4,23 @@ import { ArgumentTypeException } from "../index";
 import { MemberAttributes } from "../Types/index";
 
 export class InterfaceMember {
-    constructor(key: string | number | symbol, memberType: number, type?: Type | Interface, attributes?: number, isOptional?: boolean) {
+    constructor(key: string | number | symbol, memberType: number, type: Type | Interface | null = null, attributes: number = MemberAttributes.Enumerable, isOptional: boolean = true) {
         if (typeof key !== "string" && typeof key !== "symbol")
             throw new ArgumentTypeException(`key`, key, String);
         if (typeof memberType !== "number")
             throw new ArgumentTypeException(`memberType`, memberType, Number);
-        if (type !== undefined && !(type instanceof Type) && !(type instanceof Interface))
+        if (type !== null && !(type instanceof Type) && !(type instanceof Interface))
             throw new ArgumentTypeException(`valueType`, type, Type);
-        if (attributes !== undefined && typeof attributes !== "number")
+        if (typeof attributes !== "number")
             throw new ArgumentTypeException(`attributes`, attributes, Number);
-        if (isOptional !== undefined && typeof isOptional !== "boolean")
+        if (typeof isOptional !== "boolean")
             throw new ArgumentTypeException(`isOptional`, isOptional, Boolean);
 
         this.__key = key;
         this.__memberType = memberType;
-        this.__type = type === undefined ? null : type;
-        this.__attributes = attributes === undefined ? MemberAttributes.Enumerable : attributes;
-        this.__isOptional = isOptional === undefined ? false : isOptional;
+        this.__type = type || null;
+        this.__attributes = attributes;
+        this.__isOptional = isOptional;
     }
 
     get key(): InterfaceMemberKey { return this.__key; }

@@ -3,22 +3,23 @@ import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
-import { FrameworkProperty } from "../DependencyObjects/index";
-import { ObjectUtils } from "../../CoreBase/Utils/index";
-import { createMixin } from "../../CoreBase/Utils/ObjectUtils";
-import { VisualTreeElement } from "../VisualTreeManagement";
+import { FrameworkProperty, FrameworkPropertyOptions } from "../DependencyObjects/index";
+import { VisualTreeNode } from "../VisualTreeManagement";
+import { Type } from "../../Standard/Types/Type";
 
 ///TODO: fix this mess
 
-export abstract class Widget extends VisualTreeElement {
-    constructor() {
-        super();
+export abstract class Widget extends VisualTreeNode {
+    constructor(domElem: Element) {
+        super(domElem);
 
         if (new.target === Widget)
             throw new InvalidOperationException("Invalid constructor");
 
         //Create Bindings
-        new PropertyAttributeBinding(this, Widget.isDraggableProperty, this, "draggable", { valueConverter: new BooleanAttributeValueConverter() });
+        new PropertyAttributeBinding(this, Widget.isDraggableProperty, <Element>this.__domNode, "draggable", {
+            get valueConverter() { return new BooleanAttributeValueConverter(); }
+        });
 
         //Attach Event Handlers
         //  Drag/Drop Handler Events
@@ -34,14 +35,12 @@ export abstract class Widget extends VisualTreeElement {
     }
 
     //Helper Class Instances
-    private __dragDropHandler = new DragDropHandler(this);
+    private __dragDropHandler = new DragDropHandler(<Element>this.__domNode);
 
     //Drag/Drop Handler Event Listeners
     private __dragDropHandler__onRequestDragStart(sender: any, args: FrameworkEventArgs) {
-        let { acceptDrag } = args;
-
         if (this.isDraggable)
-            acceptDrag();
+            args.acceptDrag();
     }
 
     private __dragDropHandler__onDragStart(sender: any, args: FrameworkEventArgs) {
@@ -119,51 +118,54 @@ export abstract class Widget extends VisualTreeElement {
     private __onMouseEnter(sender: any, args: FrameworkEventArgs) {
         this.isMouseOver = true;
     }
-    MouseEnterEvent = new NativeEvent(<HTMLElement><unknown>this, "mouseenter", this.__onMouseEnter.bind(this));
+    MouseEnterEvent = new NativeEvent(this.__domNode, "mouseenter", this.__onMouseEnter.bind(this));
 
     //      Mouse Leave Event
     private __onMouseLeave(sender: any, args: FrameworkEventArgs) {
         this.isMouseOver = false;
     }
-    MouseLeaveEvent = new NativeEvent(<HTMLElement><unknown>this, "mouseleave", this.__onMouseLeave.bind(this));
+    MouseLeaveEvent = new NativeEvent(this.__domNode, "mouseleave", this.__onMouseLeave.bind(this));
 
     //      Mouse Down Event
     private __onMouseDown(sender: any, args: FrameworkEventArgs) { }
-    MouseDownEvent = new NativeEvent(<HTMLElement><unknown>this, "mousedown", this.__onMouseDown.bind(this));
+    MouseDownEvent = new NativeEvent(this.__domNode, "mousedown", this.__onMouseDown.bind(this));
 
     //      Mouse Move Event
     private __onMouseMove(sender: any, args: FrameworkEventArgs) { }
-    MouseMoveEvent = new NativeEvent(<HTMLElement><unknown>this, "mousemove", this.__onMouseMove.bind(this));
+    MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove.bind(this));
 
     //      Mouse Up Event
     private __onMouseUp(sender: any, args: FrameworkEventArgs) { }
-    MouseUpEvent = new NativeEvent(<HTMLElement><unknown>this, "mouseup", this.__onMouseUp.bind(this));
+    MouseUpEvent = new NativeEvent(this.__domNode, "mouseup", this.__onMouseUp.bind(this));
 
     //      Click Event
     private __onClick(sender: any, args: FrameworkEventArgs) { }
-    ClickEvent = new NativeEvent(<HTMLElement><unknown>this, "click", this.__onClick.bind(this));
+    ClickEvent = new NativeEvent(this.__domNode, "click", this.__onClick.bind(this));
 
     //Framework Properties
     //  State Properties
     //      Mouse State Properties
     //          Is Mouse Over Property
-    static isMouseOverProperty = new FrameworkProperty("isMouseOver", { defaultValue: false });
+    static isMouseOverProperty = new FrameworkProperty("isMouseOver", new FrameworkPropertyOptions(Type.get(Boolean), false));
     get isMouseOver() { return Widget.isMouseOverProperty.get(this); }
     set isMouseOver(value) { Widget.isMouseOverProperty.set(this, value); }
 
     //      Drag State Properties
     //          Is Dragging Property
-    static isDraggingProperty = new FrameworkProperty("isDragging", { defaultValue: false });
+    static isDraggingProperty = new FrameworkProperty("isDragging", new FrameworkPropertyOptions(Type.get(Boolean), false));
     get isDragging() { return Widget.isDraggingProperty.get(this); }
     set isDragging(value) { Widget.isDraggingProperty.set(this, value); }
 
     //          Is Drag Over Property
-    static isDragOverProperty = new FrameworkProperty("isDragOver", { defaultValue: false });
+    static isDragOverProperty = new FrameworkProperty("isDragOver", new FrameworkPropertyOptions(Type.get(Boolean), false));
     get isDragOver() { return Widget.isDragOverProperty.get(this); }
     set isDragOver(value) { Widget.isDragOverProperty.set(this, value); }
 
     //  Drag Properties
-    static isDraggableProperty = new FrameworkProperty("isDraggable", { defaultValue: false });
+    static isDraggableProperty = new FrameworkProperty("isDraggable", new FrameworkPropertyOptions(Type.get(Boolean), false));
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
+
+    get shadowRoot(): VisualTreeNode { return this.__shadowRoot; }
+    private __shadowRoot: VisualTreeNode;
 }

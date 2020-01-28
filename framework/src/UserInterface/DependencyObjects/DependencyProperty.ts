@@ -10,10 +10,11 @@ export class FrameworkPropertyOptions {
             throw new ArgumentMissingException("valueType");
         if (arguments.length < 2)
             throw new ArgumentMissingException("valueType");
-        if (valueType !== null && !Type.of(valueType).matchesAny(valueType, Type.get(Interface)))
+
+        if (valueType !== null && !(valueType instanceof Type) && !(valueType instanceof Interface))
             throw new ArgumentTypeException("valueType", valueType);
-        if (valueType !== null && Type.of(defaultValue).matches(valueType))
-            throw new ArgumentTypeException("defaultValue", Type.of(defaultValue), valueType);
+        if (valueType !== null && !Type.of(defaultValue).matches(valueType))
+            throw new ArgumentTypeException("defaultValue", defaultValue, valueType);
 
         this.__valueType = valueType;
         this.__defaultValue = defaultValue;
