@@ -10,12 +10,12 @@ type FrameworkEventListenerData = { thisArg: any };
  * FrameworkEvent class
  * Enables event creation and manipulation, avoiding the use of callbacks.*/
 export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArgs> extends Destructible {
-    static attachMultiple<TArgs extends object>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
+    static attachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
         for (let event of events)
             event.attach(listener);
     }
 
-    static detachMultiple<TArgs extends object>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
+    static detachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
         for (let event of events)
             event.detach(listener);
     }
@@ -63,22 +63,13 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
     protected __invokeListeners(sender: any, args: TArgs): void {
         let invokeErrors = [];
 
-        let isPropagationStopped = false;
-
-        let _args = {
-            ...args,
-            stopEventPropagation() { isPropagationStopped = true; }
-        };
-
         //Invoke each of the attached listeners
         for (let { key: listener, value: data } of this.__listeners) {
-            if (isPropagationStopped) break;
-
             try {
                 if (listener instanceof FrameworkEvent)
-                    listener.invoke(sender, _args);
+                    listener.invoke(sender, args);
                 else if (listener instanceof Function)
-                    listener.call(data.thisArg, sender, _args);
+                    listener.call(data.thisArg, sender, args);
             }
             catch (e) {
                 invokeErrors.push(e);

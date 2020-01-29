@@ -1,9 +1,14 @@
-import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
+import { ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../Standard/Collections/ObservableCollection";
 import { Destructible } from "../Standard/index";
+import { Dictionary, ObservableDictionaryChangeArgs } from "../Standard/Collections/index";
+import { insertElementAt } from "./DOMUtils";
 
-export abstract class VisualTreeNode extends Destructible {
-    static createElement(qualifiedName: string, namespaceURI?: string | null) {
+const domElements: Dictionary<VisualTreeElement, Element> = new Dictionary();
+const domAttributes: Dictionary<VisualTreeAttribute, Attr> = new Dictionary();
+
+export class VisualTreeElement extends Destructible {
+    static create(qualifiedName: string, namespaceURI?: string | null) {
         if (typeof qualifiedName !== "string")
             throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
 
@@ -16,96 +21,73 @@ export abstract class VisualTreeNode extends Destructible {
         return document.createElementNS(namespaceURI, qualifiedName);
     }
 
-    static createAttribute(qualifiedName: string, namespaceURI?: string | null) {
-        if (typeof qualifiedName !== "string")
-            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-
-        if (namespaceURI === undefined)
-            return document.createAttribute(qualifiedName);
-
-        if (namespaceURI !== null && typeof namespaceURI !== "string")
-            throw new ArgumentTypeException("namespaceURI", qualifiedName, [String, null]);
-
-        return document.createAttributeNS(namespaceURI, qualifiedName);
+    static getByDomElement(domElement: Element): VisualTreeElement | null {
+        return domElements.invert().get(domElement) || null;
     }
 
-    constructor(domNode: Node) {
+    constructor(domElement: Element) {
         super();
 
-        if (!(domNode instanceof Node))
-            throw new ArgumentTypeException("domNode", domNode, Node);
+        if (!(domElement instanceof Element))
+            throw new ArgumentTypeException("domElement", domElement, Element);
 
-        this.__domNode = domNode;
-        this.__childNodes.ChangeEvent.attach(this.__childNodes_onChange, this);
+        this.__children.ChangeEvent.attach(this.__childElements_onChange, this);
+
+        domElements.set(this, domElement);
     }
 
-    private __insertElement(treeNode: VisualTreeNode, index: number) {
-        const domChildNodes = this.__domNode.childNodes;
-        if (domChildNodes.length > index) {
-            const refNode = domChildNodes[index];
-            this.__domNode.insertBefore(treeNode.domNode, refNode);
-        }
-        else
-            this.__domNode.appendChild(treeNode.domNode);
-    }
-
-    private __removeElement(treeNode: VisualTreeNode) {
-        const domNode = treeNode.__domNode;
-        if (!domNode.parentNode)
+    private __insertElement(treeElement: VisualTreeElement, index: number) {
+        const domElement = treeElement?.domElement;
+        if (!domElement)
             return;
-        domNode.parentNode.removeChild(domNode);
+        insertElementAt(<Element>this.domElement, index, domElement)
     }
 
-    private __setAttribute(treeNode: VisualTreeNode) {
-        (<Element>this.__domNode).setAttributeNode(<Attr>treeNode.__domNode);
+    private __removeElement(treeElement: VisualTreeElement) {
+        const domElement = treeElement.domElement;
+        domElement?.parentElement?.removeChild(domElement);
     }
 
-    private __removeAttribute(treeNode: VisualTreeNode) {
-        (<Element>this.__domNode).removeAttributeNode(<Attr>treeNode.__domNode);
-    }
-
-    private __childNodes_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeNode>) {
+    private __childElements_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
         if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
-                if (item instanceof VisualTreeNode) {
-                    if (item.__domNode instanceof Element)
+                if (item instanceof VisualTreeElement) {
+                    if (item instanceof VisualTreeElement)
                         this.__removeElement(item);
-                    else if (item.__domNode instanceof Attr)
-                        this.__removeAttribute(item);
                 }
-                else
-                    throw new InvalidTypeException("item", item, VisualTreeNode);
             }
         }
 
         if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Add, args.action)) {
             let index = args.newIndex;
             for (let item of args.newItems) {
-                if (item instanceof VisualTreeNode) {
-                    if (item.__domNode instanceof Element)
+                if (item instanceof VisualTreeElement) {
+                    if (item instanceof VisualTreeElement)
                         this.__insertElement(item, index);
-                    else if (item.__domNode instanceof Attr)
-                        this.__setAttribute(item);
                 }
-                else
-                    throw new InvalidTypeException("item", item, VisualTreeNode);
-
                 index++;
             }
         }
     }
 
-    get childNodes(): ObservableCollection<VisualTreeNode> { return this.__childNodes; }
-    protected __childNodes: ObservableCollection<VisualTreeNode> = new ObservableCollection();
+    get children(): ObservableCollection<VisualTreeElement> { return this.__children; }
+    protected __children: ObservableCollection<VisualTreeElement> = new ObservableCollection();
 
-    get domNode(): Node { return this.__domNode; }
-    protected __domNode: Node;
+    get attributes(): ObservableCollection<VisualTreeElement> {return this.__attributes; }
+    protected __attributes: ObservableCollection<VisualTreeElement> = new ObservableCollection();
+
+    get domElement(): Element | null { return domElements.get(this) || null }
 
     destructor() {
         //Remove all nodes
-        for (let childNode of this.childNodes)
-            childNode.destruct();
+        for (let child of this.children)
+            child.destruct();
+        for (let attribute of this.attributes)
+            attribute.destruct();
 
-        this.childNodes.splice(0, this.childNodes.length);
+        this.domElement?.remove();
     }
+}
+
+export class VisualTreeAttribute extends Destructible {
 }

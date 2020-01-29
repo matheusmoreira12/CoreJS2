@@ -17,7 +17,7 @@ export abstract class Binding extends Destructible {
 
         super();
 
-        if (options !== null && !Type.of(options).implements(IBindingOptions))
+        if (!Type.of(options).implements(IBindingOptions))
             throw new ArgumentTypeException("options", Type.of(options), IBindingOptions);
 
         this.__options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);

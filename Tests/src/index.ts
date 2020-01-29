@@ -29,14 +29,22 @@ st.innerHTML = `
         width: 200px; 
         height: 200px; 
         background: ${Colors.WebColors.Red.toString()}; 
+        transition: all 0.218s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
     }
 
     core|DataGrid:hover {
-        background: ${Colors.WebColors.IndianRed.toString()};
+        background: ${Colors.WebColors.Blue.toString()};
+        transform: rotate(90deg);
     }
 `;
 
 dg.domNode.appendChild(st);
+
+window.ip = document.createElement("input");
+ip.type = "text";
+
+dg.domNode.appendChild(ip);
 
 document.body.appendChild(dg.domNode);
 
