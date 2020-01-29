@@ -1,8 +1,7 @@
 import { ArgumentTypeException, InvalidTypeException, InvalidOperationException } from "../Standard/Exceptions";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../Standard/Collections/ObservableCollection";
 import { Destructible } from "../Standard/index";
-import { Dictionary, ObservableDictionaryChangeArgs, Collection } from "../Standard/Collections/index";
-import { insertElementAt } from "./DOMUtils";
+import { DOMUtils } from "./index";
 
 export abstract class VisualTreeNode extends Destructible {
     constructor(domNode: Node) {
@@ -17,8 +16,8 @@ export abstract class VisualTreeNode extends Destructible {
         this.__domNode = domNode;
     }
 
-    get parent(): Element | null { return this.__parent; }
-    protected __parent: Element | null = null;
+    get parent(): VisualTreeElement | null { return this.__parent; }
+    protected __parent: VisualTreeElement | null = null;
 
     get domNode(): Node { return this.__domNode; }
     private __domNode: Node;
@@ -44,35 +43,37 @@ export class VisualTreeElement extends VisualTreeNode {
         if (!(domElement instanceof Element))
             throw new ArgumentTypeException("domElement", domElement, Element);
 
-        this.__children.ChangeEvent.attach(this.__childElements_onChange, this);
+        this.__children.ChangeEvent.attach(this.__children_onChange, this);
+        this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
     }
 
     private __insertElement(treeElement: VisualTreeElement, index: number) {
-        insertElementAt(<Element>this.domNode, index, <Element>treeElement.domNode);
+        DOMUtils.insertElementAt(<Element>this.domNode, index, <Element>treeElement.domNode);
+
+        treeElement.parent?.__removeElement(treeElement);
+        treeElement.__parent = this;
     }
 
     private __removeElement(treeElement: VisualTreeElement) {
         const domElement = <Element>treeElement.domNode;
         domElement?.parentElement?.removeChild(domElement);
+
+        treeElement.__parent = null;
     }
 
-    private __childElements_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
+    private __children_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
         if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
-                if (item instanceof VisualTreeElement) {
-                    if (item instanceof VisualTreeElement)
-                        this.__removeElement(item);
-                }
+                if (item instanceof VisualTreeElement)
+                    this.__removeElement(item);
             }
         }
 
         if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Add, args.action)) {
             let index = args.newIndex;
             for (let item of args.newItems) {
-                if (item instanceof VisualTreeElement) {
-                    if (item instanceof VisualTreeElement)
-                        this.__insertElement(item, index);
-                }
+                if (item instanceof VisualTreeElement)
+                    this.__insertElement(item, index);
                 index++;
             }
         }
@@ -80,6 +81,30 @@ export class VisualTreeElement extends VisualTreeNode {
 
     get children(): ObservableCollection<VisualTreeElement> { return this.__children; }
     protected __children: ObservableCollection<VisualTreeElement> = new ObservableCollection();
+
+    private __removeAttribute(item: VisualTreeAttribute) {
+        (<Element>this.domNode).removeAttributeNode(<Attr>item.domNode);
+    }
+
+    private __setAttribute(item: VisualTreeAttribute) {
+        (<Element>this.domNode).setAttributeNodeNS(<Attr>item.domNode);
+    }
+
+    private __attributes_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeAttribute>) {
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Remove, args.action)) {
+            for (let item of args.oldItems) {
+                if (item instanceof VisualTreeAttribute)
+                    this.__removeAttribute(item);
+            }
+        }
+
+        if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Add, args.action)) {
+            for (let item of args.newItems) {
+                if (item instanceof VisualTreeAttribute)
+                    this.__setAttribute(item);
+            }
+        }
+    }
 
     get attributes(): ObservableCollection<VisualTreeElement> { return this.__attributes; }
     protected __attributes: ObservableCollection<VisualTreeElement> = new ObservableCollection();
