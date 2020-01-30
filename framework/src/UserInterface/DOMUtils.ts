@@ -134,28 +134,26 @@ export function getElementVisibleRect(elem: Element): DOMRect | null {
     return result;
 }
 
-export function createElement(qualifiedName: string, namespaceURI?: string | null): Element {
+export function createElement(qualifiedName: string, namespaceURI: string | null = null): Element {
     if (typeof qualifiedName !== "string")
         throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-
-    if (namespaceURI === undefined)
-        return document.createElement(qualifiedName);
-
     if (namespaceURI !== null && typeof namespaceURI !== "string")
         throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
 
-    return document.createElementNS(namespaceURI, qualifiedName);
+    if (namespaceURI === null)
+        return document.createElement(qualifiedName);
+    else
+        return document.createElementNS(namespaceURI, qualifiedName);
 }
 
-export function createAttribute(qualifiedName: string, namespaceURI?: string | null): Attr {
+export function createAttribute(qualifiedName: string, namespaceURI: string | null = null): Attr {
     if (typeof qualifiedName !== "string")
         throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-
-    if (namespaceURI === undefined)
-        return document.createAttribute(qualifiedName);
-
     if (namespaceURI !== null && typeof namespaceURI !== "string")
         throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
 
-    return document.createAttributeNS(namespaceURI, qualifiedName);
+    if (namespaceURI === null)
+        return document.createAttribute(qualifiedName);
+    else
+        return document.createAttributeNS(namespaceURI, qualifiedName);
 }

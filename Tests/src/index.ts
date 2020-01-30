@@ -5,6 +5,7 @@ import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 
 import VisualTreeElement = Core.UserInterface.VisualTreeElement;
+import WidgetManager = Core.UserInterface.Widgets.WidgetManager;
 import Widget = Core.UserInterface.Widgets.Widget;
 import Colors =  Core.UserInterface.Colors;
 
@@ -12,45 +13,37 @@ export class ProgressBar extends Widget {
     constructor (domElement: Element) {
         super(domElement);
 
-        this.__fill = VisualTreeElement.create("core:DataGrid", "core");
-        this.children.add(this.__fill);
+        const styleElem = <HTMLStyleElement>document.createElementNS(document.lookupNamespaceURI(null), "style");
+        const style = new VisualTreeElement(styleElem);
+        styleElem.type = "text/css";
+        styleElem.innerHTML = `
+            @namespace core url(core); 
+        
+            core|ProgressBar { 
+                display: inline-block; 
+                width: 200px; 
+                height: 200px; 
+                background: ${Colors.WebColors.Red.toString()}; 
+                transition: all 0.218s;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
+            }
+        
+            core|ProgressBar:hover {
+                background: ${Colors.WebColors.Blue.toString()};
+                transform: rotate(90deg);
+            }
+        `;
+        this.children.add(style);
     }
 
     destructor(): void {
-        throw new Error("Method not implemented.");
+        super.destructor();
     }
-
-    private __fill: VisualTreeElement;
 }
 
-window.dg = new ProgressBar();
+WidgetManager.register(ProgressBar, "core:ProgressBar", "core")
 
-window.st = <HTMLStyleElement>document.createElementNS(document.lookupNamespaceURI(null), "style");
-st.type = "text/css";
-st.innerHTML = `
-    @namespace core url(core); 
-
-    core|DataGrid { 
-        display: inline-block; 
-        width: 200px; 
-        height: 200px; 
-        background: ${Colors.WebColors.Red.toString()}; 
-        transition: all 0.218s;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
-    }
-
-    core|DataGrid:hover {
-        background: ${Colors.WebColors.Blue.toString()};
-        transform: rotate(90deg);
-    }
-`;
-
-dg.domNode.appendChild(st);
-
-window.ip = document.createElement("input");
-ip.type = "text";
-
-dg.domNode.appendChild(ip);
+window.dg = WidgetManager.instantiate(ProgressBar);
 
 document.body.appendChild(dg.domNode);
 

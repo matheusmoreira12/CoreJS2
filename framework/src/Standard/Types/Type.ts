@@ -5,8 +5,8 @@ import { Interface } from "../Interfaces/index";
 
 export class Type<T = any> {
     static get<T>(_class: Class<T>): Type<T> {
-        if (!(_class instanceof Function))
-            throw new ArgumentTypeException("_class");
+        if (typeof _class != "function")
+            throw new ArgumentTypeException("_class", Function);
 
         let result = new Type();
         result.__initializeWithClass(_class);
@@ -209,7 +209,7 @@ export class Type<T = any> {
 
     private __getParentClass(_class: Class<any>): Class<any> | null {
         let parentClass = Object.getPrototypeOf(_class);
-        if (parentClass instanceof Function)
+        if (typeof parentClass == "function")
             return parentClass;
 
         return null;

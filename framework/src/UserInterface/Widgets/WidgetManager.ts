@@ -2,6 +2,7 @@
 import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index";
 import { Type, Class } from "../../Standard/Types/index";
 import { Collection } from "../../Standard/Collections/index";
+import { DOMUtils } from "../index";
 
 const registeredWidgets: Collection<WidgetMetadata> = new Collection();
 
@@ -17,18 +18,22 @@ function registerWidget(metadata: WidgetMetadata) {
     registeredWidgets.add(metadata);
 }
 
-function initializeWidgetInstance(metadata: WidgetMetadata, element: Element): void {
+function initializeWidgetInstance(metadata: WidgetMetadata, element: Element): Widget {
     const widgetConstructor: Class<Widget> = metadata.widgetConstructor;
     const widgetInstance: Widget = new widgetConstructor(element);
+
     metadata.activeInstances.add(widgetInstance);
+
+    return widgetInstance;
 }
 
 function initializeWidgetInstanceByElement(element: Element) {
     const metadata = getRegisteredWidgetByName(element.nodeName, <string>element.namespaceURI);
     if (!metadata)
-        return;
+        return false;
 
     initializeWidgetInstance(metadata, element);
+    return true;
 }
 
 function finalizeWidgetInstance(metadata: WidgetMetadata, instance: Widget): void {
@@ -53,7 +58,7 @@ function finalizeWidgetInstanceByElement(element: Element) {
     return true;
 }
 
-function unregisterWidget(metadata: WidgetMetadata, forceFinalization: boolean = false) {
+function deregisterWidget(metadata: WidgetMetadata, forceFinalization: boolean = false) {
     if (metadata.activeInstances.length > 0) {
         if (!forceFinalization)
             return false;
@@ -70,7 +75,7 @@ export function getRegisteredWidgets(): WidgetMetadata[] {
     return [...registeredWidgets];
 }
 
-export function getByName(qualifiedName: string, namespaceURI?: string | null) {
+export function getByName(qualifiedName: string, namespaceURI: string | null = null) {
     if (namespaceURI !== undefined && typeof namespaceURI != "string")
         throw new ArgumentTypeException("namespaceURI", namespaceURI, String);
     if (typeof qualifiedName != "string")
@@ -79,18 +84,21 @@ export function getByName(qualifiedName: string, namespaceURI?: string | null) {
     return getRegisteredWidgetByName(qualifiedName, namespaceURI);
 }
 
-export function getByConstructor(widgetConstructor: Class<Widget>) {
-    if (!Type.get(widgetConstructor).extends(Type.get(Function)))
+function assertWidgetConstructor(widgetConstructor: Class<Widget>) {
+    if (!Type.get(widgetConstructor).extends(Type.get(<any>Widget)))
         throw new ArgumentTypeException("widgetConstructor", widgetConstructor, Widget);
+}
+
+export function getByConstructor(widgetConstructor: Class<Widget>) {
+    assertWidgetConstructor(widgetConstructor);
 
     return getRegisteredWidgetByConstructor(widgetConstructor);
 }
 
-export function register(widgetConstructor: Class<Widget>, qualifiedName: string, namespaceURI?: string | null): void {
-    if (!Type.get(widgetConstructor).extends(Type.get(Function)))
-        throw new ArgumentTypeException("widgetConstructor", widgetConstructor, Widget);
+export function register(widgetConstructor: Class<Widget>, qualifiedName: string, namespaceURI: string | null = null): void {
+    assertWidgetConstructor(widgetConstructor);
 
-    if (getRegisteredWidgetByConstructor(widgetConstructor) !== undefined)
+    if (getRegisteredWidgetByConstructor(widgetConstructor))
         throw new InvalidOperationException("Cannot register widget. The specified widget constructor is already in use.");
 
     const metadata: WidgetMetadata = new WidgetMetadata(widgetConstructor, qualifiedName, namespaceURI);
@@ -98,14 +106,24 @@ export function register(widgetConstructor: Class<Widget>, qualifiedName: string
 }
 
 export function deregister(widgetConstructor: Class<Widget>): void {
-    if (!Type.get(widgetConstructor).extends(Type.get(Function)))
-        throw new ArgumentTypeException("widgetConstructor", widgetConstructor, Widget);
+    assertWidgetConstructor(widgetConstructor);
 
     const metadata: WidgetMetadata | null = getRegisteredWidgetByConstructor(widgetConstructor);
     if (!metadata)
         throw new InvalidOperationException("Cannot deregister widget. No registered widget matches the specified widget constructor.");
 
-    registeredWidgets.remove(metadata);
+    deregisterWidget(metadata);
+}
+
+export function instantiate(widgetConstructor: Class<Widget>) {
+    assertWidgetConstructor(widgetConstructor);
+
+    const metadata: WidgetMetadata | null = getRegisteredWidgetByConstructor(widgetConstructor);
+    if (!metadata)
+        throw new InvalidOperationException("Cannot instantiate widget. No registered widget matches the specified widget constructor.");
+
+    const element = DOMUtils.createElement(metadata.qualifiedName, metadata.namespaceURI);
+    return initializeWidgetInstance(metadata, element);
 }
 
 function domMutated_handler(mutations: MutationRecord[]) {

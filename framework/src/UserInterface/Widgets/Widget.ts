@@ -4,23 +4,14 @@ import { DragDropHandler, DOMUtils } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { FrameworkProperty, FrameworkPropertyOptions } from "../DependencyObjects/index";
-import { VisualTreeNode, VisualTreeElement } from "../VisualTreeManagement";
+import { VisualTreeElement } from "../VisualTreeManagement";
 import { Type } from "../../Standard/Types/Type";
-import WidgetManager from "./WidgetManager";
-import { Class } from "../../Standard/Types/Types";
 
 ///TODO: fix this mess
 
-function createWidgetElement(widgetConstructor: Class<Widget>): Element {
-    const metadata = WidgetManager.getByConstructor(widgetConstructor);
-    if (!metadata)
-        throw new InvalidOperationException("No registered widget matches the specified constructor.");
-    return DOMUtils.createElement(metadata.qualifiedName, metadata.namespaceURI);
-}
-
 export abstract class Widget extends VisualTreeElement {
-    constructor(domElement?: Element) {
-        super(domElement || createWidgetElement(<Class<Widget>><unknown>new.target));
+    constructor(domElement: Element) {
+        super(domElement);
 
         if (new.target === Widget)
             throw new InvalidOperationException("Invalid constructor");
