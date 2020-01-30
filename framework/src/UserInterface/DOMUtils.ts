@@ -1,3 +1,5 @@
+import { ArgumentTypeException } from "../Standard/index";
+
 export function insertElementAt(parent: Element, position: number, child: Element) {
     if (parent.children.length === 0 || position >= parent.children.length)
         parent.appendChild(child);
@@ -130,4 +132,30 @@ export function getElementVisibleRect(elem: Element): DOMRect | null {
     }
 
     return result;
+}
+
+export function createElement(qualifiedName: string, namespaceURI?: string | null): Element {
+    if (typeof qualifiedName !== "string")
+        throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
+
+    if (namespaceURI === undefined)
+        return document.createElement(qualifiedName);
+
+    if (namespaceURI !== null && typeof namespaceURI !== "string")
+        throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
+
+    return document.createElementNS(namespaceURI, qualifiedName);
+}
+
+export function createAttribute(qualifiedName: string, namespaceURI?: string | null): Attr {
+    if (typeof qualifiedName !== "string")
+        throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
+
+    if (namespaceURI === undefined)
+        return document.createAttribute(qualifiedName);
+
+    if (namespaceURI !== null && typeof namespaceURI !== "string")
+        throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
+
+    return document.createAttributeNS(namespaceURI, qualifiedName);
 }

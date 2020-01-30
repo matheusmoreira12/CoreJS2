@@ -20,23 +20,10 @@ export abstract class VisualTreeNode extends Destructible {
     protected __parent: VisualTreeElement | null = null;
 
     get domNode(): Node { return this.__domNode; }
-    private __domNode: Node;
+    protected __domNode: Node;
 }
 
 export class VisualTreeElement extends VisualTreeNode {
-    static create(qualifiedName: string, namespaceURI?: string | null) {
-        if (typeof qualifiedName !== "string")
-            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-
-        if (namespaceURI === undefined)
-            return document.createElement(qualifiedName);
-
-        if (namespaceURI !== null && typeof namespaceURI !== "string")
-            throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
-
-        return document.createElementNS(namespaceURI, qualifiedName);
-    }
-
     constructor(domElement: Element) {
         super(domElement);
 
@@ -50,13 +37,15 @@ export class VisualTreeElement extends VisualTreeNode {
     private __insertElement(treeElement: VisualTreeElement, index: number) {
         DOMUtils.insertElementAt(<Element>this.domNode, index, <Element>treeElement.domNode);
 
-        treeElement.parent?.__removeElement(treeElement);
+        if (treeElement.parent)
+            treeElement.parent.__removeElement(treeElement);
         treeElement.__parent = this;
     }
 
     private __removeElement(treeElement: VisualTreeElement) {
         const domElement = <Element>treeElement.domNode;
-        domElement?.parentElement?.removeChild(domElement);
+        if (domElement && domElement.parentElement)
+            domElement.parentElement.removeChild(domElement);
 
         treeElement.__parent = null;
     }
@@ -118,24 +107,12 @@ export class VisualTreeElement extends VisualTreeNode {
         for (let attribute of this.attributes)
             !attribute.isDestructed && attribute.destruct();
 
-        (<Element>this.domNode)?.remove();
+        if (this.domNode)
+            (<Element>this.domNode).remove();
     }
 }
 
 export class VisualTreeAttribute extends VisualTreeNode {
-    static create(qualifiedName: string, namespaceURI?: string | null) {
-        if (typeof qualifiedName !== "string")
-            throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-
-        if (namespaceURI === undefined)
-            return document.createAttribute(qualifiedName);
-
-        if (namespaceURI !== null && typeof namespaceURI !== "string")
-            throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
-
-        return document.createAttributeNS(namespaceURI, qualifiedName);
-    }
-
     constructor(domAttribute: Attr) {
         super(domAttribute);
 
@@ -144,7 +121,7 @@ export class VisualTreeAttribute extends VisualTreeNode {
     }
 
     destructor() {
-        const domAttribute = <Attr>this.domNode;
-        domAttribute?.parentElement?.removeAttributeNode(domAttribute);
+        if (this.domNode.parentElement)
+            this.domNode.parentElement.removeAttributeNode(<Attr>this.domNode);
     }
 }

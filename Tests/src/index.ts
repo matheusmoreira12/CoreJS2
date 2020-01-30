@@ -4,20 +4,26 @@ import MemberType = Core.Standard.Types.MemberType;
 import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 
+import VisualTreeElement = Core.UserInterface.VisualTreeElement;
 import Widget = Core.UserInterface.Widgets.Widget;
 import Colors =  Core.UserInterface.Colors;
 
-export class DataGrid extends Widget {
-    constructor () {
-        super(DataGrid.createElement("core:DataGrid", "core"));
+export class ProgressBar extends Widget {
+    constructor (domElement: Element) {
+        super(domElement);
+
+        this.__fill = VisualTreeElement.create("core:DataGrid", "core");
+        this.children.add(this.__fill);
     }
 
     destructor(): void {
         throw new Error("Method not implemented.");
     }
+
+    private __fill: VisualTreeElement;
 }
 
-window.dg = new DataGrid();
+window.dg = new ProgressBar();
 
 window.st = <HTMLStyleElement>document.createElementNS(document.lookupNamespaceURI(null), "style");
 st.type = "text/css";

@@ -1,17 +1,26 @@
-import { Destructible, InvalidOperationException } from "../../Standard/index";
+import { InvalidOperationException } from "../../Standard/index";
 import { PropertyAttributeBinding } from "../Bindings/index";
-import { DragDropHandler } from "../index";
+import { DragDropHandler, DOMUtils } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { FrameworkProperty, FrameworkPropertyOptions } from "../DependencyObjects/index";
 import { VisualTreeNode, VisualTreeElement } from "../VisualTreeManagement";
 import { Type } from "../../Standard/Types/Type";
+import WidgetManager from "./WidgetManager";
+import { Class } from "../../Standard/Types/Types";
 
 ///TODO: fix this mess
 
+function createWidgetElement(widgetConstructor: Class<Widget>): Element {
+    const metadata = WidgetManager.getByConstructor(widgetConstructor);
+    if (!metadata)
+        throw new InvalidOperationException("No registered widget matches the specified constructor.");
+    return DOMUtils.createElement(metadata.qualifiedName, metadata.namespaceURI);
+}
+
 export abstract class Widget extends VisualTreeElement {
-    constructor(domElement: Element) {
-        super(domElement);
+    constructor(domElement?: Element) {
+        super(domElement || createWidgetElement(<Class<Widget>><unknown>new.target));
 
         if (new.target === Widget)
             throw new InvalidOperationException("Invalid constructor");
@@ -35,7 +44,7 @@ export abstract class Widget extends VisualTreeElement {
     }
 
     //Helper Class Instances
-    private __dragDropHandler = new DragDropHandler(<Element>this.domNode);
+    private __dragDropHandler = new DragDropHandler(<Element>this.__domNode);
 
     //Drag/Drop Handler Event Listeners
     private __dragDropHandler__onRequestDragStart(sender: any, args: FrameworkEventArgs) {
@@ -165,7 +174,4 @@ export abstract class Widget extends VisualTreeElement {
     static isDraggableProperty = new FrameworkProperty("isDraggable", new FrameworkPropertyOptions(Type.get(Boolean), false));
     get isDraggable() { return Widget.isDraggableProperty.get(this); }
     set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
-
-    get shadowRoot(): VisualTreeNode { return this.__shadowRoot; }
-    private __shadowRoot: VisualTreeNode;
 }

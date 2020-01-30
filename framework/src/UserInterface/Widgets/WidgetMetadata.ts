@@ -1,18 +1,24 @@
-﻿import { Widget } from "./index";
+﻿import { Widget } from "./Widget";
+import { Class } from "../../Standard/Types/Types";
+import { Collection } from "../../Standard/Collections/Collection";
 
 export class WidgetMetadata {
-    constructor(widgetConstructor: new() => Widget, namespaceURI: string, qualifiedName: string) {
-        this.__WidgetClass = widgetConstructor;
-        this.__namespaceURI = namespaceURI;
+    constructor(widgetConstructor: Class<Widget>, qualifiedName: string, namespaceURI?: string | null) {
+        this.__widgetConstructor = widgetConstructor;
+        this.__namespaceURI = namespaceURI || null;
         this.__qualifiedName = qualifiedName;
+        this.__activeInstances = new Collection();
     }
 
-    get WidgetClass(): new () => Widget { return this.__WidgetClass; }
-    private __WidgetClass: new () => Widget;
+    get widgetConstructor(): Class<Widget> { return this.__widgetConstructor; }
+    private __widgetConstructor: Class<Widget>;
 
-    get namespaceURI(): string { return this.__namespaceURI; }
-    private __namespaceURI: string;
+    get namespaceURI(): string | null { return this.__namespaceURI; }
+    private __namespaceURI: string | null;
 
     get qualifiedName(): string { return this.__qualifiedName; }
     private __qualifiedName: string;
+
+    get activeInstances(): Collection<Widget> { return this.__activeInstances; }
+    private __activeInstances: Collection<Widget>;
 }
