@@ -7,12 +7,13 @@ import MemberInfo = Core.Standard.Types.MemberInfo;
 import VisualTreeElement = Core.UserInterface.VisualTreeElement;
 import WidgetManager = Core.UserInterface.Widgets.WidgetManager;
 import Widget = Core.UserInterface.Widgets.Widget;
-import Colors =  Core.UserInterface.Colors;
+import Colors = Core.UserInterface.Colors;
 import Bindings = Core.UserInterface.Bindings;
 import DependencyObjects = Core.UserInterface.DependencyObjects;
+import PropertyChangeEventArgs = Core.UserInterface.DependencyObjects.PropertyChangeEventArgs;
 
 export class ProgressBar extends Widget {
-    constructor (domElement: Element) {
+    constructor(domElement: Element) {
         super(domElement);
 
         const styleElem = <HTMLStyleElement>document.createElementNS(document.lookupNamespaceURI(null), "style");
@@ -26,14 +27,13 @@ export class ProgressBar extends Widget {
                 display: inline-block; 
                 width: 200px; 
                 height: 20px; 
-                background: ${Colors.WebColors.Red.toString()}; 
-                box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
             }
 
             core|ProgressBar>svg {
                 display: inline-block;
                 width: 100%;
                 height: 100%;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
             }
         `;
 
@@ -52,7 +52,7 @@ export class ProgressBar extends Widget {
         backgroundRectangle.attributes.create("y", null, "0");
         backgroundRectangle.attributes.create("width", null, "100");
         backgroundRectangle.attributes.create("height", null, "100");
-        backgroundRectangle.attributes.create("fill", null, Colors.WebColors.IndianRed.toString());
+        backgroundRectangle.attributes.create("fill", null, Colors.WebColors.Gainsboro.toString());
 
         const fillRectangle = VisualTreeElement.create("rect", SVGNS)
         svgCanvas.children.add(fillRectangle);
@@ -62,12 +62,74 @@ export class ProgressBar extends Widget {
         fillRectangle.attributes.create("y", null, "0");
         fillRectangle.attributes.create("width", null, "50");
         fillRectangle.attributes.create("height", null, "100");
-        fillRectangle.attributes.create("fill", null, Colors.WebColors.Red.toString());
+        fillRectangle.attributes.create("fill", null, Colors.WebColors.OrangeRed.toString());
+
+        const strokeRectangle = VisualTreeElement.create("rect", SVGNS)
+        svgCanvas.children.add(strokeRectangle);
+
+        strokeRectangle.attributes.create("x", null, "0");
+        strokeRectangle.attributes.create("y", null, "0");
+        strokeRectangle.attributes.create("width", null, "100");
+        strokeRectangle.attributes.create("height", null, "100");
+        strokeRectangle.attributes.create("vector-effect", null, "non-scaling-stroke");
+        strokeRectangle.attributes.create("fill", null, "transparent");
+        strokeRectangle.attributes.create("stroke", null, Colors.WebColors.Black.toString());
+        strokeRectangle.attributes.create("stroke-width", null, "2");
+
+        new Bindings.PropertyAttributeBinding(this, ProgressBar.ValueProperty, <Element>this.domNode, "value");
+        new Bindings.PropertyAttributeBinding(this, ProgressBar.MinProperty, <Element>this.domNode, "min");
+        new Bindings.PropertyAttributeBinding(this, ProgressBar.MaxProperty, <Element>this.domNode, "max");
+
+        ProgressBar.ValueProperty.ChangeEvent.attach(this.__ValueProperty_onChange, this);
+        ProgressBar.MinProperty.ChangeEvent.attach(this.__MinProperty_onChange, this);
+        ProgressBar.MaxProperty.ChangeEvent.attach(this.__MaxProperty_onChange, this);
+
+        this.__update();
+    }
+
+    private __update() {
+        const percentProgress = (this.value - this.min) / (this.max - this.min) * 100;
+        const fillWidthAttribute = this.__fillRectangle.attributes.get("width");
+        if (!fillWidthAttribute)
+            return;
+        fillWidthAttribute.value = String(percentProgress);
     }
 
     static ValueProperty = new DependencyObjects.FrameworkProperty("value", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
     get value(): number { return ProgressBar.ValueProperty.get(this); };
     set value(value: number) { ProgressBar.ValueProperty.set(this, value); }
+
+    private __ValueProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.target !== this)
+            return;
+
+        this.__update();
+    }
+
+    static MinProperty = new DependencyObjects.FrameworkProperty("min", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
+    get min(): number { return ProgressBar.MinProperty.get(this); };
+    set min(min: number) { ProgressBar.MinProperty.set(this, min); }
+
+    private __MinProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.target !== this)
+            return;
+
+        this.__update();
+    }
+
+    static MaxProperty = new DependencyObjects.FrameworkProperty("max", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 100));
+    get max(): number { return ProgressBar.MaxProperty.get(this); };
+    set max(max: number) { ProgressBar.MaxProperty.set(this, max); }
+
+    private __MaxProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.target !== this)
+            return;
+
+        this.__update();
+    }
+
+    private __fillRectangle: VisualTreeElement;
+    private __backgroundRectangle: VisualTreeElement;
 
     destructor(): void {
         super.destructor();

@@ -139,6 +139,11 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
         this.add(attribute);
         return attribute;
     }
+
+    createMultiple(map: { [qualifiedName: string]: string }, namespaceURI: string | null = null) {
+        for (let qualifiedName in map)
+            this.create(qualifiedName, namespaceURI);
+    }
 }
 
 export class VisualTreeAttribute extends VisualTreeNode {
