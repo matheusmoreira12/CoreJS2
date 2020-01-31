@@ -78,10 +78,10 @@ export class ProgressBar extends Widget {
             "y": "0",
             "width": "100",
             "height": "100",
-            "vector-effect": "non-scaling-stroke",
             "fill": "transparent",
             "stroke": Colors.WebColors.Black.toString(), 
-            "stroke-width": "2"
+            "stroke-width": "2",
+            "vector-effect": "non-scaling-stroke"
         }, null);
 
         new Bindings.PropertyAttributeBinding(this, ProgressBar.ValueProperty, <Element>this.domNode, "value");
