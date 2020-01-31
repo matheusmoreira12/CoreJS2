@@ -21,9 +21,18 @@ export abstract class VisualTreeNode extends Destructible {
 
     get domNode(): Node { return this.__domNode; }
     protected __domNode: Node;
+
+    get namespaceURI(): string | null { return this.__domNode.namespaceURI; }
+
+    get qualifiedName(): string { return this.__domNode.nodeName; }
 }
 
 export class VisualTreeElement extends VisualTreeNode {
+    static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
+        const domElement = document.createElementNS(namespaceURI, qualifiedName);
+        return new VisualTreeElement(domElement);
+    }
+
     constructor(domElement: Element) {
         super(domElement);
 
@@ -34,20 +43,17 @@ export class VisualTreeElement extends VisualTreeNode {
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
     }
 
-    private __insertElement(treeElement: VisualTreeElement, index: number) {
-        DOMUtils.insertElementAt(<Element>this.domNode, index, <Element>treeElement.domNode);
-
-        if (treeElement.parent)
-            treeElement.parent.__removeElement(treeElement);
-        treeElement.__parent = this;
+    private __removeElement(element: VisualTreeElement) {
+        (<Element>this.__domNode).removeChild(element.__domNode);
+        element.__parent = null;
     }
 
-    private __removeElement(treeElement: VisualTreeElement) {
-        const domElement = <Element>treeElement.domNode;
-        if (domElement && domElement.parentElement)
-            domElement.parentElement.removeChild(domElement);
+    private __insertElement(element: VisualTreeElement, index: number) {
+        if (element.parent)
+            throw new InvalidOperationException("Cannot add attribute. The provided element already has a parent.");
 
-        treeElement.__parent = null;
+        DOMUtils.insertElementAt(<Element>this.domNode, index, <Element>element.domNode);
+        element.__parent = this;
     }
 
     private __children_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
@@ -71,12 +77,17 @@ export class VisualTreeElement extends VisualTreeNode {
     get children(): ObservableCollection<VisualTreeElement> { return this.__children; }
     protected __children: ObservableCollection<VisualTreeElement> = new ObservableCollection();
 
-    private __removeAttribute(item: VisualTreeAttribute) {
-        (<Element>this.domNode).removeAttributeNode(<Attr>item.domNode);
+    private __removeAttribute(attribute: VisualTreeAttribute) {
+        (<Element>this.domNode).removeAttributeNode(<Attr>attribute.domNode);
+        attribute.__parent = null;
     }
 
-    private __setAttribute(item: VisualTreeAttribute) {
-        (<Element>this.domNode).setAttributeNodeNS(<Attr>item.domNode);
+    private __addAttribute(attribute: VisualTreeAttribute) {
+        if (attribute.parent)
+            throw new InvalidOperationException("Cannot add attribute. The provided attribute already has a parent.");
+
+        (<Element>this.domNode).setAttributeNodeNS(<Attr>attribute.domNode);
+        attribute.__parent = this;
     }
 
     private __attributes_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeAttribute>) {
@@ -90,38 +101,70 @@ export class VisualTreeElement extends VisualTreeNode {
         if (ObservableCollectionChangeAction.contains(ObservableCollectionChangeAction.Add, args.action)) {
             for (let item of args.newItems) {
                 if (item instanceof VisualTreeAttribute)
-                    this.__setAttribute(item);
+                    this.__addAttribute(item);
             }
         }
     }
 
-    get attributes(): ObservableCollection<VisualTreeElement> { return this.__attributes; }
-    protected __attributes: ObservableCollection<VisualTreeElement> = new ObservableCollection();
+    get attributes(): VisualTreeAttributeCollection { return this.__attributes; }
+    protected __attributes: VisualTreeAttributeCollection = new VisualTreeAttributeCollection();
 
     destructor() {
         //Remove all elements
-        for (let child of this.children)
+        const childrenCopy = [...this.children];
+        for (let child of childrenCopy)
             !child.isDestructed && child.destruct();
 
         //Remove all attributes
-        for (let attribute of this.attributes)
+        const attributesCopy = [...this.attributes];
+        for (let attribute of attributesCopy)
             !attribute.isDestructed && attribute.destruct();
 
-        if (this.domNode)
-            (<Element>this.domNode).remove();
+        //Remove self from parent
+        if (this.parent)
+            this.parent.children.remove(this);
+    }
+}
+
+export class VisualTreeAttributeCollection extends ObservableCollection<VisualTreeAttribute> {
+    get(qualifiedName: string, namespaceURI: string | null = null) {
+        return this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI) || null;
+    }
+
+    create(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string) {
+        if (this.get(qualifiedName, namespaceURI))
+            throw new InvalidOperationException("Cannot create attribute. An attribute with the specified name already exists in the same namespace.");
+
+        const attribute = VisualTreeAttribute.create(qualifiedName, namespaceURI, initialValue);
+        this.add(attribute);
+        return attribute;
     }
 }
 
 export class VisualTreeAttribute extends VisualTreeNode {
+    static create(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string): VisualTreeAttribute {
+        const domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
+        const result = new VisualTreeAttribute(domAttribute);
+
+        if (initialValue !== undefined)
+            result.value = initialValue;
+
+        return result;
+    }
+
     constructor(domAttribute: Attr) {
         super(domAttribute);
 
-        if (!(domAttribute instanceof Element))
-            throw new ArgumentTypeException("domElement", domAttribute, Element);
+        if (!(domAttribute instanceof Attr))
+            throw new ArgumentTypeException("domAttribute", domAttribute, Element);
     }
 
     destructor() {
-        if (this.domNode.parentElement)
-            this.domNode.parentElement.removeAttributeNode(<Attr>this.domNode);
+        //Remove self from parent
+        if (this.parent)
+            this.parent.attributes.remove(this);
     }
+
+    get value(): string { return (<Attr>this.__domNode).value; }
+    set value(value: string) { (<Attr>this.__domNode).value = value; }
 }

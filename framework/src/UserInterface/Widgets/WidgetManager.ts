@@ -37,7 +37,7 @@ function initializeWidgetInstanceByElement(element: Element) {
 }
 
 function finalizeWidgetInstance(metadata: WidgetMetadata, instance: Widget): void {
-    instance.destruct();
+    !instance.isDestructed && instance.destruct();
     metadata.activeInstances.remove(instance);
 }
 

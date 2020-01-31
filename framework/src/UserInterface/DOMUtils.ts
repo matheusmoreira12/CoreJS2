@@ -1,7 +1,7 @@
 import { ArgumentTypeException } from "../Standard/index";
 
 export function insertElementAt(parent: Element, position: number, child: Element) {
-    if (parent.children.length === 0 || position >= parent.children.length)
+    if (parent.children.length === 0 || position >= parent.children.length - 1)
         parent.appendChild(child);
     else {
         const refChild = parent.children[position];

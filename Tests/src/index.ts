@@ -8,6 +8,8 @@ import VisualTreeElement = Core.UserInterface.VisualTreeElement;
 import WidgetManager = Core.UserInterface.Widgets.WidgetManager;
 import Widget = Core.UserInterface.Widgets.Widget;
 import Colors =  Core.UserInterface.Colors;
+import Bindings = Core.UserInterface.Bindings;
+import DependencyObjects = Core.UserInterface.DependencyObjects;
 
 export class ProgressBar extends Widget {
     constructor (domElement: Element) {
@@ -15,6 +17,7 @@ export class ProgressBar extends Widget {
 
         const styleElem = <HTMLStyleElement>document.createElementNS(document.lookupNamespaceURI(null), "style");
         const style = new VisualTreeElement(styleElem);
+        this.children.add(style);
         styleElem.type = "text/css";
         styleElem.innerHTML = `
             @namespace core url(core); 
@@ -22,19 +25,49 @@ export class ProgressBar extends Widget {
             core|ProgressBar { 
                 display: inline-block; 
                 width: 200px; 
-                height: 200px; 
+                height: 20px; 
                 background: ${Colors.WebColors.Red.toString()}; 
-                transition: all 0.218s;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, .4);
             }
-        
-            core|ProgressBar:hover {
-                background: ${Colors.WebColors.Blue.toString()};
-                transform: rotate(90deg);
+
+            core|ProgressBar>svg {
+                display: inline-block;
+                width: 100%;
+                height: 100%;
             }
         `;
-        this.children.add(style);
+
+        const SVGNS = "http://www.w3.org/2000/svg";
+
+        const svgCanvas = VisualTreeElement.create("svg", SVGNS);
+        this.children.add(svgCanvas);
+        svgCanvas.attributes.create("viewBox", null, "0 0 100 100");
+        svgCanvas.attributes.create("preserveAspectRatio", null, "none");
+
+        const backgroundRectangle = VisualTreeElement.create("rect", SVGNS)
+        svgCanvas.children.add(backgroundRectangle);
+        this.__backgroundRectangle = backgroundRectangle;
+
+        backgroundRectangle.attributes.create("x", null, "0");
+        backgroundRectangle.attributes.create("y", null, "0");
+        backgroundRectangle.attributes.create("width", null, "100");
+        backgroundRectangle.attributes.create("height", null, "100");
+        backgroundRectangle.attributes.create("fill", null, Colors.WebColors.IndianRed.toString());
+
+        const fillRectangle = VisualTreeElement.create("rect", SVGNS)
+        svgCanvas.children.add(fillRectangle);
+        this.__fillRectangle = fillRectangle;
+
+        fillRectangle.attributes.create("x", null, "0");
+        fillRectangle.attributes.create("y", null, "0");
+        fillRectangle.attributes.create("width", null, "50");
+        fillRectangle.attributes.create("height", null, "100");
+        fillRectangle.attributes.create("fill", null, Colors.WebColors.Red.toString());
     }
+
+    static ValueProperty = new DependencyObjects.FrameworkProperty("value", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
+    get value(): number { return ProgressBar.ValueProperty.get(this); };
+    set value(value: number) { ProgressBar.ValueProperty.set(this, value); }
 
     destructor(): void {
         super.destructor();

@@ -12,11 +12,13 @@ export class Collection<T> extends Array<T> {
     }
 
     get first(): T { return this[0]; }
+    
     get last(): T { return this[this.length - 1]; }
+    
     *getRange(index: number, itemCount: number): Generator<T> {
         if (index < 0 || index >= this.length)
             throw new ArgumentOutOfRangeException("index");
-        if (itemCount < 0 || itemCount + index >= this.length)
+        if (itemCount < 0 || index + itemCount > this.length)
             throw new ArgumentOutOfRangeException("itemCount");
         for (let i = index; i < index + itemCount; i++)
             yield this[i];
