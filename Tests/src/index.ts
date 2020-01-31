@@ -41,40 +41,48 @@ export class ProgressBar extends Widget {
 
         const svgCanvas = VisualTreeElement.create("svg", SVGNS);
         this.children.add(svgCanvas);
-        svgCanvas.attributes.create("viewBox", null, "0 0 100 100");
-        svgCanvas.attributes.create("preserveAspectRatio", null, "none");
+        svgCanvas.attributes.createMultiple({
+            "viewBox": "0 0 100 100",
+            "preserveAspectRatio": "none"
+        });
 
         const backgroundRectangle = VisualTreeElement.create("rect", SVGNS)
         svgCanvas.children.add(backgroundRectangle);
         this.__backgroundRectangle = backgroundRectangle;
 
-        backgroundRectangle.attributes.create("x", null, "0");
-        backgroundRectangle.attributes.create("y", null, "0");
-        backgroundRectangle.attributes.create("width", null, "100");
-        backgroundRectangle.attributes.create("height", null, "100");
-        backgroundRectangle.attributes.create("fill", null, Colors.WebColors.Gainsboro.toString());
+        backgroundRectangle.attributes.createMultiple({
+            "x": "0",
+            "y": "0",
+            "width": "100",
+            "height": "100",
+            "fill": Colors.WebColors.Gainsboro.toString()
+        });
 
         const fillRectangle = VisualTreeElement.create("rect", SVGNS)
         svgCanvas.children.add(fillRectangle);
         this.__fillRectangle = fillRectangle;
 
-        fillRectangle.attributes.create("x", null, "0");
-        fillRectangle.attributes.create("y", null, "0");
-        fillRectangle.attributes.create("width", null, "50");
-        fillRectangle.attributes.create("height", null, "100");
-        fillRectangle.attributes.create("fill", null, Colors.WebColors.OrangeRed.toString());
+        fillRectangle.attributes.createMultiple({ 
+            "x": "0",
+            "y": "0",
+            "width": "0",
+            "height": "100",
+            "fill": Colors.WebColors.OrangeRed.toString()
+        });
 
         const strokeRectangle = VisualTreeElement.create("rect", SVGNS)
         svgCanvas.children.add(strokeRectangle);
 
-        strokeRectangle.attributes.create("x", null, "0");
-        strokeRectangle.attributes.create("y", null, "0");
-        strokeRectangle.attributes.create("width", null, "100");
-        strokeRectangle.attributes.create("height", null, "100");
-        strokeRectangle.attributes.create("vector-effect", null, "non-scaling-stroke");
-        strokeRectangle.attributes.create("fill", null, "transparent");
-        strokeRectangle.attributes.create("stroke", null, Colors.WebColors.Black.toString());
-        strokeRectangle.attributes.create("stroke-width", null, "2");
+        strokeRectangle.attributes.createMultiple({
+            "x": "0",
+            "y": "0",
+            "width": "100",
+            "height": "100",
+            "vector-effect": "non-scaling-stroke",
+            "fill": "transparent",
+            "stroke": Colors.WebColors.Black.toString(), 
+            "stroke-width": "2"
+        }, null);
 
         new Bindings.PropertyAttributeBinding(this, ProgressBar.ValueProperty, <Element>this.domNode, "value");
         new Bindings.PropertyAttributeBinding(this, ProgressBar.MinProperty, <Element>this.domNode, "min");
