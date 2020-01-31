@@ -142,7 +142,7 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
 
     createMultiple(map: { [qualifiedName: string]: string }, namespaceURI: string | null = null) {
         for (let qualifiedName in map)
-            this.create(qualifiedName, namespaceURI);
+            this.create(qualifiedName, namespaceURI, map[qualifiedName]);
     }
 }
 
