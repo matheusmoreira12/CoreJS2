@@ -41,10 +41,6 @@ export class ProgressBar extends Widget {
 
         const svgCanvas = VisualTreeElement.create("svg", SVGNS);
         this.children.add(svgCanvas);
-        svgCanvas.attributes.createMultiple({
-            "viewBox": "0 0 100 100",
-            "preserveAspectRatio": "none"
-        });
 
         const backgroundRectangle = VisualTreeElement.create("rect", SVGNS)
         svgCanvas.children.add(backgroundRectangle);
@@ -53,8 +49,8 @@ export class ProgressBar extends Widget {
         backgroundRectangle.attributes.createMultiple({
             "x": "0",
             "y": "0",
-            "width": "100",
-            "height": "100",
+            "width": "100%",
+            "height": "100%",
             "fill": Colors.WebColors.Gainsboro.toString()
         });
 
@@ -65,8 +61,8 @@ export class ProgressBar extends Widget {
         fillRectangle.attributes.createMultiple({ 
             "x": "0",
             "y": "0",
-            "width": "0",
-            "height": "100",
+            "width": "0%",
+            "height": "100%",
             "fill": Colors.WebColors.OrangeRed.toString()
         });
 
@@ -76,12 +72,11 @@ export class ProgressBar extends Widget {
         strokeRectangle.attributes.createMultiple({
             "x": "0",
             "y": "0",
-            "width": "100",
-            "height": "100",
+            "width": "100%",
+            "height": "100%",
             "fill": "transparent",
             "stroke": Colors.WebColors.Black.toString(), 
             "stroke-width": "2",
-            "vector-effect": "non-scaling-stroke"
         }, null);
 
         new Bindings.PropertyAttributeBinding(this, ProgressBar.ValueProperty, <Element>this.domNode, "value");
@@ -100,7 +95,7 @@ export class ProgressBar extends Widget {
         const fillWidthAttribute = this.__fillRectangle.attributes.get("width");
         if (!fillWidthAttribute)
             return;
-        fillWidthAttribute.value = String(percentProgress);
+        fillWidthAttribute.value = String(`${percentProgress}%`);
     }
 
     static ValueProperty = new DependencyObjects.FrameworkProperty("value", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
