@@ -6,3 +6,6 @@ export { Standard }
 
 import * as UserInterface from "./UserInterface/index";
 export { UserInterface }
+
+import * as Validation from "./Validation/index";
+export { Validation };

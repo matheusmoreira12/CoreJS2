@@ -5,7 +5,7 @@ export function validate(): MethodDecorator {
     };
 }
 
-export function assert(type: any): ParameterDecorator;
+export function assert( type: any): ParameterDecorator;
 export function assert(type: Type): ParameterDecorator;
 export function assert(types: any[]): ParameterDecorator;
 export function assert(types: Type[]): ParameterDecorator;
