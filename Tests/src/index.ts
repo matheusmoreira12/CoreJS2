@@ -11,7 +11,7 @@ import Colors = Core.UserInterface.Colors;
 import Bindings = Core.UserInterface.Bindings;
 import DependencyObjects = Core.UserInterface.DependencyObjects;
 import PropertyChangeEventArgs = Core.UserInterface.DependencyObjects.PropertyChangeEventArgs;
-import Enumeration = Core.Standard.Enumeration;
+import Fonts = Core.UserInterface.Fonts;
 
 export class ProgressBar extends Widget {
     constructor(domElement: Element) {
@@ -146,6 +146,8 @@ window.dg = WidgetManager.instantiate(ProgressBar);
 
 document.body.appendChild(dg.domNode);
 
+const DEFAULT_FONT = new Fonts.Font("Arial, Verdana, sans-serif", "12pt");
+
 export class TextBlock extends Widget {
     constructor(domElement: Element) {
         super(domElement);
@@ -166,11 +168,18 @@ export class TextBlock extends Widget {
         svgText.attributes.create("font-size", null, "12");
 
         TextBlock.textProperty.ChangeEvent.attach(this.__textProperty_onChange, this);
+        TextBlock.fontProperty.ChangeEvent.attach(this.__fontProperty_onChange, this);
     }
 
     private __update() {
         const textElem = (<SVGTextElement>this.__svgText.domNode);
-        const canvasElem = (<SVGElement>this.__svgCanvas.domNode)
+        const canvasElem = (<SVGElement>this.__svgCanvas.domNode);
+        //Update Font
+        textElem.setAttribute("font-family", this.font.family);
+        textElem.setAttribute("font-size", this.font.size);
+        textElem.setAttribute("font-weight", Fonts.FontWeight.getLabel(this.font.weight) || "");
+        textElem.setAttribute("font-style", Fonts.FontStyle.getLabel(this.font.style) || "");
+        textElem.setAttribute("text-decoration", Fonts.TextDecoration.getLabel(this.font.textDecoration) || "");
         //Update content
         textElem.textContent = this.text;
         //Update size/position
@@ -194,14 +203,26 @@ export class TextBlock extends Widget {
 
     private __svgText: VisualTreeElement;
     private __svgCanvas: VisualTreeElement;
+
+    static fontProperty: DependencyObjects.FrameworkProperty = new DependencyObjects.FrameworkProperty("font", new DependencyObjects.FrameworkPropertyOptions(Type.get(Fonts.Font), DEFAULT_FONT));
+
+    get font(): Fonts.Font { return TextBlock.fontProperty.get(this); }
+    set font(value: Fonts.Font) { TextBlock.fontProperty.set(this, value); }
+
+    private __fontProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.target !== this)
+            return;
+
+        this.__update();
+    }
 }
 
 WidgetManager.register(TextBlock, "core:TextBlock", "core");
 
 window.tb = WidgetManager.instantiate(TextBlock);
-
 document.body.appendChild(window.tb.domNode);
 
+tb.text = "Helloo";
 
 /*export const Consolify = new (function () {
     const TAB_SPACING = 5;

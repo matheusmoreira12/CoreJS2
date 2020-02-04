@@ -38,5 +38,8 @@ export { Validation }
 import * as ValueConverters from "./ValueConverters/index";
 export { ValueConverters }
 
+import * as Fonts from "./Fonts/index";
+export { Fonts };
+
 import * as Widgets from "./Widgets/index";
 export { Widgets }
