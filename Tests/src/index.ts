@@ -41,10 +41,6 @@ export class ProgressBar extends Widget {
 
         const svgCanvas = VisualTreeElement.create("svg", SVGNS);
         this.children.add(svgCanvas);
-        svgCanvas.attributes.createMultiple({
-            "viewBox": "0 0 100 100",
-            "preserveAspectRatio": "none"
-        });
 
         const backgroundRectangle = VisualTreeElement.create("rect", SVGNS)
         svgCanvas.children.add(backgroundRectangle);
@@ -53,8 +49,8 @@ export class ProgressBar extends Widget {
         backgroundRectangle.attributes.createMultiple({
             "x": "0",
             "y": "0",
-            "width": "100",
-            "height": "100",
+            "width": "100%",
+            "height": "100%",
             "fill": Colors.WebColors.Gainsboro.toString()
         });
 
@@ -66,7 +62,7 @@ export class ProgressBar extends Widget {
             "x": "0",
             "y": "0",
             "width": "0",
-            "height": "100",
+            "height": "100%",
             "fill": Colors.WebColors.OrangeRed.toString()
         });
 
@@ -76,21 +72,20 @@ export class ProgressBar extends Widget {
         strokeRectangle.attributes.createMultiple({
             "x": "0",
             "y": "0",
-            "width": "100",
-            "height": "100",
+            "width": "100%",
+            "height": "100%",
             "fill": "transparent",
             "stroke": Colors.WebColors.Black.toString(), 
             "stroke-width": "2",
-            "vector-effect": "non-scaling-stroke"
         }, null);
 
-        new Bindings.PropertyAttributeBinding(this, ProgressBar.ValueProperty, <Element>this.domNode, "value");
-        new Bindings.PropertyAttributeBinding(this, ProgressBar.MinProperty, <Element>this.domNode, "min");
-        new Bindings.PropertyAttributeBinding(this, ProgressBar.MaxProperty, <Element>this.domNode, "max");
+        new Bindings.PropertyAttributeBinding(this, ProgressBar.valueProperty, <Element>this.domNode, "value");
+        new Bindings.PropertyAttributeBinding(this, ProgressBar.minProperty, <Element>this.domNode, "min");
+        new Bindings.PropertyAttributeBinding(this, ProgressBar.maxProperty, <Element>this.domNode, "max");
 
-        ProgressBar.ValueProperty.ChangeEvent.attach(this.__ValueProperty_onChange, this);
-        ProgressBar.MinProperty.ChangeEvent.attach(this.__MinProperty_onChange, this);
-        ProgressBar.MaxProperty.ChangeEvent.attach(this.__MaxProperty_onChange, this);
+        ProgressBar.valueProperty.ChangeEvent.attach(this.__ValueProperty_onChange, this);
+        ProgressBar.minProperty.ChangeEvent.attach(this.__MinProperty_onChange, this);
+        ProgressBar.maxProperty.ChangeEvent.attach(this.__MaxProperty_onChange, this);
 
         this.__update();
     }
@@ -100,12 +95,12 @@ export class ProgressBar extends Widget {
         const fillWidthAttribute = this.__fillRectangle.attributes.get("width");
         if (!fillWidthAttribute)
             return;
-        fillWidthAttribute.value = String(percentProgress);
+        fillWidthAttribute.value = `${percentProgress}%`;
     }
 
-    static ValueProperty = new DependencyObjects.FrameworkProperty("value", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
-    get value(): number { return ProgressBar.ValueProperty.get(this); };
-    set value(value: number) { ProgressBar.ValueProperty.set(this, value); }
+    static valueProperty = new DependencyObjects.FrameworkProperty("value", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
+    get value(): number { return ProgressBar.valueProperty.get(this); };
+    set value(value: number) { ProgressBar.valueProperty.set(this, value); }
 
     private __ValueProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.target !== this)
@@ -114,9 +109,9 @@ export class ProgressBar extends Widget {
         this.__update();
     }
 
-    static MinProperty = new DependencyObjects.FrameworkProperty("min", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
-    get min(): number { return ProgressBar.MinProperty.get(this); };
-    set min(min: number) { ProgressBar.MinProperty.set(this, min); }
+    static minProperty = new DependencyObjects.FrameworkProperty("min", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
+    get min(): number { return ProgressBar.minProperty.get(this); };
+    set min(min: number) { ProgressBar.minProperty.set(this, min); }
 
     private __MinProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.target !== this)
@@ -125,9 +120,9 @@ export class ProgressBar extends Widget {
         this.__update();
     }
 
-    static MaxProperty = new DependencyObjects.FrameworkProperty("max", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 100));
-    get max(): number { return ProgressBar.MaxProperty.get(this); };
-    set max(max: number) { ProgressBar.MaxProperty.set(this, max); }
+    static maxProperty = new DependencyObjects.FrameworkProperty("max", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 100));
+    get max(): number { return ProgressBar.maxProperty.get(this); };
+    set max(max: number) { ProgressBar.maxProperty.set(this, max); }
 
     private __MaxProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.target !== this)
@@ -149,6 +144,63 @@ WidgetManager.register(ProgressBar, "core:ProgressBar", "core")
 window.dg = WidgetManager.instantiate(ProgressBar);
 
 document.body.appendChild(dg.domNode);
+
+export class TextBlock extends Widget {
+    constructor(domElement: Element) {
+        super(domElement);
+
+        const SVGNS = "http://www.w3.org/2000/svg";
+
+        const svgCanvas = VisualTreeElement.create("svg", SVGNS);
+        this.__svgCanvas = svgCanvas;
+        this.children.add(svgCanvas);
+
+        const svgText = VisualTreeElement.create("text", SVGNS);
+        this.__svgText = svgText;
+        svgCanvas.children.add(svgText);
+
+        svgText.attributes.create("x", null, "0");
+        svgText.attributes.create("y", null, "0");
+        svgText.attributes.create("font-family", null, "Arial, Verdana, Sans-Serif");
+        svgText.attributes.create("font-size", null, "12");
+
+        TextBlock.textProperty.ChangeEvent.attach(this.__textProperty_onChange, this);
+    }
+
+    private __update() {
+        const textElem = (<SVGTextElement>this.__svgText.domNode);
+        const canvasElem = (<SVGElement>this.__svgCanvas.domNode)
+        //Update content
+        textElem.textContent = this.text;
+        //Update size/position
+        const box = textElem.getBBox();
+        canvasElem.setAttribute("width", String(box.width));
+        canvasElem.setAttribute("height", String(box.height));
+        canvasElem.setAttribute("viewBox", `${box.x} ${box.y} ${box.width} ${box.height}`);
+    }
+
+    static textProperty: DependencyObjects.FrameworkProperty = new DependencyObjects.FrameworkProperty("text", new DependencyObjects.FrameworkPropertyOptions(Type.get(String), ""));
+
+    get text(): string { return TextBlock.textProperty.get(this); }
+    set text(value: string) { TextBlock.textProperty.set(this, value); }
+
+    private __textProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.target !== this)
+            return;
+
+        this.__update();
+    }
+
+    private __svgText: VisualTreeElement;
+    private __svgCanvas: VisualTreeElement;
+}
+
+WidgetManager.register(TextBlock, "core:TextBlock", "core");
+
+window.tb = WidgetManager.instantiate(TextBlock);
+
+document.body.appendChild(window.tb.domNode);
+
 
 /*export const Consolify = new (function () {
     const TAB_SPACING = 5;
