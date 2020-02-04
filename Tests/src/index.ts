@@ -11,6 +11,7 @@ import Colors = Core.UserInterface.Colors;
 import Bindings = Core.UserInterface.Bindings;
 import DependencyObjects = Core.UserInterface.DependencyObjects;
 import PropertyChangeEventArgs = Core.UserInterface.DependencyObjects.PropertyChangeEventArgs;
+import Enumeration = Core.Standard.Enumeration;
 
 export class ProgressBar extends Widget {
     constructor(domElement: Element) {
@@ -58,7 +59,7 @@ export class ProgressBar extends Widget {
         svgCanvas.children.add(fillRectangle);
         this.__fillRectangle = fillRectangle;
 
-        fillRectangle.attributes.createMultiple({ 
+        fillRectangle.attributes.createMultiple({
             "x": "0",
             "y": "0",
             "width": "0",
@@ -75,7 +76,7 @@ export class ProgressBar extends Widget {
             "width": "100%",
             "height": "100%",
             "fill": "transparent",
-            "stroke": Colors.WebColors.Black.toString(), 
+            "stroke": Colors.WebColors.Black.toString(),
             "stroke-width": "2",
         }, null);
 
