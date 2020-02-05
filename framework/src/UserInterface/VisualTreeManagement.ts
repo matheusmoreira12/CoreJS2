@@ -1,7 +1,8 @@
-import { ArgumentTypeException, InvalidTypeException, InvalidOperationException } from "../Standard/Exceptions";
+import { ArgumentTypeException, InvalidTypeException, InvalidOperationException, KeyNotFoundException } from "../Standard/Exceptions";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../Standard/Collections/ObservableCollection";
 import { Destructible } from "../Standard/index";
 import { DOMUtils } from "./index";
+import { assertParameter } from "../Validation/index";
 
 export abstract class VisualTreeNode extends Destructible {
     constructor(domNode: Node) {
@@ -10,8 +11,7 @@ export abstract class VisualTreeNode extends Destructible {
         if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
 
-        if (!(domNode instanceof Node))
-            throw new ArgumentTypeException("domNode", domNode, Node);
+        assertParameter("domNode", domNode, Node);
 
         this.__domNode = domNode;
     }
@@ -36,8 +36,7 @@ export class VisualTreeElement extends VisualTreeNode {
     constructor(domElement: Element) {
         super(domElement);
 
-        if (!(domElement instanceof Element))
-            throw new ArgumentTypeException("domElement", domElement, Element);
+        assertParameter("domElement", domElement, Element);
 
         this.__children.ChangeEvent.attach(this.__children_onChange, this);
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
@@ -127,12 +126,29 @@ export class VisualTreeElement extends VisualTreeNode {
 }
 
 export class VisualTreeAttributeCollection extends ObservableCollection<VisualTreeAttribute> {
-    get(qualifiedName: string, namespaceURI: string | null = null) {
-        return this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI) || null;
+    has(qualifiedName: string, namespaceURI: string | null = null): boolean {
+        assertParameter("qualifiedName", qualifiedName, String);
+        assertParameter("namespaceURI", namespaceURI, String, null);
+
+        return !!this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI);
+    }
+
+    get(qualifiedName: string, namespaceURI: string | null = null): VisualTreeAttribute {
+        assertParameter("qualifiedName", qualifiedName, String);
+        assertParameter("namespaceURI", namespaceURI, String, null);
+
+        const result = this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI);
+        if (!result)
+            throw new KeyNotFoundException();
+        return result;
     }
 
     create(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string) {
-        if (this.get(qualifiedName, namespaceURI))
+        assertParameter("qualifiedName", qualifiedName, String);
+        assertParameter("namespaceURI", namespaceURI, String, null);
+        assertParameter("initialValue", initialValue, String, undefined);
+
+        if (this.has(qualifiedName, namespaceURI))
             throw new InvalidOperationException("Cannot create attribute. An attribute with the specified name already exists in the same namespace.");
 
         const attribute = VisualTreeAttribute.create(qualifiedName, namespaceURI, initialValue);
@@ -148,6 +164,10 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
 
 export class VisualTreeAttribute extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string): VisualTreeAttribute {
+        assertParameter("qualifiedName", qualifiedName, String);
+        assertParameter("namespaceURI", namespaceURI, String, null);
+        assertParameter("initialValue", initialValue, String, undefined);
+
         const domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
         const result = new VisualTreeAttribute(domAttribute);
 
@@ -158,10 +178,9 @@ export class VisualTreeAttribute extends VisualTreeNode {
     }
 
     constructor(domAttribute: Attr) {
-        super(domAttribute);
+        assertParameter("domAttribute", domAttribute, Attr);
 
-        if (!(domAttribute instanceof Attr))
-            throw new ArgumentTypeException("domAttribute", domAttribute, Element);
+        super(domAttribute);
     }
 
     destructor() {

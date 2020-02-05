@@ -93,10 +93,7 @@ export class ProgressBar extends Widget {
 
     private __update() {
         const percentProgress = (this.value - this.min) / (this.max - this.min) * 100;
-        const fillWidthAttribute = this.__fillRectangle.attributes.get("width");
-        if (!fillWidthAttribute)
-            return;
-        fillWidthAttribute.value = `${percentProgress}%`;
+        this.__fillRectangle.attributes.get("width").value = `${percentProgress}%`;
     }
 
     static valueProperty = new DependencyObjects.FrameworkProperty("value", new DependencyObjects.FrameworkPropertyOptions(Type.get(Number), 0));
@@ -162,10 +159,15 @@ export class TextBlock extends Widget {
         this.__svgText = svgText;
         svgCanvas.children.add(svgText);
 
-        svgText.attributes.create("x", null, "0");
-        svgText.attributes.create("y", null, "0");
-        svgText.attributes.create("font-family", null, "Arial, Verdana, Sans-Serif");
-        svgText.attributes.create("font-size", null, "12");
+        svgText.attributes.createMultiple({
+            "x": "0",
+            "y": "0",
+            "font-family": "",
+            "font-size": "",
+            "font-weight": "",
+            "font-style": "",
+            "text-decoration": ""
+        });
 
         TextBlock.textProperty.ChangeEvent.attach(this.__textProperty_onChange, this);
         TextBlock.fontProperty.ChangeEvent.attach(this.__fontProperty_onChange, this);
