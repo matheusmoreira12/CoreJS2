@@ -145,6 +145,33 @@ document.body.appendChild(dg.domNode);
 
 const DEFAULT_FONT = new Fonts.Font("Arial, Verdana, sans-serif", "12pt");
 
+class FontStyleSVGAttributeConverter {
+    convert(value: number): string {
+        const flags = [];
+        if (Fonts.FontStyle.contains(Fonts.FontStyle.Underline, value))
+            flags.push("underline");
+        if (Fonts.FontStyle.contains(Fonts.FontStyle.Overline, value))
+            flags.push("overline");
+        if (Fonts.FontStyle.contains(Fonts.FontStyle.StrikeThrough, value))
+            flags.push("line-through");
+        return flags.join(" ");
+    }
+
+    convertBack(value: string): number {
+        const flags = value.split(" ");
+
+        let result = 0;
+        if (flags.includes("underline"))
+            result |= Fonts.FontStyle.Underline;
+        if (flags.includes("overline"))
+            result |= Fonts.FontStyle.Overline;
+        if (flags.includes("line-through"))
+            result |= Fonts.FontStyle.StrikeThrough;
+
+        return result;
+    }
+}
+
 export class TextBlock extends Widget {
     constructor(domElement: Element) {
         super(domElement);
