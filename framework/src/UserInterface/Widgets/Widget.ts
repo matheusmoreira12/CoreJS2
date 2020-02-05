@@ -1,23 +1,23 @@
 import { InvalidOperationException } from "../../Standard/index";
 import { PropertyAttributeBinding } from "../Bindings/index";
-import { DragDropHandler, DOMUtils } from "../index";
+import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
-import { FrameworkProperty, FrameworkPropertyOptions } from "../DependencyObjects/index";
+import { DependencyProperty, DependencyPropertyOptions } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 
 ///TODO: fix this mess
 
-export abstract class Widget extends VisualTreeElement {
+export abstract class Control extends VisualTreeElement {
     constructor(domElement: Element) {
         super(domElement);
 
-        if (new.target === Widget)
+        if (new.target === Control)
             throw new InvalidOperationException("Invalid constructor");
 
         //Create Bindings
-        new PropertyAttributeBinding(this, Widget.isDraggableProperty, <Element>this.__domNode, "draggable", {
+        new PropertyAttributeBinding(this, Control.isDraggableProperty, <Element>this.__domNode, "draggable", {
             get valueConverter() { return new BooleanAttributeValueConverter(); }
         });
 
@@ -139,39 +139,54 @@ export abstract class Widget extends VisualTreeElement {
     MouseUpEvent = new NativeEvent(this.__domNode, "mouseup", this.__onMouseUp, this);
 
     //      Mouse Move Event
-    private __onMouseMove(sender: any, args: NativeEventArgs) { }
+    private __onMouseMove(sender: any, args: NativeEventArgs) { 
+
+    }
     MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove, this);
 
     //      Click Event
-    private __onClick(sender: any, args: NativeEventArgs) { }
+    private __onClick(sender: any, args: NativeEventArgs) { 
+
+    }
     ClickEvent = new NativeEvent(this.__domNode, "click", this.__onClick, this);
 
     //Framework Properties
-    //  State Properties
-    //      Mouse State Properties
-    //          Is Mouse Over Property
-    static isMouseOverProperty = new FrameworkProperty("isMouseOver", new FrameworkPropertyOptions(Type.get(Boolean), false));
-    get isMouseOver() { return Widget.isMouseOverProperty.get(this); }
-    set isMouseOver(value) { Widget.isMouseOverProperty.set(this, value); }
+    //State Properties
+    //Mouse State Properties
+    //Is Mouse Over Property
+    static isMouseOverProperty = new DependencyProperty("isMouseOver", new DependencyPropertyOptions(Type.get(Boolean), false));
+    get isMouseOver() { return Control.isMouseOverProperty.get(this); }
+    set isMouseOver(value) { Control.isMouseOverProperty.set(this, value); }
 
-    //          Is Mouse Down Property
-    static isMouseDownProperty = new FrameworkProperty("isMouseDown", new FrameworkPropertyOptions(Type.get(Boolean), false));
-    get isMouseDown() { return Widget.isMouseDownProperty.get(this); }
-    set isMouseDown(value) { Widget.isMouseDownProperty.set(this, value); }
+    //Is Mouse Down Property
+    static isMouseDownProperty = new DependencyProperty("isMouseDown", new DependencyPropertyOptions(Type.get(Boolean), false));
+    get isMouseDown() { return Control.isMouseDownProperty.get(this); }
+    set isMouseDown(value) { Control.isMouseDownProperty.set(this, value); }
 
-    //      Drag State Properties
-    //          Is Dragging Property
-    static isDraggingProperty = new FrameworkProperty("isDragging", new FrameworkPropertyOptions(Type.get(Boolean), false));
-    get isDragging() { return Widget.isDraggingProperty.get(this); }
-    set isDragging(value) { Widget.isDraggingProperty.set(this, value); }
+    //Drag State Properties
+    //Is Dragging Property
+    static isDraggingProperty = new DependencyProperty("isDragging", new DependencyPropertyOptions(Type.get(Boolean), false));
+    get isDragging() { return Control.isDraggingProperty.get(this); }
+    set isDragging(value) { Control.isDraggingProperty.set(this, value); }
 
-    //          Is Drag Over Property
-    static isDragOverProperty = new FrameworkProperty("isDragOver", new FrameworkPropertyOptions(Type.get(Boolean), false));
-    get isDragOver() { return Widget.isDragOverProperty.get(this); }
-    set isDragOver(value) { Widget.isDragOverProperty.set(this, value); }
+    //Is Drag Over Property
+    static isDragOverProperty = new DependencyProperty("isDragOver", new DependencyPropertyOptions(Type.get(Boolean), false));
+    get isDragOver() { return Control.isDragOverProperty.get(this); }
+    set isDragOver(value) { Control.isDragOverProperty.set(this, value); }
 
-    //  Drag Properties
-    static isDraggableProperty = new FrameworkProperty("isDraggable", new FrameworkPropertyOptions(Type.get(Boolean), false));
-    get isDraggable() { return Widget.isDraggableProperty.get(this); }
-    set isDraggable(value) { Widget.isDraggableProperty.set(this, value); }
+    //Drag Properties
+    static isDraggableProperty = new DependencyProperty("isDraggable", new DependencyPropertyOptions(Type.get(Boolean), false));
+    get isDraggable() { return Control.isDraggableProperty.get(this); }
+    set isDraggable(value) { Control.isDraggableProperty.set(this, value); }
+
+    //Visual Properties
+    //Background Property
+    static backgroundProperty = new DependencyProperty("background", new DependencyPropertyOptions(null, null));
+    get background() { return Control.backgroundProperty.get(this); }
+    set background(value) { Control.backgroundProperty.set(this, value); }
+
+    //Foreground Property
+    static foregroundProperty = new DependencyProperty("foreground", new DependencyPropertyOptions(null, null));
+    get foreground() { return Control.foregroundProperty.get(this); }
+    set foreground(value) { Control.foregroundProperty.set(this, value); }
 }

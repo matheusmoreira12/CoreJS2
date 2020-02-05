@@ -1,4 +1,4 @@
-﻿import { WidgetMetadata, Widget } from "./index";
+﻿import { WidgetMetadata, Control } from "./index";
 import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index";
 import { Type, Class } from "../../Standard/Types/index";
 import { Collection } from "../../Standard/Collections/index";
@@ -10,7 +10,7 @@ function getRegisteredWidgetByName(qualifiedName: string, namespaceURI?: string 
     return registeredWidgets.find(m => m.namespaceURI === namespaceURI && m.qualifiedName === qualifiedName) || null;
 }
 
-function getRegisteredWidgetByConstructor(widgetConstructor: Class<Widget>): WidgetMetadata | null {
+function getRegisteredWidgetByConstructor(widgetConstructor: Class<Control>): WidgetMetadata | null {
     return registeredWidgets.find(m => m.widgetConstructor === widgetConstructor) || null;
 }
 
@@ -18,9 +18,9 @@ function registerWidget(metadata: WidgetMetadata) {
     registeredWidgets.add(metadata);
 }
 
-function initializeWidgetInstance(metadata: WidgetMetadata, element: Element): Widget {
-    const widgetConstructor: Class<Widget> = metadata.widgetConstructor;
-    const widgetInstance: Widget = new widgetConstructor(element);
+function initializeWidgetInstance(metadata: WidgetMetadata, element: Element): Control {
+    const widgetConstructor: Class<Control> = metadata.widgetConstructor;
+    const widgetInstance: Control = new widgetConstructor(element);
 
     metadata.activeInstances.add(widgetInstance);
 
@@ -36,12 +36,12 @@ function initializeWidgetInstanceByElement(element: Element) {
     return true;
 }
 
-function finalizeWidgetInstance(metadata: WidgetMetadata, instance: Widget): void {
+function finalizeWidgetInstance(metadata: WidgetMetadata, instance: Control): void {
     !instance.isDestructed && instance.destruct();
     metadata.activeInstances.remove(instance);
 }
 
-function getWidgetInstanceByElement(metadata: WidgetMetadata, element: Element): Widget | null {
+function getWidgetInstanceByElement(metadata: WidgetMetadata, element: Element): Control | null {
     return metadata.activeInstances.find(m => m.domNode === element) || null;
 }
 
@@ -84,18 +84,18 @@ export function getByName(qualifiedName: string, namespaceURI: string | null = n
     return getRegisteredWidgetByName(qualifiedName, namespaceURI);
 }
 
-function assertWidgetConstructor(widgetConstructor: Class<Widget>) {
-    if (!Type.get(widgetConstructor).extends(Type.get(<any>Widget)))
-        throw new ArgumentTypeException("widgetConstructor", widgetConstructor, Widget);
+function assertWidgetConstructor(widgetConstructor: Class<Control>) {
+    if (!Type.get(widgetConstructor).extends(Type.get(<any>Control)))
+        throw new ArgumentTypeException("widgetConstructor", widgetConstructor, Control);
 }
 
-export function getByConstructor(widgetConstructor: Class<Widget>) {
+export function getByConstructor(widgetConstructor: Class<Control>) {
     assertWidgetConstructor(widgetConstructor);
 
     return getRegisteredWidgetByConstructor(widgetConstructor);
 }
 
-export function register(widgetConstructor: Class<Widget>, qualifiedName: string, namespaceURI: string | null = null): void {
+export function register(widgetConstructor: Class<Control>, qualifiedName: string, namespaceURI: string | null = null): void {
     assertWidgetConstructor(widgetConstructor);
 
     if (getRegisteredWidgetByConstructor(widgetConstructor))
@@ -105,7 +105,7 @@ export function register(widgetConstructor: Class<Widget>, qualifiedName: string
     registerWidget(metadata);
 }
 
-export function deregister(widgetConstructor: Class<Widget>): void {
+export function deregister(widgetConstructor: Class<Control>): void {
     assertWidgetConstructor(widgetConstructor);
 
     const metadata: WidgetMetadata | null = getRegisteredWidgetByConstructor(widgetConstructor);
@@ -115,7 +115,7 @@ export function deregister(widgetConstructor: Class<Widget>): void {
     deregisterWidget(metadata);
 }
 
-export function instantiate(widgetConstructor: Class<Widget>) {
+export function instantiate(widgetConstructor: Class<Control>) {
     assertWidgetConstructor(widgetConstructor);
 
     const metadata: WidgetMetadata | null = getRegisteredWidgetByConstructor(widgetConstructor);
