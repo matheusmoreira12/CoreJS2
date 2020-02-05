@@ -2,13 +2,27 @@ import { FrameworkEventListener, FrameworkEventArgs } from "./Events";
 import { FrameworkEvent } from "./FrameworkEvent";
 import { applyMixin } from "../../CoreBase/Utils/ObjectUtils";
 
-export class NativeEventArgs<T extends Event> extends FrameworkEventArgs {
-    constructor(target: EventTarget, event: Event) {
+const $target = Symbol("target");
+const $event = Symbol("event");
+
+export class NativeEventArgs extends FrameworkEventArgs {
+    constructor(target: any, event: Event) {
+        super();
+
+        this[$target] = target;
+        this[$event] = event;
+
         Object.assign(this, event);
     }
+
+    get target(): any { return this[$target]; }
+    private [$target]: any;
+
+    get event(): Event { return this[$event]; }
+    private [$event]: Event;
 }
 
-export interface NativeEventArgs<T extends Event> extends FrameworkEventArgs, T {}
+export interface NativeEventArgs extends FrameworkEventArgs, Event {}
 
 /**
  * NativeEvent class
@@ -26,7 +40,7 @@ export class NativeEvent extends FrameworkEvent<NativeEventArgs> {
     }
 
     private __target_nativeEvent_handler = ((event: Event): void => {
-        this.invoke(this.target, { ...event });
+        this.invoke(this.target, new NativeEventArgs(this, event));
     }).bind(this);
 
     get target(): EventTarget { return this.__target; }
