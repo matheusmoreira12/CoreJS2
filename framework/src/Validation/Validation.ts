@@ -2,18 +2,17 @@ import { Type } from "../Standard/Types/Type";
 import { InvalidOperationException, ArgumentTypeException } from "../Standard/index";
 import { Interface } from "../Standard/Interfaces/index";
 
-type TypeDesignator = Type | Interface;
+type Class = new() => any;
+type TypeDesignator = undefined | null | Type | Interface | Class;
 
-export function assertParameter(parameterName: string, value: any, ...types: any[]): void;
-export function assertParameter(parameterName: string, value: any, ...types: TypeDesignator[]): void;
-export function assertParameter(parameterName: string, value: any, ...types: any) {
-    function* resolveTypes(): Generator<TypeDesignator> {
+export function assertParameter(parameterName: string, value: any, ...types: TypeDesignator[]) {
+    function* resolveTypes(): Generator<Type | Interface> {
         for (let type of types) {
             if (type === undefined || type === null)
                 yield Type.of(type);
             else if (type instanceof Type || type instanceof Interface)
                 yield type;
-            else if (type instanceof Function)
+            else if (<any>type instanceof Function)
                 yield Type.get(type);
             else
                 throw new InvalidOperationException(`Could not assert parameter type. ${type} is not a valid type constraint.`);

@@ -29,6 +29,9 @@ export abstract class VisualTreeNode extends Destructible {
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
+        assertParameter("qualifiedName", qualifiedName, String);
+        assertParameter("namespaceURI", namespaceURI, String, null);
+
         const domElement = document.createElementNS(namespaceURI, qualifiedName);
         return new VisualTreeElement(domElement);
     }
@@ -157,6 +160,8 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
     }
 
     createMultiple(map: { [qualifiedName: string]: string }, namespaceURI: string | null = null) {
+        assertParameter("map", map, Object);
+
         for (let qualifiedName in map)
             this.create(qualifiedName, namespaceURI, map[qualifiedName]);
     }
