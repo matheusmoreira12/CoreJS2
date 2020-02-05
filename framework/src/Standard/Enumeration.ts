@@ -75,7 +75,7 @@ export class Enumeration {
             let flagStrs: string[] = [];
 
             for (let item of this.__flagsMap) {
-                if (this.contains(item[1], value))
+                if (item[1] != 0 && this.contains(item[1], value))
                     flagStrs.push(item[0]);
             }
 
