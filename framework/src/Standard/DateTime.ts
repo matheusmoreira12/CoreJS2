@@ -264,12 +264,12 @@ const GregorianCalendar = {
     }
 };
 
-export const DateTimeEra = new Enumeration([
+export const DateTimeEra = Enumeration.create([
     "BeforeChrist",
     "AnnoDomini"
 ]);
 
-export const TimeOfDay = new Enumeration([
+export const TimeOfDay = Enumeration.create([
     "AnteMeridiem",
     "PostMeridiem"
 ]);

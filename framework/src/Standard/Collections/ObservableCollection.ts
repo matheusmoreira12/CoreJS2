@@ -10,7 +10,7 @@ export type ObservableCollectionChangeArgs<T> = {
     newIndex: number
 };
 
-export const ObservableCollectionChangeAction = new Enumeration({
+export const ObservableCollectionChangeAction = Enumeration.create({
     Add: 1,
     Remove: 2
 });

@@ -2,7 +2,7 @@
 import { Enumeration } from "../Enumeration";
 import { BroadcastFrameworkEvent } from "../Events/index";
 
-export const ServerTaskStatus = new Enumeration([
+export const ServerTaskStatus = Enumeration.create([
     "Pending",
     "Started",
     "Retried",

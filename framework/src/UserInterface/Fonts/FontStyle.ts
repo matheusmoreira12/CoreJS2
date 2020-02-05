@@ -1,6 +1,6 @@
 import { Enumeration } from "../../Standard/index";
 
-export const FontStyle = new Enumeration([
+export const FontStyle = Enumeration.create([
     "Normal",
     "Italic",
     "Oblique"

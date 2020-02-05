@@ -16,11 +16,6 @@ function joinIntoSetStr(strs: string[]): string {
     return strs.join(", ");
 }
 
-function setContainsString(str: string, setStr: string): boolean {
-    const setStrs: string[] = splitSetString(setStr);
-    return setStrs.indexOf(str) !== -1;
-}
-
 function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ key: string, value: number }> {
     if (typeof descriptor != "object")
         throw new ArgumentTypeException("descriptor", typeof descriptor, "object");
@@ -35,11 +30,34 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
     }
 }
 
+const $flags = Symbol();
+
 /**
  * Enumeration Class
  * Represents an enumeration of options.
  */
 export class Enumeration {
+    static create<T extends ExplicitEnumerationDescriptor>(descriptor: T): ExplicitEnumeration<T>;
+    static create<T extends ImplicitEnumerationDescriptor>(descriptor: T): ImplicitEnumeration<T>;
+    static create(descriptor: EnumerationDescriptor): Enumeration {
+        let flags = new Map();
+
+        for (let { key, value } of getEnumerationFlags(descriptor)) {
+            if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
+                throw new FormatException("EnumerationFlag", key)
+
+            if (flags.has(key))
+                throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
+            flags.set(key, value);
+
+            Object.defineProperty(this, key, {
+                get() { return flags.get(key); }
+            })
+        }
+
+        return Enumeration.create(flags);
+    }
+
     static contains(flag: number, value: number): boolean {
         if (typeof flag != "number")
             throw new ArgumentTypeException("flag", flag, Number);
@@ -49,32 +67,19 @@ export class Enumeration {
         return (value & flag) == flag;
     }
 
-    constructor(descriptor: EnumerationDescriptor) {
-        this.__flagsMap = new Map();
-
-        for (let { key, value } of getEnumerationFlags(descriptor)) {
-            if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
-                throw new FormatException("EnumerationFlag", key)
-
-            if (this.__flagsMap.has(key))
-                throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
-            this.__flagsMap.set(key, value);
-
-            Object.defineProperty(this, key, {
-                get() { return this.__flagsMap.get(key); }
-            })
-        }
+    private constructor(flags: Map<string, number>) {
+        this[$flags] = flags;
     }
 
     getLabel(value: number): string | null {
         function convertExact(this: Enumeration): string | undefined {
-            return MapUtils.invert(this.__flagsMap).get(value);
+            return MapUtils.invert(this[$flags]).get(value);
         }
 
         function convertMultiple(this: Enumeration): string {
             let flagStrs: string[] = [];
 
-            for (let item of this.__flagsMap) {
+            for (let item of this[$flags]) {
                 if (item[1] != 0 && Enumeration.contains(item[1], value))
                     flagStrs.push(item[0]);
             }
@@ -92,7 +97,7 @@ export class Enumeration {
     fromLabel(label: string): number {
         let result: number = 0;
 
-        let flags = label.split(/\s*,\s*/);
+        let flags = splitSetString(label);
         for (let flag of flags) {
             let value: number = <number><unknown>this[<keyof this>flag];
             if (value === undefined)
@@ -104,5 +109,13 @@ export class Enumeration {
         return result;
     }
 
-    private __flagsMap: Map<string, number>;
+    private [$flags]: Map<string, number>;
+}
+
+type ExplicitEnumeration<T extends ExplicitEnumerationDescriptor> = Enumeration & {
+    readonly [P in keyof T]: T[P];
+}
+
+type ImplicitEnumeration<T extends ImplicitEnumerationDescriptor> = Enumeration & {
+    readonly [P in T[keyof T]]: number
 }

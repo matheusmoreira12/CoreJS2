@@ -3,7 +3,7 @@ import { Interface, InterfaceMemberType, InterfaceMember } from "../../Standard/
 import { Type } from "../../Standard/Types/index";
 import { IValueConverter } from "../ValueConverters/index";
 
-export const BindingDirection = new Enumeration({
+export const BindingDirection = Enumeration.create({
     Both: 3,
     ToTarget: 1,
     ToSource: 2

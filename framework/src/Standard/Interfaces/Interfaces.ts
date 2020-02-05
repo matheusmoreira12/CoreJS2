@@ -1,6 +1,6 @@
 import { Enumeration } from "../index";
 
-export const InterfaceDifferenceKind = new Enumeration([
+export const InterfaceDifferenceKind = Enumeration.create([
     "None",
     "Missing",
     "Invalid",
@@ -10,7 +10,7 @@ export const InterfaceDifferenceKind = new Enumeration([
 
 export type InterfaceMemberKey = string | number | symbol;
 
-export const InterfaceMemberType = new Enumeration([
+export const InterfaceMemberType = Enumeration.create([
     "Property",
     "Function"
 ]);

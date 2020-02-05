@@ -1,6 +1,6 @@
 import { Enumeration } from "../../Standard/index";
 
-export const FontWeight = new Enumeration([
+export const FontWeight = Enumeration.create([
     "Normal",
     "Bold",
     "Bolder",

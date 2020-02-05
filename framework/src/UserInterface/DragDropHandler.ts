@@ -9,7 +9,7 @@ const DEFAULT_DRAG_HANDLER_OPTIONS = {
     touchDragStartDelay: 1
 };
 
-const DragDropHandlerState = new Enumeration([
+const DragDropHandlerState = Enumeration.create([
     "Ready",
     "DragStartRequested",
     "DragDragging",
