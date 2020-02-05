@@ -4,13 +4,14 @@ import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from ".
 import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces";
 import { ArgumentTypeException } from "../Exceptions";
 import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index";
+import { Enumeration } from "../index";
 
 export class Interface {
     static extract(type: Type) {
         function* generateInterfaceMembers(): Generator<InterfaceMember> {
             function generateInterfaceMember(member: MemberInfo): InterfaceMember | null {
-                let memberIsFunction: boolean = MemberType.contains(MemberType.Function, member.memberType),
-                    memberIsProperty: boolean = MemberType.contains(MemberType.Property, member.memberType);
+                let memberIsFunction: boolean = Enumeration.contains(MemberType.Function, member.memberType),
+                    memberIsProperty: boolean = Enumeration.contains(MemberType.Property, member.memberType);
                 if (memberIsFunction)
                     return new InterfaceMember(member.key, InterfaceMemberType.Function, member.type, member.attributes);
                 else if (memberIsProperty)
@@ -38,13 +39,13 @@ export class Interface {
     static differ(type: Type, _interface: Interface): InterfaceImplementationAnalysis {
         function* analizeMembers(): Generator<InterfaceDifference> {
             function memberAttributesMatch(interfaceMemberAttributes: number, typeMemberAttributes: number): boolean {
-                const memberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, interfaceMemberAttributes),
-                    memberIsConfigurable = MemberAttributes.contains(MemberAttributes.Configurable, interfaceMemberAttributes),
-                    memberIsWritable = MemberAttributes.contains(MemberAttributes.Writable, interfaceMemberAttributes);
+                const memberIsEnumerable = Enumeration.contains(MemberAttributes.Enumerable, interfaceMemberAttributes),
+                    memberIsConfigurable = Enumeration.contains(MemberAttributes.Configurable, interfaceMemberAttributes),
+                    memberIsWritable = Enumeration.contains(MemberAttributes.Writable, interfaceMemberAttributes);
 
-                const typeMemberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, typeMemberAttributes),
-                    typeMemberIsConfigurable = MemberAttributes.contains(MemberAttributes.Configurable, typeMemberAttributes),
-                    typeMemberIsWritable = MemberAttributes.contains(MemberAttributes.Writable, typeMemberAttributes);
+                const typeMemberIsEnumerable = Enumeration.contains(MemberAttributes.Enumerable, typeMemberAttributes),
+                    typeMemberIsConfigurable = Enumeration.contains(MemberAttributes.Configurable, typeMemberAttributes),
+                    typeMemberIsWritable = Enumeration.contains(MemberAttributes.Writable, typeMemberAttributes);
 
                 if (memberIsEnumerable && !typeMemberIsEnumerable)
                     return false;
@@ -57,8 +58,8 @@ export class Interface {
             }
 
             function memberTypeMatches(interfaceMemberType: number, typeMemberType: number): boolean {
-                let typeMemberIsFunction: boolean = MemberType.contains(MemberType.Function, typeMemberType),
-                    typeMemberIsProperty: boolean = MemberType.contains(MemberType.Property, typeMemberType);
+                let typeMemberIsFunction: boolean = Enumeration.contains(MemberType.Function, typeMemberType),
+                    typeMemberIsProperty: boolean = Enumeration.contains(MemberType.Property, typeMemberType);
 
                 if (interfaceMemberType == InterfaceMemberType.Property && !typeMemberIsProperty)
                     return false;

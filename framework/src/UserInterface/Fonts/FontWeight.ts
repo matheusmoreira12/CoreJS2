@@ -4,6 +4,5 @@ export const FontWeight = new Enumeration([
     "Normal",
     "Bold",
     "Bolder",
-    "Light",
     "Lighter"
 ]);

@@ -1,4 +1,4 @@
-import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../index";
+import { ArgumentTypeException, InvalidOperationException, InvalidTypeException, Enumeration } from "../index";
 import { ObjectUtils } from "../../CoreBase/Utils/index";
 import { Class, MemberInfo, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./index";
 import { Interface } from "../Interfaces/index";
@@ -74,29 +74,29 @@ export class Type<T = any> {
 
         function* selectMembers(this: Type<T>, members: Iterable<MemberInfo>): Generator<MemberInfo> {
             function memberTypeMatches(memberType: number): boolean {
-                const selectionHasFunction: boolean = MemberSelectionType.contains(MemberSelectionType.Function, <number>selectionType),
-                    selectionHasProperty: boolean = MemberSelectionType.contains(MemberSelectionType.Property, <number>selectionType),
-                    selectionHasField: boolean = MemberSelectionType.contains(MemberSelectionType.Field, <number>selectionType),
-                    selectionHasStatic: boolean = MemberSelectionType.contains(MemberSelectionType.Static, <number>selectionType),
-                    selectionHasInstance: boolean = MemberSelectionType.contains(MemberSelectionType.Instance, <number>selectionType);
+                const selectionHasFunction: boolean = Enumeration.contains(MemberSelectionType.Function, <number>selectionType),
+                    selectionHasProperty: boolean = Enumeration.contains(MemberSelectionType.Property, <number>selectionType),
+                    selectionHasField: boolean = Enumeration.contains(MemberSelectionType.Field, <number>selectionType),
+                    selectionHasStatic: boolean = Enumeration.contains(MemberSelectionType.Static, <number>selectionType),
+                    selectionHasInstance: boolean = Enumeration.contains(MemberSelectionType.Instance, <number>selectionType);
 
-                const memberIsFunction: boolean = MemberType.contains(MemberType.Function, memberType),
-                    memberIsProperty: boolean = MemberType.contains(MemberType.Property, memberType),
-                    memberIsField: boolean = MemberType.contains(MemberType.Field, memberType),
-                    memberIsStatic: boolean = MemberType.contains(MemberType.Static, memberType),
-                    memberIsInstance: boolean = MemberType.contains(MemberType.Instance, memberType);
+                const memberIsFunction: boolean = Enumeration.contains(MemberType.Function, memberType),
+                    memberIsProperty: boolean = Enumeration.contains(MemberType.Property, memberType),
+                    memberIsField: boolean = Enumeration.contains(MemberType.Field, memberType),
+                    memberIsStatic: boolean = Enumeration.contains(MemberType.Static, memberType),
+                    memberIsInstance: boolean = Enumeration.contains(MemberType.Instance, memberType);
 
                 return !(!selectionHasFunction && memberIsFunction || !selectionHasProperty && memberIsProperty || !selectionHasField && memberIsField || !selectionHasStatic && memberIsStatic || !selectionHasInstance && memberIsInstance);
             }
 
             function memberAttributesMatch(memberAttributes: number): boolean {
-                const selectionHasEnumerable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Enumerable, <number>selectionAttributes),
-                    selectionHasConfigurable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Configurable, <number>selectionAttributes),
-                    selectionHasWritable = MemberSelectionAttributes.contains(MemberSelectionAttributes.Writable, <number>selectionAttributes);
+                const selectionHasEnumerable = Enumeration.contains(MemberSelectionAttributes.Enumerable, <number>selectionAttributes),
+                    selectionHasConfigurable = Enumeration.contains(MemberSelectionAttributes.Configurable, <number>selectionAttributes),
+                    selectionHasWritable = Enumeration.contains(MemberSelectionAttributes.Writable, <number>selectionAttributes);
 
-                const memberIsEnumerable = MemberAttributes.contains(MemberAttributes.Enumerable, memberAttributes),
-                    memberIsConfigurable = MemberAttributes.contains(MemberAttributes.Configurable, memberAttributes),
-                    memberIsWritable = MemberAttributes.contains(MemberAttributes.Writable, memberAttributes);
+                const memberIsEnumerable = Enumeration.contains(MemberAttributes.Enumerable, memberAttributes),
+                    memberIsConfigurable = Enumeration.contains(MemberAttributes.Configurable, memberAttributes),
+                    memberIsWritable = Enumeration.contains(MemberAttributes.Writable, memberAttributes);
 
                 return !(selectionHasEnumerable && !memberIsEnumerable || selectionHasConfigurable && !memberIsConfigurable || selectionHasWritable && !memberIsWritable);
             }

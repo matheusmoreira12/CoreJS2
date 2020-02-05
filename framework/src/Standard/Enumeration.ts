@@ -40,7 +40,7 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
  * Represents an enumeration of options.
  */
 export class Enumeration {
-    contains(flag: number, value: number): boolean {
+    static contains(flag: number, value: number): boolean {
         if (typeof flag != "number")
             throw new ArgumentTypeException("flag", flag, Number);
         if (typeof value != "number")
@@ -75,7 +75,7 @@ export class Enumeration {
             let flagStrs: string[] = [];
 
             for (let item of this.__flagsMap) {
-                if (item[1] != 0 && this.contains(item[1], value))
+                if (item[1] != 0 && Enumeration.contains(item[1], value))
                     flagStrs.push(item[0]);
             }
 

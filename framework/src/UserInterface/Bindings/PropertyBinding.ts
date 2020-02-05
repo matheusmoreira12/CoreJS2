@@ -1,6 +1,6 @@
 import { Binding, IBindingOptions, BindingDirection } from "./index";
 import { FrameworkProperty, PropertyChangeEventArgs } from "../DependencyObjects/index";
-import { ArgumentTypeException } from "../../Standard/index";
+import { ArgumentTypeException, Enumeration } from "../../Standard/index";
 
 /**
  * PropertyBinding class
@@ -32,7 +32,7 @@ export class PropertyBinding extends Binding {
         const options = this.__options;
 
         const direction = options.direction;
-        if (!BindingDirection.contains(BindingDirection.ToTarget, direction)) return;
+        if (!Enumeration.contains(BindingDirection.ToTarget, direction)) return;
 
         const valueConverter = options.valueConverter;
         if (valueConverter !== null)
@@ -51,7 +51,7 @@ export class PropertyBinding extends Binding {
         const options = this.__options;
 
         const direction = options.direction;
-        if (!BindingDirection.contains(BindingDirection.ToSource, direction)) return;
+        if (!Enumeration.contains(BindingDirection.ToSource, direction)) return;
 
         const valueConverter = options.valueConverter;
         if (valueConverter !== null)

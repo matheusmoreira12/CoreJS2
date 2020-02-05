@@ -8,7 +8,7 @@ export type DeepClone<T> = {
 
 export type MixinBase = {
     isMixin: true;
-    baseObjects: any[];
+    baseConstructors: any[];
 };
 
 export type CompareSelectPredicate<T, U, TResult> = (a: T, b: U, quit: () => void, skip: () => void) => TResult;

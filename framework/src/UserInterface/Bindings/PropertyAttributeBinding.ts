@@ -1,6 +1,6 @@
 import { Binding, IBindingOptions, BindingDirection } from "./index";
 import { FrameworkProperty } from "../DependencyObjects/index";
-import { ArgumentTypeException } from "../../Standard/index";
+import { ArgumentTypeException, Enumeration } from "../../Standard/index";
 
 /**
  * PropertyAttributeBinding class
@@ -44,13 +44,13 @@ export class PropertyAttributeBinding extends Binding {
     private __updateTargetAttribute(value: any) {
         const options = this.__options;
         const direction = options.direction;
-        if (!BindingDirection.contains(BindingDirection.ToTarget, direction)) return;
+        if (!Enumeration.contains(BindingDirection.ToTarget, direction)) return;
 
         if (this.__isUpdadingFlag) return;
         this.__isUpdadingFlag = true;
 
         let valueConverter = options.valueConverter;
-        if (valueConverter !== null)
+        if (valueConverter)
             value = valueConverter.convert(value);
 
         if (value === null)
@@ -70,7 +70,7 @@ export class PropertyAttributeBinding extends Binding {
     private __updateSourceProperty() {
         const options = this.__options;
         const direction = options.direction;
-        if (!BindingDirection.contains(BindingDirection.ToSource, direction)) return;
+        if (!Enumeration.contains(BindingDirection.ToSource, direction)) return;
 
         if (this.__isUpdadingFlag) return;
         this.__isUpdadingFlag = true;
@@ -86,7 +86,7 @@ export class PropertyAttributeBinding extends Binding {
         }
 
         let valueConverter = options.valueConverter;
-        if (valueConverter !== null)
+        if (valueConverter)
             value = valueConverter.convertBack(value);
 
         this.sourceProperty.set(this.source, value);

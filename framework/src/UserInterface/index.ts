@@ -8,7 +8,7 @@ export * from "./AutoScroller";
 export * from "./DragDropHandler";
 export * from "./DragEmulator";
 export * from "./Timer";
-export * from "./VisualTreeManagement";
+export * from "./VisualTrees/VisualTreeNode";
 export * from "./Xaml";
 
 import * as DOMUtils from "./DOMUtils";
@@ -40,6 +40,9 @@ export { ValueConverters }
 
 import * as Fonts from "./Fonts/index";
 export { Fonts };
+
+import * as VisualTrees from "./VisualTrees/index";
+export { VisualTrees };
 
 import * as Widgets from "./Widgets/index";
 export { Widgets }

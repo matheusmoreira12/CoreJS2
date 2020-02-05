@@ -1,11 +1,20 @@
-import { FrameworkEventListener } from "./Events";
+import { FrameworkEventListener, FrameworkEventArgs } from "./Events";
 import { FrameworkEvent } from "./FrameworkEvent";
+import { applyMixin } from "../../CoreBase/Utils/ObjectUtils";
+
+export class NativeEventArgs<T extends Event> extends FrameworkEventArgs {
+    constructor(target: EventTarget, event: Event) {
+        Object.assign(this, event);
+    }
+}
+
+export interface NativeEventArgs<T extends Event> extends FrameworkEventArgs, T {}
 
 /**
  * NativeEvent class
  * Routes DOM Events, enabling native event integration.
  */
-export class NativeEvent extends FrameworkEvent<Event> {
+export class NativeEvent extends FrameworkEvent<NativeEventArgs> {
     constructor(target: EventTarget, nativeEventName: string, defaultListener?: FrameworkEventListener<Event>, defaultListenerThisArg?: any) {
         super(defaultListener, defaultListenerThisArg);
 

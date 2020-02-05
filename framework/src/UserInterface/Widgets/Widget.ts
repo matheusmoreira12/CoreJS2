@@ -4,8 +4,8 @@ import { DragDropHandler, DOMUtils } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { FrameworkProperty, FrameworkPropertyOptions } from "../DependencyObjects/index";
-import { VisualTreeElement } from "../VisualTreeManagement";
 import { Type } from "../../Standard/Types/Type";
+import { VisualTreeElement } from "../VisualTrees/index";
 
 ///TODO: fix this mess
 
