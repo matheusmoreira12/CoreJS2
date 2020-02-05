@@ -5,6 +5,8 @@ import { applyMixin } from "../../CoreBase/Utils/ObjectUtils";
 const $target = Symbol("target");
 const $event = Symbol("event");
 
+type NativeEventListener = FrameworkEventListener<NativeEventArgs>;
+
 export class NativeEventArgs extends FrameworkEventArgs {
     constructor(target: any, event: Event) {
         super();
@@ -29,7 +31,7 @@ export interface NativeEventArgs extends FrameworkEventArgs, Event {}
  * Routes DOM Events, enabling native event integration.
  */
 export class NativeEvent extends FrameworkEvent<NativeEventArgs> {
-    constructor(target: EventTarget, nativeEventName: string, defaultListener?: FrameworkEventListener<Event>, defaultListenerThisArg?: any) {
+    constructor(target: EventTarget, nativeEventName: string, defaultListener?: NativeEventListener, defaultListenerThisArg?: any) {
         super(defaultListener, defaultListenerThisArg);
 
         this.__target = target;
@@ -50,7 +52,7 @@ export class NativeEvent extends FrameworkEvent<NativeEventArgs> {
     private __nativeEventName: string;
 
     get defaultListener() { return this.__defaultListener; }
-    private __defaultListener: FrameworkEventListener<Event> | undefined;
+    private __defaultListener: NativeEventListener | undefined;
 
     destructor() {
         this.__target.removeEventListener(this.__nativeEventName, this.__target_nativeEvent_handler);

@@ -1,7 +1,7 @@
 import { InvalidOperationException } from "../../Standard/index";
 import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler, DOMUtils } from "../index";
-import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
+import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { FrameworkProperty, FrameworkPropertyOptions } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
@@ -115,31 +115,35 @@ export abstract class Widget extends VisualTreeElement {
 
     //  Mouse Events
     //      Mouse Enter Event
-    private __onMouseEnter(sender: any, args: FrameworkEventArgs) {
+    private __onMouseEnter(sender: any, args: NativeEventArgs) {
         this.isMouseOver = true;
     }
     MouseEnterEvent = new NativeEvent(this.__domNode, "mouseenter", this.__onMouseEnter, this);
 
     //      Mouse Leave Event
-    private __onMouseLeave(sender: any, args: FrameworkEventArgs) {
+    private __onMouseLeave(sender: any, args: NativeEventArgs) {
         this.isMouseOver = false;
     }
     MouseLeaveEvent = new NativeEvent(this.__domNode, "mouseleave", this.__onMouseLeave, this);
 
     //      Mouse Down Event
-    private __onMouseDown(sender: any, args: FrameworkEventArgs) { }
+    private __onMouseDown(sender: any, args: NativeEventArgs) {
+        this.isMouseDown = true;
+    }
     MouseDownEvent = new NativeEvent(this.__domNode, "mousedown", this.__onMouseDown, this);
 
-    //      Mouse Move Event
-    private __onMouseMove(sender: any, args: FrameworkEventArgs) { }
-    MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove, this);
-
     //      Mouse Up Event
-    private __onMouseUp(sender: any, args: FrameworkEventArgs) { }
+    private __onMouseUp(sender: any, args: NativeEventArgs) { 
+        this.isMouseDown = false;
+    }
     MouseUpEvent = new NativeEvent(this.__domNode, "mouseup", this.__onMouseUp, this);
 
+    //      Mouse Move Event
+    private __onMouseMove(sender: any, args: NativeEventArgs) { }
+    MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove, this);
+
     //      Click Event
-    private __onClick(sender: any, args: FrameworkEventArgs) { }
+    private __onClick(sender: any, args: NativeEventArgs) { }
     ClickEvent = new NativeEvent(this.__domNode, "click", this.__onClick, this);
 
     //Framework Properties
@@ -149,6 +153,11 @@ export abstract class Widget extends VisualTreeElement {
     static isMouseOverProperty = new FrameworkProperty("isMouseOver", new FrameworkPropertyOptions(Type.get(Boolean), false));
     get isMouseOver() { return Widget.isMouseOverProperty.get(this); }
     set isMouseOver(value) { Widget.isMouseOverProperty.set(this, value); }
+
+    //          Is Mouse Down Property
+    static isMouseDownProperty = new FrameworkProperty("isMouseDown", new FrameworkPropertyOptions(Type.get(Boolean), false));
+    get isMouseDown() { return Widget.isMouseDownProperty.get(this); }
+    set isMouseDown(value) { Widget.isMouseDownProperty.set(this, value); }
 
     //      Drag State Properties
     //          Is Dragging Property
