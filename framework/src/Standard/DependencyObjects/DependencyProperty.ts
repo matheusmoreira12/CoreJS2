@@ -7,7 +7,6 @@ import { DependencyObject } from "./DependencyObject";
 type Class<T> = new() => T;
 
 /**
- * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {

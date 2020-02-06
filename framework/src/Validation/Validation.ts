@@ -23,7 +23,7 @@ function tryAssert(value: any, ...types: TypeDesignator[]): boolean {
 }
 
 export function assertParameter(parameterName: string, value: any, ...types: TypeDesignator[]) {
-    if (!tryAssert(parameterName, Array))
+    if (!tryAssert(parameterName, String))
         throw new ArgumentTypeException("parameterName", parameterName, String);
     if (!tryAssert(types, Array))
         throw new ArgumentTypeException("types", types, Array);
@@ -33,7 +33,7 @@ export function assertParameter(parameterName: string, value: any, ...types: Typ
 }
 
 export function assert(name: string, value: any, ...types: TypeDesignator[]) {
-    if (!tryAssert(name, Array))
+    if (!tryAssert(name, String))
         throw new ArgumentTypeException("parameterName", name, String);
     if (!tryAssert(types, Array))
         throw new ArgumentTypeException("types", types, Array);
