@@ -1,6 +1,6 @@
-import { FrameworkEventArgs, FrameworkEvent } from "../../Standard/Events/index";
+import { FrameworkEventArgs, FrameworkEvent } from "../Events/index";
 import { DependencyProperty } from "./index";
-import { ArgumentMissingException, ArgumentTypeException } from "../../Standard/index";
+import { ArgumentMissingException, ArgumentTypeException } from "../index";
 
 export type PropertyChangeEvent = FrameworkEvent<PropertyChangeEventArgs>;
 

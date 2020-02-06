@@ -23,11 +23,11 @@ export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue>
     private __notifySet(key: TKey, value: TValue) {
         const valueHasChanged = this.has(key);
         if (valueHasChanged) {
-            const oldValue = this.get(key);
+            const oldValue = this.get(key) || null;
             this.ChangeEvent.invoke(this, {
                 action: ObservableDictionaryChangeAction.Change,
                 key,
-                oldValue: null,
+                oldValue,
                 newValue: value,
             });
         }

@@ -1,4 +1,4 @@
-﻿import { Control } from "./Widget";
+﻿import { Control } from "./Control";
 import { Class } from "../../Standard/Types/Types";
 import { Collection } from "../../Standard/Collections/Collection";
 
@@ -10,7 +10,7 @@ export class WidgetMetadata {
         this.__activeInstances = new Collection();
     }
 
-    get widgetConstructor(): Class<Control> { return this.__widgetConstructor; }
+    get controlConstructor(): Class<Control> { return this.__widgetConstructor; }
     private __widgetConstructor: Class<Control>;
 
     get namespaceURI(): string | null { return this.__namespaceURI; }

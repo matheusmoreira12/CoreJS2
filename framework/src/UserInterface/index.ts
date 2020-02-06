@@ -23,7 +23,7 @@ export { Bindings }
 import * as Colors from "./Colors/index";
 export { Colors }
 
-import * as DependencyObjects from "./DependencyObjects/index";
+import * as DependencyObjects from "../Standard/DependencyObjects/index";
 export { DependencyObjects }
 
 import * as Setters from "./Setters/index";
@@ -44,5 +44,5 @@ export { Fonts };
 import * as VisualTrees from "./VisualTrees/index";
 export { VisualTrees };
 
-import * as Widgets from "./Widgets/index";
+import * as Widgets from "./Controls/index";
 export { Widgets }

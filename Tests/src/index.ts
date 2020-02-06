@@ -116,7 +116,7 @@ function listTypeInfo(type) {
     for (let parentType of parentTypes)
         listTypeInfo(parentType);
 
-    let staticMembers = [...type.getMembers(MemberSelectionType.AnyStatic)];
+    let staticMembers = [...type.getMembers(MemberSelectionType.Static | MemberSelectionType.Function | MemberSelectionType.Property | MemberSelectionType.Field)];
     Consolify.writeLn(`- ${staticMembers.length} static member(s):`);
 
     for (let staticMember of staticMembers) {

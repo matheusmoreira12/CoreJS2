@@ -4,7 +4,18 @@ import { MapUtils } from "../CoreBase/Utils/index";
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
 type ExplicitEnumerationDescriptor = { [key: string]: number };
-type ImplicitEnumerationDescriptor = string[];
+
+type ExplicitEnumeration<T extends ExplicitEnumerationDescriptor> = Enumeration & {
+    readonly [P in keyof T]: T[P];
+}
+
+type ValueOf<T> = T[keyof T];
+
+type ImplicitEnumerationDescriptor = Array<string>;
+
+type ImplicitEnumeration<T extends ImplicitEnumerationDescriptor> = Enumeration & {
+    readonly [P in ValueOf<T> & string]: number;
+}
 
 export type EnumerationDescriptor = ExplicitEnumerationDescriptor | ImplicitEnumerationDescriptor;
 
@@ -40,8 +51,7 @@ export class Enumeration {
     static create<T extends ExplicitEnumerationDescriptor>(descriptor: T): ExplicitEnumeration<T>;
     static create<T extends ImplicitEnumerationDescriptor>(descriptor: T): ImplicitEnumeration<T>;
     static create(descriptor: EnumerationDescriptor): Enumeration {
-        let flags = new Map();
-
+        const flags = new Map<string, number>();
         for (let { key, value } of getEnumerationFlags(descriptor)) {
             if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
                 throw new FormatException("EnumerationFlag", key)
@@ -49,13 +59,8 @@ export class Enumeration {
             if (flags.has(key))
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
             flags.set(key, value);
-
-            Object.defineProperty(this, key, {
-                get() { return flags.get(key); }
-            })
         }
-
-        return Enumeration.create(flags);
+        return new Enumeration(flags);
     }
 
     static contains(flag: number, value: number): boolean {
@@ -68,6 +73,12 @@ export class Enumeration {
     }
 
     private constructor(flags: Map<string, number>) {
+        for (const flag of flags) {
+            Object.defineProperty(this, flag[0], {
+                get() { return flags.get(flag[0]); }
+            });
+        }
+
         this[$flags] = flags;
     }
 
@@ -110,12 +121,4 @@ export class Enumeration {
     }
 
     private [$flags]: Map<string, number>;
-}
-
-type ExplicitEnumeration<T extends ExplicitEnumerationDescriptor> = Enumeration & {
-    readonly [P in keyof T]: T[P];
-}
-
-type ImplicitEnumeration<T extends ImplicitEnumerationDescriptor> = Enumeration & {
-    readonly [P in T[keyof T]]: number
 }

@@ -1,7 +1,7 @@
-import { Type } from "../../Standard/Types/index";
-import { Interface } from "../../Standard/Interfaces/index";
-import { ArgumentMissingException, ArgumentTypeException } from "../../Standard/index";
-import { FrameworkEvent } from "../../Standard/Events/index";
+import { Type } from "../Types/index";
+import { Interface } from "../Interfaces/index";
+import { ArgumentMissingException, ArgumentTypeException } from "../index";
+import { FrameworkEvent } from "../Events/index";
 import { PropertyChangeEvent, PropertyChangeEventArgs } from "./DependencyPropertyChangeEvent";
 
 export class DependencyPropertyOptions {
@@ -32,6 +32,10 @@ export class DependencyPropertyOptions {
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
+    static register() {
+        
+    }
+
     constructor(name: string, options: DependencyPropertyOptions) {
         this.__name = name;
         this.__options = options;

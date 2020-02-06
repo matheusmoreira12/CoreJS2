@@ -3,6 +3,9 @@ import { TextDecoration } from "./TextDecoration";
 import { FontStyle } from "./FontStyle";
 import { assertParameter } from "../../Validation/index";
 
+const DEFAULT_FONT_FAMILY  = "Arial, Verdana, Sans-serif";
+const DEFAULT_FONT_SIZE = "14pt";
+
 const $family = Symbol("family");
 const $size = Symbol("size");
 const $weight = Symbol("weight");
@@ -10,6 +13,8 @@ const $style = Symbol("style");
 const $textDecoration = Symbol("textDecoration");
 
 export class Font {
+    static get default(): Font { return new Font(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE); }
+
     constructor(family: string, size: string, weight: number = FontWeight.Normal, style: number = FontStyle.Normal, textDecoration: number = TextDecoration.None) {
         assertParameter("family", family, String);
         assertParameter("size", size, String);

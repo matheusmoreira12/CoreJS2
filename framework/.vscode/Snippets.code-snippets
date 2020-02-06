@@ -1,0 +1,12 @@
+{
+	"Dependency Property": {
+		"scope": "typescript",
+		"prefix": "propdp",
+		"body": [
+			"static ${1:name}Property = new DependencyProperty(\"${1:name}\", new DependencyPropertyOptions(Type.get(${2:valueType}), ${3:defaultValue}));",
+			"public get ${1:name}(): ${2:valueType} { return ${4:className}.${1:name}Property.get(this); }",
+			"public set ${1:name}(value: ${2:valueType}) { ${4:className}.${1:name}Property.set(this, value); }"
+		],
+		"description": "Declare a Dependency Property."
+	}
+}
