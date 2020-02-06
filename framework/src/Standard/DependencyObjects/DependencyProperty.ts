@@ -1,48 +1,29 @@
-import { Type } from "../Types/index";
-import { Interface } from "../Interfaces/index";
-import { ArgumentMissingException, ArgumentTypeException } from "../index";
 import { FrameworkEvent } from "../Events/index";
 import { PropertyChangeEvent, PropertyChangeEventArgs } from "./DependencyPropertyChangeEvent";
+import { PropertyMetadata } from "./PropertyMetadata";
+import * as Registry from "./DependencyPropertyRegistry";
+import { DependencyObject } from "./DependencyObject";
 
-export class DependencyPropertyOptions {
-    constructor(valueType: Type | Interface | null, defaultValue: any) {
-        if (arguments.length < 1)
-            throw new ArgumentMissingException("valueType");
-        if (arguments.length < 2)
-            throw new ArgumentMissingException("valueType");
-
-        if (valueType !== null && !(valueType instanceof Type) && !(valueType instanceof Interface))
-            throw new ArgumentTypeException("valueType", valueType);
-        if (valueType !== null && !Type.of(defaultValue).matches(valueType))
-            throw new ArgumentTypeException("defaultValue", defaultValue, valueType);
-
-        this.__valueType = valueType;
-        this.__defaultValue = defaultValue;
-    }
-
-    get valueType(): Type | Interface | null { return this.__valueType; }
-    private __valueType: Type | Interface | null;
-
-    get defaultValue(): any { return this.__defaultValue; }
-    private __defaultValue: any;
-}
+type Class<T> = new() => T;
 
 /**
  * FrameworkProperty class
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    static register() {
-        
+    static register(target: Class<DependencyObject>, name: string, metadata: PropertyMetadata) {
+        const property = new DependencyProperty(name, metadata);
+        Registry.register(target, property);
+        return property;
     }
 
-    constructor(name: string, options: DependencyPropertyOptions) {
+    constructor(name: string, options: PropertyMetadata) {
         this.__name = name;
-        this.__options = options;
+        this.__metadata = options;
     }
 
     get(target: object) {
-        const options = this.__options;
+        const options = this.__metadata;
         const storedValues = this.__storedValues;
         if (!storedValues.has(target))
             return options.defaultValue;
@@ -70,8 +51,8 @@ export class DependencyProperty {
     get name(): string { return this.__name; }
     private __name: string;
 
-    get options(): DependencyPropertyOptions { return this.__options; }
-    private __options: DependencyPropertyOptions;
+    get metadata(): PropertyMetadata { return this.__metadata; }
+    private __metadata: PropertyMetadata;
 
     private __storedValues = new WeakMap<object, any>();
 }
