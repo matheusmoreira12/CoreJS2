@@ -60,7 +60,7 @@ class RegistryContext {
     }
 
     tryStoreValue(property: DependencyProperty, value: any): boolean {
-        const propertyStorage = this.propertyStorages.find(sv => sv.hasValue);
+        const propertyStorage = this.propertyStorages.find(sv => sv.property === property);
         if (propertyStorage) {
             propertyStorage.value = value;
             return true;
@@ -69,15 +69,15 @@ class RegistryContext {
             return false;
     }
 
-    tryRetrieveValue(property: DependencyProperty, { value }: { value: any }) {
+    tryRetrieveValue(property: DependencyProperty, result: { value: any }) {
         let context: RegistryContext | null = this;
         while (context) {
-            const propertyStorage = this.propertyStorages.find(sv => sv.hasValue);
+            const propertyStorage = this.propertyStorages.find(sv => sv.property === property);
             if (propertyStorage) {
                 if (propertyStorage.hasValue)
-                    value = propertyStorage.value;
+                    result.value = propertyStorage.value;
                 else
-                    value = propertyStorage.metadata.defaultValue;
+                    result.value = propertyStorage.metadata.defaultValue;
                 return true;
             }
             context = context.superContext;
@@ -115,18 +115,16 @@ function getContext(target: DependencyObject): RegistryContext | null {
 
 export function getValue(property: DependencyProperty, target: DependencyObject): any {
     const context = getContext(target);
-    let value: any;
-    if (context && context.tryRetrieveValue(property, { value }))
-        return value;
+    let result: { value: any } = { value: null };
+    if (context && context.tryRetrieveValue(property, result))
+        return result.value;
     else
         throw new InvalidOperationException("Cannot get property value.")
 }
 
 export function setValue(property: DependencyProperty, target: DependencyObject, value: any) {
     const context = getContext(target);
-    if (context && context.tryStoreValue(property, value))
-        return;
-    else
+    if (!context || !context.tryStoreValue(property, value))
         throw new InvalidOperationException("Cannot set property value.")
 }
 
