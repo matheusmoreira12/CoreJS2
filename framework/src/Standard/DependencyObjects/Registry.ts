@@ -2,6 +2,7 @@ import { DependencyObject } from "./DependencyObject";
 import { DependencyProperty } from "./DependencyProperty";
 import { PropertyMetadata } from "./PropertyMetadata";
 import { InvalidOperationException } from "../Exceptions";
+import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
 type Class<T> = new () => T;
 
@@ -59,30 +60,34 @@ class RegistryContext {
         this.propertyStorages.push(...copiedProperties);
     }
 
-    tryStoreValue(property: DependencyProperty, value: any): boolean {
+    storeValue(property: DependencyProperty, value: any) {
         const propertyStorage = this.propertyStorages.find(sv => sv.property === property);
-        if (propertyStorage) {
+        if (propertyStorage)
             propertyStorage.value = value;
-            return true;
-        }
-        else
-            return false;
     }
 
-    tryRetrieveValue(property: DependencyProperty, result: { value: any }) {
+    *getChangedContexts(property: DependencyProperty, value: any): Generator<RegistryContext> {
+        const oldValue = this.retrieveValue(property);
+        if (oldValue === null || value !== oldValue)
+            yield this;
+
+        for (let subContext of this.subContexts)
+            yield* subContext.getChangedContexts(property, value);
+    }
+
+    retrieveValue(property: DependencyProperty): any {
         let context: RegistryContext | null = this;
         while (context) {
             const propertyStorage = this.propertyStorages.find(sv => sv.property === property);
             if (propertyStorage) {
                 if (propertyStorage.hasValue)
-                    result.value = propertyStorage.value;
+                    return propertyStorage.value;
                 else
-                    result.value = propertyStorage.metadata.defaultValue;
-                return true;
+                    return propertyStorage.metadata.defaultValue;
             }
             context = context.superContext;
         }
-        return false;
+        return null;
     }
 
     targetClass: Class<DependencyObject> | null;
@@ -115,18 +120,27 @@ function getContext(target: DependencyObject): RegistryContext | null {
 
 export function getValue(property: DependencyProperty, target: DependencyObject): any {
     const context = getContext(target);
-    let result: { value: any } = { value: null };
-    if (context && context.tryRetrieveValue(property, result))
-        return result.value;
+    if (context)
+        return context.retrieveValue(property);
     else
         throw new InvalidOperationException("Cannot get property value.")
 }
 
 export function setValue(property: DependencyProperty, target: DependencyObject, value: any) {
     const context = getContext(target);
-    if (!context || !context.tryStoreValue(property, value))
-        throw new InvalidOperationException("Cannot set property value.")
+    if (context) {
+        const changedContexts = context.getChangedContexts(property, value);
+        for (let changedContext of changedContexts) {
+            const oldValue = changedContext.retrieveValue(property);
+            if (changedContext.targetInstance)
+                changedContext.targetInstance.__invoke_onPropertyChange(new PropertyChangeEventArgs(target, property, oldValue, value));
+        }
+        context.storeValue(property, value)
+        return;
+    }
+    throw new InvalidOperationException("Cannot set property value.");
 }
+
 
 export function register(target: Class<DependencyObject>, property: DependencyProperty, metadata: PropertyMetadata) {
     const context = RegistryContext.createByClass(target);

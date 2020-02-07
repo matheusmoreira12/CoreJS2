@@ -13,5 +13,5 @@ export const IValueConverter = new Interface(
  * Exposes a friendly interface for converting values between inner data types and the interface.*/
 export interface IValueConverter {
     convert: (value: any) => string | null,
-    convertBack: (value: string) => any
+    convertBack: (value: string | null) => any
 }

@@ -1,5 +1,5 @@
 import { Binding, IBindingOptions, BindingDirection } from "./index";
-import { DependencyProperty } from "../../Standard/DependencyObjects/index";
+import { DependencyProperty, DependencyObject, PropertyChangeEventArgs } from "../../Standard/DependencyObjects/index";
 import { ArgumentTypeException, Enumeration } from "../../Standard/index";
 
 /**
@@ -7,7 +7,7 @@ import { ArgumentTypeException, Enumeration } from "../../Standard/index";
  * Allows the binding of an attribute to a framework property.
  */
 export class PropertyAttributeBinding extends Binding {
-    constructor(source: object, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, options?: IBindingOptions) {
+    constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, options?: IBindingOptions) {
         super(options);
 
         if (!(source instanceof Object))
@@ -24,7 +24,7 @@ export class PropertyAttributeBinding extends Binding {
         this.__targetElement = targetElement;
         this.__targetAttributeName = targetAttributeName;
 
-        sourceProperty.ChangeEvent.attach(this.__sourceProperty_onChange, this);
+        source.PropertyChangeEvent.attach(this.__target_onPropertyChange, this);
 
         this.__attributeObserver = new MutationObserver(this.__target_attributeSet_handler);
         this.__observeAttributeChanges();
@@ -44,79 +44,75 @@ export class PropertyAttributeBinding extends Binding {
     private __updateTargetAttribute(value: any) {
         const options = this.__options;
         const direction = options.direction;
-        if (!Enumeration.contains(BindingDirection.ToTarget, direction)) return;
+        if (direction && Enumeration.contains(BindingDirection.ToTarget, direction)) {
+            if (!this.__isUpdadingFlag) {
+                this.__isUpdadingFlag = true;
 
-        if (this.__isUpdadingFlag) return;
-        this.__isUpdadingFlag = true;
+                let valueConverter = options.valueConverter;
+                if (valueConverter)
+                    value = valueConverter.convert(value);
 
-        let valueConverter = options.valueConverter;
-        if (valueConverter)
-            value = valueConverter.convert(value);
+                if (value === null)
+                    this.targetElement.removeAttribute(this.targetAttributeName);
+                else
+                    this.targetElement.setAttribute(this.targetAttributeName, value);
 
-        if (value === null)
-            this.targetElement.removeAttribute(this.targetAttributeName);
-        else
-            this.targetElement.setAttribute(this.targetAttributeName, value);
-
-        this.__isUpdadingFlag = false;
+                this.__isUpdadingFlag = false;
+            }
+        }
     }
 
-    private __sourceProperty_onChange(sender: object, args: any) {
-        if (!Object.is(args.target, this.source)) return;
-
-        this.__updateTargetAttribute(args.newValue);
+    private __target_onPropertyChange(sender: DependencyObject, args: PropertyChangeEventArgs) {
+        if (args.property === this.__sourceProperty)
+            this.__updateTargetAttribute(args.newValue);
     }
 
     private __updateSourceProperty() {
         const options = this.__options;
         const direction = options.direction;
-        if (!Enumeration.contains(BindingDirection.ToSource, direction)) return;
+        if (direction && Enumeration.contains(BindingDirection.ToSource, direction)) {
+            if (this.__isUpdadingFlag) {
+                this.__isUpdadingFlag = true;
 
-        if (this.__isUpdadingFlag) return;
-        this.__isUpdadingFlag = true;
+                let value = null;
+                if (this.targetElement.hasAttribute(this.targetAttributeName))
+                    value = this.targetElement.getAttribute(this.targetAttributeName);
 
-        let value = null;
-        if (this.targetElement.hasAttribute(this.targetAttributeName))
-            value = this.targetElement.getAttribute(this.targetAttributeName);
+                let valueConverter = options.valueConverter;
+                if (valueConverter)
+                    value = valueConverter.convertBack(value);
 
-        ///TODO: once angularjs is OUT, remove the following block:
-        if (value && value.startsWith("{{")) {
-            this.__isUpdadingFlag = false;
-            return;
+                this.__source.set(this.__sourceProperty, value);
+
+                this.__isUpdadingFlag = false;
+            }
         }
-
-        let valueConverter = options.valueConverter;
-        if (valueConverter)
-            value = valueConverter.convertBack(value);
-
-        this.sourceProperty.set(this.source, value);
-
-        this.__isUpdadingFlag = false;
     }
 
     private __target_attributeSet_handler = ((mutations: MutationRecord[]) => {
-        for (let mutation of mutations)
+        for (let mutation of mutations) {
             if (mutation.attributeName === this.targetAttributeName)
-                 this.__updateSourceProperty();
+                this.__updateSourceProperty();
+        }
     }).bind(this);
 
-    get source() { return this.__source; }
-    private __source: object;
+    get source(): DependencyObject { return this.__source; }
+    private __source: DependencyObject;
 
-    get sourceProperty() { return this.__sourceProperty; }
+    get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
     private __sourceProperty: DependencyProperty;
 
-    get targetElement() { return this.__targetElement; }
+    get targetElement(): Element { return this.__targetElement; }
     private __targetElement: Element;
 
-    get targetAttributeName() { return this.__targetAttributeName; }
+    get targetAttributeName(): string { return this.__targetAttributeName; }
     private __targetAttributeName: string;
 
     private __isUpdadingFlag: boolean = false;
     private __attributeObserver: MutationObserver;
 
     destructor() {
-        this.__sourceProperty.ChangeEvent.detach(this.__sourceProperty_onChange);
+        this.__source.PropertyChangeEvent.detach(this.__target_onPropertyChange);
         this.__attributeObserver.disconnect();
     }
 }

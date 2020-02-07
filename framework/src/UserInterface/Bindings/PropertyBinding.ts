@@ -1,5 +1,5 @@
 import { Binding, IBindingOptions, BindingDirection } from "./index";
-import { DependencyProperty, PropertyChangeEventArgs } from "../../Standard/DependencyObjects/index";
+import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../../Standard/DependencyObjects/index";
 import { ArgumentTypeException, Enumeration } from "../../Standard/index";
 
 /**
@@ -7,7 +7,7 @@ import { ArgumentTypeException, Enumeration } from "../../Standard/index";
  * Allows the binding of two framework properties.
  */
 export class PropertyBinding extends Binding {
-    constructor(source: object, sourceProperty: DependencyProperty, target: object, targetProperty: DependencyProperty, options?: IBindingOptions) {
+    constructor(source: DependencyObject, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, options?: IBindingOptions) {
         super(options);
 
         if (!(source instanceof Object))
@@ -24,24 +24,24 @@ export class PropertyBinding extends Binding {
         this.__target = target;
         this.__targetProperty = targetProperty;
 
-        sourceProperty.ChangeEvent.attach(this.sourceProperty_onChange, this);
-        targetProperty.ChangeEvent.attach(this.targetProperty_onChange, this);
+        source.PropertyChangeEvent.attach(this.source_onPropertyChange, this);
+        target.PropertyChangeEvent.attach(this.target_onPropertyChange, this);
     }
 
     updateTargetProperty(value: any) {
         const options = this.__options;
 
         const direction = options.direction;
-        if (!Enumeration.contains(BindingDirection.ToTarget, direction)) return;
+        if (direction && Enumeration.contains(BindingDirection.ToTarget, direction)) {
+            const valueConverter = options.valueConverter;
+            if (valueConverter)
+                value = valueConverter.convert(value);
 
-        const valueConverter = options.valueConverter;
-        if (valueConverter !== null)
-            value = valueConverter.convert(value);
-
-        this.targetProperty.set(this.__target, value);
+            this.target.set(this.targetProperty, value);
+        }
     }
 
-    sourceProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+    source_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.target !== this.source) return;
 
         this.updateTargetProperty(args.newValue);
@@ -51,36 +51,36 @@ export class PropertyBinding extends Binding {
         const options = this.__options;
 
         const direction = options.direction;
-        if (!Enumeration.contains(BindingDirection.ToSource, direction)) return;
+        if (direction && Enumeration.contains(BindingDirection.ToSource, direction)) {
+            const valueConverter = options.valueConverter;
+            if (valueConverter)
+                value = valueConverter.convertBack(value);
 
-        const valueConverter = options.valueConverter;
-        if (valueConverter !== null)
-            value = valueConverter.convertBack(value);
-
-        this.sourceProperty.set(this.__source, value);
+            this.source.set(this.sourceProperty, value);
+        }
     }
 
-    targetProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+    target_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.target !== this.__source) return;
 
         this.updateSourceProperty(args.newValue);
     }
 
-    get source(): object { return this.__source; }
-    private __source: object;
+    get source(): DependencyObject { return this.__source; }
+    private __source: DependencyObject;
 
     get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
     private __sourceProperty: DependencyProperty;
 
-    get target(): object { return this.__target; }
-    private __target: object;
+    get target(): DependencyObject { return this.__target; }
+    private __target: DependencyObject;
 
 
     get targetProperty(): DependencyProperty { return this.__targetProperty; }
     private __targetProperty: DependencyProperty;
 
     destructor() {
-        this.sourceProperty.ChangeEvent.detach(this.sourceProperty_onChange);
-        this.targetProperty.ChangeEvent.detach(this.targetProperty_onChange);
+        this.source.PropertyChangeEvent.detach(this.source_onPropertyChange);
+        this.target.PropertyChangeEvent.detach(this.target_onPropertyChange);
     }
 }

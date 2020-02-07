@@ -1,5 +1,5 @@
 import { PropertyMetadata } from "./PropertyMetadata";
-import * as Registry from "./DependencyPropertyRegistry";
+import * as Registry from "./Registry";
 import { DependencyObject } from "./DependencyObject";
 
 type Class<T> = new() => T;
@@ -23,7 +23,5 @@ export class DependencyProperty {
     }
 
     get name(): string { return this.__name; }
-    private __name: string;
-
-    private __storedValues = new WeakMap<object, any>();
+    private __name: string
 }
