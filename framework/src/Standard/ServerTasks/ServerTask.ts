@@ -2,14 +2,12 @@
 import { Enumeration } from "../Enumeration";
 import { BroadcastFrameworkEvent } from "../Events/index";
 
-export const ServerTaskStatus = Enumeration.create([
-    "Pending",
-    "Started",
-    "Retried",
-    "Failed",
-    "TimedOut",
-    "Success"
-]);
+export const ServerTaskStatus = Enumeration.create({
+    Pending: null,
+    Started: null,
+    Failed: null,
+    Success: null
+});
 
 //Keys for ServerTask
 /**
@@ -38,7 +36,7 @@ export class ServerTask<TResult> {
         }
 
         function notifySuccess(this: ServerTask<TResult>) {
-            notifyStatus.call(this, ServerTaskStatus.Succeeded);
+            notifyStatus.call(this, ServerTaskStatus.Success);
 
             this.succeededEvent.broadcast(this, {});
             this.finishedEvent.broadcast(this, { error: null });

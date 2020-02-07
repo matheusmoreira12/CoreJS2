@@ -3,21 +3,11 @@ import { MapUtils } from "../CoreBase/Utils/index";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
-type ExplicitEnumerationDescriptor = { [key: string]: number };
+type EnumerationDescriptor = { [key: string]: number | null };
 
-type ExplicitEnumeration<T extends ExplicitEnumerationDescriptor> = Enumeration & {
-    readonly [P in keyof T]: T[P];
+type EnumerationInstance<T extends EnumerationDescriptor> = Enumeration & {
+    readonly [P in keyof T]: number;
 }
-
-type ValueOf<T> = T[keyof T];
-
-type ImplicitEnumerationDescriptor = Array<string>;
-
-type ImplicitEnumeration<T extends ImplicitEnumerationDescriptor> = Enumeration & {
-    readonly [P in ValueOf<T> & string]: number;
-}
-
-export type EnumerationDescriptor = ExplicitEnumerationDescriptor | ImplicitEnumerationDescriptor;
 
 function splitSetString(setStr: string): string[] {
     return setStr.split("\s*,\s*");
@@ -31,13 +21,14 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
     if (typeof descriptor != "object")
         throw new ArgumentTypeException("descriptor", typeof descriptor, "object");
 
-    if (<any>descriptor instanceof Array) {
-        for (let i = 0; i < (<ImplicitEnumerationDescriptor>descriptor).length; i++)
-            yield { key: (<ImplicitEnumerationDescriptor>descriptor)[i], value: <number><unknown>i }
-    }
-    else {
-        for (let key in descriptor)
-            yield { key, value: (<ExplicitEnumerationDescriptor>descriptor)[key] };
+    let value: number = 0;
+    for (let key in descriptor) {
+        if (descriptor[key] === null)
+            value++;
+        else
+            value = <number>descriptor[key];
+
+        yield { key, value };
     }
 }
 
@@ -48,9 +39,7 @@ const $flags = Symbol();
  * Represents an enumeration of options.
  */
 export class Enumeration {
-    static create<T extends ExplicitEnumerationDescriptor>(descriptor: T): ExplicitEnumeration<T>;
-    static create<T extends ImplicitEnumerationDescriptor>(descriptor: T): ImplicitEnumeration<T>;
-    static create(descriptor: EnumerationDescriptor): Enumeration {
+    static create<T extends EnumerationDescriptor>(descriptor: T): EnumerationInstance<T> {
         const flags = new Map<string, number>();
         for (let { key, value } of getEnumerationFlags(descriptor)) {
             if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
@@ -60,7 +49,7 @@ export class Enumeration {
                 throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
             flags.set(key, value);
         }
-        return new Enumeration(flags);
+        return <EnumerationInstance<T>>new Enumeration(flags);
     }
 
     static contains(flag: number, value: number): boolean {

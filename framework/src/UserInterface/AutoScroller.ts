@@ -4,23 +4,23 @@ import { FrameworkEvent } from "../Standard/Events/index";
 import { DOMUtils } from "./index";
 import { Timer } from "./index";
 
-export const AutoScrollerOrientation = Enumeration.create([
-    "Horizontal",
-    "Vertical"
-]);
+export const AutoScrollerOrientation = Enumeration.create({
+    Horizontal: null,
+    Vertical: null,
+});
 
-export const AutoScrollerDirection = Enumeration.create([
-    "None",
-    "Forward",
-    "Backward"
-]);
+export const AutoScrollerDirection = Enumeration.create({
+    None: null,
+    Forward: null,
+    Backward: null,
+});
 
-const AutoScrollerState = Enumeration.create([
-    "Ready",
-    "ScrollNotified",
-    "ScrollActive",
-    "ScrollRejected"
-]);
+const AutoScrollerState = Enumeration.create({
+    Ready: null,
+    ScrollNotified: null,
+    ScrollActive: null,
+    ScrollRejected: null,
+});
 
 /**
  * AutoScroller Class

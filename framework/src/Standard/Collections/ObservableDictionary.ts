@@ -9,11 +9,11 @@ export type ObservableDictionaryChangeArgs<TKey, TValue> = {
     newValue: TValue | null
 };
 
-export const ObservableDictionaryChangeAction = Enumeration.create([
-    "Add",
-    "Change",
-    "Delete"
-]);
+export const ObservableDictionaryChangeAction = Enumeration.create({
+    Add: null,
+    Change: null,
+    Delet: null
+});
 
 /*
  * ObservableDictionary class

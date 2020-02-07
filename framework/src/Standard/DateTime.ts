@@ -264,15 +264,15 @@ const GregorianCalendar = {
     }
 };
 
-export const DateTimeEra = Enumeration.create([
-    "BeforeChrist",
-    "AnnoDomini"
-]);
+export const DateTimeEra = Enumeration.create({
+    BeforeChrist: null,
+    AnnoDomin: null
+});
 
-export const TimeOfDay = Enumeration.create([
-    "AnteMeridiem",
-    "PostMeridiem"
-]);
+export const TimeOfDay = Enumeration.create({
+    AnteMeridiem: null,
+    PostMeridie: null
+});
 
 const EPOCH_TO_NATIVE = new Date(Date.UTC(1, 0, 1, 0, 0, 0, 0)).setUTCFullYear(1);
 
