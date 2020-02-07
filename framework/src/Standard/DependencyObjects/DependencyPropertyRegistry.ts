@@ -135,12 +135,12 @@ export function register(target: Class<DependencyObject>, property: DependencyPr
     allContexts.push(context);
 }
 
-export function override(target: DependencyObject) {
+export function overrideContext(target: DependencyObject) {
     const superContext = getContext(target);
     if (superContext) {
         const subContext = RegistryContext.createByInstance(target);
         superContext.adoptSubContext(subContext);
     }
     else
-        throw new InvalidOperationException("Cannot override dependency context. No super context found to override from.");
+        throw new InvalidOperationException("Cannot override context. No super-context found to override from.");
 }

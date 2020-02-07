@@ -14,8 +14,8 @@ export class DependencyProperty {
         return property;
     }
 
-    static override(target: DependencyObject) {
-        Registry.override(target);
+    static overrideContext(target: DependencyObject) {
+        Registry.overrideContext(target);
     }
 
     constructor(name: string) {
