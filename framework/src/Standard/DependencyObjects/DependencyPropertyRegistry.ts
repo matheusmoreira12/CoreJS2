@@ -45,7 +45,7 @@ class RegistryContext {
     adoptSubContext(subContext: RegistryContext) {
         subContext.superContext = this;
         subContext.importProperties(this);
-        
+
         this.subContexts.push(subContext);
     }
 
@@ -94,27 +94,40 @@ class RegistryContext {
 
 const allContexts: Array<RegistryContext> = new Array();
 
-function getContext(target: DependencyObject) {
-    return allContexts.find(c => c.targetInstance === target) || allContexts.find(c => c.targetClass && target instanceof c.targetClass);
+function getContext(target: DependencyObject): RegistryContext | null {
+    function getInstanceContext() {
+        while (target) {
+            const context = allContexts.find(c => c.targetInstance === target);
+            if (context)
+                return context;
+            //Move to target ancestor
+            target = Object.getPrototypeOf(target);
+        }
+        return null;
+    }
+
+    function getRootContext() {
+        allContexts.find(c => c.targetClass && target instanceof c.targetClass);
+    }
+
+    return getInstanceContext() || getRootContext() || null;
 }
 
 export function getValue(property: DependencyProperty, target: DependencyObject): any {
     const context = getContext(target);
-    if (context) {
-        let value: any;
-        if (context.tryRetrieveValue(property, { value }))
-            return value;
-    }
-    throw new InvalidOperationException("Cannot get property value.")
+    let value: any;
+    if (context && context.tryRetrieveValue(property, { value }))
+        return value;
+    else
+        throw new InvalidOperationException("Cannot get property value.")
 }
 
 export function setValue(property: DependencyProperty, target: DependencyObject, value: any) {
     const context = getContext(target);
-    if (context) {
-        if (context.tryStoreValue(property, value))
-            return;
-    }
-    throw new InvalidOperationException("Cannot set property value.")
+    if (context && context.tryStoreValue(property, value))
+        return;
+    else
+        throw new InvalidOperationException("Cannot set property value.")
 }
 
 export function register(target: Class<DependencyObject>, property: DependencyProperty, metadata: PropertyMetadata) {
@@ -125,4 +138,11 @@ export function register(target: Class<DependencyObject>, property: DependencyPr
 }
 
 export function override(target: DependencyObject) {
+    const superContext = getContext(target);
+    if (superContext) {
+        const subContext = RegistryContext.createByInstance(target);
+        superContext.adoptSubContext(subContext);
+    }
+    else
+        throw new InvalidOperationException("Cannot override dependency context. No super context found to override from.");
 }
