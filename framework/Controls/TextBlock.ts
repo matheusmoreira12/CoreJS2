@@ -18,7 +18,6 @@ export abstract class ContentControl extends Control {
 
     destructor() {
 
-
         super.destructor();
     }
 }

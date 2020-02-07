@@ -1,104 +1,128 @@
 import { DependencyObject } from "./DependencyObject";
 import { DependencyProperty } from "./DependencyProperty";
+import { PropertyMetadata } from "./PropertyMetadata";
+import { InvalidOperationException } from "../Exceptions";
 
 type Class<T> = new () => T;
 
-type RegistryEntry = {
+type PropertyStorage = {
     property: DependencyProperty,
-    mainContext: RegistryContext
+    metadata: PropertyMetadata,
+    value: any,
+    hasValue: boolean
 };
 
-function createRegistryEntry(property: DependencyProperty, mainContext: RegistryContext): RegistryEntry {
+function createPropertyStorage(property: DependencyProperty, metadata: PropertyMetadata): PropertyStorage {
     return {
         property,
-        mainContext
-    }
+        metadata,
+        value: null,
+        hasValue: false
+    };
 }
 
-function getEntryByProperty(property: DependencyProperty): RegistryEntry | null {
-    return registerEntries.find(e => e.property === property) || null;
-}
-
-type RegistryContext = {
-    target: Class<DependencyObject>,
-    subContexts: RegistryContext[],
-    superContext: RegistryContext | null,
-    storedValue: any,
-    hasStoredValue: boolean
-}
-
-function createContext(target: Class<DependencyObject>, superContext: RegistryContext | null = null): RegistryContext {
-    const context: RegistryContext = {
-        target,
-        superContext,
-        storedValue: null,
-        hasStoredValue: false,
-        subContexts: []
+class RegistryContext {
+    static createByInstance(targetInstance: DependencyObject): RegistryContext {
+        const context = new RegistryContext();
+        context.targetInstance = targetInstance;
+        return context;
     }
 
-    if (superContext)
-        superContext.subContexts.push(context);
-
-    return context;
-}
-
-function* getContextRecursion(context: RegistryContext | null): Generator<RegistryContext> {
-    while (context) {
-        yield context;
-        context = context.superContext;
+    static createByClass(targetClass: Class<DependencyObject>) {
+        const context = new RegistryContext();
+        context.targetClass = targetClass;
+        return context;
     }
-}
 
-function getContext(property: DependencyProperty, target: Class<DependencyObject>) {
-    function getRecursive(context: RegistryContext): RegistryContext | null {
-        if (context.target === target)
-            return context;
-        else {
-            for (let subContext of context.subContexts) {
-                const target = getRecursive(subContext);
-                if (target)
-                    return target;
-            }
+    constructor() {
+        this.targetClass = null;
+        this.targetInstance = null;
+        this.superContext = null;
+        this.subContexts = [];
+        this.propertyStorages = [];
+    }
+
+    adoptSubContext(subContext: RegistryContext) {
+        subContext.superContext = this;
+        subContext.importProperties(this);
+        
+        this.subContexts.push(subContext);
+    }
+
+    registerProperty(property: DependencyProperty, metadata: any) {
+        const propertyStorage = createPropertyStorage(property, metadata);
+        this.propertyStorages.push(propertyStorage);
+    }
+
+    importProperties(originalContext: RegistryContext) {
+        const copiedProperties = originalContext.propertyStorages.map(ps => createPropertyStorage(ps.property, ps.metadata));
+        this.propertyStorages.push(...copiedProperties);
+    }
+
+    tryStoreValue(property: DependencyProperty, value: any): boolean {
+        const propertyStorage = this.propertyStorages.find(sv => sv.hasValue);
+        if (propertyStorage) {
+            propertyStorage.value = value;
+            return true;
         }
-        return null;
+        else
+            return false;
     }
 
-    const entry: RegistryEntry | null = getEntryByProperty(property);
-    if (entry)
-        return getRecursive(entry.mainContext);
-    else
-        return property.metadata.defaultValue;
-}
-
-function storeValue(context: RegistryContext, value: any) {
-    context.hasStoredValue = true;
-    context.storedValue = value;
-}
-
-export function getValue(property: DependencyProperty, target: Class<DependencyObject>) {
-    const context = getContext(property, target);
-    const recursion = getContextRecursion(context);
-    for (const subContext of recursion) {
-        if (!subContext.hasStoredValue)
-            continue;
-        return subContext.storedValue;
+    tryRetrieveValue(property: DependencyProperty, { value }: { value: any }) {
+        let context: RegistryContext | null = this;
+        while (context) {
+            const propertyStorage = this.propertyStorages.find(sv => sv.hasValue);
+            if (propertyStorage) {
+                if (propertyStorage.hasValue)
+                    value = propertyStorage.value;
+                else
+                    value = propertyStorage.metadata.defaultValue;
+                return true;
+            }
+            context = context.superContext;
+        }
+        return false;
     }
-    return null;
+
+    targetClass: Class<DependencyObject> | null;
+    targetInstance: DependencyObject | null;
+    subContexts: RegistryContext[];
+    superContext: RegistryContext | null;
+    propertyStorages: PropertyStorage[];
 }
 
-export function setValue(property: DependencyProperty, target: Class<DependencyObject>, value: any) {
-    const context = getContext(property, target);
-    storeValue(context, value);
+const allContexts: Array<RegistryContext> = new Array();
+
+function getContext(target: DependencyObject) {
+    return allContexts.find(c => c.targetInstance === target) || allContexts.find(c => c.targetClass && target instanceof c.targetClass);
 }
 
-const registerEntries: Array<RegistryEntry> = new Array();
-
-export function register(target: Class<DependencyObject>, property: DependencyProperty) {
-    const mainContext = createContext(target);
-    const entry = createRegistryEntry(property, mainContext);
-    registerEntries.push(entry);
+export function getValue(property: DependencyProperty, target: DependencyObject): any {
+    const context = getContext(target);
+    if (context) {
+        let value: any;
+        if (context.tryRetrieveValue(property, { value }))
+            return value;
+    }
+    throw new InvalidOperationException("Cannot get property value.")
 }
 
-export function override(target: Class<DependencyObject>) {
-    
+export function setValue(property: DependencyProperty, target: DependencyObject, value: any) {
+    const context = getContext(target);
+    if (context) {
+        if (context.tryStoreValue(property, value))
+            return;
+    }
+    throw new InvalidOperationException("Cannot set property value.")
+}
+
+export function register(target: Class<DependencyObject>, property: DependencyProperty, metadata: PropertyMetadata) {
+    const context = RegistryContext.createByClass(target);
+    context.registerProperty(property, metadata);
+
+    allContexts.push(context);
+}
+
+export function override(target: DependencyObject) {
 }
