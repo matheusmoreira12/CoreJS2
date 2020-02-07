@@ -1,5 +1,6 @@
 import { ArgumentTypeException, FormatException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
 import { MapUtils } from "../CoreBase/Utils/index";
+import { assert } from "../Validation/index";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
@@ -32,7 +33,12 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
     }
 }
 
-const $flags = Symbol();
+function assertEnumerationFlagFormat(flag: string) {
+    if (!flag.match(ENUMERATION_FLAG_NAME_PATTERN))
+        throw new FormatException("EnumerationFlag", flag);
+}
+
+const $flags = Symbol("flags");
 
 /**
  * Enumeration Class
@@ -42,11 +48,10 @@ export class Enumeration {
     static create<T extends EnumerationDescriptor>(descriptor: T): EnumerationInstance<T> {
         const flags = new Map<string, number>();
         for (let { key, value } of getEnumerationFlags(descriptor)) {
-            if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
-                throw new FormatException("EnumerationFlag", key)
+            assert("keyof descriptor", key, String);
+            assertEnumerationFlagFormat(key);
+            assert(`descriptor${key}`, value, Number, null);
 
-            if (flags.has(key))
-                throw new InvalidOperationException("The provided descriptor contains duplicated flag definitions.");
             flags.set(key, value);
         }
         return <EnumerationInstance<T>>new Enumeration(flags);
