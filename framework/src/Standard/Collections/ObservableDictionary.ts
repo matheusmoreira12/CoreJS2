@@ -12,7 +12,7 @@ export type ObservableDictionaryChangeArgs<TKey, TValue> = {
 export const ObservableDictionaryChangeAction = Enumeration.create({
     Add: null,
     Change: null,
-    Delet: null
+    Delete: null
 });
 
 /*

@@ -15,7 +15,7 @@ const DragDropHandlerState = Enumeration.create({
     DragDragging: null,
     DropDragIn: null,
     DropDragOut: null,
-    DropRejecte: null
+    DropRejected: null
 });
 
 interface IDragDropHandlerOptions {

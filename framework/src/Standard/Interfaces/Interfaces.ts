@@ -5,12 +5,12 @@ export const InterfaceDifferenceKind = Enumeration.create({
     Missing: null,
     Invalid: null,
     MissingAttributes: null,
-    IncorrectTyp: null
+    IncorrectType: null
 });
 
 export type InterfaceMemberKey = string | number | symbol;
 
 export const InterfaceMemberType = Enumeration.create({
     Property: null,
-    Functio: null
+    Function: null
 });
