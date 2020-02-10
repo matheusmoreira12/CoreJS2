@@ -1,9 +1,10 @@
 import { FrameworkEvent, FrameworkEventListener } from "./index";
+import { FrameworkEventArgs } from "./Events";
 
 /**
  * FrameworkCustomEvent class
  * Simplifies DOM custom event creation and manipulation.*/
-export class FrameworkCustomEvent<TArgs extends object> extends FrameworkEvent<TArgs> {
+export class FrameworkCustomEvent<TArgs extends FrameworkEventArgs> extends FrameworkEvent<TArgs> {
     constructor(target: EventTarget, eventName: string, defaultListener?: FrameworkEventListener<TArgs>, defaultListenerThisArg?: any) {
         super(defaultListener, defaultListenerThisArg);
 

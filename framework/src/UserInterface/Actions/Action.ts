@@ -8,17 +8,7 @@ import { Dictionary } from "../../Standard/Collections/index";
  */
 export abstract class Action {
     constructor() {
-        if (this.constructor === Action) throw new InvalidOperationException("Invalid constructor");
-
-        this.__ExecutedEvent = new FrameworkEvent();
+        if (this.constructor === Action)
+            throw new InvalidOperationException("Invalid constructor");
     }
-
-    execute(data?: Dictionary<string, any>): void {
-        this.__ExecutedEvent.invoke(this, {
-            data: data
-        });
-    }
-
-    get ExecutedEvent() { return this.__ExecutedEvent; }
-    private __ExecutedEvent: FrameworkEvent;
 }

@@ -1,5 +1,5 @@
 import { Trigger } from "./index";
-import { DependencyProperty, PropertyChangeEventArgs } from "../../Standard/DependencyObjects/index";
+import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../../Standard/DependencyObjects/index";
 import { ArgumentTypeException } from "../../Standard/index";
 import { Collection } from "../../Standard/Collections/index";
 import { Setter } from "../Setters/index";
@@ -9,7 +9,7 @@ import { Setter } from "../Setters/index";
  * Triggers a group of setters when the specified property matches the specified value.
  */
 export class PropertyTrigger extends Trigger {
-    constructor(target: object, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
+    constructor(target: DependencyObject, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
         super();
 
         if (typeof target !== "object") throw new ArgumentTypeException("target", target, Object);
@@ -22,10 +22,10 @@ export class PropertyTrigger extends Trigger {
         this.__value = value;
         this.__setters = new Collection(...setters);
 
-        targetProperty.ChangeEvent.attach(this.__targetProperty_onChange, this);
+        target.PropertyChangeEvent.attach(this.__target_onPropertyChange, this);
     }
 
-    private __targetProperty_onChange(sender: any, args: PropertyChangeEventArgs) {
+    private __target_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.target !== this.target)
             return;
         if (args.newValue !== this.value)

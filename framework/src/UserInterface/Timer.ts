@@ -1,9 +1,6 @@
 ﻿import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index";
 import { Destructible } from "../Standard/Destructible";
 
-export class TickEvent extends FrameworkEventArgs {
-}
-
 export class Timer extends Destructible {
     constructor(delayMillis = 100, isPeriodic = true) {
         super();
@@ -15,7 +12,7 @@ export class Timer extends Destructible {
     }
 
     __timeout_handler = (() => {
-        this.__TickEvent.invoke(this, {});
+        this.__TickEvent.invoke(this, new FrameworkEventArgs());
 
         if (this.isPeriodic)
             this.__reset();

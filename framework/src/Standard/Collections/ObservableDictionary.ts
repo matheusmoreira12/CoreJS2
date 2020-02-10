@@ -9,7 +9,7 @@ const $oldValue = Symbol();
 const $newValue = Symbol();
 
 export class ObservableDictionaryChangeArgs<TKey, TValue> extends FrameworkEventArgs {
-    constructor(action: number, key: TKey | null, oldValue: TValue | null, newValue: TValue | null) {
+    constructor(action: number, key: TKey, oldValue: TValue | null, newValue: TValue | null) {
         super();
 
         this[$action] = action;
@@ -21,8 +21,8 @@ export class ObservableDictionaryChangeArgs<TKey, TValue> extends FrameworkEvent
     get action(): number { return this[$action]; }
     private [$action]: number;
     
-    get key(): TKey | null { return this[$key]; }
-    private [$key]: TKey | null;
+    get key(): TKey { return this[$key]; }
+    private [$key]: TKey;
     
     get oldValue(): TValue | null { return this[$oldValue]; }
     private [$oldValue]: TValue | null;
@@ -46,30 +46,15 @@ export class ObservableDictionary<TKey, TValue> extends Dictionary<TKey, TValue>
         const valueHasChanged = this.has(key);
         if (valueHasChanged) {
             const oldValue = this.get(key) || null;
-            this.ChangeEvent.invoke(this, {
-                action: ObservableDictionaryChangeAction.Change,
-                key,
-                oldValue,
-                newValue: value,
-            });
+            this.ChangeEvent.invoke(this, new ObservableDictionaryChangeArgs(ObservableDictionaryChangeAction.Change, key, oldValue, value));
         }
         else
-            this.ChangeEvent.invoke(this, {
-                action: ObservableDictionaryChangeAction.Add,
-                key,
-                oldValue: null,
-                newValue: value
-            });
+            this.ChangeEvent.invoke(this, new ObservableDictionaryChangeArgs(ObservableDictionaryChangeAction.Add, key, null, value));
     }
 
     private __notifyDelete(key: TKey) {
         const oldValue = this.get(key) || null;
-        this.ChangeEvent.invoke(this, {
-            action: ObservableDictionaryChangeAction.Delete,
-            key,
-            oldValue: oldValue,
-            newValue: null
-        });
+        this.ChangeEvent.invoke(this, new ObservableDictionaryChangeArgs(ObservableDictionaryChangeAction.Delete, key, oldValue, null));
     }
 
     set(key: TKey, value: TValue) {

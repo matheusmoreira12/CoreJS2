@@ -1,19 +1,22 @@
 ﻿import { URLQueryParameter } from "./index";
+import { URLToken } from "./URLTokenifier";
 export class URLQuery {
     parameters: any[];
-    static fromToken(token) {
-        function* getParameters(tokens) {
+    static fromToken(token: URLToken) {
+        function* getParameters(tokens: Iterable<URLToken>) {
             for (let token of tokens) {
                 if (token.type === "parameter")
                     yield URLQueryParameter.fromToken(token);
             }
         }
-        if (!token || token.type !== "query")
+        if (token && token.type !== "query" && token.items) {
+            const parameters = [...getParameters(token.items)];
+            return new URLQuery(parameters);
+        }
+        else
             return null;
-        const parameters = [...getParameters(token.items)];
-        return new URLQuery(parameters);
     }
-    constructor(parameters = null) {
+    constructor(parameters: URLQueryParameter[] | null = null) {
         if (parameters === null)
             parameters = [];
         if (!(parameters instanceof Array))

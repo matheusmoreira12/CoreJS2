@@ -1,11 +1,12 @@
 import { FrameworkEvent, FrameworkEventListener } from "./index";
 import { ArgumentTypeException } from "../index";
 import { Collection } from "../Collections/index";
+import { FrameworkEventArgs } from "./Events";
 
 /**
  * BroadcastFrameworkEvent Class
  * Enables the broadcasting of framework events.*/
-export class BroadcastFrameworkEvent<TArgs extends object> extends FrameworkEvent<TArgs> {
+export class BroadcastFrameworkEvent<TArgs extends FrameworkEventArgs> extends FrameworkEvent<TArgs> {
     private static __EventBroadcastEvent: FrameworkEvent<any> = new FrameworkEvent();
 
     constructor(name: string, defaultListener?: FrameworkEventListener<TArgs>, defaultListenerThisArg?: any) {

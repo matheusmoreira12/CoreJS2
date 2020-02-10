@@ -1,5 +1,4 @@
 import { PropertyMetadata } from "./PropertyMetadata";
-import * as Registry from "./Registry";
 import { DependencyObject } from "./DependencyObject";
 
 type Class<T> = new () => T;
@@ -12,10 +11,10 @@ const $id = Symbol();
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    get unsetValue(): symbol { return $unsetValue; }
+    static get unsetValue(): symbol { return $unsetValue; }
 
     static register(target: Class<DependencyObject>, name: string, metadata: PropertyMetadata) {
-        const property = new DependencyProperty();
+        const property = new DependencyProperty(0);
         return property;
     }
 
