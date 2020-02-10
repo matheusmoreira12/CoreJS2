@@ -7,8 +7,6 @@ export type URLToken = {
     items?: URLToken[]
 };
 
-const GEN_DELIMS = [":", "/", "?", "#", "[", "]", "@"];
-const SUB_DELIMS = ["!", "$", "&", "’", "(", ")", "*", "+", ",", ";", "="];
 const RESERVED_CHARS = [..."!*'();:@&=$+,/?#[]"];
 
 function isAllowedChar(char: string) {

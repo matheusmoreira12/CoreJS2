@@ -1,43 +1,46 @@
 ﻿import { URLQuery, URLHostname, URLToken, URLPath, URLTokenifier } from "./index";
+import { assertParams } from "../../Validation/index";
 
 export class URL {
     static fromToken(token: URLToken): URL | null {
-        if (!token || token.type !== "url")
-            return null;
-        let protocol = null, hostname = null, port = null, path = null, query = null, fragment = null;
+        if (token && token.type == "url" && token.items) {
+            let protocol = null,
+                hostname = null,
+                port = null,
+                path = null,
+                query = null,
+                fragment = null;
 
-        if (!token.items)
-            return null;
-
-        for (let item of token.items) {
-            switch (item.type) {
-                case "protocol":
-                    protocol = item.value;
-                    break;
-                case "hostname":
-                    hostname = URLHostname.fromToken(item);
-                    break;
-                case "port":
-                    port = Number(item.value);
-                    break;
-                case "path":
-                    path = URLPath.fromToken(item);
-                    break;
-                case "query":
-                    query = URLQuery.fromToken(item);
-                    break;
-                case "fragment":
-                    fragment = item.value;
-                    break;
+            for (let item of token.items) {
+                switch (item.type) {
+                    case "protocol":
+                        protocol = item.value;
+                        break;
+                    case "hostname":
+                        hostname = URLHostname.fromToken(item);
+                        break;
+                    case "port":
+                        port = Number(item.value);
+                        break;
+                    case "path":
+                        path = URLPath.fromToken(item);
+                        break;
+                    case "query":
+                        query = URLQuery.fromToken(item);
+                        break;
+                    case "fragment":
+                        fragment = item.value;
+                        break;
+                }
             }
+
+            if (hostname && path)
+                return new URL(hostname, path, protocol, port, query, fragment);
+            else
+                return null;
         }
-
-        if (!hostname)
+        else
             return null;
-        if (!path)
-            return null;
-
-        return new URL(hostname, path, protocol, port, query, fragment);
     }
 
     static parse(value: string) {
@@ -47,29 +50,13 @@ export class URL {
         return this.fromToken(token);
     }
 
-    constructor(hostname: URLHostname, path: URLPath, protocol?: string | null, port?: number | null, query?: URLQuery | null, fragment?: string | null) {
-        if (!(hostname instanceof URLHostname))
-            throw `Invalid value for parameter "hostname". A value of type URLHostname was expected.`;
-        if (!(path instanceof URLPath))
-            throw `Invalid value for parameter "path". A value of type URLPath was expected.`;
-
-        if (protocol === undefined)
-            protocol = null;
-        if (port === undefined)
-            port = null;
-        if (query === undefined)
-            query = null;
-        if (fragment === undefined)
-            fragment = null;
-
-        if (protocol !== null && typeof protocol !== "string")
-            throw `Invalid value for parameter "protocol". A value of type String was expected.`;
-        if (port !== null && typeof port !== "number")
-            throw `Invalid value for parameter "port". A value of type String was expected.`;
-        if (query !== null && !(query instanceof URLQuery))
-            throw `Invalid value for parameter "query". A value of type URLQuery was expected.`;
-        if (fragment !== null && typeof fragment !== "string")
-            throw `Invalid value for parameter "fragment". A value of type String was expected.`;
+    constructor(hostname: URLHostname, path: URLPath, protocol: string | null = null, port: number | null = null, query: URLQuery | null = null, fragment: string | null = null) {
+        assertParams({ hostname }, String);
+        assertParams({ path }, URLPath);
+        assertParams({ protocol }, String, null);
+        assertParams({ port }, Number, null);
+        assertParams({ query }, URLQuery, null);
+        assertParams({ fragment }, String, null)
 
         this.protocol = protocol;
         this.hostname = hostname;
@@ -107,15 +94,15 @@ export class URL {
                 };
         }
 
-        const items = [...generateItems.call(this)];
         return {
             type: "url",
-            items
+            items: [...generateItems.call(this)]
         };
     }
 
     toString(): string | null {
-        const token = this.toToken(), tokenifier = new URLTokenifier();
+        const token = this.toToken(),
+            tokenifier = new URLTokenifier();
         return tokenifier.detokenify(token);
     }
 

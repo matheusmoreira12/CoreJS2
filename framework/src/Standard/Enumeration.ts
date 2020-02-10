@@ -48,9 +48,9 @@ export class Enumeration {
     static create<T extends EnumerationDescriptor>(descriptor: T): EnumerationInstance<T> {
         const flags = new Map<string, number>();
         for (let { key, value } of getEnumerationFlags(descriptor)) {
-            assert("keyof descriptor", key, String);
+            assert({ key }, String);
             assertEnumerationFlagFormat(key);
-            assert(`descriptor${key}`, value, Number, null);
+            assert({ key }, Number, null);
 
             flags.set(key, value);
         }

@@ -1,5 +1,5 @@
 import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index"
-import { assertParameter } from "../../Validation/index";
+import { assertParams } from "../../Validation/index";
 
 const $property = Symbol();
 const $value = Symbol();
@@ -10,7 +10,7 @@ const $target = Symbol();
  */
 export class Setter {
     constructor(target: DependencyObject, property: DependencyProperty, value: any) {
-        assertParameter("property", property, <any>DependencyProperty);
+        assertParams({ property }, <any>DependencyProperty);
 
         this[$target] = target;
         this[$property] = property;

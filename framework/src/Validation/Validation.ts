@@ -22,22 +22,24 @@ function tryAssert(value: any, ...types: TypeDesignator[]): boolean {
     return Type.of(value).matchesAny(...resolveTypes());
 }
 
-export function assertParameter(parameterName: string, value: any, ...types: TypeDesignator[]) {
-    if (!tryAssert(parameterName, String))
-        throw new ArgumentTypeException("parameterName", parameterName, String);
-    if (!tryAssert(types, Array))
-        throw new ArgumentTypeException("types", types, Array);
+export function assertParams(parameterMap: { [parameterName: string]: any }, ...types: TypeDesignator[]) {
+    if (!tryAssert(parameterMap, Object))
+        throw new ArgumentTypeException("parameterMap", parameterMap, Object);
 
-    if (!tryAssert(value, ...types))
-        throw new ArgumentTypeException(parameterName, value, types.length === 0 ? types[0] : types);
+    for (let parameterName in parameterMap) {
+        const parameterValue = parameterMap[parameterName];
+        if (!tryAssert(parameterValue, ...types))
+            throw new ArgumentTypeException(parameterName, Type.of(parameterValue), types.length == 0 ? types[0] : types)
+    }
 }
 
-export function assert(name: string, value: any, ...types: TypeDesignator[]) {
-    if (!tryAssert(name, String))
-        throw new ArgumentTypeException("parameterName", name, String);
-    if (!tryAssert(types, Array))
-        throw new ArgumentTypeException("types", types, Array);
+export function assert(map: { [name: string]: any }, ...types: TypeDesignator[]) {
+    if (!tryAssert(map, Object))
+        throw new ArgumentTypeException("map", map, Object);
 
-    if (!tryAssert(value, ...types))
-        throw new InvalidTypeException(name, value, types.length === 0 ? types[0] : types);
+    for (let name in map) {
+        const value = map[name];
+        if (!tryAssert(value, ...types))
+            throw new ArgumentTypeException(name, Type.of(value), types.length == 0 ? types[0] : types)
+    }
 }

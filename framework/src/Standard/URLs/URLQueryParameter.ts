@@ -1,18 +1,17 @@
 ﻿import { URLToken } from "./URLTokenifier";
+import { assertParams } from "../../Validation/index";
 
 export class URLQueryParameter {
     static fromToken(token: URLToken): URLQueryParameter | null {
-        if (!token || token.type !== "parameter")
+        if (token && token.type == "parameter")
+            return new URLQueryParameter(token.key || "", token.value || "");
+        else
             return null;
-
-        return new URLQueryParameter(token.key || "", token.value || "");
     }
 
     constructor(key: string, value: string) {
-        if (typeof key !== "string")
-            throw `Invalid value for parameter "key". A value of type String was expected.`;
-        if (typeof value !== "string")
-            throw `Invalid value for parameter "value". A value of type String was expected.`;
+        assertParams({ key, value }, String);
+
         this.key = key;
         this.value = value;
     }
