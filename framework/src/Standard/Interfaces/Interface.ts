@@ -2,7 +2,7 @@
 import { InterfaceMember } from "./InterfaceMember";
 import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Types/index";
 import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces";
-import { ArgumentTypeException } from "../Exceptions";
+import { ArgumentTypeException } from "../index";
 import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index";
 import { Enumeration } from "../index";
 

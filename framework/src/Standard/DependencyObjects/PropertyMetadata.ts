@@ -1,11 +1,11 @@
 import { Type } from "../Types/index";
 import { Interface } from "../Interfaces/index";
-import { assertParameter } from "../../Validation/index";
+import { assertParams } from "../../Validation/index";
 
 export class PropertyMetadata {
     constructor(valueType: Type | Interface | null, defaultValue: any) {
-        assertParameter("valueType", valueType, Type, Interface, null);
-        assertParameter("defaultValue", defaultValue, valueType);
+        assertParams({ valueType }, Type, Interface, null);
+        assertParams({ defaultValue }, valueType);
 
         this.__valueType = valueType;
         this.__defaultValue = defaultValue;

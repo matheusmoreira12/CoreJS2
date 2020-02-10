@@ -1,6 +1,5 @@
-import { ArgumentTypeException, FormatException, InvalidOperationException, KeyNotFoundException } from "./Exceptions";
+import { ArgumentTypeException, FormatException, InvalidOperationException, KeyNotFoundException, InvalidTypeException } from "./Exceptions";
 import { MapUtils } from "../CoreBase/Utils/index";
-import { assert } from "../Validation/index";
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
@@ -33,11 +32,6 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
     }
 }
 
-function assertEnumerationFlagFormat(flag: string) {
-    if (!flag.match(ENUMERATION_FLAG_NAME_PATTERN))
-        throw new FormatException("EnumerationFlag", flag);
-}
-
 const $flags = Symbol("flags");
 
 /**
@@ -48,9 +42,12 @@ export class Enumeration {
     static create<T extends EnumerationDescriptor>(descriptor: T): EnumerationInstance<T> {
         const flags = new Map<string, number>();
         for (let { key, value } of getEnumerationFlags(descriptor)) {
-            assert({ key }, String);
-            assertEnumerationFlagFormat(key);
-            assert({ key }, Number, null);
+            if (typeof key !== "string")
+                throw new InvalidTypeException("key", key, String);
+            if (!key.match(ENUMERATION_FLAG_NAME_PATTERN))
+                throw new FormatException("EnumerationFlag", key);
+            if (typeof value !== "number")
+                throw new InvalidTypeException("value", value, Number);
 
             flags.set(key, value);
         }

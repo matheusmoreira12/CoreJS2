@@ -1,5 +1,5 @@
-import { Type } from "../Standard/Types/Type";
-import { InvalidOperationException, ArgumentTypeException, InvalidTypeException } from "../Standard/index";
+import { Type } from "../Standard/Types/index";
+import { InvalidOperationException, ArgumentTypeException } from "../Standard/index";
 import { Interface } from "../Standard/Interfaces/index";
 
 type Class = new () => any;
