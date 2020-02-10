@@ -6,8 +6,6 @@ import { Font } from "../src/UserInterface/Fonts/index";
 export abstract class ContentControl extends Control {
     constructor(domElement: Element) {
         super(domElement);
-
-        DependencyProperty.overrideContext(this);
     }
 
     static contentProperty = DependencyProperty.register(<any>ContentControl, "content", new PropertyMetadata(null, null));

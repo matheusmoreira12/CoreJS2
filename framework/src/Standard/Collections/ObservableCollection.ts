@@ -1,13 +1,39 @@
 ﻿import { Collection } from "./Collection";
 import { Enumeration } from "../Enumeration";
 import { FrameworkEvent } from "../Events/FrameworkEvent";
+import { FrameworkEventArgs } from "../Events/index";
 
-export type ObservableCollectionChangeArgs<T> = {
-    action: number,
-    oldItems: T[],
-    oldIndex: number,
-    newItems: T[],
-    newIndex: number
+const $action = Symbol();
+const $oldItems = Symbol();
+const $oldIndex = Symbol();
+const $newItems = Symbol();
+const $newIndex = Symbol();
+
+export class ObservableCollectionChangeArgs<T> extends FrameworkEventArgs {
+    constructor(action: number, oldItems: T[], oldIndex: number, newItems: T[], newIndex: number) {
+        super();
+
+        this[$action] = action;
+        this[$oldItems] = oldItems;
+        this[$oldIndex] = oldIndex;
+        this[$newItems] = newItems;
+        this[$newIndex] = newIndex;
+    }
+
+    get action(): number { return this[$action]; }
+    private [$action]: number;
+
+    get oldItems(): T[] { return this[$oldItems]; }
+    private [$oldItems]: T[];
+
+    get oldIndex(): number { return this[$action]; }
+    private [$oldIndex]: number;
+
+    get newItems(): T[] { return this[$newItems]; }
+    private [$newItems]: T[];
+
+    get newIndex(): number { return this[$newIndex]; }
+    private [$newIndex]: number;
 };
 
 export const ObservableCollectionChangeAction = Enumeration.create({
@@ -26,33 +52,16 @@ export class ObservableCollection<T> extends Collection<T> {
         if (action === 0)
             return;
         const oldItems = Array.from(this.getRange(start, deleteCount));
-        this.ChangeEvent.invoke(this, {
-            action,
-            oldIndex: start,
-            oldItems,
-            newIndex: start,
-            newItems: items
-        });
+        this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(action, oldItems, start, items, start));
     }
     __notifyPush(...items: T[]) {
         const newIndex = this.length - 1;
-        this.ChangeEvent.invoke(this, {
-            action: ObservableCollectionChangeAction.Add,
-            oldIndex: -1,
-            oldItems: [],
-            newIndex,
-            newItems: items
-        });
+        this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(ObservableCollectionChangeAction.Add, [], -1, items, newIndex));
     }
     __notifyPop() {
-        const oldIndex = this.length - 1, oldItem = this.last;
-        this.ChangeEvent.invoke(this, {
-            action: ObservableCollectionChangeAction.Remove,
-            oldIndex,
-            oldItems: [oldItem],
-            newIndex: -1,
-            newItems: []
-        });
+        const oldIndex = this.length - 1, 
+            oldItems = [this.last];
+        this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(ObservableCollectionChangeAction.Remove, oldItems, oldIndex, [], -1));
     }
     splice(start: number, deleteCount: number, ...items: T[]) {
         this.__notifySplice(start, deleteCount, ...items);
