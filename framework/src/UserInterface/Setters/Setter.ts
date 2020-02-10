@@ -17,12 +17,12 @@ export class Setter {
         this[$value] = value;
     }
 
+    get target(): DependencyObject { return this[$target]; }
+    private [$target]: DependencyObject;
+
     get property(): DependencyProperty { return this[$property]; }
     private [$property]: DependencyProperty;
 
     get value(): any { return this[$value]; }
     private [$value]: any;
-
-    get target(): DependencyObject { return this[$target]; }
-    private [$target]: DependencyObject;
 }

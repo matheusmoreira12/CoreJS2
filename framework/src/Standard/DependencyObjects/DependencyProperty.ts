@@ -4,15 +4,18 @@ import { DependencyObject } from "./DependencyObject";
 
 type Class<T> = new () => T;
 
+const $unsetValue = Symbol("unsetValue")
+
 const $id = Symbol();
 
 /**
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
+    get unsetValue(): symbol { return $unsetValue; }
+
     static register(target: Class<DependencyObject>, name: string, metadata: PropertyMetadata) {
-        const property = new DependencyProperty(name);
-        Registry.register(target, property, metadata);
+        const property = new DependencyProperty();
         return property;
     }
 

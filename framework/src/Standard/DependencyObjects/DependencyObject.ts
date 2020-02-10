@@ -3,7 +3,7 @@ import { FrameworkEvent } from "../Events/index";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 import * as Registry from "./Registry";
 
-export class DependencyObject {
+export class DependencyObject extends Object {
     get(property: DependencyProperty): any {
         Registry.getValue(property, this);
     }
