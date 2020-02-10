@@ -2,7 +2,9 @@ import { PropertyMetadata } from "./PropertyMetadata";
 import * as Registry from "./Registry";
 import { DependencyObject } from "./DependencyObject";
 
-type Class<T> = new() => T;
+type Class<T> = new () => T;
+
+const $id = Symbol();
 
 /**
  * Eases the integration between user-defined properties and framework features.
@@ -14,14 +16,10 @@ export class DependencyProperty {
         return property;
     }
 
-    static overrideContext(target: DependencyObject) {
-        Registry.overrideContext(target);
+    constructor(id: number) {
+        this[$id] = id;
     }
 
-    constructor(name: string) {
-        this.__name = name;
-    }
-
-    get name(): string { return this.__name; }
-    private __name: string
+    get id(): number { return this[$id]; }
+    private [$id]: number;
 }
