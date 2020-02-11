@@ -3,6 +3,7 @@ import { Interface } from "../Interfaces/index";
 import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types";
 import { MemberInfo } from "./MemberInfo";
 
+//Keys for Type
 const $checkInitializationStatus = Symbol();
 const $class = Symbol();
 const $getEffectiveValue = Symbol();

@@ -3,8 +3,9 @@ import { DependencyObject } from "./DependencyObject";
 
 type Class<T> = new () => T;
 
-const $unsetValue = Symbol("unsetValue")
+const $unsetValue = Symbol("unset")
 
+//Keys for DependencyProperty
 const $id = Symbol();
 
 /**
