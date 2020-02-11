@@ -1,8 +1,8 @@
 import { Trigger } from "./index";
 import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../../Standard/DependencyObjects/index";
 import { ArgumentTypeException } from "../../Standard/index";
-import { Collection } from "../../Standard/Collections/index";
 import { Setter } from "../Setters/index";
+import { SetterCollection } from "../Setters/SetterCollection";
 
 /**
  * PropertyTrigger class
@@ -20,7 +20,7 @@ export class PropertyTrigger extends Trigger {
         this.__target = target;
         this.__targetProperty = targetProperty;
         this.__value = value;
-        this.__setters = new Collection(...setters);
+        this.__setters = new SetterCollection(this, ...setters);
 
         target.PropertyChangeEvent.attach(this.__target_onPropertyChange, this);
     }
@@ -41,6 +41,6 @@ export class PropertyTrigger extends Trigger {
     get value(): any { return this.__value; }
     private __value: any;
 
-    get setters(): Collection<Setter> { return this.__setters; }
-    private __setters: Collection<Setter>;
+    get setters(): SetterCollection { return this.__setters; }
+    private __setters: SetterCollection;
 }

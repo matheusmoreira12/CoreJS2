@@ -1,4 +1,4 @@
-import { FrameworkEvent } from "../../Standard/Events/index";
+import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { Trigger } from "./index";
 import { ArgumentTypeException } from "../../Standard/index";
 import { Collection, Dictionary } from "../../Standard/Collections/index";
@@ -21,11 +21,11 @@ export class EventTrigger extends Trigger {
         targetEvent.attach(this.__targetEvent_handler, this);
     }
 
-    private __targetEvent_handler() {
-        this.__executeActions();
+    private __targetEvent_handler(sender: any, args: FrameworkEventArgs) {
+        this.__executeActions(Dictionary.fromKeyValueObject(args));
     }
 
-    protected __executeActions(data?: Dictionary<string, any>) {
+    protected __executeActions(data: Dictionary<string, any>) {
         const executionErrors = [];
 
         for (let action of this.actions) {
