@@ -1,6 +1,5 @@
-import { ArgumentMissingException } from "../../Standard/index";
+import { ArgumentMissingException, Types } from "../../Standard/index";
 import { DeepReadonly, DeepClone, MixinBase } from "./index";
-import { Class } from "../../Standard/Types/Types";
 
 export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
     let keys: (string | symbol)[] = [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
@@ -155,4 +154,34 @@ export function applyMixin(...constructors: any[]): any {
     applyMixins();
 
     return result;
+}
+
+export function getDefault(constructor: typeof String): string;
+export function getDefault(constructor: typeof Number): string;
+export function getDefault(constructor: typeof BigInt): string;
+export function getDefault(constructor: typeof Boolean): string;
+export function getDefault(constructor: null): null;
+export function getDefault(constructor: undefined): undefined;
+export function getDefault(constructor: typeof Symbol): symbol;
+export function getDefault(constructor: typeof Object): object;
+export function getDefault(constructor: typeof Array): any[];
+export function getDefault(constructor: typeof String | typeof Number | typeof BigInt | typeof Boolean | null | undefined | typeof Symbol | typeof Object | typeof Array): string | number | bigint | boolean | null | undefined | symbol | object | any[] {
+    if (constructor === String)
+        return "";
+    else if (constructor === Number)
+        return 0;
+    else if (constructor === BigInt)
+        return 0n;
+    else if (constructor === Boolean)
+        return false;
+    else if (constructor === null)
+        return null;
+    else if (constructor === undefined)
+        return undefined;
+    else if (constructor === Symbol)
+        return Symbol.for("");
+    else if (constructor === Object)
+        return {};
+    else if (constructor === Array)
+        return [];
 }

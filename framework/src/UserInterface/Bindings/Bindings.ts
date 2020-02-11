@@ -4,9 +4,9 @@ import { Type } from "../../Standard/Types/index";
 import { IValueConverter } from "../ValueConverters/index";
 
 export const BindingDirection = Enumeration.create({
-    Both: 3,
     ToTarget: 1,
-    ToSource: 2
+    ToSource: 2,
+    Both: 3
 });
 
 export const IBindingOptions = new Interface(

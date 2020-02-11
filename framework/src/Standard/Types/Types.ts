@@ -1,6 +1,6 @@
 import { Enumeration } from "../Enumeration";
 
-export type Class<T> = (new (...args: any) => T);
+export type Class<T> = typeof T;
 
 export const MemberSelectionAttributes = Enumeration.create({
     Any: 0,
