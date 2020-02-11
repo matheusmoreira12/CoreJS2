@@ -2,7 +2,7 @@ import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index"
 import { Trigger } from "./index";
 import { ArgumentTypeException } from "../../Standard/index";
 import { Collection, Dictionary } from "../../Standard/Collections/index";
-import { Action } from "../Actions/index";
+import { Action, ActionCollection } from "../Actions/index";
 
 /**
  * EventTrigger class
@@ -16,7 +16,7 @@ export class EventTrigger extends Trigger {
             throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);
 
         this.__targetEvent = targetEvent;
-        this.__actions = new Collection(...actions);
+        this.__actions = new ActionCollection(this, ...actions);
 
         targetEvent.attach(this.__targetEvent_handler, this);
     }
@@ -44,6 +44,6 @@ export class EventTrigger extends Trigger {
     get targetEvent(): FrameworkEvent { return this.__targetEvent; }
     private __targetEvent: FrameworkEvent;
 
-    get actions(): Action<Action> { return this.__actions; }
-    private __actions: Collection<Action>;
+    get actions(): ActionCollection { return this.__actions; }
+    private __actions: ActionCollection;
 }

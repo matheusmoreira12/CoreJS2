@@ -4,7 +4,7 @@ import { EventTrigger } from "../Triggers/index";
 import { assertParams } from "../../Validation/index";
 import { Enumeration } from "../../Standard/index";
 
-export class SetterCollection extends ObservableCollection<Action> {
+export class ActionCollection extends ObservableCollection<Action> {
     constructor(parentTrigger: EventTrigger, ...items: Action[]) {
         assertParams({ parentTrigger }, EventTrigger);
 

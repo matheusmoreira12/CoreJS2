@@ -19,6 +19,7 @@ export class Setter {
         this[$target] = target;
         this[$property] = property;
         this[$value] = value;
+        this[$trigger] = null;
     }
 
     get target(): DependencyObject { return this[$target]; }
