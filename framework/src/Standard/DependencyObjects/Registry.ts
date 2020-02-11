@@ -3,12 +3,13 @@ import { DependencyProperty } from "./DependencyProperty";
 import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
 import { assertParams } from "../../Validation/index";
-
-const metadata: Map<number, PropertyMetadata> = new Map();
+import { Interface } from "../Interfaces/index";
+import { Type } from "../Types/index";
 
 const propertyIDGenerator = new IdentifierGenerator();
 
 export function register(target: typeof DependencyObject, name: string, metadata: PropertyMetadata) {
+    assertParams({ target }, Interface.extract(target));
     assertParams({ name }, String);
     assertParams({ metadata }, PropertyMetadata);
 

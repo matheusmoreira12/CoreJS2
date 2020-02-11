@@ -2,13 +2,15 @@
 import { InterfaceMember } from "./InterfaceMember";
 import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Types/index";
 import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces";
-import { ArgumentTypeException } from "../index";
 import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index";
 import { Enumeration } from "../index";
 
 export class Interface {
-    static extract(type: Type) {
-        function* generateInterfaceMembers(): Generator<InterfaceMember> {
+    static extract(type: Function): Interface;
+    static extract(type: Type): Interface;
+    static extract(type: any): Interface;
+    static extract(type: any): Interface {
+        function* generateInterfaceMembers(type: Type): Generator<InterfaceMember> {
             function generateInterfaceMember(member: MemberInfo): InterfaceMember | null {
                 let memberIsFunction: boolean = Enumeration.contains(MemberType.Function, member.memberType),
                     memberIsProperty: boolean = Enumeration.contains(MemberType.Property, member.memberType);
@@ -30,10 +32,12 @@ export class Interface {
             }
         }
 
-        if (!(type instanceof Type))
-            throw new ArgumentTypeException("type", type, Type);
+        if (type instanceof Function)
+            type = Type.get(type);
+        else if (!(type instanceof Type))
+            type = Type.of(type);
 
-        return new Interface(...generateInterfaceMembers());
+        return new Interface(...generateInterfaceMembers(type));
     }
 
     static differ(type: Type, _interface: Interface): InterfaceImplementationAnalysis {
