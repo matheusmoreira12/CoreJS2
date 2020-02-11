@@ -2,8 +2,7 @@ import { Type } from "../Standard/Types/index";
 import { InvalidOperationException, ArgumentTypeException } from "../Standard/index";
 import { Interface } from "../Standard/Interfaces/index";
 
-type Class = new () => any;
-type TypeDesignator = undefined | null | Type | Interface | Class;
+type TypeDesignator = undefined | null | Type | Interface | Function;
 
 function tryAssert(value: any, ...types: TypeDesignator[]): boolean {
     function* resolveTypes(): Generator<Type | Interface> {
