@@ -1,4 +1,4 @@
-import { ArgumentMissingException, Types } from "../../Standard/index";
+import { ArgumentMissingException, Types, NotSupportedException } from "../../Standard/index";
 import { DeepReadonly, DeepClone, MixinBase } from "./index";
 
 export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
@@ -164,8 +164,8 @@ export function getDefault(constructor: null): null;
 export function getDefault(constructor: undefined): undefined;
 export function getDefault(constructor: typeof Symbol): symbol;
 export function getDefault(constructor: typeof Object): object;
-export function getDefault(constructor: typeof Array): any[];
-export function getDefault(constructor: typeof String | typeof Number | typeof BigInt | typeof Boolean | null | undefined | typeof Symbol | typeof Object | typeof Array): string | number | bigint | boolean | null | undefined | symbol | object | any[] {
+export function getDefault(constructor: typeof Array): Array<any>;
+export function getDefault(constructor: typeof String | typeof Number | typeof BigInt | typeof Boolean | null | undefined | typeof Symbol | typeof Object | typeof Array): string | number | bigint | boolean | null | undefined | symbol | object | Array<any> {
     if (constructor === String)
         return "";
     else if (constructor === Number)
@@ -184,4 +184,6 @@ export function getDefault(constructor: typeof String | typeof Number | typeof B
         return {};
     else if (constructor === Array)
         return [];
+    else
+        throw new NotSupportedException("Cannot get default value. The provided constructor is not supported.")
 }

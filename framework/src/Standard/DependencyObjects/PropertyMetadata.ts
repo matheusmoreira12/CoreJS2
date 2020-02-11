@@ -1,11 +1,17 @@
 import { Type } from "../Types/index";
 import { Interface } from "../Interfaces/index";
 import { assertParams } from "../../Validation/index";
+import { DependencyProperty } from "./DependencyProperty";
+
+function assertDefaultValue(valueType: Type | Interface | null, defaultValue: any) {
+    if (defaultValue !== DependencyProperty.unsetValue)
+        assertParams({ defaultValue }, valueType);
+}
 
 export class PropertyMetadata {
-    constructor(valueType: Type | Interface | null, defaultValue: any) {
+    constructor(valueType: Type | Interface | null, defaultValue: any = DependencyProperty.unsetValue) {
         assertParams({ valueType }, Type, Interface, null);
-        assertParams({ defaultValue }, valueType);
+        assertDefaultValue(valueType, defaultValue);
 
         this.__valueType = valueType;
         this.__defaultValue = defaultValue;

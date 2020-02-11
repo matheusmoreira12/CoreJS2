@@ -1,5 +1,4 @@
 import { InvalidOperationException } from "../../Standard/index";
-import { FrameworkEvent } from "../../Standard/Events/index";
 import { Dictionary } from "../../Standard/Collections/index";
 
 /**
@@ -11,4 +10,6 @@ export abstract class Action {
         if (this.constructor === Action)
             throw new InvalidOperationException("Invalid constructor");
     }
+
+    abstract execute(data: Dictionary<string, any>): void;
 }

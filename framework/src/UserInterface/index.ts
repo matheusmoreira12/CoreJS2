@@ -44,5 +44,5 @@ export { Fonts };
 import * as VisualTrees from "./VisualTrees/index";
 export { VisualTrees };
 
-import * as Widgets from "./Controls/index";
-export { Widgets }
+import * as Controls from "./Controls/index";
+export { Controls }
