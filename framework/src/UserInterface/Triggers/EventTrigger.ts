@@ -44,6 +44,6 @@ export class EventTrigger extends Trigger {
     get targetEvent(): FrameworkEvent { return this.__targetEvent; }
     private __targetEvent: FrameworkEvent;
 
-    get actions(): Collection<Action> { return this.__actions; }
+    get actions(): Action<Action> { return this.__actions; }
     private __actions: Collection<Action>;
 }
