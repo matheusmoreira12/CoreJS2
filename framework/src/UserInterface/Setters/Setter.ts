@@ -3,13 +3,14 @@ import { assertParams } from "../../Validation/index";
 import { PropertyTrigger } from "../Triggers/index";
 import { Interface } from "../../Standard/Interfaces/index";
 
+//Keys for Setter
 const $property = Symbol();
 const $value = Symbol();
 const $target = Symbol();
 const $trigger = Symbol();
 
 /**
- * 
+ * Sets the value of the specified property on the specified target to the specified value whenever the trigger's condition is met.
  */
 export class Setter {
     constructor(target: DependencyObject, property: DependencyProperty, value: any) {
