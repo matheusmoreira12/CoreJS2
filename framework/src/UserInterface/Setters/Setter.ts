@@ -2,6 +2,10 @@ import { DependencyProperty, DependencyObject } from "../../Standard/DependencyO
 import { assertParams } from "../../Validation/index";
 import { PropertyTrigger } from "../Triggers/index";
 import { Interface } from "../../Standard/Interfaces/index";
+import { Destructible } from "../../Standard/index";
+import { Collection } from "../../Standard/Collections/index";
+
+const allSetters: Collection<Setter> = new Collection();
 
 //Keys for Setter
 const $property = Symbol();
@@ -12,8 +16,12 @@ const $trigger = Symbol();
 /**
  * Sets the value of the specified property on the specified target to the specified value whenever the trigger's condition is met.
  */
-export class Setter {
+export class Setter extends Destructible {
+    static getAll(): Setter[] { return [...allSetters]; }
+
     constructor(target: DependencyObject, property: DependencyProperty, value: any) {
+        super();
+
         assertParams(target, Interface.extract(DependencyObject));
         assertParams({ property }, <any>DependencyProperty);
 
@@ -21,6 +29,8 @@ export class Setter {
         this[$property] = property;
         this[$value] = value;
         this[$trigger] = null;
+
+        allSetters.add(this);
     }
 
     get target(): DependencyObject { return this[$target]; }
@@ -44,4 +54,11 @@ export class Setter {
 
     get trigger(): PropertyTrigger | null { return this[$trigger]; }
     private [$trigger]: PropertyTrigger | null;
+
+    protected destructor(): void {
+        if (this.trigger)
+            this.trigger.setters.remove(this);
+
+        allSetters.remove(this);
+    }
 }

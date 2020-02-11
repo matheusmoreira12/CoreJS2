@@ -4,7 +4,6 @@ import { Enumeration } from "../../Standard/index"
 import { PropertyTrigger } from "../Triggers/index";
 import { assertParams } from "../../Validation/index";
 
-
 export class SetterCollection extends ObservableCollection<Setter> {
     constructor(parentTrigger: PropertyTrigger, ...items: Setter[]) {
         assertParams({ parentTrigger }, PropertyTrigger);

@@ -1,5 +1,4 @@
 import { IdentifierGenerator } from "../../CoreBase/index";
-import { DependencyProperty } from "./DependencyProperty";
 import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
 import { assertParams } from "../../Validation/index";
