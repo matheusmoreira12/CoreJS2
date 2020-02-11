@@ -9,7 +9,7 @@ import { Type } from "../Types/index";
 const propertyIDGenerator = new IdentifierGenerator();
 
 export function register(target: typeof DependencyObject, name: string, metadata: PropertyMetadata) {
-    assertParams({ target }, Interface.extract(target));
+    assertParams({ target }, Interface.extract(DependencyObject));
     assertParams({ name }, String);
     assertParams({ metadata }, PropertyMetadata);
 

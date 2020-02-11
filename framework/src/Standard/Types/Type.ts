@@ -1,8 +1,19 @@
 import { ArgumentTypeException, InvalidOperationException, InvalidTypeException, Enumeration } from "../index";
-import { ObjectUtils } from "../../CoreBase/Utils/index";
 import { Interface } from "../Interfaces/index";
 import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types";
 import { MemberInfo } from "./MemberInfo";
+
+const $checkInitializationStatus = Symbol();
+const $class = Symbol();
+const $getEffectiveValue = Symbol();
+const $getParentClass = Symbol();
+const $getParentInstance = Symbol();
+const $hasClass = Symbol();
+const $hasInstance = Symbol();
+const $isInitialized = Symbol();
+const $initializeWithClass = Symbol();
+const $initializeWithInstance = Symbol();
+const $instance = Symbol();
 
 export class Type<T = any> {
     static get<T>(_class: Class<T>): Type<T> {
@@ -10,66 +21,72 @@ export class Type<T = any> {
             throw new ArgumentTypeException("_class", Function);
 
         let result = new Type();
-        result.__initializeWithClass(_class);
+        result[$initializeWithClass](_class);
 
         return result;
     }
 
     static of<T>(instance: T): Type<T> {
         let result = new Type();
-        result.__initializeWithInstance(instance);
+        result[$initializeWithInstance](instance);
 
         return result;
     }
 
-    private __initializeWithInstance(instance: T): void {
-        this.__instance = instance;
-        this.__hasInstance = true;
+    private [$initializeWithInstance](instance: T): void {
+        this[$instance] = instance;
+        this[$hasInstance] = true;
 
-        let instanceHasConstructor = instance !== null && instance !== undefined;
-        if (instanceHasConstructor)
-            this.__initializeWithClass(<Class<T>>(<object><unknown>instance).constructor);
+        if (instance !== null && instance !== undefined) {
+            this[$class] = (<any>instance).constructor;
+            this[$hasClass] = true;
+        }
 
-        this.__initialized = true;
+        this[$isInitialized] = true;
     }
 
-    private __initializeWithClass(_class: Class<T>): void {
-        this.__class = _class;
-        this.__hasClass = true;
+    private [$initializeWithClass](_class: Class<T>): void {
+        this[$class] = _class;
+        this[$hasClass] = true;
 
-        this.__initialized = true;
+        if (_class.prototype) {
+            this[$instance] = _class.prototype;
+            this[$hasInstance] = true;
+        }
+
+        this[$isInitialized] = true;
     }
 
-    private __checkInitializationStatus() {
-        if (!this.__initialized)
+    private [$checkInitializationStatus]() {
+        if (!this[$isInitialized])
             throw new InvalidOperationException("Type has not been initialized.");
     }
 
     getName(): string {
-        this.__checkInitializationStatus();
+        this[$checkInitializationStatus]();
 
-        if (!this.__hasClass)
-            return String(this.__instance);
+        if (!this[$hasClass])
+            return String(this[$instance]);
 
-        return (<Class<any>>this.__class).name;
+        return (<Class<any>>this[$class]).name;
     }
 
-    getOwnMembers(selectionType?: number, selectionAttributes?: number): MemberInfo[] {
-        this.__checkInitializationStatus();
+    getMembers(selectionType: number = MemberSelectionType.Any, selectionAttributes: number = MemberSelectionAttributes.Any): MemberInfo[] {
+        this[$checkInitializationStatus]();
 
         function* generateMembers(this: Type<T>): Generator<MemberInfo> {
-            if (!this.__hasClass) return;
+            if (!this[$hasClass]) return;
 
-            for (let key of ObjectUtils.getOwnPropertyKeys(this.__class)) {
-                const descriptor = Object.getOwnPropertyDescriptor(this.__class, key);
-                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>key, <PropertyDescriptor>descriptor, true);
+            for (let name of Object.getOwnPropertyNames(this[$class])) {
+                const descriptor = Object.getOwnPropertyDescriptor(this[$class], name);
+                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>name, <PropertyDescriptor>descriptor, true);
             }
 
-            if (!this.__hasInstance) return;
+            if (!this[$hasInstance]) return;
 
-            for (let key of ObjectUtils.getOwnPropertyKeys(this.__instance)) {
-                const descriptor = Object.getOwnPropertyDescriptor(this.__instance, key);
-                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>key, <PropertyDescriptor>descriptor);
+            for (let name of Object.getOwnPropertyNames(this[$instance])) {
+                const descriptor = Object.getOwnPropertyDescriptor(this[$instance], name);
+                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>name, <PropertyDescriptor>descriptor);
             }
         }
 
@@ -129,36 +146,36 @@ export class Type<T = any> {
             return [...members];
     }
 
-    getMembers(selectionType?: number, selectionAttributes?: number): MemberInfo[] {
-        const ownMembers: MemberInfo[] = this.getOwnMembers(selectionType, selectionAttributes);
+    getAllMembers(selectionType: number = MemberSelectionType.Any, selectionAttributes: number = MemberSelectionAttributes.Any): MemberInfo[] {
+        const ownMembers: MemberInfo[] = this.getMembers(selectionType, selectionAttributes);
 
         const parentType = this.getParentType();
         if (parentType !== null) {
-            const parentMembers: MemberInfo[] = parentType.getOwnMembers(selectionType, selectionAttributes);
+            const parentMembers: MemberInfo[] = parentType.getMembers(selectionType, selectionAttributes);
             return [...ownMembers, ...parentMembers];
         }
 
         return ownMembers;
     }
 
-    private __getEffectiveValue(): any {
-        if (!this.__hasClass)
-            return this.__instance;
+    private [$getEffectiveValue](): any {
+        if (!this[$hasClass])
+            return this[$instance];
 
-        return this.__class;
+        return this[$class];
     }
 
     equals(other: Type): boolean {
-        this.__checkInitializationStatus();
+        this[$checkInitializationStatus]();
 
         if (!(other instanceof Type))
             throw new ArgumentTypeException("other");
 
-        return this.__getEffectiveValue() === other.__getEffectiveValue();
+        return this[$getEffectiveValue]() === other[$getEffectiveValue]();
     }
 
     extends(other: Type): boolean {
-        this.__checkInitializationStatus();
+        this[$checkInitializationStatus]();
 
         for (let type of this.getParentTypes()) {
             if (type.equals(other))
@@ -169,7 +186,7 @@ export class Type<T = any> {
     }
 
     matches(other: Type | Interface): boolean {
-        this.__checkInitializationStatus();
+        this[$checkInitializationStatus]();
 
         if (other instanceof Interface)
             return this.implements(other);
@@ -186,7 +203,7 @@ export class Type<T = any> {
     }
 
     implements(_interface: Interface) {
-        this.__checkInitializationStatus();
+        this[$checkInitializationStatus]();
 
         let analysis = Interface.differ(this, _interface);
         if (analysis.isEmpty)
@@ -203,12 +220,12 @@ export class Type<T = any> {
         return [parentType, ...parentType.getParentTypes()];
     }
 
-    private __getParentInstance(instance: any): any {
+    private [$getParentInstance](instance: any): any {
         let parentInstance = Object.getPrototypeOf(instance);
         return parentInstance;
     }
 
-    private __getParentClass(_class: Class<any>): Class<any> | null {
+    private [$getParentClass](_class: Class<any>): Class<any> | null {
         let parentClass = Object.getPrototypeOf(_class);
         if (typeof parentClass == "function")
             return parentClass;
@@ -217,16 +234,16 @@ export class Type<T = any> {
     }
 
     getParentType(): Type | null {
-        this.__checkInitializationStatus();
+        this[$checkInitializationStatus]();
 
-        if (this.__hasClass) {
-            if (this.__hasInstance) {
-                let parentInstance = this.__getParentInstance(this.__instance);
+        if (this[$hasClass]) {
+            if (this[$hasInstance]) {
+                let parentInstance = this[$getParentInstance](this[$instance]);
                 if (parentInstance !== null)
                     return Type.of(parentInstance);
             }
             else {
-                let parentClass = this.__getParentClass(<Class<any>>this.__class);
+                let parentClass = this[$getParentClass](<Class<any>>this[$class]);
                 if (parentClass !== null)
                     return Type.get(parentClass);
             }
@@ -235,9 +252,9 @@ export class Type<T = any> {
         return null;
     }
 
-    private __instance: any | undefined;
-    private __hasInstance: boolean = false;
-    private __class: Class<any> | undefined = undefined;
-    private __hasClass: boolean = false;
-    private __initialized: boolean = false;
+    private [$instance]: any | undefined;
+    private [$hasInstance]: boolean = false;
+    private [$class]: Class<any> | undefined = undefined;
+    private [$hasClass]: boolean = false;
+    private [$isInitialized]: boolean = false;
 }
