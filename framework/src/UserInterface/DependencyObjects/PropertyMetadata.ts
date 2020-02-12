@@ -1,5 +1,5 @@
-import { Type } from "../Types/index";
-import { Interface } from "../Interfaces/index";
+import { Type } from "../../Standard/Types/index";
+import { Interface } from "../../Standard/Interfaces/index";
 import { assertParams } from "../../Validation/index";
 import { DependencyProperty } from "./DependencyProperty";
 

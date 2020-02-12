@@ -1,29 +1,16 @@
 import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
-import { Collection } from "../../Standard/Collections/index";
+import { TreeItem } from "../../Standard/Collections/index";
 
-type Target = (typeof DependencyObject) | DependencyObject;
+type ContextTarget = (typeof DependencyObject) | DependencyObject;
 
-class PropertyContext {
-    constructor(target: Target | null) {
+class PropertyContext extends TreeItem<PropertyContext> {
+    constructor(target: ContextTarget | null, ...children: PropertyContext[]) {
+        super(...children);
         this.target = target;
-        this.parentContext = null;
-        this.childContexts = new Collection();
     }
 
-    addChildContext(context: PropertyContext) {
-        context.parentContext = this;
-        this.childContexts.add(context);
-    }
-
-    removeChildContext(context: PropertyContext) {
-        context.parentContext = null;
-        this.childContexts.remove(context);
-    }
-
-    target: Target | null;
-    parentContext: PropertyContext | null;
-    childContexts: Collection<PropertyContext>;
+    target: ContextTarget | null;
 }
 
 const mainContext = new PropertyContext(null);

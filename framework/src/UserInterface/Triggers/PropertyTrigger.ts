@@ -1,5 +1,5 @@
 import { Trigger } from "./index";
-import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../../Standard/DependencyObjects/index";
+import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../DependencyObjects/index";
 import { ArgumentTypeException } from "../../Standard/index";
 import { Setter } from "../Setters/index";
 import { SetterCollection } from "../Setters/SetterCollection";

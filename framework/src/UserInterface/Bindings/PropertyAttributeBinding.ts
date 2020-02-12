@@ -1,5 +1,5 @@
 import { Binding, IBindingOptions, BindingDirection } from "./index";
-import { DependencyProperty, DependencyObject, PropertyChangeEventArgs } from "../../Standard/DependencyObjects/index";
+import { DependencyProperty, DependencyObject, PropertyChangeEventArgs } from "../DependencyObjects/index";
 import { ArgumentTypeException, Enumeration } from "../../Standard/index";
 
 /**

@@ -1,4 +1,4 @@
-import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index"
+import { DependencyProperty, DependencyObject } from "../DependencyObjects/index"
 import { assertParams } from "../../Validation/index";
 import { PropertyTrigger } from "../Triggers/index";
 import { Interface } from "../../Standard/Interfaces/index";

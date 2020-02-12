@@ -1,5 +1,5 @@
 import { Control } from "../src/UserInterface/Controls/index";
-import { DependencyProperty, PropertyMetadata, PropertyChangeEventArgs, DependencyObject } from "../src/Standard/DependencyObjects/index";
+import { DependencyProperty, PropertyMetadata, PropertyChangeEventArgs, DependencyObject } from "../src/UserInterface/DependencyObjects/index";
 import { Type } from "../src/Standard/Types/Type";
 import { Font } from "../src/UserInterface/Fonts/index";
 
