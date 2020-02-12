@@ -51,10 +51,8 @@ const $id = Symbol();
 export class DependencyProperty {
     static get unsetValue(): symbol { return $unsetValue; }
 
-    static register(target: typeof DependencyObject, name: string, metadata: PropertyMetadata) {
-        const context = getOrCreateContext(target);
-        const property = new DependencyProperty(0);
-        return property;
+    static register(target: typeof DependencyObject, name: string, metadata: PropertyMetadata): DependencyProperty {
+        return new DependencyProperty(0);
     }
 
     static overrideContext(target: DependencyObject) {
