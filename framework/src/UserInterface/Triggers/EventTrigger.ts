@@ -4,6 +4,11 @@ import { ArgumentTypeException } from "../../Standard/index";
 import { Dictionary, Collection } from "../../Standard/Collections/index";
 import { Action, ActionCollection } from "../Actions/index";
 
+//Keys for EventTrigger
+const $targetEvent = Symbol();
+const $actions = Symbol();
+const $removeAllActions = Symbol();
+
 /**
  * EventTrigger class
  * Triggers a group of actions upon the firing of an event.
@@ -15,46 +20,24 @@ export class EventTrigger extends Trigger {
         if (!(targetEvent instanceof FrameworkEvent))
             throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);
 
-        this.__targetEvent = targetEvent;
-        this.__actions = new ActionCollection(this, ...actions);
-
-        targetEvent.attach(this.__targetEvent_handler, this);
+        this[$targetEvent] = targetEvent;
+        this[$actions] = new ActionCollection(this, ...actions);
     }
 
-    private __targetEvent_handler(sender: any, args: FrameworkEventArgs) {
-        this.__executeActions(Dictionary.fromKeyValueObject(args));
-    }
+    get targetEvent(): FrameworkEvent { return this[$targetEvent]; }
+    private [$targetEvent]: FrameworkEvent;
 
-    protected __executeActions(data: Dictionary<string, any>) {
-        const executionErrors = [];
+    get actions(): ActionCollection { return this[$actions]; }
+    private [$actions]: ActionCollection;
 
-        for (let action of this.actions) {
-            try {
-                action.execute(data);
-            }
-            catch (e) {
-                executionErrors.push(e);
-            }
-        }
-
-        for (let e of executionErrors)
-            throw e;
-    }
-
-    get targetEvent(): FrameworkEvent { return this.__targetEvent; }
-    private __targetEvent: FrameworkEvent;
-
-    get actions(): ActionCollection { return this.__actions; }
-    private __actions: ActionCollection;
-
-    private __removeAllActions() {
+    private [$removeAllActions]() {
         const actionsCopy = [...this.actions];
         for (let action of actionsCopy)
             action.unsetTrigger();
     }
     
     protected destructor() {
-        this.__removeAllActions();
+        this[$removeAllActions]();
 
         super.destructor();
     }

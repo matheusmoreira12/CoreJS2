@@ -15,6 +15,31 @@ class PropertyContext extends TreeItem<PropertyContext> {
 
 const mainContext = new PropertyContext(null);
 
+function getContextByTarget(target: ContextTarget) {
+    return mainContext.findRecursive(c => c.target === target);
+}
+
+function getNearestUpperInstanceContext(target: DependencyObject): PropertyContext | null {
+    return mainContext.selectRecursive()
+}
+
+function getNearestUpperConstructorContext(target: DependencyObject): PropertyContext | null {
+
+}
+
+function getNearestUpperContext(target: DependencyObject): PropertyContext | null {
+    return getNearestUpperInstanceContext(target) || getNearestUpperConstructorContext(target) || null;
+}
+
+function getOrCreateContext(target: ContextTarget) {
+    let context: PropertyContext | null = getContextByTarget(target);
+    if (context === null) {
+        context = new PropertyContext(target);
+        mainContext.children.add(context);
+    }
+    return context;
+}
+
 const $unsetValue = Symbol("unset");
 
 //Keys for DependencyProperty
@@ -27,8 +52,13 @@ export class DependencyProperty {
     static get unsetValue(): symbol { return $unsetValue; }
 
     static register(target: typeof DependencyObject, name: string, metadata: PropertyMetadata) {
+        const context = getOrCreateContext(target);
         const property = new DependencyProperty(0);
         return property;
+    }
+
+    static overrideContext(target: DependencyObject) {
+
     }
 
     constructor(id: number) {
