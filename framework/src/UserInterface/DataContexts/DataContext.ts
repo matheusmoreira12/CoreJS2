@@ -47,7 +47,7 @@ function getNearestInstanceDataContext(target: object): DataContext | null {
 
 function getNearestConstructorDataContext(target: object): DataContext | null {
     let targetCtor = target.constructor;
-    while (target) {
+    while (targetCtor) {
         const context = getDataContextByTarget(targetCtor);
         if (context !== null)
             return context;
