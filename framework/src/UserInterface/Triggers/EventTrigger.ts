@@ -1,7 +1,7 @@
 import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { Trigger } from "./index";
 import { ArgumentTypeException } from "../../Standard/index";
-import { Collection, Dictionary } from "../../Standard/Collections/index";
+import { Dictionary, Collection } from "../../Standard/Collections/index";
 import { Action, ActionCollection } from "../Actions/index";
 
 /**
@@ -46,4 +46,16 @@ export class EventTrigger extends Trigger {
 
     get actions(): ActionCollection { return this.__actions; }
     private __actions: ActionCollection;
+
+    private __removeAllActions() {
+        const actionsCopy = [...this.actions];
+        for (let action of actionsCopy)
+            action.unsetTrigger();
+    }
+    
+    protected destructor() {
+        this.__removeAllActions();
+
+        super.destructor();
+    }
 }

@@ -43,4 +43,16 @@ export class PropertyTrigger extends Trigger {
 
     get setters(): SetterCollection { return this.__setters; }
     private __setters: SetterCollection;
+
+    private __removeAllSetters() {
+        const settersCopy = [...this.setters];
+        for (let setter of settersCopy)
+            setter.unsetTrigger();
+    }
+
+    destruct() {
+        this.__removeAllSetters();
+
+        super.destructor();
+    }
 }
