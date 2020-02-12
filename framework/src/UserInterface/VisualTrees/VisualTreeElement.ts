@@ -1,15 +1,15 @@
 import { VisualTreeNode } from "./VisualTreeNode";
-import { assertParameter } from "../../Validation/index";
 import { InvalidOperationException, Enumeration } from "../../Standard/index";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index";
 import { DOMUtils } from "../index";
 import { VisualTreeAttribute } from "./VisualTreeAttribute";
 import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection";
+import { assertParams } from "../../Validation/index";
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
-        assertParameter("qualifiedName", qualifiedName, String);
-        assertParameter("namespaceURI", namespaceURI, String, null);
+        assertParams({ qualifiedName }, String);
+        assertParams({ namespaceURI }, String, null);
 
         const domElement = document.createElementNS(namespaceURI, qualifiedName);
         return new VisualTreeElement(domElement);
@@ -18,7 +18,7 @@ export class VisualTreeElement extends VisualTreeNode {
     constructor(domElement: Element) {
         super(domElement);
 
-        assertParameter("domElement", domElement, Element);
+        assertParams({ domElement }, Element);
 
         this.__children.ChangeEvent.attach(this.__children_onChange, this);
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);

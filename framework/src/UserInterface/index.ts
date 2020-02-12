@@ -23,7 +23,7 @@ export { Bindings }
 import * as Colors from "./Colors/index";
 export { Colors }
 
-import * as DependencyObjects from "../Standard/DependencyObjects/index";
+import * as DependencyObjects from "./DependencyObjects/index";
 export { DependencyObjects }
 
 import * as Setters from "./Setters/index";

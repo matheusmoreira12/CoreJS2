@@ -1,11 +1,11 @@
 import { VisualTreeNode } from "./VisualTreeNode";
-import { assertParameter } from "../../Validation/index";
+import { assertParams } from "../../Validation/index";
 
 export class VisualTreeAttribute extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string): VisualTreeAttribute {
-        assertParameter("qualifiedName", qualifiedName, String);
-        assertParameter("namespaceURI", namespaceURI, String, null);
-        assertParameter("initialValue", initialValue, String, undefined);
+        assertParams({ qualifiedName }, String);
+        assertParams({ namespaceURI }, String, null);
+        assertParams({ initialValue }, String, undefined);
 
         const domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
         const result = new VisualTreeAttribute(domAttribute);
@@ -17,7 +17,7 @@ export class VisualTreeAttribute extends VisualTreeNode {
     }
 
     constructor(domAttribute: Attr) {
-        assertParameter("domAttribute", domAttribute, Attr);
+        assertParams({ domAttribute }, Attr);
 
         super(domAttribute);
     }

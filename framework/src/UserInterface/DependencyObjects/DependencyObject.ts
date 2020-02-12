@@ -1,8 +1,8 @@
 import { DependencyProperty } from "./DependencyProperty";
-import { FrameworkEvent } from "../Events/index";
+import { FrameworkEvent } from "../../Standard/Events/index";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
-export class DependencyObject extends Object {
+export class DependencyObject {
     get(property: DependencyProperty): any {
     }
 

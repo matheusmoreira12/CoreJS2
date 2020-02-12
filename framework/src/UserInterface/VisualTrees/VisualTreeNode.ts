@@ -1,7 +1,7 @@
 import { Destructible, InvalidOperationException } from "../../Standard/index";
-import { assertParameter } from "../../Validation/index";
+import { assertParams } from "../../Validation/index";
 import { VisualTreeElement } from "./VisualTreeElement";
-import { DependencyObject } from "../../Standard/DependencyObjects/index";
+import { DependencyObject } from "../DependencyObjects/index";
 import { applyMixin } from "../../CoreBase/Utils/ObjectUtils";
 
 export abstract class VisualTreeNode extends Destructible {
@@ -11,7 +11,7 @@ export abstract class VisualTreeNode extends Destructible {
         if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
 
-        assertParameter("domNode", domNode, Node);
+        assertParams({ domNode }, Node);
 
         this.__domNode = domNode;
     }
@@ -27,5 +27,5 @@ export abstract class VisualTreeNode extends Destructible {
     get qualifiedName(): string { return this.__domNode.nodeName; }
 }
 
-export interface VisualTreeNode extends Destructible, DependencyObject {}
+export interface VisualTreeNode extends Destructible, DependencyObject { }
 applyMixin(VisualTreeNode, DependencyObject);
