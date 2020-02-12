@@ -2,7 +2,9 @@ import { TreeItem } from "../../Standard/Collections/index";
 import { assertParams } from "../../Validation/index";
 import { InvalidOperationException } from "../../Standard/index";
 
-class DataContext extends TreeItem<DataContext> {
+export class DataContext extends TreeItem<DataContext> {
+    static get main() { return mainContext; }
+
     static getNearestByTarget(target: object): DataContext | null {
         assertParams({ target }, Object);
 
@@ -29,9 +31,7 @@ class DataContext extends TreeItem<DataContext> {
     target: object | null;
 }
 
-const mainContext = new DataContext(null);
-
-export function getDataContextByTarget(target: object) {
+function getDataContextByTarget(target: object) {
     return mainContext.find(c => c.target === target);
 }
 
@@ -56,11 +56,11 @@ function getNearestConstructorDataContext(target: object): DataContext | null {
     return null;
 }
 
-export function getNearestDataContextByTarget(target: object): DataContext | null {
+function getNearestDataContextByTarget(target: object): DataContext | null {
     return getNearestInstanceDataContext(target) || getNearestConstructorDataContext(target) || null;
 }
 
-export function overrideContextByTarget(target: object): DataContext {
+function overrideContextByTarget(target: object): DataContext {
     const oldContext = getNearestDataContextByTarget(target);
     if (oldContext === null)
         throw new InvalidOperationException("Cannot override data context. No context was found to override from.");
@@ -70,3 +70,5 @@ export function overrideContextByTarget(target: object): DataContext {
         return newContext;
     }
 }
+
+const mainContext = new DataContext(null);

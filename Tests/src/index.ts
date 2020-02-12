@@ -4,6 +4,31 @@ import MemberType = Core.Standard.Types.MemberType;
 import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 import Enumeration = Core.Standard.Enumeration;
+import DataContexts = Core.UserInterface.DataContexts;
+
+
+class A { 
+    static x = DataContexts.DataContext.main.children.add(new DataContexts.DataContext(A));
+
+    constructor() {
+        DataContexts.DataContext.overrideByTarget(this);
+    }
+}
+
+class B extends A {
+    static y = DataContexts.DataContext.main.children.add(new DataContexts.DataContext(B));;
+
+    constructor() {
+        super();
+        DataContexts.DataContext.overrideByTarget(this);
+    }
+}
+
+new B();
+
+console.log(DataContexts.DataContext.main);
+
+
 
 export const Consolify = new (function () {
     const TAB_SPACING = 5;
