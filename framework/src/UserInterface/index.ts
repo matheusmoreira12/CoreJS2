@@ -14,6 +14,9 @@ export * from "./Xaml";
 import * as DOMUtils from "./DOMUtils";
 export { DOMUtils };
 
+import * as DataContexts from "./DataContexts/index";
+export { DataContexts };
+
 import * as Actions from "./Actions/index";
 export { Actions }
 

@@ -14,7 +14,7 @@ export class TreeItem<T extends TreeItem<T>> {
         this.children.ChangeEvent.attach(this[$children_onChange], this);
     }
 
-    allRecursive(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
+    all(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
         if (!this.children.every(callbackfn, thisArg))
             return false;
 
@@ -25,7 +25,7 @@ export class TreeItem<T extends TreeItem<T>> {
         return true;
     }
 
-    anyRecursive(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
+    any(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
         if (this.children.some(callbackfn, thisArg))
             return true;
 
@@ -36,7 +36,7 @@ export class TreeItem<T extends TreeItem<T>> {
         return false;
     }
 
-    selectRecursive<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
+    select<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
         const result: U[] = [];
 
         result.push(...this.children.map(callbackfn, thisArg));
@@ -47,9 +47,9 @@ export class TreeItem<T extends TreeItem<T>> {
         return result;
     }
 
-    whereRecursive<S extends T>(callbackfn: (value: T, index: number, array: T[]) => value is S, thisArg?: any): S[];
-    whereRecursive(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): T[];
-    whereRecursive(callbackfn: any, thisArg?: any) {
+    where<S extends T>(callbackfn: (value: T, index: number, array: T[]) => value is S, thisArg?: any): S[];
+    where(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): T[];
+    where(callbackfn: any, thisArg?: any) {
         const result: T[] = [];
 
         result.push(...this.children.filter(callbackfn, thisArg));
@@ -60,16 +60,16 @@ export class TreeItem<T extends TreeItem<T>> {
         return result;
     }
 
-    findRecursive<S extends T>(predicate: (this: void, value: T, index: number, obj: T[]) => value is S, thisArg?: any): S | null;
-    findRecursive(predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): T | null;
-    findRecursive(predicate: any, thisArg?: any) {
-        let item: T | undefined = this.children.find(predicate, thisArg);
+    find<S extends T>(predicate: (this: void, value: T, index: number, obj: T[]) => value is S, thisArg?: any): S | null;
+    find(predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): T | null;
+    find(predicate: any, thisArg?: any) {
+        const item = this.children.find(predicate, thisArg);
         if (item !== undefined)
             return item;
         else {
             for (let child of this.children) {
-                item = child.children.find(predicate, thisArg);
-                if (item !== undefined)
+                const item = child.find(predicate, thisArg);
+                if (item !== null)
                     return item;
             }
             return null;
@@ -99,7 +99,7 @@ export class TreeItem<T extends TreeItem<T>> {
                 item[$parent] = null;
         }
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
-            for (let item of args.oldItems)
+            for (let item of args.newItems)
                 item[$parent] = this;
         }
     }
