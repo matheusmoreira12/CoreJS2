@@ -8,6 +8,8 @@ import { Action, ActionCollection } from "../Actions/index";
 const $targetEvent = Symbol();
 const $actions = Symbol();
 const $removeAllActions = Symbol();
+const $executeAllActions = Symbol();
+const $targetEvent_handler = Symbol();
 
 /**
  * EventTrigger class
@@ -24,18 +26,38 @@ export class EventTrigger extends Trigger {
         this[$actions] = new ActionCollection(this, ...actions);
     }
 
+    private [$removeAllActions]() {
+        const actionsCopy = [...this.actions];
+        for (let action of actionsCopy)
+            action.unsetTrigger();
+    }
+
+    private [$executeAllActions](data: Dictionary<string, any>) {
+        const exceptions: Error[] = [];
+        for (let action of this.actions) {
+            try {
+                action.execute(data);
+            }
+            catch (e) {
+                exceptions.push(e);
+            }
+        }
+
+        for (let e of exceptions)
+            throw e;
+    }
+
+    private [$targetEvent_handler](sender: any, args: FrameworkEventArgs) {
+        const data: Dictionary<string, any> = Dictionary.fromKeyValueObject(args);
+        this[$executeAllActions](data);
+    }
+
     get targetEvent(): FrameworkEvent { return this[$targetEvent]; }
     private [$targetEvent]: FrameworkEvent;
 
     get actions(): ActionCollection { return this[$actions]; }
     private [$actions]: ActionCollection;
 
-    private [$removeAllActions]() {
-        const actionsCopy = [...this.actions];
-        for (let action of actionsCopy)
-            action.unsetTrigger();
-    }
-    
     protected destructor() {
         this[$removeAllActions]();
     }
