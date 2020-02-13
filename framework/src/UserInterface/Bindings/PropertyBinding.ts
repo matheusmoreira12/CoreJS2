@@ -18,9 +18,7 @@ export class PropertyBinding extends Binding {
     constructor(source: DependencyObject, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, options?: IBindingOptions) {
         super(options);
 
-        assertParams({ source }, Interface.extract(DependencyObject));
         assertParams({ sourceProperty }, DependencyProperty);
-        assertParams({ target }, Interface.extract(DependencyObject));
         assertParams({ targetProperty }, IBindingOptions);
 
         this[$source] = source;

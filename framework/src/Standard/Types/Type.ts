@@ -63,6 +63,10 @@ export class Type<T = any> {
             throw new InvalidOperationException("Type has not been initialized.");
     }
 
+    get [Symbol.toStringTag]() {
+        return `Type(${this.getName()})`;
+    }
+
     getName(): string {
         this[$checkInitializationStatus]();
 

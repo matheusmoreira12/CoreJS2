@@ -16,7 +16,6 @@ export class DependencyProperty {
     static get unsetValue(): symbol { return $unsetValue; }
 
     static register(target: typeof DependencyObject, name: string, metadata: PropertyMetadata): DependencyProperty {
-        assertParams({ target }, Interface.extract(target));
         assertParams({ name }, String);
         assertParams({ metadata }, PropertyMetadata);
 
@@ -24,8 +23,6 @@ export class DependencyProperty {
     }
 
     static overrideContext(target: DependencyObject) {
-        assertParams({ target }, Interface.extract(target));
-
         DataContext.override(target);
     }
 

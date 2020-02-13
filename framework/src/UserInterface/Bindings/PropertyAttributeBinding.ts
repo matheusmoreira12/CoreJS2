@@ -18,7 +18,6 @@ export class PropertyAttributeBinding extends Binding {
     constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, options?: IBindingOptions) {
         super(options);
 
-        assertParams({ source }, Interface.extract(DependencyObject));
         assertParams({ sourceProperty }, DependencyProperty);
         assertParams({ targetElement }, Element);
         assertParams({ targetAttributeName }, String);

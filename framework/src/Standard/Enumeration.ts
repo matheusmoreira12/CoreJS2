@@ -5,8 +5,8 @@ const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
 type EnumerationDescriptor = { [key: string]: number | null };
 
-type EnumerationInstance<T extends EnumerationDescriptor> = Enumeration & {
-    readonly [P in keyof T]: number;
+type EnumerationInstance<TDesc extends EnumerationDescriptor> = Enumeration & {
+    readonly [P in keyof TDesc]: number;
 }
 
 function splitSetString(setStr: string): string[] {
@@ -21,7 +21,7 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
     if (typeof descriptor != "object")
         throw new ArgumentTypeException("descriptor", typeof descriptor, "object");
 
-    let value: number = 0;
+    let value: number = -1;
     for (let key in descriptor) {
         if (descriptor[key] === null)
             value++;
