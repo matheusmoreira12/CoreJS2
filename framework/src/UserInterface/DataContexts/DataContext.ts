@@ -1,8 +1,11 @@
 import { TreeItem } from "../../Standard/Collections/index";
-import { assertParams } from "../../Validation/index";
+import { assertParams, assert } from "../../Validation/index";
 import { InvalidOperationException } from "../../Standard/index";
 
 export class DataContext extends TreeItem<DataContext> {
+    /**
+     * Gets the main data context.
+     */
     static get main() { return mainContext; }
 
     /**
@@ -50,6 +53,8 @@ export class DataContext extends TreeItem<DataContext> {
     }
 
     constructor(target: object | null, ...children: DataContext[]) {
+        assertParams({ target }, Object, null);
+
         super(...children);
         this.target = target;
     }

@@ -1,4 +1,4 @@
-import { FrameworkEventArgs, FrameworkEvent } from "../../Standard/Events/index";
+import { FrameworkEventArgs } from "../../Standard/Events/index";
 import { DependencyProperty } from "./index";
 import { ArgumentMissingException, ArgumentTypeException } from "../../Standard/index";
 
@@ -8,10 +8,6 @@ import { ArgumentMissingException, ArgumentTypeException } from "../../Standard/
  */
 export class PropertyChangeEventArgs extends FrameworkEventArgs {
     constructor(target: object, property: DependencyProperty, oldValue: any, newValue: any) {
-        if (arguments.length < 3)
-            throw new ArgumentMissingException("oldValue");
-        if (arguments.length < 4)
-            throw new ArgumentMissingException("newValue");
         if (!(target instanceof Object))
             throw new ArgumentTypeException("target", target, Object);
         if (!(property instanceof DependencyProperty))
