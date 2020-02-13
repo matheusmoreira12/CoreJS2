@@ -5,19 +5,45 @@ import { InvalidOperationException } from "../../Standard/index";
 export class DataContext extends TreeItem<DataContext> {
     static get main() { return mainContext; }
 
-    static getNearestByTarget(target: object): DataContext | null {
+    /**
+     * Finds the nearest data context to the specified target, or null if there's none.
+     * @param target The target object of the desired context.
+     */
+    static findNearest(target: object): DataContext | null {
         assertParams({ target }, Object);
 
-        return getNearestDataContextByTarget(target);
+        return findNearestDataContextByTarget(target);
     }
 
-    static getByTarget(target: object): DataContext | null {
+    /**
+     * Finds the data context exactly matching the specified target, or null if there's none.
+     * @param target The target object of the desired context.
+     */
+    static find(target: object): DataContext | null {
         assertParams({ target }, Object);
 
-        return getDataContextByTarget(target);
+        return findDataContextByTarget(target);
     }
 
-    static overrideByTarget(target: object): DataContext {
+    /**
+     * Finds the context for the specified target and, if there's none, creates one under the main context. 
+     * @param target The target object for the desired context.
+     */
+    static get(target: object): DataContext {
+        assertParams({ target }, Object);
+
+        const context = findDataContextByTarget(target);
+        if (context === null)
+            return createContextForTarget(target);
+        else
+            return context;
+    }
+
+    /**
+     * Finds the nearest parent context and overrides from it. If a context for the specified target already exists, returns the existing context.
+     * @param target The target object for the desired context.
+     */
+    static override(target: object): DataContext {
         assertParams({ target }, Object);
 
         return overrideContextByTarget(target);
@@ -31,13 +57,19 @@ export class DataContext extends TreeItem<DataContext> {
     target: object | null;
 }
 
-function getDataContextByTarget(target: object) {
+function createContextForTarget(target: object): DataContext {
+    const context = new DataContext(target);
+    mainContext.children.add(context);
+    return context;
+}
+
+function findDataContextByTarget(target: object): DataContext | null {
     return mainContext.find(c => c.target === target);
 }
 
-function getNearestInstanceDataContext(target: object): DataContext | null {
+function findNearestInstanceDataContext(target: object): DataContext | null {
     while (target) {
-        const context = getDataContextByTarget(target);
+        const context = findDataContextByTarget(target);
         if (context !== null)
             return context;
         target = Object.getPrototypeOf(target);
@@ -45,10 +77,10 @@ function getNearestInstanceDataContext(target: object): DataContext | null {
     return null;
 }
 
-function getNearestConstructorDataContext(target: object): DataContext | null {
+function findNearestConstructorDataContext(target: object): DataContext | null {
     let targetCtor = target.constructor;
     while (targetCtor) {
-        const context = getDataContextByTarget(targetCtor);
+        const context = findDataContextByTarget(targetCtor);
         if (context !== null)
             return context;
         targetCtor = Object.getPrototypeOf(targetCtor);
@@ -56,19 +88,24 @@ function getNearestConstructorDataContext(target: object): DataContext | null {
     return null;
 }
 
-function getNearestDataContextByTarget(target: object): DataContext | null {
-    return getNearestInstanceDataContext(target) || getNearestConstructorDataContext(target) || null;
+function findNearestDataContextByTarget(target: object): DataContext | null {
+    return findNearestInstanceDataContext(target) || findNearestConstructorDataContext(target) || null;
 }
 
 function overrideContextByTarget(target: object): DataContext {
-    const oldContext = getNearestDataContextByTarget(target);
-    if (oldContext === null)
-        throw new InvalidOperationException("Cannot override data context. No context was found to override from.");
-    else {
-        const newContext = new DataContext(target);
-        oldContext.children.add(newContext);
-        return newContext;
+    const context = findDataContextByTarget(target);
+    if (context === null) {
+        const oldContext = findNearestDataContextByTarget(target);
+        if (oldContext === null)
+            throw new InvalidOperationException("Cannot override data context. No context was found to override from.");
+        else {
+            const newContext = new DataContext(target);
+            oldContext.children.add(newContext);
+            return newContext;
+        }
     }
+    else
+        return context;
 }
 
 const mainContext = new DataContext(null);

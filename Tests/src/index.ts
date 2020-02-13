@@ -4,23 +4,24 @@ import MemberType = Core.Standard.Types.MemberType;
 import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 import Enumeration = Core.Standard.Enumeration;
+
+
 import DataContexts = Core.UserInterface.DataContexts;
 
-
 class A { 
-    static x = DataContexts.DataContext.main.children.add(new DataContexts.DataContext(A));
+    static x = DataContexts.DataContext.get(A);
 
     constructor() {
-        DataContexts.DataContext.overrideByTarget(this);
+        DataContexts.DataContext.override(this);
     }
 }
 
 class B extends A {
-    static y = DataContexts.DataContext.main.children.add(new DataContexts.DataContext(B));;
+    static y = DataContexts.DataContext.get(B);
 
     constructor() {
         super();
-        DataContexts.DataContext.overrideByTarget(this);
+        DataContexts.DataContext.override(this);
     }
 }
 
