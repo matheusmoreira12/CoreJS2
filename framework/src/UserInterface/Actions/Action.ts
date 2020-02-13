@@ -3,8 +3,6 @@ import { Dictionary, Collection } from "../../Standard/Collections/index";
 import { EventTrigger } from "../Triggers/index";
 import { assertParams } from "../../Validation/index";
 
-const allActions: Collection<Action> = new Collection();
-
 //Keys for Action
 const $trigger = Symbol();
 
@@ -13,8 +11,6 @@ const $trigger = Symbol();
  * Represents an user-initiated action.
  */
 export abstract class Action extends Destructible {
-    static getAll(): Action[] { return [...allActions]; }
-
     constructor() {
         super();
 
@@ -22,8 +18,6 @@ export abstract class Action extends Destructible {
             throw new InvalidOperationException("Invalid constructor");
 
         this[$trigger] = null;
-
-        allActions.add(this);
     }
 
     abstract execute(data: Dictionary<string, any>): void;
@@ -44,7 +38,5 @@ export abstract class Action extends Destructible {
     destructor() {
         if (this.trigger)
             this.trigger.actions.remove(this);
-
-        allActions.remove(this);
     }
 }

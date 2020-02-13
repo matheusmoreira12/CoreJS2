@@ -40,4 +40,7 @@ export class PropertyBinding extends Binding {
 
     get targetProperty(): DependencyProperty { return this[$targetProperty]; }
     private [$targetProperty]: DependencyProperty;
+
+    protected destructor(): void {
+    }
 }

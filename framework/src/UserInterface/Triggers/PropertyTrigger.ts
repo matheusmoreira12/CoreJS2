@@ -48,9 +48,7 @@ export class PropertyTrigger extends Trigger {
             setter.unsetTrigger();
     }
 
-    destruct() {
+    protected destructor() {
         this[$removeAllSetters]();
-
-        super.destructor();
     }
 }

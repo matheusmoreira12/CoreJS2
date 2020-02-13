@@ -38,7 +38,5 @@ export class EventTrigger extends Trigger {
     
     protected destructor() {
         this[$removeAllActions]();
-
-        super.destructor();
     }
 }

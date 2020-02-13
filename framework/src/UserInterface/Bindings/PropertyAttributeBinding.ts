@@ -40,4 +40,7 @@ export class PropertyAttributeBinding extends Binding {
 
     get targetAttributeName(): string { return this[$targetAttributeName]; }
     private [$targetAttributeName]: string;
+
+    protected destructor(): void {
+    }
 }

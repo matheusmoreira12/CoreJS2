@@ -1,7 +1,13 @@
 import { TreeItem } from "../../Standard/Collections/index";
-import { assertParams, assert } from "../../Validation/index";
+import { assertParams } from "../../Validation/index";
 import { InvalidOperationException } from "../../Standard/index";
 
+//Keys for DataContext
+const $target = Symbol();
+
+/**
+ * Holds context information for data transactions.
+ */
 export class DataContext extends TreeItem<DataContext> {
     /**
      * Gets the main data context.
@@ -56,10 +62,11 @@ export class DataContext extends TreeItem<DataContext> {
         assertParams({ target }, Object, null);
 
         super(...children);
-        this.target = target;
+        this[$target] = target;
     }
 
-    target: object | null;
+    get target(): object | null { return this[$target]; }
+    private [$target]: object | null;
 }
 
 function createContextForTarget(target: object): DataContext {
