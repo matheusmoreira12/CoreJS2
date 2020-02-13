@@ -23,7 +23,7 @@ export class Setter extends Destructible {
         super();
 
         assertParams(target, Interface.extract(DependencyObject));
-        assertParams({ property }, <any>DependencyProperty);
+        assertParams({ property }, DependencyProperty);
 
         this[$target] = target;
         this[$property] = property;

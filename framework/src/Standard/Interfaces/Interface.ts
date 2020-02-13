@@ -12,14 +12,18 @@ export class Interface {
     static extract(type: any): Interface {
         function* generateInterfaceMembers(type: Type): Generator<InterfaceMember> {
             function generateInterfaceMember(member: MemberInfo): InterfaceMember | null {
-                let memberIsFunction: boolean = Enumeration.contains(MemberType.Function, member.memberType),
-                    memberIsProperty: boolean = Enumeration.contains(MemberType.Property, member.memberType);
-                if (memberIsFunction)
-                    return new InterfaceMember(member.key, InterfaceMemberType.Function, member.type, member.attributes);
-                else if (memberIsProperty)
-                    return new InterfaceMember(member.key, InterfaceMemberType.Property, member.type, member.attributes);
+                function getMemberType(): number {
+                    if (Enumeration.contains(MemberType.Function, member.memberType))
+                        return InterfaceMemberType.Function;
+                    else if (Enumeration.contains(MemberType.Property, member.memberType))
+                        return InterfaceMemberType.Property;
+                    else if (Enumeration.contains(MemberType.Field, member.memberType))
+                        return InterfaceMemberType.Field;
+                    return -1;
+                }
 
-                return null;
+                const memberType = getMemberType();
+                return new InterfaceMember(member.key, memberType, member.type, member.attributes);
             }
 
             const instanceMembers: Iterable<MemberInfo> = type.getMembers(MemberSelectionType.Instance | MemberSelectionType.Property | MemberSelectionType.Function);

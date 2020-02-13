@@ -1,8 +1,8 @@
 import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { Trigger } from "./index";
-import { ArgumentTypeException } from "../../Standard/index";
-import { Dictionary, Collection } from "../../Standard/Collections/index";
+import { Dictionary } from "../../Standard/Collections/index";
 import { Action, ActionCollection } from "../Actions/index";
+import { assertParams, assertEachParams } from "../../Validation/index";
 
 //Keys for EventTrigger
 const $targetEvent = Symbol();
@@ -19,11 +19,13 @@ export class EventTrigger extends Trigger {
     constructor(targetEvent: FrameworkEvent, ...actions: Action[]) {
         super();
 
-        if (!(targetEvent instanceof FrameworkEvent))
-            throw new ArgumentTypeException("targetEvent", targetEvent, FrameworkEvent);
+        assertParams({ targetEvent }, FrameworkEvent);
+        assertEachParams({ actions }, Array, Action);
 
         this[$targetEvent] = targetEvent;
         this[$actions] = new ActionCollection(this, ...actions);
+
+        this.targetEvent.attach(this[$targetEvent_handler]);
     }
 
     private [$removeAllActions]() {
@@ -49,6 +51,8 @@ export class EventTrigger extends Trigger {
 
     private [$targetEvent_handler](sender: any, args: FrameworkEventArgs) {
         const data: Dictionary<string, any> = Dictionary.fromKeyValueObject(args);
+        data.set("origin", sender);
+        
         this[$executeAllActions](data);
     }
 

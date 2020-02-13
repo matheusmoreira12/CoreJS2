@@ -1,8 +1,8 @@
 import { Trigger } from "./index";
-import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../DependencyObjects/index";
-import { ArgumentTypeException } from "../../Standard/index";
+import { DependencyProperty, DependencyObject } from "../DependencyObjects/index";
 import { Setter } from "../Setters/index";
 import { SetterCollection } from "../Setters/SetterCollection";
+import { assertParams, assertEachParams } from "../../Validation/index";
 
 //Keys for PropertyTrigger
 const $target = Symbol();
@@ -19,10 +19,9 @@ export class PropertyTrigger extends Trigger {
     constructor(target: DependencyObject, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
         super();
 
-        if (typeof target !== "object") throw new ArgumentTypeException("target", target, Object);
-
-        if (!(targetProperty instanceof DependencyProperty)) throw new ArgumentTypeException("targetProperty",
-            targetProperty, DependencyProperty);
+        assertParams({ target }, Object);
+        assertParams({ targetProperty }, DependencyProperty);
+        assertEachParams({ setters }, Array, Setter);
 
         this[$target] = target;
         this[$targetProperty] = targetProperty;

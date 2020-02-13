@@ -11,6 +11,7 @@ export const InterfaceDifferenceKind = Enumeration.create({
 export type InterfaceMemberKey = string | number | symbol;
 
 export const InterfaceMemberType = Enumeration.create({
+    Field: null,
     Property: null,
     Function: null
 });
