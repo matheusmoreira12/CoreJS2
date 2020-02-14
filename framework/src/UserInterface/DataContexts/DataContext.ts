@@ -24,20 +24,6 @@ export class DataContext extends TreeItem<DataContext> {
         return getDataContextByTarget(target);
     }
 
-    /**
-     * Finds the context for the specified target and, if there's none, creates one under the main context. 
-     * @param target The target object for the desired context.
-     */
-    static getOrCreate(target: object): DataContext {
-        assertParams({ target }, Object);
-
-        const context = getDataContextByTarget(target);
-        if (context === null)
-            return createContextForTarget(target, this);
-        else
-            return context;
-    }
-
     constructor(target: object | null, ...children: DataContext[]) {
         assertParams({ target }, Object, null);
 
