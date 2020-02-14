@@ -2,7 +2,7 @@ import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
 import { DataContext } from "../DataContexts/index";
 import { assertParams } from "../../Validation/index";
-import { DependencyDataContext } from "./Storage";
+import { DependencyContext } from "./Storage";
  
 const $unsetValue = Symbol("unset");
 
@@ -53,16 +53,16 @@ function* getParentTargets(target: typeof DependencyObject): Generator<typeof De
 
 function* getParentTargetContexts(target: typeof DependencyObject): Generator<DataContext> {
     for (let parentTarget of getParentTargets(target)) {
-        const context = DataContext.get(parentTarget);
+        const context = DataContext.find(parentTarget);
         if (context)
             yield context;
     }
 }
 
 function overrideTargetMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
-    const getFirst = (iterable: IterableIterator<DataContext>) => iterable.next().value;
-    const oldContext = <DataContext>getFirst(getParentTargetContexts(target));
-    const newContext = new DependencyDataContext(target, metadata);
+    const getFirst = <T>(iterable: IterableIterator<T>): T => iterable.next().value;
+    const oldContext = getFirst(getParentTargetContexts(target));
+    const newContext = new DependencyContext(target, metadata);
     oldContext.children.add(newContext);
     return newContext;
 }

@@ -9,7 +9,7 @@ import Enumeration = Core.Standard.Enumeration;
 import DataContexts = Core.UserInterface.DataContexts;
 
 class A { 
-    static x = DataContexts.DataContext.get(A);
+    static x = DataContexts.DataContext.getOrCreate(A);
 
     constructor() {
         DataContexts.DataContext.override(this);
@@ -17,7 +17,7 @@ class A {
 }
 
 class B extends A {
-    static y = DataContexts.DataContext.get(B);
+    static y = DataContexts.DataContext.getOrCreate(B);
 
     constructor() {
         super();

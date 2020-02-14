@@ -1,5 +1,6 @@
 import { TreeItem } from "../../Standard/Collections/index";
 import { assertParams } from "../../Validation/index";
+import { InvalidOperationException } from "../../Standard/index";
 
 //Keys for DataContext
 const $target = Symbol();
@@ -17,23 +18,10 @@ export class DataContext extends TreeItem<DataContext> {
      * Finds the data context corresponding to the specified target, or null if there's none.
      * @param target The target object of the desired context.
      */
-    static get(target: object): DataContext | null {
+    static find(target: object): DataContext | null {
         assertParams({ target }, Object);
 
         return getDataContextByTarget(target);
-    }
-
-    /**
-     * Finds the data context corresponding to the specfied old target, creates a new context for the new target and makes it a child of the old context.
-     * @param oldTarget The old target.
-     * @param newTarget The new target.
-     * @returns The new context.
-     */
-    static override(oldTarget: object, newTarget: object): DataContext {
-        assertParams({oldTarget}, Object);
-        assertParams({newTarget}, Object);
-
-        return overrideContextByTarget(oldTarget, newTarget);
     }
 
     /**
@@ -68,17 +56,11 @@ function createContextForTarget(target: object, contextConstructor: typeof DataC
 }
 
 function getDataContextByTarget(target: object): DataContext {
-    const context = mainContext.get(c => c.target === target);
+    const context = mainContext.find(c => c.target === target);
     if (context)
         return context;
     else
         return DataContext.main;
-}
-
-function overrideContextByTarget(oldTarget: object, contextConstructor: typeof DataContext, newTarget: object): DataContext {
-    const oldContext = DataContext.get(oldTarget);
-    const newContext = createContextForTarget(newTarget, contextConstructor);
-    return newContext;
 }
 
 const mainContext = new DataContext(null);
