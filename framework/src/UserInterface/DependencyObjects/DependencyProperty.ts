@@ -2,7 +2,7 @@ import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
 import { DataContext } from "../DataContexts/index";
 import { assertParams } from "../../Validation/index";
-import { Interface } from "../../Standard/Interfaces/index";
+import * as Storage from "./Storage";
 
 const $unsetValue = Symbol("unset");
 
@@ -22,8 +22,10 @@ export class DependencyProperty {
         return registerProperty(target, name, metadata);
     }
 
-    static overrideContext(target: DependencyObject) {
-        DataContext.override(target);
+    static overrideMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
+        assertParams({ metadata }, PropertyMetadata);
+
+        overrideTargetMetadata(target, metadata);
     }
 
     constructor(id: number) {
@@ -37,5 +39,28 @@ export class DependencyProperty {
 }
 
 function registerProperty(target: typeof DependencyObject, name: string, metadata: PropertyMetadata): DependencyProperty {
-    
+    const context = DataContext.getOrCreate(target);
+    const property = new DependencyProperty(0);
+    return property;
+}
+
+function* getParentTargets(target: typeof DependencyObject): Generator<typeof DependencyObject> {
+    while (target) {
+        target = Object.getPrototypeOf(target);
+        yield target;
+    }
+}
+
+function* getParentContexts(target: typeof DependencyObject): Generator<DataContext> {
+    for (let parentTarget of getParentTargets(target)) {
+        const context = DataContext.get(parentTarget);
+        if (context)
+            yield context;
+    }
+}
+
+function overrideTargetMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
+    for (let parentContext of getParentContexts(target)) {
+        
+    }
 }

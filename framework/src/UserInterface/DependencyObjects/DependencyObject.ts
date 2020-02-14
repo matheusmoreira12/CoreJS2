@@ -28,7 +28,7 @@ export class DependencyObject {
 }
 
 function getPropertyValue(target: DependencyObject, property: DependencyProperty) {
-    const context = DataContext.findNearest(target);
+    const context = DataContext.find(target);
     if (context === null)
         throw new InvalidOperationException("Cannot get property value. No data context was found.")
     else {
@@ -36,7 +36,7 @@ function getPropertyValue(target: DependencyObject, property: DependencyProperty
 }
 
 function setPropertyValue(target: DependencyObject, property: DependencyProperty, value: any): any {
-    const context = DataContext.findNearest(target);
+    const context = DataContext.find(target);
     if (context === null)
         throw new InvalidOperationException("Cannot set property value. No data context was found.")
     else {

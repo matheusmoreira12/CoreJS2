@@ -1,10 +1,6 @@
 ﻿import { Collection, KeyValuePair } from "./index";
 import { ArgumentOutOfRangeException, KeyNotFoundException } from "../index";
 
-/**
- * Dictionary class
- *
- */
 export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TValue>> {
     static fromMap<TKey, TValue>(map: Map<TKey, TValue>): Dictionary<TKey, TValue> {
         function* getItems() {
@@ -27,15 +23,15 @@ export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TVal
         return new Dictionary(...getEntries(obj));
     }
 
-    get(key: TKey): TValue | undefined {
+    get(key: TKey): TValue {
         let item = this.find(item => item.key === key);
         if (item === undefined)
-            return undefined;
+            throw new KeyNotFoundException();
         return item.value;
     }
 
     has(key: TKey): boolean {
-        return this.get(key) !== undefined;
+        return this.find(i => i.key === key) !== undefined;
     }
 
     set(key: TKey, value: TValue): void {

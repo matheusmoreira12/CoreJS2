@@ -1,5 +1,8 @@
 export * from "./PropertyMetadata";
 export * from "./DependencyProperty";
-export * from "./Storage"
+
+import * as Storage from "./Storage"
+export { Storage };
+
 export * from "./PropertyChangeEvent";
 export * from "./DependencyObject";
