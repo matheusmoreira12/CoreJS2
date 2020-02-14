@@ -12,7 +12,6 @@ class A {
     static x = DataContexts.DataContext.getOrCreate(A);
 
     constructor() {
-        DataContexts.DataContext.override(this);
     }
 }
 
@@ -21,7 +20,6 @@ class B extends A {
 
     constructor() {
         super();
-        DataContexts.DataContext.override(this);
     }
 }
 

@@ -19,3 +19,37 @@ export function* compareSelect<T, U, TResult>(a: T[], b: U[], predicate: Compare
         yield x;
     }
 }
+
+export function getFirst<T>(iterable: IterableIterator<T>): T {
+    if (iterable.next) {
+        const result = iterable.next().value;
+        if (iterable.return)
+            iterable.return();
+        return result;
+    }
+    else if (iterable[Symbol.iterator])
+        return getFirst(iterable[Symbol.iterator]());
+    else
+        throw new Error('Invalid type for argument "iterable". An iterable or iterator was expected.');
+}
+
+export function getLast<T>(iterable: IterableIterator<T>): T {
+    if (iterable.next) {
+        let r, v;
+        do {
+            if (r)
+                v = r.value;
+            r = iterable.next();
+        }
+        while (!r.done);
+
+        if (iterable.return)
+            iterable.return();
+
+        return v;
+    }
+    else if (iterable[Symbol.iterator])
+        return getLast(iterable[Symbol.iterator]());
+    else
+        throw new Error('Invalid type for argument "iterable". An iterable or iterator was expected.');
+}

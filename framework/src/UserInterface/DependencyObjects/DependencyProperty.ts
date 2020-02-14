@@ -3,6 +3,7 @@ import { DependencyObject } from "./DependencyObject";
 import { DataContext } from "../DataContexts/index";
 import { assertParams } from "../../Validation/index";
 import { DependencyContext } from "./Storage";
+import { ArrayUtils } from "../../CoreBase/Utils/index";
  
 const $unsetValue = Symbol("unset");
 
@@ -59,10 +60,14 @@ function* getParentTargetContexts(target: typeof DependencyObject): Generator<Da
     }
 }
 
-function overrideTargetMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
-    const getFirst = <T>(iterable: IterableIterator<T>): T => iterable.next().value;
-    const oldContext = getFirst(getParentTargetContexts(target));
-    const newContext = new DependencyContext(target, metadata);
+function branchOutTargetContext(oldContext: DataContext, newTarget: typeof DependencyObject) {
+    const newContext = new DependencyContext(newTarget);
     oldContext.children.add(newContext);
+    return newContext;
+}
+
+function overrideTargetMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
+    const oldContext = ArrayUtils.getFirst(getParentTargetContexts(target));
+    const newContext = branchOutTargetContext(oldContext, target);
     return newContext;
 }
