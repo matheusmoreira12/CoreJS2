@@ -2,8 +2,8 @@ import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
 import { DataContext } from "../DataContexts/index";
 import { assertParams } from "../../Validation/index";
-import * as Storage from "./Storage";
-
+import { DependencyDataContext } from "./Storage";
+ 
 const $unsetValue = Symbol("unset");
 
 //Keys for DependencyProperty
@@ -51,7 +51,7 @@ function* getParentTargets(target: typeof DependencyObject): Generator<typeof De
     }
 }
 
-function* getParentContexts(target: typeof DependencyObject): Generator<DataContext> {
+function* getParentTargetContexts(target: typeof DependencyObject): Generator<DataContext> {
     for (let parentTarget of getParentTargets(target)) {
         const context = DataContext.get(parentTarget);
         if (context)
@@ -60,7 +60,9 @@ function* getParentContexts(target: typeof DependencyObject): Generator<DataCont
 }
 
 function overrideTargetMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
-    for (let parentContext of getParentContexts(target)) {
-        
-    }
+    const getFirst = (iterable: IterableIterator<DataContext>) => iterable.next().value;
+    const oldContext = <DataContext>getFirst(getParentTargetContexts(target));
+    const newContext = new DependencyDataContext(target, metadata);
+    oldContext.children.add(newContext);
+    return newContext;
 }

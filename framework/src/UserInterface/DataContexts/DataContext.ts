@@ -14,13 +14,26 @@ export class DataContext extends TreeItem<DataContext> {
     static get main() { return mainContext; }
 
     /**
-     * Finds the data context exactly matching the specified target, or null if there's none.
+     * Finds the data context corresponding to the specified target, or null if there's none.
      * @param target The target object of the desired context.
      */
     static get(target: object): DataContext | null {
         assertParams({ target }, Object);
 
-        return findDataContextByTarget(target);
+        return getDataContextByTarget(target);
+    }
+
+    /**
+     * Finds the data context corresponding to the specfied old target, creates a new context for the new target and makes it a child of the old context.
+     * @param oldTarget The old target.
+     * @param newTarget The new target.
+     * @returns The new context.
+     */
+    static override(oldTarget: object, newTarget: object): DataContext {
+        assertParams({oldTarget}, Object);
+        assertParams({newTarget}, Object);
+
+        return overrideContextByTarget(oldTarget, newTarget);
     }
 
     /**
@@ -30,7 +43,7 @@ export class DataContext extends TreeItem<DataContext> {
     static getOrCreate(target: object): DataContext {
         assertParams({ target }, Object);
 
-        const context = findDataContextByTarget(target);
+        const context = getDataContextByTarget(target);
         if (context === null)
             return createContextForTarget(target, this);
         else
@@ -54,12 +67,18 @@ function createContextForTarget(target: object, contextConstructor: typeof DataC
     return context;
 }
 
-function findDataContextByTarget(target: object): DataContext {
+function getDataContextByTarget(target: object): DataContext {
     const context = mainContext.get(c => c.target === target);
     if (context)
         return context;
     else
         return DataContext.main;
+}
+
+function overrideContextByTarget(oldTarget: object, contextConstructor: typeof DataContext, newTarget: object): DataContext {
+    const oldContext = DataContext.get(oldTarget);
+    const newContext = createContextForTarget(newTarget, contextConstructor);
+    return newContext;
 }
 
 const mainContext = new DataContext(null);

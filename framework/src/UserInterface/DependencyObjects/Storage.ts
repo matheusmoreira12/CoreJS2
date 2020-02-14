@@ -1,6 +1,5 @@
 import { DataContext } from "../DataContexts/index";
-import { PropertyMetadata } from "./PropertyMetadata";
 
-class DependencyContext extends DataContext {
+export class DependencyDataContext extends DataContext {
     
 }
