@@ -22,10 +22,12 @@ export function* compareSelect<T, U, TResult>(a: T[], b: U[], predicate: Compare
 
 export function getFirst<T>(iterable: IterableIterator<T>): T {
     if (iterable.next) {
-        const result = iterable.next().value;
+        const v = iterable.next().value;
+
         if (iterable.return)
             iterable.return();
-        return result;
+
+        return v;
     }
     else if (iterable[Symbol.iterator])
         return getFirst(iterable[Symbol.iterator]());
