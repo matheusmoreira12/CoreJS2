@@ -19,7 +19,7 @@ export class DependencyProperty {
         assertParams({ name }, String);
         assertParams({ metadata }, PropertyMetadata);
 
-        return new DependencyProperty(0);
+        return registerProperty(target, name, metadata);
     }
 
     static overrideContext(target: DependencyObject) {
@@ -34,4 +34,8 @@ export class DependencyProperty {
 
     get id(): number { return this[$id]; }
     private [$id]: number;
+}
+
+function registerProperty(target: typeof DependencyObject, name: string, metadata: PropertyMetadata): DependencyProperty {
+    
 }
