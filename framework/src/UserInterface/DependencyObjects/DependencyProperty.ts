@@ -5,9 +5,11 @@ import { assertParams } from "../../Validation/index";
 import { DependencyDataContext } from "./Storage/DependencyDataContext";
 import { ArrayUtils } from "../../CoreBase/Utils/index";
  
-const $unsetValue = Symbol("unset");
+//Keys for PropertyMetadata
+export const $setProperty = Symbol();
 
 //Keys for DependencyProperty
+const $unsetValue = Symbol("unset");
 const $id = Symbol();
 
 /**

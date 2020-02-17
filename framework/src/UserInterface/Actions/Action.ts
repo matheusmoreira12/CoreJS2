@@ -2,6 +2,7 @@ import { InvalidOperationException, Destructible } from "../../Standard/index";
 import { Dictionary, Collection } from "../../Standard/Collections/index";
 import { EventTrigger } from "../Triggers/index";
 import { assertParams } from "../../Validation/index";
+import { $setTrigger, $unsetTrigger } from "./ActionCollection";
 
 //Keys for Action
 const $trigger = Symbol();
@@ -22,13 +23,11 @@ export abstract class Action extends Destructible {
 
     abstract execute(data: Dictionary<string, any>): void;
 
-    setTrigger(trigger: EventTrigger) {
-        assertParams({ trigger }, EventTrigger);
-
+    [$setTrigger](trigger: EventTrigger) {
         this[$trigger] = trigger;
     }
 
-    unsetTrigger() {
+    [$unsetTrigger]() {
         this[$trigger] = null;
     }
 

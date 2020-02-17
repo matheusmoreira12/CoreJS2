@@ -1,9 +1,9 @@
 import { DependencyProperty, DependencyObject } from "../DependencyObjects/index"
 import { assertParams } from "../../Validation/index";
 import { PropertyTrigger } from "../Triggers/index";
-import { Interface } from "../../Standard/Interfaces/index";
 import { Destructible } from "../../Standard/index";
 import { Collection } from "../../Standard/Collections/index";
+import { $setTrigger, $unsetTrigger } from "./SetterCollection";
 
 const allSetters: Collection<Setter> = new Collection();
 
@@ -41,13 +41,11 @@ export class Setter extends Destructible {
     get value(): any { return this[$value]; }
     private [$value]: any;
 
-    setTrigger(trigger: PropertyTrigger) {
-        assertParams({ trigger }, PropertyTrigger);
-
+    [$setTrigger](trigger: PropertyTrigger) {
         this[$trigger] = trigger;
     }
 
-    unsetTrigger() {
+    [$unsetTrigger]() {
         this[$trigger] = null;
     }
 

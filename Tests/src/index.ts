@@ -5,29 +5,34 @@ import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 import Enumeration = Core.Standard.Enumeration;
 
+import DependencyDataContext = Core.UserInterface.DependencyObjects.Storage.DependencyDataContext;
 
 import DataContexts = Core.UserInterface.DataContexts;
+import DependencyObjects = Core.UserInterface.DependencyObjects;
 
-class A { 
-    static x = new DataContexts.DataContext(A);
-
-    constructor() {
-    }
-}
-
-class B extends A {
-    static y = new DataContexts.DataContext(B);
+class A extends DependencyObjects.DependencyObject {
+    static prop1 = new DependencyObjects.DependencyProperty(0);
 
     constructor() {
         super();
     }
 }
 
-new B();
+const ctx1 = new DependencyDataContext(A);
+DataContexts.DataContext.main.children.add(ctx1);
+
+class B extends A {
+    static prop2 = new DependencyObjects.DependencyProperty(0);
+
+    constructor() {
+        super();
+    }
+}
+
+const ctx2 = new DependencyDataContext(B);
+ctx1.children.add(ctx2);
 
 console.log(DataContexts.DataContext.main);
-
-
 
 export const Consolify = new (function () {
     const TAB_SPACING = 5;
