@@ -2,7 +2,7 @@ import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
 import { DataContext } from "../DataContexts/index";
 import { assertParams } from "../../Validation/index";
-import { DependencyContext } from "./Storage";
+import { DependencyDataContext } from "./Storage/DependencyDataContext";
 import { ArrayUtils } from "../../CoreBase/Utils/index";
  
 const $unsetValue = Symbol("unset");
@@ -40,7 +40,7 @@ export class DependencyProperty {
 }
 
 function registerProperty(target: typeof DependencyObject, name: string, metadata: PropertyMetadata): DependencyProperty {
-    const context = DataContext.getOrCreate(target);
+    const context = new DependencyDataContext(target);
     const property = new DependencyProperty(0);
     return property;
 }
@@ -54,14 +54,14 @@ function* getParentTargets(target: typeof DependencyObject): Generator<typeof De
 
 function* getParentTargetContexts(target: typeof DependencyObject): Generator<DataContext> {
     for (let parentTarget of getParentTargets(target)) {
-        const context = DataContext.find(parentTarget);
+        const context = DataContext.main.find(c => c.target === parentTarget);
         if (context)
             yield context;
     }
 }
 
 function branchOutTargetContext(oldContext: DataContext, newTarget: typeof DependencyObject) {
-    const newContext = new DependencyContext(newTarget);
+    const newContext = new DependencyDataContext(newTarget);
     oldContext.children.add(newContext);
     return newContext;
 }

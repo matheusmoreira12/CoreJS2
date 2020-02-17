@@ -9,14 +9,14 @@ import Enumeration = Core.Standard.Enumeration;
 import DataContexts = Core.UserInterface.DataContexts;
 
 class A { 
-    static x = DataContexts.DataContext.getOrCreate(A);
+    static x = new DataContexts.DataContext(A);
 
     constructor() {
     }
 }
 
 class B extends A {
-    static y = DataContexts.DataContext.getOrCreate(B);
+    static y = new DataContexts.DataContext(B);
 
     constructor() {
         super();

@@ -87,6 +87,13 @@ export class TreeItem<T extends TreeItem<T>> {
             return [this.parent, ...this.parent.getParents()];
     }
 
+    /**
+     * Gets the whole tree of this TreeItem.
+     */
+    getTree(): TreeItem<T>[] {
+        return [this, ...this.getParents()]
+    }
+
     get children(): ObservableCollection<T> { return this[$children]; }
     private [$children]: ObservableCollection<T>;
 
