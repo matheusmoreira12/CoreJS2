@@ -16,6 +16,7 @@ export class DependencyDataContext extends DataContext {
         super(target, ...children);
 
         this[$setters] = new Collection();
+        this[$metadata] = new Collection();
     }
 
     branchOut(target: typeof DependencyObject | DependencyObject): DependencyDataContext {

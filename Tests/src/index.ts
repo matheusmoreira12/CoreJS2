@@ -11,7 +11,7 @@ import DataContexts = Core.UserInterface.DataContexts;
 import DependencyObjects = Core.UserInterface.DependencyObjects;
 
 class A extends DependencyObjects.DependencyObject {
-    static prop1 = new DependencyObjects.DependencyProperty(0);
+    static prop1 = DependencyObjects.DependencyProperty.register(A, "prop1", new DependencyObjects.PropertyMetadata());
 
     constructor() {
         super();
@@ -22,7 +22,7 @@ const ctx1 = new DependencyDataContext(A);
 DataContexts.DataContext.main.children.add(ctx1);
 
 class B extends A {
-    static prop2 = new DependencyObjects.DependencyProperty(0);
+    static prop2 = DependencyObjects.DependencyProperty.register(B, "prop2", new DependencyObjects.PropertyMetadata());
 
     constructor() {
         super();

@@ -20,7 +20,7 @@ export function* compareSelect<T, U, TResult>(a: T[], b: U[], predicate: Compare
     }
 }
 
-export function getFirst<T>(iterable: IterableIterator<T>): T {
+export function getFirst<T>(iterable: IterableIterator<T>): T | undefined {
     if (iterable.next) {
         const v = iterable.next().value;
 
@@ -35,9 +35,9 @@ export function getFirst<T>(iterable: IterableIterator<T>): T {
         throw new Error('Invalid type for argument "iterable". An iterable or iterator was expected.');
 }
 
-export function getLast<T>(iterable: IterableIterator<T>): T {
+export function getLast<T>(iterable: IterableIterator<T>): T | undefined {
     if (iterable.next) {
-        let r, v;
+        let r, v = undefined;
         do {
             if (r)
                 v = r.value;

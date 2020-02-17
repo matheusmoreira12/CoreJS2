@@ -4,7 +4,8 @@ import { DataContext } from "../DataContexts/index";
 import { assertParams } from "../../Validation/index";
 import { DependencyDataContext } from "./Storage/DependencyDataContext";
 import { ArrayUtils } from "../../CoreBase/Utils/index";
- 
+import { InvalidOperationException } from "../../Standard/index";
+
 //Keys for PropertyMetadata
 export const $setProperty = Symbol();
 
@@ -18,33 +19,15 @@ const $id = Symbol();
 export class DependencyProperty {
     static get unsetValue(): symbol { return $unsetValue; }
 
-    static register(target: typeof DependencyObject, name: string, metadata: PropertyMetadata): DependencyProperty {
+    static register(target: typeof DependencyObject, metadata: PropertyMetadata): DependencyProperty {
         assertParams({ name }, String);
         assertParams({ metadata }, PropertyMetadata);
 
-        return registerProperty(target, name, metadata);
-    }
-
-    static overrideMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
-        assertParams({ metadata }, PropertyMetadata);
-
-        overrideTargetMetadata(target, metadata);
-    }
-
-    constructor(id: number) {
-        assertParams({ id }, Number);
-
-        this[$id] = id;
+        return registerProperty(target, metadata);
     }
 
     get id(): number { return this[$id]; }
     private [$id]: number;
-}
-
-function registerProperty(target: typeof DependencyObject, name: string, metadata: PropertyMetadata): DependencyProperty {
-    const context = new DependencyDataContext(target);
-    const property = new DependencyProperty(0);
-    return property;
 }
 
 function* getParentTargets(target: typeof DependencyObject): Generator<typeof DependencyObject> {
@@ -62,14 +45,28 @@ function* getParentTargetContexts(target: typeof DependencyObject): Generator<Da
     }
 }
 
-function branchOutTargetContext(oldContext: DataContext, newTarget: typeof DependencyObject) {
-    const newContext = new DependencyDataContext(newTarget);
-    oldContext.children.add(newContext);
-    return newContext;
+function getOrCreateContextFor(target: typeof DependencyObject) {
+    let context = ArrayUtils.getFirst(getParentTargetContexts(target)) as DependencyDataContext | undefined;
+    if (context === undefined) {
+        context = new DependencyDataContext(target);
+        DataContext.main.children.add(context);
+    }
+    return context;
+}
+
+function registerProperty(target: typeof DependencyObject, metadata: PropertyMetadata): DependencyProperty {
+    const context = getOrCreateContextFor(target);
+    const property = new DependencyProperty();
+    metadata[$setProperty](property); //Set the metadata property
+    context.metadata.add(metadata); //Add to context
+    return property;
 }
 
 function overrideTargetMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
-    const oldContext = ArrayUtils.getFirst(getParentTargetContexts(target));
-    const newContext = branchOutTargetContext(oldContext, target);
-    return newContext;
+    const oldContext = ArrayUtils.getFirst(getParentTargetContexts(target)) as DependencyDataContext | undefined;
+    if (oldContext !== undefined) {
+        const newContext = oldContext.branchOut(target);
+        return newContext;
+    }
+    throw new InvalidOperationException();
 }
