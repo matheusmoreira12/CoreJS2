@@ -1,4 +1,4 @@
-import { DependencyProperty } from "../DependencyProperty";
+import { DependencyProperty } from "../index";
 
 export type StorageSetter = {
     source: object;

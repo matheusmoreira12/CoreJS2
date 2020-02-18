@@ -6,7 +6,6 @@ import { DependencyProperty, $setProperty } from "./DependencyProperty";
 const $name = Symbol();
 const $valueType = Symbol();
 const $defaultValue = Symbol();
-const $property = Symbol();
 
 function assertDefaultValue(valueType: Type | Interface | null, defaultValue: any) {
     if (defaultValue !== DependencyProperty.unsetValue)
@@ -31,11 +30,4 @@ export class PropertyMetadata {
 
     get defaultValue(): any { return this[$defaultValue]; }
     private [$defaultValue]: any;
-
-    [$setProperty](property: DependencyProperty) {
-        this[$property] = property;
-    }
-
-    get property(): DependencyProperty | null { return this[$property]; }
-    private [$property]: DependencyProperty;
 }

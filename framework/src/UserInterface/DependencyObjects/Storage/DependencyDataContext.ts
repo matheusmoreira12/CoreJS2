@@ -2,14 +2,15 @@ import { DataContext } from "../../DataContexts/index";
 import { DependencyObject } from "../DependencyObject";
 import { DependencyProperty } from "../DependencyProperty";
 import { Collection } from "../../../Standard/Collections/index";
-import { assertEachParams, assert, assertParams } from "../../../Validation/index";
+import { assertEachParams, assertParams } from "../../../Validation/index";
 import { StorageSetter, createStorageSetter } from "./StorageSetter";
 import { PropertyMetadata } from "../PropertyMetadata";
+import { MetadataOverride, createMetadataOverride } from "./MetadataOverride";
 
 type Target = typeof DependencyObject | DependencyObject;
 
 const $setters = Symbol();
-const $metadata = Symbol();
+const $metadataOverrides = Symbol();
 
 export class DependencyDataContext extends DataContext {
     constructor(target: typeof DependencyObject | DependencyObject, ...children: DependencyDataContext[]) {
@@ -18,7 +19,7 @@ export class DependencyDataContext extends DataContext {
         super(target, ...children);
 
         this[$setters] = new Collection();
-        this[$metadata] = new Collection();
+        this[$metadataOverrides] = new Collection();
     }
 
     branchOut(target: typeof DependencyObject | DependencyObject): DependencyDataContext {
@@ -45,13 +46,13 @@ export class DependencyDataContext extends DataContext {
     }
 
     computeMetadata(property: DependencyProperty): PropertyMetadata | null {
-        assert({ property }, DependencyProperty);
+        assertParams({ property }, DependencyProperty);
 
         return computeMetadataOnContext.call(this, property);
     }
 
     computeValue(property: DependencyProperty): any {
-        assert({ property }, DependencyProperty);
+        assertParams({ property }, DependencyProperty);
 
         return computeValueOnContext.call(this, property);
     }
@@ -59,8 +60,8 @@ export class DependencyDataContext extends DataContext {
     get setters(): Collection<StorageSetter> { return this[$setters]; }
     private [$setters]: Collection<StorageSetter>;
 
-    get metadata(): Collection<PropertyMetadata> { return this[$metadata]; }
-    private [$metadata]: Collection<PropertyMetadata>;
+    get metadataOverrides(): Collection<MetadataOverride> { return this[$metadataOverrides]; }
+    private [$metadataOverrides]: Collection<MetadataOverride>;
 }
 
 function branchOut(this: DependencyDataContext, target: Target): DependencyDataContext {
@@ -85,30 +86,33 @@ function unsetValueOnContext(this: DependencyDataContext, source: object, proper
         this.setters.remove(setter);
 }
 
-function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty) {
-    const metadata = this.computeMetadata(property);
-
+function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty): any {
     for (let context of this.getTree())
         if (context instanceof DependencyDataContext) {
-            const reversedSetters = context.setters.reverse();
-            for (let setter of reversedSetters)
-                if (setter.property === property && setter.value !== DependencyProperty.unsetValue)
-                    return setter.value;
+            const setter = context.setters.reverse().find(s => s.property === property && s.value !== DependencyProperty.unsetValue);
+            if (setter)
+                return setter.value;
         }
 
     return DependencyProperty.unsetValue;
 }
 
 function overrideMetadataOnContext(this: DependencyDataContext, property: DependencyProperty, metadata: PropertyMetadata) {
+    let metadataOverride = this.metadataOverrides.find(mo => mo.property === property)
+    if (metadataOverride)
+        metadataOverride.metadata = metadata
+    else {
+        metadataOverride = createMetadataOverride(property, metadata);
+        this.metadataOverrides.add(metadataOverride);
+    }
 }
 
-function computeMetadataOnContext(this: DataContext, property: DependencyProperty): PropertyMetadata | null {
+function computeMetadataOnContext(this: DependencyDataContext, property: DependencyProperty): PropertyMetadata | null {
     for (let context of this.getTree()) {
         if (context instanceof DependencyDataContext) {
-            const metadata = context.metadata;
-            for (let metadataEntry of metadata)
-                if (metadataEntry.property === property)
-                    return metadataEntry;
+            const metadataOverride = this.metadataOverrides.find(o => o.property === property);
+            if (metadataOverride)
+                return metadataOverride.metadata;
         }
     }
     return null;

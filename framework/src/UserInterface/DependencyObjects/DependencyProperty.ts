@@ -38,8 +38,7 @@ function registerProperty(target: typeof DependencyObject, metadata: PropertyMet
     else
     {
         const property = new DependencyProperty();
-        metadata[$setProperty](property);
-        context.metadata.add(metadata);
+        context.overrideMetadata(property, metadata);
         return property;
     }
 }
