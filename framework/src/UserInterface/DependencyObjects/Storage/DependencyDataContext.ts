@@ -30,10 +30,10 @@ export class DependencyDataContext extends DataContext {
         setValueOnContext.call(this, source, target, property, value);
     }
 
-    unsetValue(source: object, property: DependencyProperty) {
+    unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
         assertParams({ source }, Object);
 
-        unsetValueOnContext.call(this, source, property);
+        unsetValueOnContext.call(this, source, target, property);
     }
 
     overrideMetadata(property: DependencyProperty, metadata: PropertyMetadata) {
@@ -49,10 +49,10 @@ export class DependencyDataContext extends DataContext {
         return computeMetadataOnContext.call(this, property);
     }
 
-    computeValue(property: DependencyProperty): any {
+    computeValue(property: DependencyProperty, target: DependencyObject): any {
         assertParams({ property }, DependencyProperty);
 
-        return computeValueOnContext.call(this, property);
+        return computeValueOnContext.call(this, property, target);
     }
 
     get setters(): Collection<StorageSetter> { return this[$setters]; }
@@ -78,16 +78,16 @@ function setValueOnContext(this: DependencyDataContext, source: object, target: 
         setter.value = value;
 }
 
-function unsetValueOnContext(this: DependencyDataContext, source: object, property: DependencyProperty) {
-    const setter = this.setters.find(s => s.source === source && s.property === property);
+function unsetValueOnContext(this: DependencyDataContext, source: object, target: DependencyObject, property: DependencyProperty) {
+    const setter = this.setters.find(s => s.source === source && s.target === target && s.property === property);
     if (setter !== undefined)
         this.setters.remove(setter);
 }
 
-function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty): any {
+function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty, target: DependencyObject): any {
     for (let context of this.getTree())
         if (context instanceof DependencyDataContext) {
-            const setter = context.setters.reverse().find(s => s.property === property && s.value !== DependencyProperty.unsetValue);
+            const setter = context.setters.reverse().find(s => s.property === property && s.target === target && s.value !== DependencyProperty.unsetValue);
             if (setter)
                 return setter.value;
         }

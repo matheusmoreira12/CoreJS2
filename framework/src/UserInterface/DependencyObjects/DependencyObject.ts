@@ -30,15 +30,15 @@ export class DependencyObject {
 }
 
 function getPropertyValue(target: DependencyObject, property: DependencyProperty) {
-    const context = DataContexts.Utils.getNearest(DataContext.main, target) as DependencyDataContext | null;
+    const context = DataContexts.Utils.getNearestByConstructor(DataContext.main, target) as DependencyDataContext | null;
     if (context === null)
         throw new InvalidOperationException("Cannot get property value. No dependency data context corresponds to the provided target.");
     else
-        context.computeValue(property);
+        context.computeValue(property, target);
 }
 
 function setPropertyValue(target: DependencyObject, property: DependencyProperty, value: any): any {
-    const context = DataContexts.Utils.getNearest(DataContext.main, target) as DependencyDataContext | null;
+    const context = DataContexts.Utils.getNearestByConstructor(DataContext.main, target) as DependencyDataContext | null;
     if (context === null)
         throw new InvalidOperationException("Cannot set property value. No dependency data context corresponds to the provided target.");
     else
