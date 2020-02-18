@@ -32,8 +32,6 @@ export abstract class Control extends VisualTreeElement {
         this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
-
-        DependencyProperty.overrideContext(this);
     }
 
     //Helper Class Instances

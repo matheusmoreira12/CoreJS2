@@ -5,9 +5,11 @@ export type MetadataOverride = {
     metadata: PropertyMetadata;
 }
 
-export function createMetadataOverride(property: DependencyProperty, metadata: PropertyMetadata) {
-    return {
-        property: property,
-        metadata: metadata
+export namespace MetadataOverride {
+    export function create(property: DependencyProperty, metadata: PropertyMetadata) {
+        return {
+            property: property,
+            metadata: metadata
+        }
     }
 }

@@ -6,10 +6,12 @@ export type StorageSetter = {
     value: any;
 }
 
-export function createStorageSetter(source: object, property: DependencyProperty, value: any): StorageSetter {
-    return {
-        source,
-        property,
-        value
-    };
+export namespace StorageSetter {
+    export function create(source: object, property: DependencyProperty, value: any): StorageSetter {
+        return {
+            source,
+            property,
+            value
+        };
+    }
 }
