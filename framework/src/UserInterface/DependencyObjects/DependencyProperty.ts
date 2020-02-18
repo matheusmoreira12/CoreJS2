@@ -1,9 +1,9 @@
 import { PropertyMetadata } from "./PropertyMetadata";
 import { DependencyObject } from "./DependencyObject";
-import { DataContext } from "../DataContexts/index";
 import { assertParams } from "../../Validation/index";
-import { DependencyDataContext } from "./Storage/DependencyDataContext";
-import { ArrayUtils } from "../../CoreBase/Utils/index";
+import { DataContexts } from "../index";
+import { DataContext } from "../DataContexts/index";
+import { DependencyDataContext } from "./Storage/index";
 import { InvalidOperationException } from "../../Standard/index";
 
 //Keys for PropertyMetadata
@@ -30,43 +30,16 @@ export class DependencyProperty {
     private [$id]: number;
 }
 
-function* getParentTargets(target: typeof DependencyObject): Generator<typeof DependencyObject> {
-    while (target) {
-        target = Object.getPrototypeOf(target);
-        yield target;
-    }
-}
-
-function* getParentTargetContexts(target: typeof DependencyObject): Generator<DataContext> {
-    for (let parentTarget of getParentTargets(target)) {
-        const context = DataContext.main.find(c => c.target === parentTarget);
-        if (context)
-            yield context;
-    }
-}
-
-function getOrCreateContextFor(target: typeof DependencyObject) {
-    let context = ArrayUtils.getFirst(getParentTargetContexts(target)) as DependencyDataContext | undefined;
-    if (context === undefined) {
-        context = new DependencyDataContext(target);
-        DataContext.main.children.add(context);
-    }
-    return context;
-}
 
 function registerProperty(target: typeof DependencyObject, metadata: PropertyMetadata): DependencyProperty {
-    const context = getOrCreateContextFor(target);
-    const property = new DependencyProperty();
-    metadata[$setProperty](property); //Set the metadata property
-    context.metadata.add(metadata); //Add to context
-    return property;
-}
-
-function overrideTargetMetadata(target: typeof DependencyObject, metadata: PropertyMetadata) {
-    const oldContext = ArrayUtils.getFirst(getParentTargetContexts(target)) as DependencyDataContext | undefined;
-    if (oldContext !== undefined) {
-        const newContext = oldContext.branchOut(target);
-        return newContext;
+    const context = DataContexts.Utils.getNearest(DataContext.main, target) as DependencyDataContext | null;
+    if (context === null)
+        throw new InvalidOperationException("Cannot register dependency property. No dependency data context corresponds to the provided target.");
+    else
+    {
+        const property = new DependencyProperty();
+        metadata[$setProperty](property);
+        context.metadata.add(metadata);
+        return property;
     }
-    throw new InvalidOperationException();
 }
