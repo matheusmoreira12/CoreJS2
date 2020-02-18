@@ -2,7 +2,7 @@ import { DataContext } from "../../DataContexts/index";
 import { DependencyObject } from "../DependencyObject";
 import { DependencyProperty } from "../DependencyProperty";
 import { Collection } from "../../../Standard/Collections/index";
-import { assertEachParams, assert } from "../../../Validation/index";
+import { assertEachParams, assert, assertParams } from "../../../Validation/index";
 import { StorageSetter, createStorageSetter } from "./StorageSetter";
 import { PropertyMetadata } from "../PropertyMetadata";
 
@@ -22,15 +22,26 @@ export class DependencyDataContext extends DataContext {
     }
 
     branchOut(target: typeof DependencyObject | DependencyObject): DependencyDataContext {
-        return branchOutContext.call(this, target);
+        return branchOut.call(this, target);
     }
 
     setValue(source: object, property: DependencyProperty, value: any) {
+        assertParams({ source }, Object);
+
         setValueOnContext.call(this, source, property, value);
     }
 
     unsetValue(source: object, property: DependencyProperty) {
+        assertParams({ source }, Object);
+
         unsetValueOnContext.call(this, source, property);
+    }
+
+    overrideMetadata(property: DependencyProperty, metadata: PropertyMetadata) {
+        assertParams({ property }, DependencyProperty);
+        assertParams({ metadata }, PropertyMetadata);
+
+        overrideMetadataOnContext.call(this, property, metadata);
     }
 
     computeMetadata(property: DependencyProperty): PropertyMetadata | null {
@@ -52,7 +63,7 @@ export class DependencyDataContext extends DataContext {
     private [$metadata]: Collection<PropertyMetadata>;
 }
 
-function branchOutContext(this: DependencyDataContext, target: Target): DependencyDataContext {
+function branchOut(this: DependencyDataContext, target: Target): DependencyDataContext {
     const branchContext = new DependencyDataContext(target);
     this.children.add(branchContext);
     return branchContext;
@@ -89,7 +100,6 @@ function computeValueOnContext(this: DependencyDataContext, property: Dependency
 }
 
 function overrideMetadataOnContext(this: DependencyDataContext, property: DependencyProperty, metadata: PropertyMetadata) {
-
 }
 
 function computeMetadataOnContext(this: DataContext, property: DependencyProperty): PropertyMetadata | null {
