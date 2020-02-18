@@ -10,6 +10,10 @@ import { VisualTreeElement } from "../VisualTrees/index";
 ///TODO: fix this mess
 
 export abstract class Control extends VisualTreeElement {
+    static _ctor = (function () {
+        DependencyObject.createContext(<any>Control);
+    })();
+
     constructor(domElement: Element) {
         super(domElement);
 

@@ -10,27 +10,25 @@ import DependencyDataContext = Core.UserInterface.DependencyObjects.Storage.Depe
 import DataContexts = Core.UserInterface.DataContexts;
 import DependencyObjects = Core.UserInterface.DependencyObjects;
 
-class A extends DependencyObjects.DependencyObject {
-    static prop1 = DependencyObjects.DependencyProperty.register(A, "prop1", new DependencyObjects.PropertyMetadata());
+class A extends Core.UserInterface.Controls.Control {
+    static prop1 = DependencyObjects.DependencyProperty.register(<any>A, new DependencyObjects.PropertyMetadata("prop1"));
 
-    constructor() {
-        super();
+    constructor(element: Element) {
+        super(element);
     }
 }
-
-const ctx1 = new DependencyDataContext(A);
-DataContexts.DataContext.main.children.add(ctx1);
 
 class B extends A {
-    static prop2 = DependencyObjects.DependencyProperty.register(B, "prop2", new DependencyObjects.PropertyMetadata());
+    static prop2 = DependencyObjects.DependencyProperty.register(<any>B, new DependencyObjects.PropertyMetadata("prop2"));
 
-    constructor() {
-        super();
+    constructor(element: Element) {
+        super(element);
     }
 }
 
-const ctx2 = new DependencyDataContext(B);
-ctx1.children.add(ctx2);
+Core.UserInterface.Controls.WidgetManager.register(A, "x:A", "x");
+Core.UserInterface.Controls.WidgetManager.register(B, "x:B", "x");
+
 
 console.log(DataContexts.DataContext.main);
 

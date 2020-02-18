@@ -8,6 +8,12 @@ import { DataContexts } from "../index";
 import { DependencyDataContext } from "./Storage/index";
 
 export class DependencyObject {
+    static createContext(target: typeof DependencyObject) {
+        const context = new DependencyDataContext(target);
+        DataContext.main.children.add(context);
+        return context;
+    }
+    
     get(property: DependencyProperty): any {
         assertParams({ property }, DependencyProperty);
 

@@ -14,6 +14,7 @@ function assertDefaultValue(valueType: Type | Interface | null, defaultValue: an
 
 export class PropertyMetadata {
     constructor(name: string, valueType: Type | Interface | null = null, defaultValue: any = DependencyProperty.unsetValue) {
+        assertParams({ name }, String);
         assertParams({ valueType }, Type, Interface, null);
         assertDefaultValue(valueType, defaultValue);
 

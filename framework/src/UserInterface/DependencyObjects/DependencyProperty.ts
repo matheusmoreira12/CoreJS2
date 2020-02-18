@@ -32,7 +32,7 @@ export class DependencyProperty {
 
 
 function registerProperty<T extends typeof DependencyObject>(target: T, metadata: PropertyMetadata): DependencyProperty {
-    const context = DataContexts.Utils.getNearest(DataContext.main, target) as DependencyDataContext | null;
+    const context = DataContexts.Utils.getNearestByInstance(DataContext.main, target) as DependencyDataContext | null;
     if (context === null)
         throw new InvalidOperationException("Cannot register dependency property. No dependency data context corresponds to the provided target.");
     else
