@@ -1,1 +1,1 @@
-export * from "./DependencyDataContext";
+export * from "./DependencyTypeDataContext";

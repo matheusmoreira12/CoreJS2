@@ -19,7 +19,7 @@ const $id = Symbol();
 export class DependencyProperty {
     static get unsetValue(): symbol { return $unsetValue; }
 
-    static register(target: typeof DependencyObject, metadata: PropertyMetadata): DependencyProperty {
+    static register<T extends typeof DependencyObject>(target: T, metadata: PropertyMetadata): DependencyProperty {
         assertParams({ name }, String);
         assertParams({ metadata }, PropertyMetadata);
 
@@ -31,7 +31,7 @@ export class DependencyProperty {
 }
 
 
-function registerProperty(target: typeof DependencyObject, metadata: PropertyMetadata): DependencyProperty {
+function registerProperty<T extends typeof DependencyObject>(target: T, metadata: PropertyMetadata): DependencyProperty {
     const context = DataContexts.Utils.getNearest(DataContext.main, target) as DependencyDataContext | null;
     if (context === null)
         throw new InvalidOperationException("Cannot register dependency property. No dependency data context corresponds to the provided target.");

@@ -154,39 +154,39 @@ export abstract class Control extends VisualTreeElement {
     //State Properties
     //Mouse State Properties
     //Is Mouse Over Property
-    static isMouseOverProperty = DependencyProperty.register(Control, new PropertyMetadata("isMouseOver", Type.get(Boolean), false));
+    static isMouseOverProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isMouseOver", Type.get(Boolean), false));
     get isMouseOver() { return this.get(Control.isMouseOverProperty); }
     set isMouseOver(value) { this.set(Control.isMouseOverProperty, value); }
 
     //Is Mouse Down Property
-    static isMouseDownProperty = DependencyProperty.register(Control, new PropertyMetadata("isMouseDown", Type.get(Boolean), false));
+    static isMouseDownProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isMouseDown", Type.get(Boolean), false));
     get isMouseDown() { return this.get(Control.isMouseDownProperty); }
     set isMouseDown(value) { this.set(Control.isMouseDownProperty, value); }
 
     //Drag State Properties
     //Is Dragging Property
-    static isDraggingProperty = DependencyProperty.register(Control, new PropertyMetadata("isDragging", Type.get(Boolean), false));
+    static isDraggingProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDragging", Type.get(Boolean), false));
     get isDragging() { return this.get(Control.isDraggingProperty); }
     set isDragging(value) { this.set(Control.isDraggingProperty, value); }
 
     //Is Drag Over Property
-    static isDragOverProperty = DependencyProperty.register(Control, new PropertyMetadata("isDragOver", Type.get(Boolean), false));
+    static isDragOverProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDragOver", Type.get(Boolean), false));
     get isDragOver() { return this.get(Control.isDragOverProperty); }
     set isDragOver(value) { this.set(Control.isDragOverProperty, value); }
 
     //Drag Properties
-    static isDraggableProperty = DependencyProperty.register(Control, new PropertyMetadata("isDraggable", Type.get(Boolean), false));
+    static isDraggableProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDraggable", Type.get(Boolean), false));
     get isDraggable() { return this.get(Control.isDraggableProperty); }
     set isDraggable(value) { this.set(Control.isDraggableProperty, value); }
 
     //Visual Properties
     //Background Property
-    static backgroundProperty = DependencyProperty.register(Control, new PropertyMetadata("background"));
+    static backgroundProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("background"));
     get background() { return this.get(Control.backgroundProperty); }
     set background(value) { this.set(Control.backgroundProperty, value); }
 
     //Foreground Property
-    static foregroundProperty = DependencyProperty.register(Control, new PropertyMetadata("foreground"));
+    static foregroundProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("foreground"));
     get foreground() { return this.get(Control.foregroundProperty); }
     set foreground(value) { this.set(Control.foregroundProperty, value); }
 }

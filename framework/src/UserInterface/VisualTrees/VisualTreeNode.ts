@@ -4,7 +4,7 @@ import { VisualTreeElement } from "./VisualTreeElement";
 import { DependencyObject } from "../DependencyObjects/index";
 import { applyMixin } from "../../CoreBase/Utils/ObjectUtils";
 
-export abstract class VisualTreeNode extends Destructible {
+export abstract class VisualTreeNode extends Destructible implements DependencyObject {
     constructor(domNode: Node) {
         super();
 

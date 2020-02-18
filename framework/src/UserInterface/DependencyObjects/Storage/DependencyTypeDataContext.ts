@@ -6,14 +6,13 @@ import { assertEachParams, assertParams } from "../../../Validation/index";
 import { StorageSetter } from "./StorageSetter";
 import { PropertyMetadata } from "../PropertyMetadata";
 import { MetadataOverride } from "./MetadataOverride";
-import { DependencyDataContext } from "./DependencyDataContext copy";
 
 const $setters = Symbol();
 const $metadataOverrides = Symbol();
 
-export class DependencyTypeDataContext<T extends typeof DependencyObject = any> extends DataContext {
-    constructor(target: T, ...children: (DependencyTypeDataContext | DependencyDataContext)[]) {
-        assertEachParams({ children }, Array, DependencyTypeDataContext, DependencyDataContext);
+export class DependencyDataContext extends DataContext {
+    constructor(target: typeof DependencyObject, ...children: DependencyDataContext[]) {
+        assertEachParams({ children }, Array, DependencyDataContext);
 
         super(target, ...children);
 
@@ -21,14 +20,14 @@ export class DependencyTypeDataContext<T extends typeof DependencyObject = any> 
         this[$metadataOverrides] = new Collection();
     }
 
-    branchOut<U extends typeof DependencyObject>(target: U): DependencyTypeDataContext<T> {
+    branchOut(target: typeof DependencyObject): DependencyDataContext {
         return branchOut.call(this, target);
     }
 
-    setValue(source: object, property: DependencyProperty, value: any) {
+    setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
         assertParams({ source }, Object);
 
-        setValueOnContext.call(this, source, property, value);
+        setValueOnContext.call(this, source, target, property, value);
     }
 
     unsetValue(source: object, property: DependencyProperty) {
@@ -63,31 +62,31 @@ export class DependencyTypeDataContext<T extends typeof DependencyObject = any> 
     private [$metadataOverrides]: Collection<MetadataOverride>;
 }
 
-function branchOut<T extends typeof DependencyObject, U extends typeof DependencyObject>(this: DependencyTypeDataContext<T>, target: U): DependencyTypeDataContext<U> {
-    const branchContext = new DependencyTypeDataContext(target);
+function branchOut(this: DependencyDataContext, target: typeof DependencyObject): DependencyDataContext {
+    const branchContext = new DependencyDataContext(target);
     this.children.add(branchContext);
     return branchContext;
 }
 
-function setValueOnContext<T extends typeof DependencyObject>(this: DependencyTypeDataContext<T>, source: object, property: DependencyProperty, value: any) {
+function setValueOnContext(this: DependencyDataContext, source: object, target: DependencyObject, property: DependencyProperty, value: any) {
     let setter = this.setters.find(s => s.source === source && s.property === property);
     if (setter === undefined) {
-        setter = StorageSetter.create(source, property, value);
+        setter = StorageSetter.create(source, target, property, value);
         this.setters.add(setter);
     }
     else
         setter.value = value;
 }
 
-function unsetValueOnContext<T extends typeof DependencyObject>(this: DependencyTypeDataContext<T>, source: object, property: DependencyProperty) {
+function unsetValueOnContext(this: DependencyDataContext, source: object, property: DependencyProperty) {
     const setter = this.setters.find(s => s.source === source && s.property === property);
     if (setter !== undefined)
         this.setters.remove(setter);
 }
 
-function computeValueOnContext<T extends typeof DependencyObject>(this: DependencyTypeDataContext<T>, property: DependencyProperty): any {
+function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty): any {
     for (let context of this.getTree())
-        if (context instanceof DependencyTypeDataContext) {
+        if (context instanceof DependencyDataContext) {
             const setter = context.setters.reverse().find(s => s.property === property && s.value !== DependencyProperty.unsetValue);
             if (setter)
                 return setter.value;
@@ -96,7 +95,7 @@ function computeValueOnContext<T extends typeof DependencyObject>(this: Dependen
     return DependencyProperty.unsetValue;
 }
 
-function overrideMetadataOnContext<T extends typeof DependencyObject>(this: DependencyTypeDataContext<T>, property: DependencyProperty, metadata: PropertyMetadata) {
+function overrideMetadataOnContext(this: DependencyDataContext, property: DependencyProperty, metadata: PropertyMetadata) {
     let metadataOverride = this.metadataOverrides.find(mo => mo.property === property)
     if (metadataOverride)
         metadataOverride.metadata = metadata
@@ -106,9 +105,9 @@ function overrideMetadataOnContext<T extends typeof DependencyObject>(this: Depe
     }
 }
 
-function computeMetadataOnContext<T extends typeof DependencyObject>(this: DependencyTypeDataContext<T>, property: DependencyProperty): PropertyMetadata | null {
+function computeMetadataOnContext(this: DependencyDataContext, property: DependencyProperty): PropertyMetadata | null {
     for (let context of this.getTree()) {
-        if (context instanceof DependencyTypeDataContext) {
+        if (context instanceof DependencyDataContext) {
             const metadataOverride = this.metadataOverrides.find(o => o.property === property);
             if (metadataOverride)
                 return metadataOverride.metadata;

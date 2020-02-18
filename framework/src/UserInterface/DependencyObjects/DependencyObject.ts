@@ -42,5 +42,5 @@ function setPropertyValue(target: DependencyObject, property: DependencyProperty
     if (context === null)
         throw new InvalidOperationException("Cannot set property value. No dependency data context corresponds to the provided target.");
     else
-        context.setValue(target, property, value);
+        context.setValue(target, target, property, value);
 }
