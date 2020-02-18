@@ -8,11 +8,11 @@ export abstract class ContentControl extends Control {
         super(domElement);
     }
 
-    static contentProperty = DependencyProperty.register(<any>ContentControl, "content", new PropertyMetadata(null, null));
+    static contentProperty = DependencyProperty.register(<any>ContentControl, new PropertyMetadata("content"));
     public get content(): any { return this.get(ContentControl.contentProperty); }
     public set content(value: any) { this.set(ContentControl.contentProperty, value); }
 
-    static fontProperty = DependencyProperty.register(<any>ContentControl, "font", new PropertyMetadata(Type.get(Font), Font.default));
+    static fontProperty = DependencyProperty.register(<any>ContentControl, new PropertyMetadata("font", Type.get(Font), Font.default));
     public get font(): Font { return this.get(ContentControl.fontProperty); }
     public set font(value: Font) { this.set(ContentControl.fontProperty, value); }
 
