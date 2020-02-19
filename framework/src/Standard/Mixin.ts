@@ -3,26 +3,35 @@ import { ObjectUtils } from "../CoreBase/Utils/index";
 const $baseClass = Symbol();
 const $mixinClasses = Symbol();
 
-export class Mixin<TBase, T1, T2 = never, T3 = never, T4 = never, T5 = never, T6 = never, T7 = never> extends Function {
-    static create<TBase, T1>(baseClass: TBase, class1: T1): Mixin<TBase, T1> & TBase & T1;
-    static create<TBase, T1, T2>(baseClass: TBase, class1: T1, class2: T2): Mixin<TBase, T1, T2> & TBase & T1 & T2;
-    static create<TBase, T1, T2, T3>(baseClass: TBase, class1: T1, class2: T2, class3: T3): Mixin<TBase, T1, T2, T3> & TBase & T1 & T2 & T3;
-    static create<TBase, T1, T2, T3, T4>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4): Mixin<TBase, T1, T2, T3, T4> & TBase & T1 & T2 & T3 & T4;
-    static create<TBase, T1, T2, T3, T4, T5>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4, class5: T5): Mixin<TBase, T1, T2, T3, T4, T5> & TBase & T1 & T2 & T3 & T4 & T5;
-    static create<TBase, T1, T2, T3, T4, T5, T6>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4, class5: T5, class6: T6): Mixin<TBase, T1, T2, T3, T4, T5, T6> & TBase & T1 & T2 & T3 & T4 & T5 & T6;
-    static create<TBase, T1, T2, T3, T4, T5, T6, T7>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4, class5: T5, class6: T6, class7: T7): Mixin<TBase, T1, T2, T3, T4, T5, T6, T7> & TBase & T1 & T2 & T3 & T4 & T5 & T6 & T7;
-    static create<TBase, T1, T2 = never, T3 = never, T4 = never, T5 = never, T6 = never, T7 = never>(baseClass: TBase, ...mixinClasses: (T1 | T2 | T3 | T4 | T5 | T6 | T7)[]): Mixin<TBase, T1, T2, T3, T4, T5, T6, T7> & TBase & T1 & T2 & T3 & T4 & T5 & T6 & T7 {
-        const result = new Mixin();
+type Class<T = any> = Function & { prototype: T };
+
+export class Mixin extends Function {
+    static create<TBase extends Class, T1 extends Class>(baseClass: TBase, class1: T1): Mixin & TBase & T1;
+    static create<TBase extends Class, T1 extends Class, T2 extends Class>(baseClass: TBase, class1: T1, class2: T2): Mixin & TBase & T1 & T2;
+    static create<TBase extends Class, T1 extends Class, T2 extends Class, T3 extends Class>(baseClass: TBase, class1: T1, class2: T2, class3: T3): Mixin & TBase & T1 & T2 & T3;
+    static create<TBase extends Class, T1 extends Class, T2 extends Class, T3 extends Class, T4 extends Class>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4): Mixin & TBase & T1 & T2 & T3 & T4;
+    static create<TBase extends Class, T1 extends Class, T2 extends Class, T3 extends Class, T4 extends Class, T5 extends Class>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4, class5: T5): Mixin & TBase & T1 & T2 & T3 & T4 & T5;
+    static create<TBase extends Class, T1 extends Class, T2 extends Class, T3 extends Class, T4 extends Class, T5 extends Class, T6 extends Class>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4, class5: T5, class6: T6): Mixin & TBase & T1 & T2 & T3 & T4 & T5 & T6;
+    static create<TBase extends Class, T1 extends Class, T2 extends Class, T3 extends Class, T4 extends Class, T5 extends Class, T6 extends Class, T7 extends Class>(baseClass: TBase, class1: T1, class2: T2, class3: T3, class4: T4, class5: T5, class6: T6, class7: T7): Mixin & TBase & T1 & T2 & T3 & T4 & T5 & T6 & T7;
+    static create(baseClass: Class, ...mixinClasses:  Class[]): Mixin & Class {
+        const result = new Mixin(baseClass, ...mixinClasses);
         applyMixins(result, baseClass, mixinClasses);
 
-        return <any>result;
+        return result;
     }
 
-    get baseClass(): TBase { return this[$baseClass]; }
-    get mixinClasses(): (T1 | T2 | T3 | T4 | T5 | T6 | T7)[] { return this[$mixinClasses]; }
+    private constructor(baseClass: Class, ...mixinClasses: Class[]) {
+        super();
 
-    private [$baseClass]: TBase;
-    private [$mixinClasses]: (T1 | T2 | T3 | T4 | T5 | T6 | T7)[];
+        this[$baseClass] = baseClass;
+        this[$mixinClasses] = mixinClasses;
+    }
+
+    get baseClass(): Class { return this[$baseClass]; }
+    get mixinClasses():  Class[] { return this[$mixinClasses]; }
+
+    private [$baseClass]: Class;
+    private [$mixinClasses]: Class[];
 }
 
 function applyMixins(result: any, baseClass: any, mixinClasses: any[]) {
