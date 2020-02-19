@@ -80,7 +80,7 @@ export abstract class Control extends VisualTreeElement {
     }
 
     //Framework Events
-    //  Drag/Drop Events
+    //Drag/Drop Events
     private __onDragMove(sender: any, args: FrameworkEventArgs) { }
     DragStartEvent = new FrameworkEvent(this.__onDragStart, this);
 
@@ -117,38 +117,38 @@ export abstract class Control extends VisualTreeElement {
     }
     DragDropEvent = new FrameworkEvent(this.__onDragDrop, this);
 
-    //  Mouse Events
-    //      Mouse Enter Event
+    //Mouse Events
+    //Mouse Enter Event
     private __onMouseEnter(sender: any, args: NativeEventArgs) {
         this.isMouseOver = true;
     }
     MouseEnterEvent = new NativeEvent(this.__domNode, "mouseenter", this.__onMouseEnter, this);
 
-    //      Mouse Leave Event
+    //Mouse Leave Event
     private __onMouseLeave(sender: any, args: NativeEventArgs) {
         this.isMouseOver = false;
     }
     MouseLeaveEvent = new NativeEvent(this.__domNode, "mouseleave", this.__onMouseLeave, this);
 
-    //      Mouse Down Event
+    //Mouse Down Event
     private __onMouseDown(sender: any, args: NativeEventArgs) {
         this.isMouseDown = true;
     }
     MouseDownEvent = new NativeEvent(this.__domNode, "mousedown", this.__onMouseDown, this);
 
-    //      Mouse Up Event
+    //Mouse Up Event
     private __onMouseUp(sender: any, args: NativeEventArgs) { 
         this.isMouseDown = false;
     }
     MouseUpEvent = new NativeEvent(this.__domNode, "mouseup", this.__onMouseUp, this);
 
-    //      Mouse Move Event
+    //Mouse Move Event
     private __onMouseMove(sender: any, args: NativeEventArgs) { 
 
     }
     MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove, this);
 
-    //      Click Event
+    //Click Event
     private __onClick(sender: any, args: NativeEventArgs) { 
 
     }

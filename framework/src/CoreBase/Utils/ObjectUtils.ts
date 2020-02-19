@@ -1,5 +1,5 @@
-import { ArgumentMissingException, NotSupportedException } from "../../Standard/index";
-import { DeepReadonly, DeepClone, MixinBase } from "./Types";
+import { NotSupportedException } from "../../Standard/index";
+import { DeepReadonly, DeepClone } from "./Types";
 
 export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
     let keys: (string | symbol)[] = [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
@@ -119,53 +119,15 @@ export function getBoundClone<T>(obj: T): DeepClone<T> {
     return <T>getBoundClone(obj);
 }
 
-export function applyMixin<TBase, T1>(baseConstructor: TBase, constructor1: T1): TBase & T1 & MixinBase;
-export function applyMixin<TBase, T1, T2>(baseConstructor: TBase, constructor1: T1, constructor2: T2): TBase & T1 & T2 & MixinBase;
-export function applyMixin<TBase, T1, T2, T3>(baseConstructor: TBase, constructor1: T1, constructor2: T2, constructor3: T3): TBase & T1 & T2 & T3 & MixinBase;
-export function applyMixin<TBase, T1, T2, T3, T4>(baseConstructor: TBase, constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4): TBase & T1 & T2 & T3 & T4 & MixinBase;
-export function applyMixin<TBase, T1, T2, T3, T4, T5>(baseConstructor: TBase, constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5): TBase & T1 & T2 & T3 & T4 & T5 & MixinBase;
-export function applyMixin<TBase, T1, T2, T3, T4, T5, T6>(baseConstructor: TBase, constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6): TBase & T1 & T2 & T3 & T4 & T5 & T6 & MixinBase;
-export function applyMixin<TBase, T1, T2, T3, T4, T5, T6, T7>(baseConstructor: TBase, constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6, constructor7: T7): TBase & T1 & T2 & T3 & T4 & T5 & T6 & T7 & MixinBase;
-export function applyMixin<TBase, T1, T2, T3, T4, T5, T6, T7, T8>(baseConstructor: TBase, constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6, constructor7: T7, constructor8: T8): TBase & T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & MixinBase;
-export function applyMixin<TBase, T1, T2, T3, T4, T5, T6, T7, T8, T9>(baseConstructor: TBase, constructor1: T1, constructor2: T2, constructor3: T3, constructor4: T4, constructor5: T5, constructor6: T6, constructor7: T7, constructor8: T8, constructor9: T9): TBase & T1 & T2 & T3 & T4 & T5 & T6 & T7 & T8 & T9 & MixinBase;
-export function applyMixin(...constructors: any[]): any {
-    function applyMixins() {
-        for (let constructor of constructors) {
-            const names = Object.getOwnPropertyNames(constructor.prototype);
-            for (let name of names) {
-                const baseDescriptor: PropertyDescriptor = Object.getOwnPropertyDescriptor(constructor.prototype, name) || {};
-                if (!baseDescriptor)
-                    continue;
-
-                Object.defineProperty(result.prototype, name, baseDescriptor);
-            }
-        }
-    }
-
-    if (arguments.length < 1)
-        throw new ArgumentMissingException("baseConstructor");
-    if (arguments.length < 2)
-        throw new ArgumentMissingException("constructor1");
-
-    let result: MixinBase & (typeof constructors[0]) = getBlank(constructors[0]);
-    result.isMixin = true;
-    result.baseConstructors = constructors;
-
-    applyMixins();
-
-    return result;
-}
-
 export function getDefault(constructor: typeof String): string;
 export function getDefault(constructor: typeof Number): string;
 export function getDefault(constructor: typeof BigInt): string;
 export function getDefault(constructor: typeof Boolean): string;
 export function getDefault(constructor: null): null;
 export function getDefault(constructor: undefined): undefined;
-export function getDefault(constructor: typeof Symbol): symbol;
 export function getDefault(constructor: typeof Object): object;
 export function getDefault(constructor: typeof Array): Array<any>;
-export function getDefault(constructor: typeof String | typeof Number | typeof BigInt | typeof Boolean | null | undefined | typeof Symbol | typeof Object | typeof Array): string | number | bigint | boolean | null | undefined | symbol | object | Array<any> {
+export function getDefault(constructor: typeof String | typeof Number | typeof BigInt | typeof Boolean | null | undefined | typeof Object | typeof Array): string | number | bigint | boolean | null | undefined | symbol | object | Array<any> {
     if (constructor === String)
         return "";
     else if (constructor === Number)
@@ -178,8 +140,6 @@ export function getDefault(constructor: typeof String | typeof Number | typeof B
         return null;
     else if (constructor === undefined)
         return undefined;
-    else if (constructor === Symbol)
-        return Symbol.for("");
     else if (constructor === Object)
         return {};
     else if (constructor === Array)

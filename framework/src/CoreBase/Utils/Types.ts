@@ -9,6 +9,7 @@ export type DeepClone<T> = {
 export type MixinBase = {
     isMixin: true;
     baseConstructors: any[];
+    baseInstances: any[];
 };
 
 export type Class<T> = new(...args: any) => T;

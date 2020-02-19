@@ -2,7 +2,7 @@
 import { Class } from "../../Standard/Types/Types";
 import { Collection } from "../../Standard/Collections/Collection";
 
-export class WidgetMetadata {
+export class ControlMetadata {
     constructor(widgetConstructor: Class<Control>, qualifiedName: string, namespaceURI?: string | null) {
         this.__widgetConstructor = widgetConstructor;
         this.__namespaceURI = namespaceURI || null;

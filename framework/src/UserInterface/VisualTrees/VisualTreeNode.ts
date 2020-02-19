@@ -2,9 +2,9 @@ import { Destructible, InvalidOperationException } from "../../Standard/index";
 import { assertParams } from "../../Validation/index";
 import { VisualTreeElement } from "./VisualTreeElement";
 import { DependencyObject } from "../DependencyObjects/index";
-import { applyMixin } from "../../CoreBase/Utils/ObjectUtils";
+import { Mixin } from "../../Standard/index";
 
-export abstract class VisualTreeNode extends Destructible implements DependencyObject {
+export abstract class VisualTreeNode extends Mixin.create(Destructible, DependencyObject) {
     constructor(domNode: Node) {
         super();
 
@@ -26,6 +26,3 @@ export abstract class VisualTreeNode extends Destructible implements DependencyO
 
     get qualifiedName(): string { return this.__domNode.nodeName; }
 }
-
-export interface VisualTreeNode extends Destructible, DependencyObject { }
-applyMixin(VisualTreeNode, DependencyObject);

@@ -1,24 +1,25 @@
-﻿import { WidgetMetadata, Control } from "./index";
-import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index";
+﻿import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index";
 import { Type, Class } from "../../Standard/Types/index";
 import { Collection } from "../../Standard/Collections/index";
 import { DOMUtils } from "../index";
+import { ControlMetadata } from "./ControlMetadata";
+import { Control } from "./Control";
 
-const registeredWidgets: Collection<WidgetMetadata> = new Collection();
+const registeredControls: Collection<ControlMetadata> = new Collection();
 
-function getRegisteredControlByName(qualifiedName: string, namespaceURI?: string | null): WidgetMetadata | null {
-    return registeredWidgets.find(m => m.namespaceURI === namespaceURI && m.qualifiedName === qualifiedName) || null;
+function getRegisteredControlByName(qualifiedName: string, namespaceURI?: string | null): ControlMetadata | null {
+    return registeredControls.find(m => m.namespaceURI === namespaceURI && m.qualifiedName === qualifiedName) || null;
 }
 
-function getRegisteredControlByConstructor(controlConstructor: Class<Control>): WidgetMetadata | null {
-    return registeredWidgets.find(m => m.controlConstructor === controlConstructor) || null;
+function getRegisteredControlByConstructor(controlConstructor: Class<Control>): ControlMetadata | null {
+    return registeredControls.find(m => m.controlConstructor === controlConstructor) || null;
 }
 
-function registerControl(metadata: WidgetMetadata) {
-    registeredWidgets.add(metadata);
+function registerControl(metadata: ControlMetadata) {
+    registeredControls.add(metadata);
 }
 
-function initializeControlInstance(metadata: WidgetMetadata, element: Element): Control {
+function initializeControlInstance(metadata: ControlMetadata, element: Element): Control {
     const controlConstructor: Class<Control> = metadata.controlConstructor;
     const controlInstance: Control = new controlConstructor(element);
 
@@ -36,12 +37,14 @@ function initializeControlInstanceByElement(element: Element) {
     return true;
 }
 
-function finalizeControlInstance(metadata: WidgetMetadata, instance: Control): void {
-    !instance.isDestructed && instance.destruct();
+function finalizeControlInstance(metadata: ControlMetadata, instance: Control): void {
+    if(!instance.isDestructed)
+        instance.destruct();
+        
     metadata.activeInstances.remove(instance);
 }
 
-function getControlInstanceByElement(metadata: WidgetMetadata, element: Element): Control | null {
+function getControlInstanceByElement(metadata: ControlMetadata, element: Element): Control | null {
     return metadata.activeInstances.find(m => m.domNode === element) || null;
 }
 
@@ -58,7 +61,7 @@ function finalizeControlInstanceByElement(element: Element) {
     return true;
 }
 
-function deregisterControl(metadata: WidgetMetadata, forceFinalization: boolean = false) {
+function deregisterControl(metadata: ControlMetadata, forceFinalization: boolean = false) {
     if (metadata.activeInstances.length > 0) {
         if (!forceFinalization)
             return false;
@@ -67,12 +70,12 @@ function deregisterControl(metadata: WidgetMetadata, forceFinalization: boolean 
             finalizeControlInstance(metadata, instance);
     }
 
-    registeredWidgets.remove(metadata);
+    registeredControls.remove(metadata);
     return true;
 }
 
-export function getRegisteredControls(): WidgetMetadata[] {
-    return [...registeredWidgets];
+export function getRegisteredControls(): ControlMetadata[] {
+    return [...registeredControls];
 }
 
 export function getByName(qualifiedName: string, namespaceURI: string | null = null) {
@@ -101,14 +104,14 @@ export function register(controlConstructor: Class<Control>, qualifiedName: stri
     if (getRegisteredControlByConstructor(controlConstructor))
         throw new InvalidOperationException("Cannot register control. The specified control constructor is already in use.");
 
-    const metadata: WidgetMetadata = new WidgetMetadata(controlConstructor, qualifiedName, namespaceURI);
+    const metadata: ControlMetadata = new ControlMetadata(controlConstructor, qualifiedName, namespaceURI);
     registerControl(metadata);
 }
 
 export function deregister(controlConstructor: Class<Control>): void {
     assertControlConstructor(controlConstructor);
 
-    const metadata: WidgetMetadata | null = getRegisteredControlByConstructor(controlConstructor);
+    const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlConstructor);
     if (!metadata)
         throw new InvalidOperationException("Cannot deregister control. No registered control matches the specified control constructor.");
 
@@ -118,7 +121,7 @@ export function deregister(controlConstructor: Class<Control>): void {
 export function instantiate(controlConstructor: Class<Control>) {
     assertControlConstructor(controlConstructor);
 
-    const metadata: WidgetMetadata | null = getRegisteredControlByConstructor(controlConstructor);
+    const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlConstructor);
     if (!metadata)
         throw new InvalidOperationException("Cannot instantiate control. No registered control matches the specified control constructor.");
 

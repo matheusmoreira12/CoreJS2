@@ -5,8 +5,6 @@ import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 import Enumeration = Core.Standard.Enumeration;
 
-import DependencyDataContext = Core.UserInterface.DependencyObjects.Storage.DependencyDataContext;
-
 import DataContexts = Core.UserInterface.DataContexts;
 import DependencyObjects = Core.UserInterface.DependencyObjects;
 
@@ -15,6 +13,13 @@ class A extends Core.UserInterface.Controls.Control {
 
     constructor(element: Element) {
         super(element);
+
+        const canvas = Core.UserInterface.VisualTrees.VisualTreeElement.create("svg", "http://www.w3.org/2000/svg");
+        canvas.attributes.createMultiple({
+            width: "100px",
+            height: "100px"
+        }, null);
+        this.children.add(canvas);
     }
 }
 
