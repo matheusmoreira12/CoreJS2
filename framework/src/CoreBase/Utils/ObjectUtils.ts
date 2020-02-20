@@ -147,3 +147,35 @@ export function getDefault(constructor: typeof String | typeof Number | typeof B
     else
         throw new NotSupportedException("Cannot get default value. The provided constructor is not supported.")
 }
+
+export type Method<TThis = any, TResult = any, TArg1 = any, TArg2 = any, TArg3 = any, TArg4 = any, TArg5 = any, TArg6 = any, TArg7 = any, TArg8 = any> = (this: TThis, arg1?: TArg1, arg2?: TArg2, arg3?: TArg3, arg4?: TArg4, arg5?: TArg5, arg6?: TArg6, arg7?: TArg7, arg8?: TArg8) => TResult;
+
+export function getMixinMethod(this: any, baseMethod: Method, ...mixinMethods: Method[]): Method;
+export function getMixinMethod<TThis>(this: TThis, baseMethod: Method<TThis>, ...mixinMethods: Method<TThis>[]): Method<TThis>;
+export function getMixinMethod<TThis, TResult>(this: TThis, baseMethod: Method<TThis, TResult>, ...mixinMethods: Method<TThis, TResult>[]): Method<TThis, TResult>;
+export function getMixinMethod<TThis, TResult, TArg1>(this: TThis, baseMethod: Method<TThis, TResult, TArg1>, ...mixinMethods: Method<TThis, TResult, TArg1>[]): Method<TThis, TResult, TArg1>;
+export function getMixinMethod<TThis, TResult, TArg1, TArg2>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2>[]): Method<TThis, TResult, TArg1, TArg2>;
+export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3>[]): Method<TThis, TResult, TArg1, TArg2, TArg3>;
+export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4>;
+export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>;
+export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>;
+export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>;
+export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>;
+export function getMixinMethod(baseMethod: Method, ...mixinMethods: Method[]): Function {
+    return function (this: any, ...args: any[]) {
+        const result = baseMethod.call(this, ...args);
+        for (let mixinMethod of mixinMethods)
+            mixinMethod.call(this, ...args);
+            return result;
+    };
+}
+
+export type MixinValue = {};
+
+export function getMixinValue(baseValue: any, ...mixinValues: any[]): any {
+    if (baseValue)
+        return baseValue;
+    for (let mixinValue of mixinValues)
+        if (mixinValue)
+            return mixinValue;
+}
