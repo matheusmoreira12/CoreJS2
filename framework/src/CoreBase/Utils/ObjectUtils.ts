@@ -150,32 +150,34 @@ export function getDefault(constructor: typeof String | typeof Number | typeof B
 
 export type Method<TThis = any, TResult = any, TArg1 = any, TArg2 = any, TArg3 = any, TArg4 = any, TArg5 = any, TArg6 = any, TArg7 = any, TArg8 = any> = (this: TThis, arg1?: TArg1, arg2?: TArg2, arg3?: TArg3, arg4?: TArg4, arg5?: TArg5, arg6?: TArg6, arg7?: TArg7, arg8?: TArg8) => TResult;
 
-export function getMixinMethod(this: any, baseMethod: Method, ...mixinMethods: Method[]): Method;
-export function getMixinMethod<TThis>(this: TThis, baseMethod: Method<TThis>, ...mixinMethods: Method<TThis>[]): Method<TThis>;
-export function getMixinMethod<TThis, TResult>(this: TThis, baseMethod: Method<TThis, TResult>, ...mixinMethods: Method<TThis, TResult>[]): Method<TThis, TResult>;
-export function getMixinMethod<TThis, TResult, TArg1>(this: TThis, baseMethod: Method<TThis, TResult, TArg1>, ...mixinMethods: Method<TThis, TResult, TArg1>[]): Method<TThis, TResult, TArg1>;
-export function getMixinMethod<TThis, TResult, TArg1, TArg2>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2>[]): Method<TThis, TResult, TArg1, TArg2>;
-export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3>[]): Method<TThis, TResult, TArg1, TArg2, TArg3>;
-export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4>;
-export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5>;
-export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>;
-export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>;
-export function getMixinMethod<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(this: TThis, baseMethod: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>, ...mixinMethods: Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>[]): Method<TThis, TResult, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>;
+export function getMixinMethod<TThis, TResultBase, TResult1>(baseMethod: Method<TThis, TResultBase>, mixinMethod1: Method<TThis, TResult1>): Method<TThis, MixinValue<TResultBase, TResult1>>;
+export function getMixinMethod<TThis, TResultBase, TResult1, TResult2>(baseMethod: Method<TThis, TResultBase>, mixinMethod1: Method<TThis, TResult1>, mixinMethod2: Method<TThis, TResult2>): Method<TThis, MixinValue<TResultBase, TResult1, TResult2>>;
+export function getMixinMethod<TThis, TResultBase, TResult1, TResult2, TResult3>(baseMethod: Method<TThis, TResultBase>, mixinMethod1: Method<TThis, TResult1>, mixinMethod2: Method<TThis, TResult2>, mixinMethod3: Method<TThis, TResult3>): Method<TThis, MixinValue<TResultBase, TResult1, TResult2, TResult3>>;
+export function getMixinMethod<TThis, TResultBase, TResult1, TResult2, TResult3, TResult4>(baseMethod: Method<TThis, TResultBase>, mixinMethod1: Method<TThis, TResult1>, mixinMethod2: Method<TThis, TResult2>, mixinMethod3: Method<TThis, TResult3>, mixinMethod4: Method<TThis, TResult4>): Method<TThis, MixinValue<TResultBase, TResult1, TResult2, TResult3, TResult4>>;
+export function getMixinMethod<TThis, TResultBase, TResult1, TResult2, TResult3, TResult4, TResult5>(baseMethod: Method<TThis, TResultBase>, mixinMethod1: Method<TThis, TResult1>, mixinMethod2: Method<TThis, TResult2>, mixinMethod3: Method<TThis, TResult3>, mixinMethod4: Method<TThis, TResult4>, mixinMethod5: Method<TThis, TResult5>): Method<TThis, MixinValue<TResultBase, TResult1, TResult2, TResult3, TResult4, TResult5>>;
+export function getMixinMethod<TThis, TResultBase, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6>(baseMethod: Method<TThis, TResultBase>, mixinMethod1: Method<TThis, TResult1>, mixinMethod2: Method<TThis, TResult2>, mixinMethod3: Method<TThis, TResult3>, mixinMethod4: Method<TThis, TResult4>, mixinMethod5: Method<TThis, TResult5>, mixinMethod6: Method<TThis, TResult6>): Method<TThis, MixinValue<TResultBase, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6>>;
+export function getMixinMethod<TThis, TResultBase, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6, TResult7>(baseMethod: Method<TThis, TResultBase>, mixinMethod1: Method<TThis, TResult1>, mixinMethod2: Method<TThis, TResult2>, mixinMethod3: Method<TThis, TResult3>, mixinMethod4: Method<TThis, TResult4>, mixinMethod5: Method<TThis, TResult5>, mixinMethod6: Method<TThis, TResult6>, mixinMethod7: Method<TThis, TResult7>): Method<TThis, MixinValue<TResultBase, TResult1, TResult2, TResult3, TResult4, TResult5, TResult6, TResult7>>;
 export function getMixinMethod(baseMethod: Method, ...mixinMethods: Method[]): Function {
     return function (this: any, ...args: any[]) {
-        const result = baseMethod.call(this, ...args);
-        for (let mixinMethod of mixinMethods)
-            mixinMethod.call(this, ...args);
-            return result;
+        return getMixinValue(baseMethod.call(this, ...args), ...mixinMethods.map(mm => mm.call(this, ...args)));
     };
 }
 
-export type MixinValue = {};
+export type MixinValue<TBase = never, T1 = never, T2 = never, T3 = never, T4 = never, T5 = never, T6 = never, T7 = never, T8 = never> = TBase | T1 | T2 | T3 | T4 | T4 | T5 | T6 | T7 | T6 | T7 | T8;
 
+export function getMixinValue<TBase>(baseValue: TBase): TBase;
+export function getMixinValue<TBase, T1>(baseValue: TBase, mixinValue1: T1): TBase | T1;
+export function getMixinValue<TBase, T1, T2>(baseValue: TBase, mixinValue1: T1, mixinValue2: T2): TBase | T1 | T2;
+export function getMixinValue<TBase, T1, T2, T3>(baseValue: TBase, mixinValue1: T1, mixinValue2: T2, mixinValue3: T3): TBase | T1 | T2 | T3;
+export function getMixinValue<TBase, T1, T2, T3, T4>(baseValue: TBase, mixinValue1: T1, mixinValue2: T2, mixinValue3: T3, mixinValue4: T4): TBase | T1 | T2 | T3 | T4;
+export function getMixinValue<TBase, T1, T2, T3, T4, T5>(baseValue: TBase, mixinValue1: T1, mixinValue2: T2, mixinValue3: T3, mixinValue4: T4, mixinValue5: T5): TBase | T1 | T2 | T3 | T4 | T5;
+export function getMixinValue<TBase, T1, T2, T3, T4, T5, T6>(baseValue: TBase, mixinValue1: T1, mixinValue2: T2, mixinValue3: T3, mixinValue4: T4, mixinValue5: T5, mixinValue6: T6): TBase | T1 | T2 | T3 | T4 | T5 | T6;
+export function getMixinValue<TBase, T1, T2, T3, T4, T5, T6, T7>(baseValue: TBase, mixinValue1: T1, mixinValue2: T2, mixinValue3: T3, mixinValue4: T4, mixinValue5: T5, mixinValue6: T6, mixinValue7: T7): TBase | T1 | T2 | T3 | T4 | T5 | T6 | T7;
 export function getMixinValue(baseValue: any, ...mixinValues: any[]): any {
     if (baseValue)
         return baseValue;
     for (let mixinValue of mixinValues)
         if (mixinValue)
             return mixinValue;
+    return undefined;
 }
