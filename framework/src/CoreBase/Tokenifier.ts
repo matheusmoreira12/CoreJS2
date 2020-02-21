@@ -1,39 +1,55 @@
-export class Tokenifier {
+export class StringReader {
     constructor(content: string, startIndex: number = 0) {
         this.content = content;
         this.startIndex = startIndex;
-        this.currentIndex = startIndex;
+        this.index = startIndex;
     }
 
     next(): string {
-        const i = this.currentIndex++;
+        const i = this.index++;
         return this.content[i];
     }
 
     previous(): string {
-        const i = this.currentIndex--;
+        const i = this.index--;
         return this.content[i];
     }
 
-    readChar(char: string): boolean {
-        if (this.next() == char) {
-            return true;
-        }
-        return false;
-    }
-
     read(value: string): string {
-        let s = "";
-        for (let i = 0; i < value.length; i++)
-            if (!this.readChar(value[i]))
-                return this.content.slice(j, i);
-        return "";
+        let c: string,
+            s: string = "";
+        for (let i = 0; i < value.length; i++) {
+            c = this.next();
+            if (c == value[i])
+                s += c;
+            else
+                break;
+        }
+        return s;
     }
 
-    readBack(value: string) {
+    readBack(value: string): string {
+        let c: string,
+            s: string = "";
+        for (let i = 0; i < value.length; i++) {
+            c = this.previous();
+            if (c == value[i])
+                s = c + s;
+            else
+                break;
+        }
+        return s;
+    }
+
+    seek(index: number) {
+        this.index = index;
+    }
+
+    jump(count: number) {
+        this.index += count;
     }
 
     content: string;
     startIndex: number;
-    currentIndex: number;
+    index: number;
 }

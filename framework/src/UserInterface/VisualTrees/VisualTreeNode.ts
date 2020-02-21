@@ -1,13 +1,9 @@
 import { Destructible, InvalidOperationException } from "../../Standard/index";
 import { assertParams } from "../../Validation/index";
 import { VisualTreeElement } from "./VisualTreeElement";
-import { DependencyObject } from "../DependencyObjects/index";
-import { Mixin } from "../../Standard/index";
 
-export abstract class VisualTreeNode extends Mixin.create(Destructible, DependencyObject) {
+export abstract class VisualTreeNode {
     constructor(domNode: Node) {
-        super();
-
         if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
 
