@@ -5,51 +5,53 @@ export class StringReader {
         this.index = startIndex;
     }
 
-    next(): string {
-        const i = this.index++;
-        return this.content[i];
+    peek(): string {
+        return this.content[this.index];
     }
 
-    previous(): string {
-        const i = this.index--;
-        return this.content[i];
+    read(): string {
+        const j = this.index;
+        this.index++;
+        return this.content[j];
     }
 
-    read(value: string): string {
+    readBlock(buffer: string[], index: number, count: number): number {
         let c: string,
-            s: string = "";
-        for (let i = 0; i < value.length; i++) {
-            c = this.next();
-            if (c == value[i])
-                s += c;
-            else
-                break;
+            n: number = 0,
+            a: string[] = [];
+        do {
+            c = this.read();
+            a.push(c);
+            n++;
         }
-        return s;
+        while (c && n < count);
+        buffer.splice(index, n, ...a);
+        return n;
     }
 
-    readBack(value: string): string {
-        let c: string,
-            s: string = "";
-        for (let i = 0; i < value.length; i++) {
-            c = this.previous();
-            if (c == value[i])
-                s = c + s;
-            else
-                break;
-        }
-        return s;
+    readLine(): string {
+        const a: string[] = [],
+            n = getNextLine(this.content, this.index) - this.index;
+        this.readBlock(a, 0, n);
+        return a.join("");
     }
 
-    seek(index: number) {
-        this.index = index;
-    }
-
-    jump(count: number) {
-        this.index += count;
+    readToEnd(): string {
+        const a: string[] = [],
+            n = this.content.length - this.index;
+        this.readBlock(a, 0, n);
+        return a.join("");
     }
 
     content: string;
     startIndex: number;
     index: number;
+}
+
+function getNextLine(content: string, position: number): number {
+    let index = content.indexOf("\n", position);
+    if (index == -1)
+        return content.length - position;
+    else
+        return index;
 }

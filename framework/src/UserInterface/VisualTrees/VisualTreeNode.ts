@@ -1,4 +1,4 @@
-import { Destructible, InvalidOperationException } from "../../Standard/index";
+import { InvalidOperationException } from "../../Standard/index";
 import { assertParams } from "../../Validation/index";
 import { VisualTreeElement } from "./VisualTreeElement";
 
