@@ -1,54 +1,68 @@
+import { assertParams, assertEachParams } from "../../Validation/index";
+import { ArgumentOutOfRangeException } from "../Exceptions";
+
+const $content = Symbol();
+const $index = Symbol();
+
 export class StringReader {
-    constructor(content: string, startIndex: number = 0) {
-        this.content = content;
-        this.startIndex = startIndex;
-        this.index = startIndex;
+    constructor(content: string) {
+        assertParams({ content }, String);
+
+        this[$content] = content;
+        this[$index] = 0;
     }
 
     peek(): string {
-        return this.content[this.index];
+        return this[$content][this[$index]];
     }
 
     read(): string {
-        const j = this.index;
-        this.index++;
-        return this.content[j];
+        const char = this.peek();
+        this[$index]++;
+        return char;
     }
 
     readBlock(buffer: string[], index: number, count: number): number {
-        let c: string,
-            n: number = 0;
-        const a: string[] = [];
+        assertEachParams({ buffer }, Array, String);
+        assertParams({ index, count }, Number);
+
+        if (index < 0 || index > buffer.length - 1)
+            throw new ArgumentOutOfRangeException("index");
+        if (count < 0)
+            throw new ArgumentOutOfRangeException("count");
+
+        let char: string,
+            readCount: number = 0;
+        const readChars: string[] = [];
         do {
-            c = this.read();
-            a.push(c);
-            n++;
+            char = this.read();
+            readChars.push(char);
+            readCount++;
         }
-        while (c && n < count);
-        buffer.splice(index, n, ...a);
-        return n;
+        while (char && readCount < count);
+        buffer.splice(index, readCount, ...readChars);
+        return readCount;
     }
 
     readLine(): string {
-        const a: string[] = [],
-            n = getNextLine(this.content, this.index) - this.index;
-        this.readBlock(a, 0, n);
-        return a.join("");
+        const readChars: string[] = [],
+            lineEnd = findLineEnd(this[$content], this[$index]);
+        this.readBlock(readChars, 0, lineEnd - this[$index]);
+        return readChars.join("");
     }
 
     readToEnd(): string {
-        const a: string[] = [],
-            n = this.content.length - this.index;
-        this.readBlock(a, 0, n);
-        return a.join("");
+        const readChars: string[] = [],
+            endOfFile = this[$content].length;
+        this.readBlock(readChars, 0, endOfFile - this[$index]);
+        return readChars.join("");
     }
 
-    content: string;
-    startIndex: number;
-    index: number;
+    private [$content]: string;
+    private [$index]: number;
 }
 
-function getNextLine(content: string, position: number): number {
+function findLineEnd(content: string, position: number): number {
     let i = content.indexOf("\n", position);
     if (i == -1)
         return content.length - 1;
