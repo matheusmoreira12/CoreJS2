@@ -49,9 +49,9 @@ export class StringReader {
 }
 
 function getNextLine(content: string, position: number): number {
-    let index = content.indexOf("\n", position);
-    if (index == -1)
-        return content.length - position;
+    let i = content.indexOf("\n", position);
+    if (i == -1)
+        return content.length - 1;
     else
-        return index;
+        return i;
 }

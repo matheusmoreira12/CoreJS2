@@ -1,6 +1,6 @@
 import { NotImplementedException } from "../../Exceptions";
 import { FunctionModel } from "./FunctionModel";
-import { StringReader } from "../../../CoreBase/Tokenifier";
+import { StringReader } from "../../Strings/StringReader";
 
 export class FunctionSerializer {
     serialize(content: string): FunctionModel {
