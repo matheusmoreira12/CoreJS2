@@ -53,7 +53,7 @@ export class StringReader {
 
     readToEnd(): string {
         const readChars: string[] = [],
-            endOfFile = this[$content].length;
+            endOfFile = this[$content].length - 1;
         this.readBlock(readChars, 0, endOfFile - this[$index]);
         return readChars.join("");
     }
@@ -62,8 +62,8 @@ export class StringReader {
     private [$index]: number;
 }
 
-function findLineEnd(content: string, position: number): number {
-    let i = content.indexOf("\n", position);
+function findLineEnd(content: string, offset: number): number {
+    let i = content.indexOf("\n", offset);
     if (i == -1)
         return content.length - 1;
     else
