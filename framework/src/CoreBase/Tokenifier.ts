@@ -17,8 +17,8 @@ export class StringReader {
 
     readBlock(buffer: string[], index: number, count: number): number {
         let c: string,
-            n: number = 0,
-            a: string[] = [];
+            n: number = 0;
+        const a: string[] = [];
         do {
             c = this.read();
             a.push(c);
