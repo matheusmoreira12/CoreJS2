@@ -1,46 +1,46 @@
-import { assertParams, assertEachParams } from "../../Validation/index";
-import { ArgumentOutOfRangeException } from "../Exceptions";
-
 const $content = Symbol();
 const $index = Symbol();
 
 export class StringReader {
     constructor(content: string) {
-        assertParams({ content }, String);
-
         this[$content] = content;
         this[$index] = 0;
     }
 
     peek(): string {
-        return this[$content][this[$index]];
+        const peekedChars: string[] = [];
+        if (this.copyBlock(peekedChars, 0, 1) > 0)
+            return peekedChars[0];
+        else
+            return "";
     }
 
     read(): string {
-        const char = this.peek();
-        this[$index]++;
-        return char;
+        const readChars: string[] = [];
+        if (this.readBlock(readChars, 0, 1) > 0)
+            return readChars[0];
+        else
+            return "";
+    }
+
+    copyBlock(buffer: string[], index: number, count: number): number {
+        const start = this[$index],
+            endOfFile = this[$content].length - 1,
+            endOfBlock = this[$index] + count,
+            end = Math.min(endOfFile, endOfBlock),
+            copyCount = end - start;
+
+        if (copyCount > 0) {
+            const readChars: string[] = [...this[$content].slice(start, end)];
+            buffer.splice(index, copyCount, ...readChars);
+        }
+
+        return copyCount;
     }
 
     readBlock(buffer: string[], index: number, count: number): number {
-        assertEachParams({ buffer }, Array, String);
-        assertParams({ index, count }, Number);
-
-        if (index < 0 || index > buffer.length - 1)
-            throw new ArgumentOutOfRangeException("index");
-        if (count < 0)
-            throw new ArgumentOutOfRangeException("count");
-
-        let char: string,
-            readCount: number = 0;
-        const readChars: string[] = [];
-        do {
-            char = this.read();
-            readChars.push(char);
-            readCount++;
-        }
-        while (char && readCount < count);
-        buffer.splice(index, readCount, ...readChars);
+        const readCount = this.copyBlock(buffer, index, count);
+        this[$index] += readCount;
         return readCount;
     }
 
