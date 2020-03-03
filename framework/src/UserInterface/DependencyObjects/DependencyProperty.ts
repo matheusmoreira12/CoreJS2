@@ -1,13 +1,15 @@
 import { PropertyMetadata } from "./PropertyMetadata";
-import { IDependencyObject } from "./DependencyObject";
 import { assertParams } from "../../Validation/index";
 import { DataContexts } from "../index";
 import { DataContext } from "../DataContexts/index";
 import { DependencyDataContext } from "./Storage/index";
 import { InvalidOperationException } from "../../Standard/index";
+import { FrameworkEvent } from "../../Standard/Events/index";
+import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
-//Keys for PropertyMetadata
-export const $setProperty = Symbol();
+//Create a root context for dependency management
+const dependencyRootContext = new DataContext(null);
+DataContext.root.children.add(dependencyRootContext);
 
 //Keys for DependencyProperty
 const $unsetValue = Symbol("unset");
@@ -19,26 +21,71 @@ const $id = Symbol();
 export class DependencyProperty {
     static get unsetValue(): symbol { return $unsetValue; }
 
-    static register<T extends typeof DependencyObject>(target: T, metadata: PropertyMetadata): DependencyProperty {
-        assertParams({ name }, String);
+    static overrideContext(target: typeof Object) {
+        assertParams({ target }, Function);
+
+        overrideDependencyContext(target);
+    }
+
+    static register(target: typeof Object, metadata: PropertyMetadata): DependencyProperty {
+        assertParams({ target }, Function);
         assertParams({ metadata }, PropertyMetadata);
 
         return registerProperty(target, metadata);
     }
 
+    static getValue(target: object, property: DependencyProperty): any {
+        assertParams({ target }, Object);
+        assertParams({ property }, DependencyProperty);
+
+        return getPropertyValue(target, property);
+    }
+
+    static setValue(target: object, property: DependencyProperty, value: any) {
+        assertParams({ target }, Object);
+        assertParams({ property }, DependencyProperty);
+
+        setPropertyValue(target, property, value);
+    }
+
+    static ChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent();
+
     get id(): number { return this[$id]; }
     private [$id]: number;
 }
 
-
-function registerProperty<T extends typeof DependencyObject>(target: T, metadata: PropertyMetadata): DependencyProperty {
-    const context = DataContexts.Utils.getNearestByInstance(DataContext.main, target) as DependencyDataContext | null;
-    if (context === null)
-        throw new InvalidOperationException("Cannot register dependency property. No dependency data context corresponds to the provided target.");
+function overrideDependencyContext(target: typeof Object) {
+    let context = DataContexts.Utils.getNearest(dependencyRootContext, target) as DependencyDataContext | null;
+    const newContext = new DependencyDataContext(target);
+    if (context)
+        context.children.add(newContext);
     else
-    {
+        dependencyRootContext.children.add(newContext);
+}
+
+function registerProperty(target: typeof Object, metadata: PropertyMetadata): DependencyProperty {
+    const context = DataContexts.Utils.getNearest(DataContext.root, target) as DependencyDataContext | null;
+    if (context) {
         const property = new DependencyProperty();
         context.overrideMetadata(property, metadata);
         return property;
     }
+    else
+        throw new InvalidOperationException("Cannot register dependency property. No dependency data context corresponds to the provided target.");
+}
+
+function getPropertyValue(target: object, property: DependencyProperty): any {
+    const context = DataContexts.Utils.getNearest(DataContext.root, target.constructor) as DependencyDataContext | null;
+    if (context)
+        return context.computeValue(property, target);
+    else
+        throw new InvalidOperationException("Cannot get property value. No dependency data context corresponds to the provided target.");
+}
+
+function setPropertyValue(target: object, property: DependencyProperty, value: any): void {
+    const context = DataContexts.Utils.getNearest(DataContext.root, target.constructor) as DependencyDataContext | null;
+    if (context)
+        context.setValue(target, target, property, value);
+    else
+        throw new InvalidOperationException("Cannot set property value. No dependency data context corresponds to the provided target.");
 }

@@ -1,7 +1,7 @@
 import { Type } from "../../Standard/Types/index";
 import { Interface } from "../../Standard/Interfaces/index";
 import { assertParams } from "../../Validation/index";
-import { DependencyProperty, $setProperty } from "./DependencyProperty";
+import { DependencyProperty } from "./DependencyProperty";
 
 const $name = Symbol();
 const $valueType = Symbol();

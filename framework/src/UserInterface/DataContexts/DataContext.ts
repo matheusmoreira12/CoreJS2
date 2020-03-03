@@ -9,7 +9,7 @@ const $target = Symbol();
  * Holds context information for data transactions.
  */
 export class DataContext extends TreeItem<DataContext> {
-    static get main() { return mainContext; }
+    static get root() { return mainContext; }
 
     constructor(target: object | null, ...children: DataContext[]) {
         assertEachParams({ children }, Array, DataContext);

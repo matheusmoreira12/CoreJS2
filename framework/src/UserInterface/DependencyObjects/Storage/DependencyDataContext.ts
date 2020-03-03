@@ -1,5 +1,4 @@
 import { DataContext } from "../../DataContexts/index";
-import { IDependencyObject } from "../DependencyObject";
 import { DependencyProperty } from "../DependencyProperty";
 import { Collection } from "../../../Standard/Collections/index";
 import { assertEachParams, assertParams } from "../../../Validation/index";
@@ -11,7 +10,7 @@ const $setters = Symbol();
 const $metadataOverrides = Symbol();
 
 export class DependencyDataContext extends DataContext {
-    constructor(target: typeof DependencyObject, ...children: DependencyDataContext[]) {
+    constructor(target: typeof Object, ...children: DependencyDataContext[]) {
         assertEachParams({ children }, Array, DependencyDataContext);
 
         super(target, ...children);
@@ -20,17 +19,13 @@ export class DependencyDataContext extends DataContext {
         this[$metadataOverrides] = new Collection();
     }
 
-    branchOut(target: typeof DependencyObject): DependencyDataContext {
-        return branchOut.call(this, target);
-    }
-
-    setValue(source: object, target: IDependencyObject, property: DependencyProperty, value: any) {
+    setValue(source: object, target: object, property: DependencyProperty, value: any) {
         assertParams({ source }, Object);
 
         setValueOnContext.call(this, source, target, property, value);
     }
 
-    unsetValue(source: object, target: IDependencyObject, property: DependencyProperty) {
+    unsetValue(source: object, target: object, property: DependencyProperty) {
         assertParams({ source }, Object);
 
         unsetValueOnContext.call(this, source, target, property);
@@ -49,7 +44,7 @@ export class DependencyDataContext extends DataContext {
         return computeMetadataOnContext.call(this, property);
     }
 
-    computeValue(property: DependencyProperty, target: IDependencyObject): any {
+    computeValue(property: DependencyProperty, target: object): any {
         assertParams({ property }, DependencyProperty);
 
         return computeValueOnContext.call(this, property, target);
@@ -62,13 +57,7 @@ export class DependencyDataContext extends DataContext {
     private [$metadataOverrides]: Collection<MetadataOverride>;
 }
 
-function branchOut(this: DependencyDataContext, target: typeof DependencyObject): DependencyDataContext {
-    const branchContext = new DependencyDataContext(target);
-    this.children.add(branchContext);
-    return branchContext;
-}
-
-function setValueOnContext(this: DependencyDataContext, source: object, target: IDependencyObject, property: DependencyProperty, value: any) {
+function setValueOnContext(this: DependencyDataContext, source: object, target: object, property: DependencyProperty, value: any) {
     let setter = this.setters.find(s => s.source === source && s.property === property);
     if (setter === undefined) {
         setter = StorageSetter.create(source, target, property, value);
@@ -78,13 +67,13 @@ function setValueOnContext(this: DependencyDataContext, source: object, target: 
         setter.value = value;
 }
 
-function unsetValueOnContext(this: DependencyDataContext, source: object, target: IDependencyObject, property: DependencyProperty) {
+function unsetValueOnContext(this: DependencyDataContext, source: object, target: object, property: DependencyProperty) {
     const setter = this.setters.find(s => s.source === source && s.target === target && s.property === property);
     if (setter !== undefined)
         this.setters.remove(setter);
 }
 
-function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty, target: IDependencyObject): any {
+function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty, target: object): any {
     for (let context of this.getTree())
         if (context instanceof DependencyDataContext) {
             const setter = context.setters.reverse().find(s => s.property === property && s.target === target && s.value !== DependencyProperty.unsetValue);

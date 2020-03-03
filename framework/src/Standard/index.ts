@@ -5,7 +5,6 @@ export * from "./Enumeration";
 export * from "./Exceptions";
 export * from "./MathX";
 export * from "./Tokens";
-export * from "./Mixin";
 
 import * as APIs from "./APIs/index";
 export { APIs };

@@ -3,7 +3,7 @@ import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
-import { DependencyProperty, PropertyMetadata, DependencyObject } from "../DependencyObjects/index";
+import { DependencyProperty, PropertyMetadata } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 
@@ -155,38 +155,40 @@ export abstract class Control extends VisualTreeElement {
     //Mouse State Properties
     //Is Mouse Over Property
     static isMouseOverProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isMouseOver", Type.get(Boolean), false));
-    get isMouseOver() { return this.get(Control.isMouseOverProperty); }
-    set isMouseOver(value) { this.set(Control.isMouseOverProperty, value); }
+    get isMouseOver() { return DependencyProperty.getValue(this, Control.isMouseOverProperty); }
+    set isMouseOver(value) { DependencyProperty.setValue(this, Control.isMouseOverProperty, value); }
 
     //Is Mouse Down Property
     static isMouseDownProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isMouseDown", Type.get(Boolean), false));
-    get isMouseDown() { return this.get(Control.isMouseDownProperty); }
-    set isMouseDown(value) { this.set(Control.isMouseDownProperty, value); }
+    get isMouseDown() { return DependencyProperty.getValue(this, Control.isMouseDownProperty); }
+    set isMouseDown(value) { DependencyProperty.setValue(this, Control.isMouseDownProperty, value); }
 
     //Drag State Properties
     //Is Dragging Property
     static isDraggingProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDragging", Type.get(Boolean), false));
-    get isDragging() { return this.get(Control.isDraggingProperty); }
-    set isDragging(value) { this.set(Control.isDraggingProperty, value); }
+    get isDragging() { return DependencyProperty.getValue(this, Control.isDraggingProperty); }
+    set isDragging(value) { DependencyProperty.setValue(this, Control.isDraggingProperty, value); }
 
     //Is Drag Over Property
     static isDragOverProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDragOver", Type.get(Boolean), false));
-    get isDragOver() { return this.get(Control.isDragOverProperty); }
-    set isDragOver(value) { this.set(Control.isDragOverProperty, value); }
+    get isDragOver() { return DependencyProperty.getValue(this, Control.isDragOverProperty); }
+    set isDragOver(value) { DependencyProperty.setValue(this, Control.isDragOverProperty, value); }
 
     //Drag Properties
     static isDraggableProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDraggable", Type.get(Boolean), false));
-    get isDraggable() { return this.get(Control.isDraggableProperty); }
-    set isDraggable(value) { this.set(Control.isDraggableProperty, value); }
+    get isDraggable() { return DependencyProperty.getValue(this, Control.isDraggableProperty); }
+    set isDraggable(value) { DependencyProperty.setValue(this, Control.isDraggableProperty, value); }
 
     //Visual Properties
     //Background Property
     static backgroundProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("background"));
-    get background() { return this.get(Control.backgroundProperty); }
-    set background(value) { this.set(Control.backgroundProperty, value); }
+    get background() { return DependencyProperty.getValue(this, Control.backgroundProperty); }
+    set background(value) { DependencyProperty.setValue(this, Control.backgroundProperty, value); }
 
     //Foreground Property
     static foregroundProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("foreground"));
-    get foreground() { return this.get(Control.foregroundProperty); }
-    set foreground(value) { this.set(Control.foregroundProperty, value); }
+    get foreground() { return DependencyProperty.getValue(this, Control.foregroundProperty); }
+    set foreground(value) { DependencyProperty.setValue(this, Control.foregroundProperty, value); }
 }
+
+DependencyProperty.overrideContext(<any>Control);

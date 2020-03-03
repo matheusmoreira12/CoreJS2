@@ -23,6 +23,8 @@ class A extends Core.UserInterface.Controls.Control {
     }
 }
 
+Core.UserInterface.DependencyObjects.DependencyProperty.overrideContext(<any>A);
+
 class B extends A {
     static prop2 = DependencyObjects.DependencyProperty.register(<any>B, new DependencyObjects.PropertyMetadata("prop2"));
 
@@ -31,11 +33,13 @@ class B extends A {
     }
 }
 
+Core.UserInterface.DependencyObjects.DependencyProperty.overrideContext(<any>B);
+
 Core.UserInterface.Controls.WidgetManager.register(A, "x:A", "x");
 Core.UserInterface.Controls.WidgetManager.register(B, "x:B", "x");
 
 
-console.log(DataContexts.DataContext.main);
+console.log(DataContexts.DataContext.root);
 
 export const Consolify = new (function () {
     const TAB_SPACING = 5;
