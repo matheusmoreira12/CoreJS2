@@ -1,4 +1,4 @@
-import { DependencyProperty, DependencyObject } from "../DependencyObjects/index"
+import { DependencyProperty, IDependencyObject } from "../DependencyObjects/index"
 import { assertParams } from "../../Validation/index";
 import { PropertyTrigger } from "../Triggers/index";
 import { Destructible } from "../../Standard/index";
@@ -19,7 +19,7 @@ const $trigger = Symbol();
 export class Setter extends Destructible {
     static getAll(): Setter[] { return [...allSetters]; }
 
-    constructor(target: DependencyObject, property: DependencyProperty, value: any) {
+    constructor(target: IDependencyObject, property: DependencyProperty, value: any) {
         super();
 
         assertParams({ property }, DependencyProperty);
@@ -32,8 +32,8 @@ export class Setter extends Destructible {
         allSetters.add(this);
     }
 
-    get target(): DependencyObject { return this[$target]; }
-    private [$target]: DependencyObject;
+    get target(): IDependencyObject { return this[$target]; }
+    private [$target]: IDependencyObject;
 
     get property(): DependencyProperty { return this[$property]; }
     private [$property]: DependencyProperty;

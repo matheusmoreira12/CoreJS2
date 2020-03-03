@@ -1,5 +1,5 @@
 import { DataContext } from "../../DataContexts/index";
-import { DependencyObject } from "../DependencyObject";
+import { IDependencyObject } from "../DependencyObject";
 import { DependencyProperty } from "../DependencyProperty";
 import { Collection } from "../../../Standard/Collections/index";
 import { assertEachParams, assertParams } from "../../../Validation/index";
@@ -24,13 +24,13 @@ export class DependencyDataContext extends DataContext {
         return branchOut.call(this, target);
     }
 
-    setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
+    setValue(source: object, target: IDependencyObject, property: DependencyProperty, value: any) {
         assertParams({ source }, Object);
 
         setValueOnContext.call(this, source, target, property, value);
     }
 
-    unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
+    unsetValue(source: object, target: IDependencyObject, property: DependencyProperty) {
         assertParams({ source }, Object);
 
         unsetValueOnContext.call(this, source, target, property);
@@ -49,7 +49,7 @@ export class DependencyDataContext extends DataContext {
         return computeMetadataOnContext.call(this, property);
     }
 
-    computeValue(property: DependencyProperty, target: DependencyObject): any {
+    computeValue(property: DependencyProperty, target: IDependencyObject): any {
         assertParams({ property }, DependencyProperty);
 
         return computeValueOnContext.call(this, property, target);
@@ -68,7 +68,7 @@ function branchOut(this: DependencyDataContext, target: typeof DependencyObject)
     return branchContext;
 }
 
-function setValueOnContext(this: DependencyDataContext, source: object, target: DependencyObject, property: DependencyProperty, value: any) {
+function setValueOnContext(this: DependencyDataContext, source: object, target: IDependencyObject, property: DependencyProperty, value: any) {
     let setter = this.setters.find(s => s.source === source && s.property === property);
     if (setter === undefined) {
         setter = StorageSetter.create(source, target, property, value);
@@ -78,13 +78,13 @@ function setValueOnContext(this: DependencyDataContext, source: object, target: 
         setter.value = value;
 }
 
-function unsetValueOnContext(this: DependencyDataContext, source: object, target: DependencyObject, property: DependencyProperty) {
+function unsetValueOnContext(this: DependencyDataContext, source: object, target: IDependencyObject, property: DependencyProperty) {
     const setter = this.setters.find(s => s.source === source && s.target === target && s.property === property);
     if (setter !== undefined)
         this.setters.remove(setter);
 }
 
-function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty, target: DependencyObject): any {
+function computeValueOnContext(this: DependencyDataContext, property: DependencyProperty, target: IDependencyObject): any {
     for (let context of this.getTree())
         if (context instanceof DependencyDataContext) {
             const setter = context.setters.reverse().find(s => s.property === property && s.target === target && s.value !== DependencyProperty.unsetValue);

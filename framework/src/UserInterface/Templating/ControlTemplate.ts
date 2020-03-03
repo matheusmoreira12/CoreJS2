@@ -1,4 +1,4 @@
-import { DependencyProperty, PropertyMetadata, DependencyObject } from "../DependencyObjects/index";
+import { DependencyProperty, PropertyMetadata, IDependencyObject } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/index";
 import { Control } from "../Controls/index";
 

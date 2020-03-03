@@ -1,5 +1,5 @@
 import { PropertyMetadata } from "./PropertyMetadata";
-import { DependencyObject } from "./DependencyObject";
+import { IDependencyObject } from "./DependencyObject";
 import { assertParams } from "../../Validation/index";
 import { DataContexts } from "../index";
 import { DataContext } from "../DataContexts/index";
