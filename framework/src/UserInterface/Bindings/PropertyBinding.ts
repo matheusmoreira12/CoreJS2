@@ -1,8 +1,6 @@
-import { Binding, IBindingOptions, BindingDirection } from "./index";
-import { DependencyProperty, PropertyChangeEventArgs, IDependencyObject } from "../DependencyObjects/index";
-import { ArgumentTypeException, Enumeration } from "../../Standard/index";
+import { Binding, IBindingOptions } from "./index";
+import { DependencyProperty } from "../DependencyObjects/index";
 import { assertParams } from "../../Validation/index";
-import { Interface } from "../../Standard/Interfaces/index";
 
 //Keys for PropertyBinding
 const $source = Symbol();
@@ -15,7 +13,7 @@ const $targetProperty = Symbol();
  * Allows the binding of two framework properties.
  */
 export class PropertyBinding extends Binding {
-    constructor(source: IDependencyObject, sourceProperty: DependencyProperty, target: IDependencyObject, targetProperty: DependencyProperty, options?: IBindingOptions) {
+    constructor(source: object, sourceProperty: DependencyProperty, target: object, targetProperty: DependencyProperty, options?: IBindingOptions) {
         super(options);
 
         assertParams({ sourceProperty }, DependencyProperty);
@@ -27,14 +25,14 @@ export class PropertyBinding extends Binding {
         this[$targetProperty] = targetProperty;
     }
 
-    get source(): IDependencyObject { return this[$source]; }
-    private [$source]: IDependencyObject;
+    get source(): object { return this[$source]; }
+    private [$source]: object;
 
     get sourceProperty(): DependencyProperty { return this[$sourceProperty]; }
     private [$sourceProperty]: DependencyProperty;
 
-    get target(): IDependencyObject { return this[$target]; }
-    private [$target]: IDependencyObject;
+    get target(): object { return this[$target]; }
+    private [$target]: object;
 
     get targetProperty(): DependencyProperty { return this[$targetProperty]; }
     private [$targetProperty]: DependencyProperty;

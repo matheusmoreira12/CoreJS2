@@ -1,7 +1,6 @@
 import { InvalidOperationException, Destructible } from "../../Standard/index";
-import { Dictionary, Collection } from "../../Standard/Collections/index";
+import { Dictionary } from "../../Standard/Collections/index";
 import { EventTrigger } from "../Triggers/index";
-import { assertParams } from "../../Validation/index";
 import { $setTrigger, $unsetTrigger } from "./ActionCollection";
 
 //Keys for Action
