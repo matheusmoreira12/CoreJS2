@@ -8,12 +8,12 @@ const $valueType = Symbol();
 const $defaultValue = Symbol();
 
 function assertDefaultValue(valueType: Type | Interface | null, defaultValue: any) {
-    if (defaultValue !== DependencyProperty.unsetValue)
+    if (defaultValue !== null)
         assertParams({ defaultValue }, valueType);
 }
 
 export class PropertyMetadata {
-    constructor(name: string, valueType: Type | Interface | null = null, defaultValue: any = DependencyProperty.unsetValue) {
+    constructor(name: string, valueType: Type | Interface | null = null, defaultValue: any = null) {
         assertParams({ name }, String);
         assertParams({ valueType }, Type, Interface, null);
         assertDefaultValue(valueType, defaultValue);

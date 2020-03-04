@@ -1,9 +1,9 @@
 import { FontWeight } from "./FontWeight";
 import { TextDecoration } from "./TextDecoration";
 import { FontStyle } from "./FontStyle";
-import { assertParameter } from "../../Validation/index";
+import { assertParams } from "../../Validation/index";
 
-const DEFAULT_FONT_FAMILY  = "Arial, Verdana, Sans-serif";
+const DEFAULT_FONT_FAMILY = "Arial, Verdana, Sans-serif";
 const DEFAULT_FONT_SIZE = "14pt";
 
 const $family = Symbol("family");
@@ -16,11 +16,9 @@ export class Font {
     static get default(): Font { return new Font(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE); }
 
     constructor(family: string, size: string, weight: number = FontWeight.Normal, style: number = FontStyle.Normal, textDecoration: number = TextDecoration.None) {
-        assertParameter("family", family, String);
-        assertParameter("size", size, String);
-        assertParameter("weight", weight, Number);
-        assertParameter("style", style, Number);
-        assertParameter("textDecoration", textDecoration, Number);
+        assertParams({ family }, String);
+        assertParams({ size }, String);
+        assertParams({ weight, style, textDecoration }, Number);
 
         this[$family] = family;
         this[$size] = size;

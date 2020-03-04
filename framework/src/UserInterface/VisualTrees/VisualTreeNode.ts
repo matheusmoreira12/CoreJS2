@@ -1,9 +1,11 @@
-import { InvalidOperationException } from "../../Standard/index";
+import { InvalidOperationException, Destructible } from "../../Standard/index";
 import { assertParams } from "../../Validation/index";
 import { VisualTreeElement } from "./VisualTreeElement";
 
-export abstract class VisualTreeNode {
+export abstract class VisualTreeNode extends Destructible {
     constructor(domNode: Node) {
+        super();
+
         if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
 

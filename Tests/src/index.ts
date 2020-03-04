@@ -1,49 +1,44 @@
 import * as Core from "../../framework/src/index";
+import DataContexts = Core.UserInterface.DataContexts;
+import DependencyProperty = Core.UserInterface.DependencyObjects.DependencyProperty;
+import PropertyMetadata = Core.UserInterface.DependencyObjects.PropertyMetadata;
+import Font  = Core.UserInterface.Fonts.Font;
+import Type = Core.Standard.Types.Type;
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+class TextBlock extends Core.UserInterface.Controls.Control {
+    static __ctor = (function () {
+        Core.UserInterface.DependencyObjects.DependencyProperty.overrideContext(<any>TextBlock);
+    })();
+
+    constructor(element: Element) {
+        super(element);
+
+        const canvas = Core.UserInterface.VisualTrees.VisualTreeElement.create("svg", SVG_NS);
+        this.children.add(canvas);
+        canvas.attributes.createMultiple({
+            width: "100px",
+            height: "100px"
+        }, null);
+        
+        const text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
+        canvas.children.add(text);
+    }
+
+    static fontProperty = DependencyProperty.register(<any>TextBlock, new PropertyMetadata("font", Type.get(Font), Font.default));
+}
+
+Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
+
+
+console.log(DataContexts.DataContext.root);
+/*
 import Type = Core.Standard.Types.Type;
 import MemberType = Core.Standard.Types.MemberType;
 import MemberSelectionType = Core.Standard.Types.MemberSelectionType;
 import MemberInfo = Core.Standard.Types.MemberInfo;
 import Enumeration = Core.Standard.Enumeration;
-
-import DataContexts = Core.UserInterface.DataContexts;
-import DependencyObjects = Core.UserInterface.DependencyObjects;
-
-class A extends Core.UserInterface.Controls.Control {
-    static __ctor = (function () {
-        Core.UserInterface.DependencyObjects.DependencyProperty.overrideContext(<any>A);
-    })();
-
-    static prop1 = DependencyObjects.DependencyProperty.register(<any>A, new DependencyObjects.PropertyMetadata("prop1"));
-
-    constructor(element: Element) {
-        super(element);
-
-        const canvas = Core.UserInterface.VisualTrees.VisualTreeElement.create("svg", "http://www.w3.org/2000/svg");
-        canvas.attributes.createMultiple({
-            width: "100px",
-            height: "100px"
-        }, null);
-        this.children.add(canvas);
-    }
-}
-
-class B extends A {
-    static __ctor = (function () {
-        Core.UserInterface.DependencyObjects.DependencyProperty.overrideContext(<any>B);
-    })();
-
-    static prop2 = DependencyObjects.DependencyProperty.register(<any>B, new DependencyObjects.PropertyMetadata("prop2"));
-
-    constructor(element: Element) {
-        super(element);
-    }
-}
-
-Core.UserInterface.Controls.WidgetManager.register(A, "x:A", "x");
-Core.UserInterface.Controls.WidgetManager.register(B, "x:B", "x");
-
-
-console.log(DataContexts.DataContext.root);
 
 export const Consolify = new (function () {
     const TAB_SPACING = 5;
@@ -227,3 +222,4 @@ export function doListTypeInfo(method) {
 }
 
 window.Tests = Object.assign({}, window.Tests, { doListTypeInfo });
+*/

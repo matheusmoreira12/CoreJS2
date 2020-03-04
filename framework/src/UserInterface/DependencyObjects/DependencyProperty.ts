@@ -7,19 +7,23 @@ import { InvalidOperationException } from "../../Standard/index";
 import { FrameworkEvent } from "../../Standard/Events/index";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
+//Define an arbitrary unset value for the dependency properties
+const UNSET_VALUE = {};
+
 //Create a root context for dependency management
-const dependencyRootContext = new DataContext(null);
-DataContext.root.children.add(dependencyRootContext);
+const DEPENDENCY_ROOT_CONTEXT = new DataContext(null);
+DataContext.root.children.add(DEPENDENCY_ROOT_CONTEXT);
+
+const PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent();
 
 //Keys for DependencyProperty
-const $unsetValue = Symbol("unset");
 const $id = Symbol();
 
 /**
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    static get unsetValue(): symbol { return $unsetValue; }
+    static get unsetValue() { return UNSET_VALUE; }
 
     static overrideContext(target: typeof Object) {
         assertParams({ target }, Function);
@@ -48,19 +52,19 @@ export class DependencyProperty {
         setPropertyValue(target, property, value);
     }
 
-    static ChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent();
+    static get ChangeEvent(): FrameworkEvent<PropertyChangeEventArgs> { return PropertyChangeEvent; }
 
     get id(): number { return this[$id]; }
     private [$id]: number;
 }
 
 function overrideDependencyContext(target: typeof Object) {
-    let context = DataContexts.Utils.getNearest(dependencyRootContext, target) as DependencyDataContext | null;
+    let context = DataContexts.Utils.getNearest(DEPENDENCY_ROOT_CONTEXT, target) as DependencyDataContext | null;
     const newContext = new DependencyDataContext(target);
     if (context)
         context.children.add(newContext);
     else
-        dependencyRootContext.children.add(newContext);
+        DEPENDENCY_ROOT_CONTEXT.children.add(newContext);
 }
 
 function registerProperty(target: typeof Object, metadata: PropertyMetadata): DependencyProperty {
@@ -77,7 +81,7 @@ function registerProperty(target: typeof Object, metadata: PropertyMetadata): De
 function getPropertyValue(target: object, property: DependencyProperty): any {
     const context = DataContexts.Utils.getNearest(DataContext.root, target.constructor) as DependencyDataContext | null;
     if (context)
-        return context.computeValue(property, target);
+        return context.getValue(property, target);
     else
         throw new InvalidOperationException("Cannot get property value. No dependency data context corresponds to the provided target.");
 }

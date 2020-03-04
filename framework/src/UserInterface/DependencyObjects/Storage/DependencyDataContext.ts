@@ -31,6 +31,18 @@ export class DependencyDataContext extends DataContext {
         unsetValueOnContext.call(this, source, target, property);
     }
 
+    computeValue(property: DependencyProperty, target: object): any {
+        assertParams({ property }, DependencyProperty);
+
+        return computeValueOnContext.call(this, property, target);
+    }
+
+    getValue(property: DependencyProperty, target: object): any {
+        assertParams({ property }, DependencyProperty);
+
+        return getValueOnContext.call(this, property, target);
+    }
+
     overrideMetadata(property: DependencyProperty, metadata: PropertyMetadata) {
         assertParams({ property }, DependencyProperty);
         assertParams({ metadata }, PropertyMetadata);
@@ -44,12 +56,6 @@ export class DependencyDataContext extends DataContext {
         return computeMetadataOnContext.call(this, property);
     }
 
-    computeValue(property: DependencyProperty, target: object): any {
-        assertParams({ property }, DependencyProperty);
-
-        return computeValueOnContext.call(this, property, target);
-    }
-
     get setters(): Collection<StorageSetter> { return this[$setters]; }
     private [$setters]: Collection<StorageSetter>;
 
@@ -59,17 +65,17 @@ export class DependencyDataContext extends DataContext {
 
 function setValueOnContext(this: DependencyDataContext, source: object, target: object, property: DependencyProperty, value: any) {
     let setter = this.setters.find(s => s.source === source && s.property === property);
-    if (setter === undefined) {
+    if (setter)
+        setter.value = value;
+    else {
         setter = StorageSetter.create(source, target, property, value);
         this.setters.add(setter);
     }
-    else
-        setter.value = value;
 }
 
 function unsetValueOnContext(this: DependencyDataContext, source: object, target: object, property: DependencyProperty) {
     const setter = this.setters.find(s => s.source === source && s.target === target && s.property === property);
-    if (setter !== undefined)
+    if (setter)
         this.setters.remove(setter);
 }
 
@@ -82,6 +88,19 @@ function computeValueOnContext(this: DependencyDataContext, property: Dependency
         }
 
     return DependencyProperty.unsetValue;
+}
+
+function getValueOnContext(this: DependencyDataContext, property: DependencyProperty, target: object): any {
+    const metadata = computeMetadataOnContext.call(this, property);
+    const value = computeValueOnContext.call(this, property, target);
+    if (value === DependencyProperty.unsetValue) {
+        if (metadata)
+            return metadata.defaultValue;
+        else
+            return null;
+    }
+    else
+        return value;
 }
 
 function overrideMetadataOnContext(this: DependencyDataContext, property: DependencyProperty, metadata: PropertyMetadata) {
