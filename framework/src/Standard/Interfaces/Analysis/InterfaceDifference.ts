@@ -6,7 +6,7 @@ export class InterfaceDifference {
         this.__analizedType = analizedType;
         this.__analizedInterface = analizedInterface;
         this.__propertyKey = propertyKey;
-        this.__differenceType = differenceType;
+        this.__differenceKind = differenceType;
     }
 
     get analizedType(): Type { return this.__analizedType; }
@@ -18,6 +18,6 @@ export class InterfaceDifference {
     get propertyKey(): string | number | symbol { return this.__propertyKey; }
     private __propertyKey: string | number | symbol;
 
-    get differenceType(): number { return this.__differenceType; }
-    private __differenceType: number;
+    get differenceKind(): number { return this.__differenceKind; }
+    private __differenceKind: number;
 }
