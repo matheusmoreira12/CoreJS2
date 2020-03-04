@@ -8,7 +8,7 @@ export const IPropertyOptions = new Interface(
 );
 
 export interface IPropertyOptions {
-    name(): string;
-    valueType(): Type | Interface | null;
-    defaultValue(): any;
+    name: string;
+    valueType: Type | Interface | null;
+    defaultValue: any;
 }

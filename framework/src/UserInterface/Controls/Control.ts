@@ -3,17 +3,13 @@ import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
-import { DependencyProperty, PropertyMetadata } from "../DependencyObjects/index";
+import { DependencyProperty } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 
 ///TODO: fix this mess
 
 export abstract class Control extends VisualTreeElement {
-    static __ctor = (function () {
-        DependencyProperty.overrideContext(<any>Control);
-    })();
-
     constructor(domElement: Element) {
         super(domElement);
 
@@ -137,19 +133,19 @@ export abstract class Control extends VisualTreeElement {
     MouseDownEvent = new NativeEvent(this.__domNode, "mousedown", this.__onMouseDown, this);
 
     //Mouse Up Event
-    private __onMouseUp(sender: any, args: NativeEventArgs) { 
+    private __onMouseUp(sender: any, args: NativeEventArgs) {
         this.isMouseDown = false;
     }
     MouseUpEvent = new NativeEvent(this.__domNode, "mouseup", this.__onMouseUp, this);
 
     //Mouse Move Event
-    private __onMouseMove(sender: any, args: NativeEventArgs) { 
+    private __onMouseMove(sender: any, args: NativeEventArgs) {
 
     }
     MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove, this);
 
     //Click Event
-    private __onClick(sender: any, args: NativeEventArgs) { 
+    private __onClick(sender: any, args: NativeEventArgs) {
 
     }
     ClickEvent = new NativeEvent(this.__domNode, "click", this.__onClick, this);
@@ -158,39 +154,39 @@ export abstract class Control extends VisualTreeElement {
     //State Properties
     //Mouse State Properties
     //Is Mouse Over Property
-    static isMouseOverProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isMouseOver", Type.get(Boolean), false));
+    static isMouseOverProperty = DependencyProperty.register(<any>Control, { name: "isMouseOver", valueType: Type.get(Boolean), defaultValue: false });
     get isMouseOver() { return DependencyProperty.getValue(this, Control.isMouseOverProperty); }
     set isMouseOver(value) { DependencyProperty.setValue(this, Control.isMouseOverProperty, value); }
 
     //Is Mouse Down Property
-    static isMouseDownProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isMouseDown", Type.get(Boolean), false));
+    static isMouseDownProperty = DependencyProperty.register(<any>Control, { name: "isMouseDown", valueType: Type.get(Boolean), defaultValue: false });
     get isMouseDown() { return DependencyProperty.getValue(this, Control.isMouseDownProperty); }
     set isMouseDown(value) { DependencyProperty.setValue(this, Control.isMouseDownProperty, value); }
 
     //Drag State Properties
     //Is Dragging Property
-    static isDraggingProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDragging", Type.get(Boolean), false));
+    static isDraggingProperty = DependencyProperty.register(<any>Control, { name: "isDragging", valueType: Type.get(Boolean), defaultValue: false });
     get isDragging() { return DependencyProperty.getValue(this, Control.isDraggingProperty); }
     set isDragging(value) { DependencyProperty.setValue(this, Control.isDraggingProperty, value); }
 
     //Is Drag Over Property
-    static isDragOverProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDragOver", Type.get(Boolean), false));
+    static isDragOverProperty = DependencyProperty.register(<any>Control, { name: "isDragOver", valueType: Type.get(Boolean), defaultValue: false });
     get isDragOver() { return DependencyProperty.getValue(this, Control.isDragOverProperty); }
     set isDragOver(value) { DependencyProperty.setValue(this, Control.isDragOverProperty, value); }
 
     //Drag Properties
-    static isDraggableProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("isDraggable", Type.get(Boolean), false));
+    static isDraggableProperty = DependencyProperty.register(<any>Control, { name: "isDraggable", valueType: Type.get(Boolean), defaultValue: false });
     get isDraggable() { return DependencyProperty.getValue(this, Control.isDraggableProperty); }
     set isDraggable(value) { DependencyProperty.setValue(this, Control.isDraggableProperty, value); }
 
     //Visual Properties
     //Background Property
-    static backgroundProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("background"));
+    static backgroundProperty = DependencyProperty.register(<any>Control, { name: "background", valueType: Type.get(Boolean), defaultValue: false });
     get background() { return DependencyProperty.getValue(this, Control.backgroundProperty); }
     set background(value) { DependencyProperty.setValue(this, Control.backgroundProperty, value); }
 
     //Foreground Property
-    static foregroundProperty = DependencyProperty.register(<any>Control, new PropertyMetadata("foreground"));
+    static foregroundProperty = DependencyProperty.register(<any>Control, { name: "foreground", valueType: Type.get(Boolean), defaultValue: false });
     get foreground() { return DependencyProperty.getValue(this, Control.foregroundProperty); }
     set foreground(value) { DependencyProperty.setValue(this, Control.foregroundProperty, value); }
 }

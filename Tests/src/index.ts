@@ -1,17 +1,12 @@
 import * as Core from "../../framework/src/index";
 import DataContexts = Core.UserInterface.DataContexts;
 import DependencyProperty = Core.UserInterface.DependencyObjects.DependencyProperty;
-import PropertyMetadata = Core.UserInterface.DependencyObjects.PropertyMetadata;
 import Font  = Core.UserInterface.Fonts.Font;
 import Type = Core.Standard.Types.Type;
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 class TextBlock extends Core.UserInterface.Controls.Control {
-    static __ctor = (function () {
-        Core.UserInterface.DependencyObjects.DependencyProperty.overrideContext(<any>TextBlock);
-    })();
-
     constructor(element: Element) {
         super(element);
 
@@ -26,7 +21,7 @@ class TextBlock extends Core.UserInterface.Controls.Control {
         canvas.children.add(text);
     }
 
-    static fontProperty = DependencyProperty.register(<any>TextBlock, new PropertyMetadata("font", Type.get(Font), Font.default));
+    static fontProperty = DependencyProperty.register(<any>TextBlock, { name: "font", valueType: Type.get(Font), defaultValue: Font.default });
 }
 
 Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
