@@ -11,6 +11,7 @@ const $metadataOverrides = Symbol();
 
 export class DependencyDataContext extends DataContext {
     constructor(target: typeof Object, ...children: DependencyDataContext[]) {
+        assertParams({ target }, Object);
         assertEachParams({ children }, Array, DependencyDataContext);
 
         super(target, ...children);
@@ -20,25 +21,29 @@ export class DependencyDataContext extends DataContext {
     }
 
     setValue(source: object, target: object, property: DependencyProperty, value: any) {
-        assertParams({ source }, Object);
+        assertParams({ source, target }, Object);
+        assertParams({ property }, DependencyProperty);
 
         setValueOnContext.call(this, source, target, property, value);
     }
 
     unsetValue(source: object, target: object, property: DependencyProperty) {
-        assertParams({ source }, Object);
+        assertParams({ source, target }, Object);
+        assertParams({ property }, DependencyProperty);
 
         unsetValueOnContext.call(this, source, target, property);
     }
 
     computeValue(property: DependencyProperty, target: object): any {
         assertParams({ property }, DependencyProperty);
+        assertParams({ target }, Object);
 
         return computeValueOnContext.call(this, property, target);
     }
 
     getValue(property: DependencyProperty, target: object): any {
         assertParams({ property }, DependencyProperty);
+        assertParams({ target }, Object);
 
         return getValueOnContext.call(this, property, target);
     }
