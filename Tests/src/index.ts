@@ -21,7 +21,7 @@ class TextBlock extends Core.UserInterface.Controls.Control {
         canvas.children.add(text);
     }
 
-    static fontProperty = DependencyProperty.register(<any>TextBlock, { name: "font", valueType: Type.get(Font), defaultValue: Font.default });
+    static fontProperty = DependencyProperty.register(<any>TextBlock, { propertyName: "font", valueType: Type.get(Font), defaultValue: Font.default });
 }
 
 Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
