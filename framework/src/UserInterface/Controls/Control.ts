@@ -10,6 +10,10 @@ import { VisualTreeElement } from "../VisualTrees/index";
 ///TODO: fix this mess
 
 export abstract class Control extends VisualTreeElement {
+    static __ctor = (function () {
+        DependencyProperty.overrideContext(<any>Control);
+    })();
+
     constructor(domElement: Element) {
         super(domElement);
 
@@ -190,5 +194,3 @@ export abstract class Control extends VisualTreeElement {
     get foreground() { return DependencyProperty.getValue(this, Control.foregroundProperty); }
     set foreground(value) { DependencyProperty.setValue(this, Control.foregroundProperty, value); }
 }
-
-DependencyProperty.overrideContext(<any>Control);
