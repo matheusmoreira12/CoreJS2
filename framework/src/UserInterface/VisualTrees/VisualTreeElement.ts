@@ -90,7 +90,7 @@ export class VisualTreeElement extends VisualTreeNode {
     get attributes(): VisualTreeAttributeCollection { return this.__attributes; }
     protected __attributes: VisualTreeAttributeCollection = new VisualTreeAttributeCollection();
 
-    destructor() {
+    protected destructor() {
         //Remove all elements
         const childrenCopy = [...this.children];
         for (let child of childrenCopy)

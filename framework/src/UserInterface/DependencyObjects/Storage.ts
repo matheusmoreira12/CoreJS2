@@ -1,4 +1,6 @@
 import { DependencyProperty } from "./DependencyProperty";
+import { DependencyObject } from "./DependencyObject";
+import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
 const setters: InternalSetter[] = [];
 
@@ -10,7 +12,7 @@ type InternalSetter = {
 };
 
 namespace InternalSetter {
-    export function create(source: object, target: object, property: DependencyProperty, value: any): InternalSetter {
+    export function create(source: object, target: DependencyObject, property: DependencyProperty, value: any): InternalSetter {
         return {
             source,
             target,
@@ -20,7 +22,15 @@ namespace InternalSetter {
     }
 }
 
-export function setValue(source: object, target: object, property: DependencyProperty, value: any) {
+function notifyValueChange(target: DependencyObject, property: DependencyProperty, oldValue: any, newValue: any) {
+    target.PropertyChangeEvent.invoke(target, new PropertyChangeEventArgs(target, property, oldValue, newValue));
+}
+
+export function setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
+    const oldValue = getValue(target, property);
+    if (oldValue !== value)
+        notifyValueChange(target, property, oldValue, value);
+
     if (value === null)
         unsetValue(source, target, property);
     else {
@@ -34,13 +44,13 @@ export function setValue(source: object, target: object, property: DependencyPro
     }
 }
 
-export function unsetValue(source: object, target: object, property: DependencyProperty) {
+export function unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
     let index = setters.findIndex(s => s.source === source && s.target === target && s.property === property);
     if (index != -1)
         setters.splice(index, 1);
 }
 
-export function getValue(target: object, property: DependencyProperty): any {
+export function getValue(target: DependencyObject, property: DependencyProperty): any {
     let setter = setters.reverse().find(s => s.target === target && s.property === property && s.value !== null);
     if (setter)
         return setter.value;

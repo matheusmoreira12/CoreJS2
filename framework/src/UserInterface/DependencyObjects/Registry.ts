@@ -1,5 +1,18 @@
 import { DependencyProperty } from "./DependencyProperty";
+import { IPropertyOptions } from "./IPropertyOptions";
 
-export function register(property: DependencyProperty): number {
-    return 0;
+type RegistryEntry = {
+    target: typeof Object,
+    property: DependencyProperty,
+    options: IPropertyOptions
+}
+
+const registryEntries: RegistryEntry[] = [];
+
+export function register(target: typeof Object, property: DependencyProperty, options: IPropertyOptions = {}) {
+    registryEntries.push({
+        target,
+        property,
+        options
+    });
 }
