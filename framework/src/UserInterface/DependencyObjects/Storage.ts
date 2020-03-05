@@ -21,7 +21,7 @@ namespace InternalSetter {
 }
 
 export function setValue(source: object, target: object, property: DependencyProperty, value: any) {
-    if (value === DependencyProperty.unsetValue)
+    if (value === null)
         unsetValue(source, target, property);
     else {
         let setter = setters.find(s => s.source === source && s.target === target && s.property === property)
@@ -41,9 +41,9 @@ export function unsetValue(source: object, target: object, property: DependencyP
 }
 
 export function getValue(target: object, property: DependencyProperty): any {
-    let setter = setters.reverse().find(s => s.target === target && s.property === property && s.value !== DependencyProperty.unsetValue);
+    let setter = setters.reverse().find(s => s.target === target && s.property === property && s.value !== null);
     if (setter)
         return setter.value;
     else
-        return DependencyProperty.unsetValue;
+        return null;
 }
