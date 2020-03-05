@@ -1,18 +1,27 @@
 import { IPropertyOptions } from "./IPropertyOptions";
 import { assertParams } from "../../Validation/index";
-import { DataContext } from "../DataContexts/index";
 import { FrameworkEvent } from "../../Standard/Events/index";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
 import * as Registry from "./Registry";
 import * as Storage from "./Storage";
 
-//Define an arbitrary unset value for the dependency properties
-const UNSET_VALUE = {};
+const $label = Symbol();
 
-//Create a root context for dependency management
-const DEPENDENCY_ROOT_CONTEXT = new DataContext(null);
-DataContext.root.children.add(DEPENDENCY_ROOT_CONTEXT);
+class PropertyValue {
+    [Symbol.toStringTag]() {
+        return `PropertyValue(${this[$label]})`;
+    }
+
+    constructor(label: string) {
+        this[$label] = label;
+    }
+
+    private [$label]: any;
+}
+
+//Define an arbitrary unset value for the dependency properties
+const UNSET_VALUE = new PropertyValue("unset");
 
 const PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent();
 
@@ -25,7 +34,7 @@ const $id = Symbol();
 export class DependencyProperty {
     static get unsetValue() { return UNSET_VALUE; }
 
-    static register(target: typeof Object, options: IPropertyOptions): DependencyProperty {
+    static register(target: typeof Object, name: string, options: IPropertyOptions): DependencyProperty {
         assertParams({ target }, Function);
         assertParams({ options }, IPropertyOptions);
 

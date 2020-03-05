@@ -1,14 +1,12 @@
-import { Type } from "../../Standard/Types/index";
+import { Type, MemberAttributes } from "../../Standard/Types/index";
 import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/index";
 
 export const IPropertyOptions = new Interface(
-    new InterfaceMember("propertyName", InterfaceMemberType.Field, Type.get(String)),
-    new InterfaceMember("valueType", InterfaceMemberType.Field, Type.get(Type)),
-    new InterfaceMember("defaultValue", InterfaceMemberType.Field)
+    new InterfaceMember("valueType", InterfaceMemberType.Field, Type.get(Type), MemberAttributes.Enumerable, true),
+    new InterfaceMember("defaultValue", InterfaceMemberType.Field, null, MemberAttributes.Enumerable, true)
 );
 
 export interface IPropertyOptions {
-    propertyName: string;
     valueType: Type | Interface | null;
     defaultValue: any;
 }
