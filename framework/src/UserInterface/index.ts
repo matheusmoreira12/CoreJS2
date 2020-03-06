@@ -9,12 +9,11 @@ export * from "./DragDropHandler";
 export * from "./DragEmulator";
 export * from "./Timer";
 export * from "./VisualTrees/VisualTreeNode";
-export * from "./Xaml";
 
 import * as DOMUtils from "./DOMUtils";
 export { DOMUtils };
 
-import * as DataContexts from "./DataContexts/index";
+import * as DataContexts from "./Xaml/Contexts/index";
 export { DataContexts };
 
 import * as Actions from "./Actions/index";
@@ -49,3 +48,6 @@ export { VisualTrees };
 
 import * as Controls from "./Controls/index";
 export { Controls }
+
+import * as Xaml from "./Xaml/index";
+export { Xaml };

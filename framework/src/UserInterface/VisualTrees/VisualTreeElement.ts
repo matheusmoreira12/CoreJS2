@@ -26,7 +26,7 @@ export class VisualTreeElement extends VisualTreeNode {
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
 
         this.DependencyObject = new DependencyObject();
-        this.DependencyObject.PropertyChangeEvent.attach(this.__DependencyObject_onPropertyChange, this)
+        this.DependencyObject.PropertyChangeEvent.attach(this.__DependencyObject_onPropertyChange, this);
     }
 
     __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
@@ -116,6 +116,6 @@ export class VisualTreeElement extends VisualTreeNode {
         if (this.parent)
             this.parent.children.remove(this);
 
-        this.DependencyObject.PropertyChangeEvent.detach(this.__DependencyObject_onPropertyChange, this);
+        this.DependencyObject.PropertyChangeEvent.detach(this.__DependencyObject_onPropertyChange);
     }
 }

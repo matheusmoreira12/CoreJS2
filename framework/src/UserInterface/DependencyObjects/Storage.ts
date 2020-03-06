@@ -2,6 +2,8 @@ import { DependencyProperty } from "./DependencyProperty";
 import { DependencyObject } from "./DependencyObject";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
 
+import * as Registry from "./Registry";
+
 const setters: InternalSetter[] = [];
 
 type InternalSetter = {
@@ -28,8 +30,7 @@ function notifyValueChange(target: DependencyObject, property: DependencyPropert
 
 export function setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
     const oldValue = getValue(target, property);
-    if (oldValue !== value)
-        notifyValueChange(target, property, oldValue, value);
+    const hasValueChanged = oldValue !== value;
 
     if (value === null)
         unsetValue(source, target, property);
@@ -42,6 +43,9 @@ export function setValue(source: object, target: DependencyObject, property: Dep
             setters.push(setter);
         }
     }
+
+    if (hasValueChanged)
+        notifyValueChange(target, property, oldValue, value);
 }
 
 export function unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
@@ -51,9 +55,14 @@ export function unsetValue(source: object, target: DependencyObject, property: D
 }
 
 export function getValue(target: DependencyObject, property: DependencyProperty): any {
+    const options = Registry.getOptions(property);
     let setter = setters.reverse().find(s => s.target === target && s.property === property && s.value !== null);
     if (setter)
         return setter.value;
-    else
-        return null;
+    else {
+        if (options)
+            return options.defaultValue;
+        else
+            return null;
+    }
 }

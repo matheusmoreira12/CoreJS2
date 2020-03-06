@@ -4,7 +4,9 @@ import { ObjectUtils } from "../../CoreBase/Utils/index";
 
 export class VisualTreeAttribute extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null, initialValue: string = ObjectUtils.getDefault(String)): VisualTreeAttribute {
-        assertParams({ qualifiedName, namespaceURI, initialValue }, String);
+        assertParams({ qualifiedName }, String);
+        assertParams({ namespaceURI }, String, null);
+        assertParams({ initialValue }, String);
 
         const domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
         const result = new VisualTreeAttribute(domAttribute);

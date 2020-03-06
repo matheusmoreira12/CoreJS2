@@ -44,8 +44,8 @@ class TextBlock extends Core.UserInterface.Controls.Control {
             fontStyleSVG = fontStyleSVGAttributeConverter.convert(font.style),
             textDecorationSVG = textDecorationSVGAttributeConverter.convert(font.textDecoration);
 
-        this.__PART_text.attributes.set("font-family", font.family);
-        this.__PART_text.attributes.set("font-size", font.size);
+        this.__PART_text.attributes.set("font-family", null, font.family);
+        this.__PART_text.attributes.set("font-size", null, font.size);
         this.__updateAttribute("font-weight", fontWeightSVG);
         this.__updateAttribute("font-style", fontStyleSVG);
         this.__updateAttribute("text-decoration", textDecorationSVG);
@@ -82,8 +82,8 @@ class TextBlock extends Core.UserInterface.Controls.Control {
     set font(value: Font) { this.DependencyObject.set(TextBlock.fontProperty, value); }
 
     static textProperty = DependencyProperty.register(<any>TextBlock, "text", { valueType: Type.get(String), defaultValue: "" });
-    get text(): string { return this.DependencyObject.get(TextBlock.fontProperty); }
-    set text(value: string) { this.DependencyObject.set(TextBlock.fontProperty, value); }
+    get text(): string { return this.DependencyObject.get(TextBlock.textProperty); }
+    set text(value: string) { this.DependencyObject.set(TextBlock.textProperty, value); }
 }
 
 Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
