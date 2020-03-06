@@ -3,10 +3,9 @@ import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
-import { DependencyProperty, PropertyChangeEventArgs } from "../DependencyObjects/index";
+import { DependencyProperty } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
-import { DependencyObject } from "../DependencyObjects/DependencyObject";
 
 ///TODO: fix this mess
 
@@ -33,129 +32,120 @@ export abstract class Control extends VisualTreeElement {
         this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
-
-        this.DependencyObject = new DependencyObject();
     }
-
-    //DependencyObject
-    DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-
-    }
-
-    DependencyObject: DependencyObject;
 
     //Helper Class Instances
     private __dragDropHandler = new DragDropHandler(<Element>this.__domNode);
 
     //Drag/Drop Handler Event Listeners
-    private __dragDropHandler__onRequestDragStart(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onRequestDragStart(args: FrameworkEventArgs) {
         if (this.isDraggable)
             args.acceptDrag();
     }
 
-    private __dragDropHandler__onDragStart(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragStart(args: FrameworkEventArgs) {
         this.DragStartEvent.invoke(this, args);
     }
 
-    private __dragDropHandler__onDragMove(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragMove(args: FrameworkEventArgs) {
         this.DragMoveEvent.invoke(this, args);
     }
 
-    private __dragDropHandler__onDragEnd(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragEnd(args: FrameworkEventArgs) {
         this.DragEndEvent.invoke(this, args);
     }
 
-    private __dragDropHandler__onDragCancel(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragCancel(args: FrameworkEventArgs) {
         this.DragCancelEvent.invoke(this, args);
     }
 
-    private __dragDropHandler__onDragEnter(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragEnter(args: FrameworkEventArgs) {
         this.DragEnterEvent.invoke(this, args);
     }
 
-    private __dragDropHandler__onDragOver(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragOver(args: FrameworkEventArgs) {
         this.DragOverEvent.invoke(this, args);
     }
 
-    private __dragDropHandler__onDragLeave(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragLeave(args: FrameworkEventArgs) {
         this.DragLeaveEvent.invoke(this, args);
     }
 
-    private __dragDropHandler__onDragDrop(sender: any, args: FrameworkEventArgs) {
+    private __dragDropHandler__onDragDrop(args: FrameworkEventArgs) {
         this.DragDropEvent.invoke(this, args);
     }
 
     //Framework Events
     //Drag/Drop Events
-    private __onDragMove(sender: any, args: FrameworkEventArgs) { }
+    private __onDragMove() { }
     DragStartEvent = new FrameworkEvent(this.__onDragStart, this);
 
-    private __onDragStart(sender: any, args: FrameworkEventArgs) {
+    private __onDragStart() {
         this.isDragging = true;
     }
     DragMoveEvent = new FrameworkEvent(this.__onDragMove, this);
 
-    private __onDragEnd(sender: any, args: FrameworkEventArgs) {
+    private __onDragEnd() {
         this.isDragging = false;
     }
     DragEndEvent = new FrameworkEvent(this.__onDragEnd, this);
 
-    private __onDragCancel(sender: any, args: FrameworkEventArgs) {
+    private __onDragCancel() {
         this.isDragging = false;
     }
     DragCancelEvent = new FrameworkEvent(this.__onDragCancel, this);
 
-    private __onDragEnter(sender: any, args: FrameworkEventArgs) { }
+    private __onDragEnter() { }
     DragEnterEvent = new FrameworkEvent(this.__onDragEnter, this);
 
-    private __onDragOver(sender: any, args: FrameworkEventArgs) {
+    private __onDragOver() {
         this.isDragOver = true;
     }
     DragOverEvent = new FrameworkEvent(this.__onDragOver, this);
 
-    private __onDragLeave(sender: any, args: FrameworkEventArgs) {
+    private __onDragLeave() {
         this.isDragOver = false;
     }
     DragLeaveEvent = new FrameworkEvent(this.__onDragLeave, this);
 
-    private __onDragDrop(sender: any, args: FrameworkEventArgs) {
+    private __onDragDrop() {
         this.isDragOver = false;
     }
     DragDropEvent = new FrameworkEvent(this.__onDragDrop, this);
 
     //Mouse Events
     //Mouse Enter Event
-    private __onMouseEnter(sender: any, args: NativeEventArgs) {
+    private __onMouseEnter() {
         this.isMouseOver = true;
     }
     MouseEnterEvent = new NativeEvent(this.__domNode, "mouseenter", this.__onMouseEnter, this);
 
     //Mouse Leave Event
-    private __onMouseLeave(sender: any, args: NativeEventArgs) {
+    private __onMouseLeave() {
         this.isMouseOver = false;
     }
     MouseLeaveEvent = new NativeEvent(this.__domNode, "mouseleave", this.__onMouseLeave, this);
 
     //Mouse Down Event
-    private __onMouseDown(sender: any, args: NativeEventArgs) {
+    private __onMouseDown() {
         this.isMouseDown = true;
     }
     MouseDownEvent = new NativeEvent(this.__domNode, "mousedown", this.__onMouseDown, this);
 
     //Mouse Up Event
-    private __onMouseUp(sender: any, args: NativeEventArgs) {
+    private __onMouseUp() {
         this.isMouseDown = false;
     }
     MouseUpEvent = new NativeEvent(this.__domNode, "mouseup", this.__onMouseUp, this);
 
     //Mouse Move Event
-    private __onMouseMove(sender: any, args: NativeEventArgs) {
+    private __onMouseMove() {
 
     }
     MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove, this);
 
     //Click Event
-    private __onClick(sender: any, args: NativeEventArgs) {
+    private __onClick() {
 
     }
     ClickEvent = new NativeEvent(this.__domNode, "click", this.__onClick, this);
