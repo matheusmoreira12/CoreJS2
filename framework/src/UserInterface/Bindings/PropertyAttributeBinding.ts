@@ -1,6 +1,7 @@
 import { Binding, IBindingOptions } from "./index";
 import { DependencyProperty } from "../DependencyObjects/index";
 import { assertParams } from "../../Validation/index";
+import { DependencyObject } from "../DependencyObjects/DependencyObject";
 
 //Keys for PropertyAttributeBinding
 const $source = Symbol();
@@ -13,9 +14,10 @@ const $targetAttributeName = Symbol();
  * Allows the binding of an attribute to a framework property.
  */
 export class PropertyAttributeBinding extends Binding {
-    constructor(source: object, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, options?: IBindingOptions) {
+    constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, options?: IBindingOptions) {
         super(options);
 
+        assertParams({ source }, DependencyObject);
         assertParams({ sourceProperty }, DependencyProperty);
         assertParams({ targetElement }, Element);
         assertParams({ targetAttributeName }, String);
@@ -26,8 +28,8 @@ export class PropertyAttributeBinding extends Binding {
         this[$targetAttributeName] = targetAttributeName;
     }
 
-    get source(): object { return this[$source]; }
-    private [$source]: object;
+    get source(): DependencyObject { return this[$source]; }
+    private [$source]: DependencyObject;
 
     get sourceProperty(): DependencyProperty { return this[$sourceProperty]; }
     private [$sourceProperty]: DependencyProperty;

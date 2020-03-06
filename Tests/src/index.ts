@@ -89,7 +89,7 @@ class TextBlock extends Core.UserInterface.Controls.Control {
 Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
 
 
-console.log(DataContexts.DataContext.root);
+console.log(DataContexts.Context.root);
 /*
 import Type = Core.Standard.Types.Type;
 import MemberType = Core.Standard.Types.MemberType;

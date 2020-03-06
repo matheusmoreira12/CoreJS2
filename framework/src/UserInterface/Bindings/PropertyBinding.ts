@@ -1,6 +1,7 @@
 import { Binding, IBindingOptions } from "./index";
 import { DependencyProperty } from "../DependencyObjects/index";
 import { assertParams } from "../../Validation/index";
+import { DependencyObject } from "../DependencyObjects/DependencyObject";
 
 //Keys for PropertyBinding
 const $source = Symbol();
@@ -13,10 +14,12 @@ const $targetProperty = Symbol();
  * Allows the binding of two framework properties.
  */
 export class PropertyBinding extends Binding {
-    constructor(source: object, sourceProperty: DependencyProperty, target: object, targetProperty: DependencyProperty, options?: IBindingOptions) {
+    constructor(source: DependencyObject, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, options?: IBindingOptions) {
         super(options);
 
+        assertParams({ source }, DependencyObject);
         assertParams({ sourceProperty }, DependencyProperty);
+        assertParams({ target }, DependencyObject);
         assertParams({ targetProperty }, IBindingOptions);
 
         this[$source] = source;
@@ -25,14 +28,14 @@ export class PropertyBinding extends Binding {
         this[$targetProperty] = targetProperty;
     }
 
-    get source(): object { return this[$source]; }
-    private [$source]: object;
+    get source(): DependencyObject { return this[$source]; }
+    private [$source]: DependencyObject;
 
     get sourceProperty(): DependencyProperty { return this[$sourceProperty]; }
     private [$sourceProperty]: DependencyProperty;
 
-    get target(): object { return this[$target]; }
-    private [$target]: object;
+    get target(): DependencyObject { return this[$target]; }
+    private [$target]: DependencyObject;
 
     get targetProperty(): DependencyProperty { return this[$targetProperty]; }
     private [$targetProperty]: DependencyProperty;

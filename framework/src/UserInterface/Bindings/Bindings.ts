@@ -1,6 +1,6 @@
 import { Enumeration } from "../../Standard/index";
 import { Interface, InterfaceMemberType, InterfaceMember } from "../../Standard/Interfaces/index";
-import { Type } from "../../Standard/Types/index";
+import { Type, MemberAttributes } from "../../Standard/Types/index";
 import { IValueConverter } from "../ValueConverters/index";
 
 export const BindingDirection = Enumeration.create({
@@ -10,8 +10,8 @@ export const BindingDirection = Enumeration.create({
 });
 
 export const IBindingOptions = new Interface(
-    new InterfaceMember("direction", InterfaceMemberType.Property, Type.get(Number), undefined, true),
-    new InterfaceMember("valueConverter", InterfaceMemberType.Property, IValueConverter, undefined, true),
+    new InterfaceMember("direction", InterfaceMemberType.Field, Type.get(Number), MemberAttributes.Enumerable, true),
+    new InterfaceMember("valueConverter", InterfaceMemberType.Field, IValueConverter, MemberAttributes.Enumerable, true),
 );
 
 export interface IBindingOptions {

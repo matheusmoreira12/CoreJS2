@@ -17,8 +17,8 @@ export abstract class Control extends VisualTreeElement {
             throw new InvalidOperationException("Invalid constructor");
 
         //Create Bindings
-        new PropertyAttributeBinding(this, Control.isDraggableProperty, <Element>this.__domNode, "draggable", {
-            get valueConverter() { return new BooleanAttributeValueConverter(); }
+        new PropertyAttributeBinding(this.DependencyObject, Control.isDraggableProperty, <Element>this.__domNode, "draggable", {
+            valueConverter: new BooleanAttributeValueConverter()
         });
 
         //Attach Event Handlers
@@ -190,7 +190,7 @@ export abstract class Control extends VisualTreeElement {
     get foreground() { return this.DependencyObject.get(Control.foregroundProperty); }
     set foreground(value) { this.DependencyObject.set(Control.foregroundProperty, value); }
 
-    protected destructor(){
+    protected destructor() {
         super.destructor();
     }
 }
