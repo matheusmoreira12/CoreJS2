@@ -23,23 +23,32 @@ class TextBlock extends Core.UserInterface.Controls.Control {
         const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
         this.__PART_text = PART_text;
         PART_canvas.children.add(PART_text);
+
+        this.__updateFont();
+        this.__updateText();
     }
 
     __updateSize() {
         const bbox = (<SVGTextElement>this.__PART_text.domNode).getBBox();
-        const viewBox = `${bbox.x} ${bbox.y} ${bbox.right} ${bbox.bottom}`;
-        this.__PART_canvas.attributes.set("viewBox", viewBox);
+        const viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
+        this.__PART_canvas.attributes.setMultiple({
+            "viewBox": viewBox,
+            "width": `${bbox.width}px`,
+            "height": `${bbox.height}px`
+        });
     }
 
     __updateFont() {
         const font = this.font;
         const fontWeightSVG = fontWeightSVGAttributeConverter.convert(font.weight),
             fontStyleSVG = fontStyleSVGAttributeConverter.convert(font.style),
-            textDecoration = textDecorationSVGAttributeConverter.convert(font.textDecoration);
+            textDecorationSVG = textDecorationSVGAttributeConverter.convert(font.textDecoration);
 
-        this.__updateAttribute("font-size", this.font.size);
-        this.__updateAttribute("font-style", this.font.size);
-        this.__updateAttribute("text-decoration", this.font.size);
+        this.__PART_text.attributes.set("font-family", font.family);
+        this.__PART_text.attributes.set("font-size", font.size);
+        this.__updateAttribute("font-weight", fontWeightSVG);
+        this.__updateAttribute("font-style", fontStyleSVG);
+        this.__updateAttribute("text-decoration", textDecorationSVG);
         this.__updateSize();
     }
 
