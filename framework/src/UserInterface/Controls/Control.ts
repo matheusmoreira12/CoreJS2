@@ -191,8 +191,6 @@ export abstract class Control extends VisualTreeElement {
     set foreground(value) { this.DependencyObject.set(Control.foregroundProperty, value); }
 
     protected destructor(){
-        this.DependencyObject.PropertyChangeEvent.detach(this.DependencyObject_onPropertyChange, this);
-
         super.destructor();
     }
 }

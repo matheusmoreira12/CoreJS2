@@ -1,14 +1,15 @@
 import { ObservableCollection } from "../../Standard/Collections/index";
 import { assertParams, assert } from "../../Validation/index";
 import { VisualTreeAttribute } from "./VisualTreeAttribute";
-import { KeyNotFoundException, InvalidOperationException } from "../../Standard/index";
+import { KeyNotFoundException } from "../../Standard/index";
+import { ObjectUtils } from "../../CoreBase/Utils/index";
 
 export class VisualTreeAttributeCollection extends ObservableCollection<VisualTreeAttribute> {
     has(qualifiedName: string, namespaceURI: string | null = null): boolean {
         assertParams({ qualifiedName }, String);
         assertParams({ namespaceURI }, String, null);
 
-        return !!this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI);
+        return this.findIndex(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI) != -1;
     }
 
     get(qualifiedName: string, namespaceURI: string | null = null): VisualTreeAttribute {
@@ -16,37 +17,46 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
         assertParams({ namespaceURI }, String, null);
 
         const result = this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI);
-        if (!result)
+        if (result)
+            return result;
+        else
             throw new KeyNotFoundException();
-        return result;
     }
 
-    create(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string) {
+    set(qualifiedName: string, namespaceURI: string | null = null, value: string = ObjectUtils.getDefault(String)): VisualTreeAttribute {
+        assertParams({ qualifiedName }, String);
+        assertParams({ namespaceURI, value }, String, null);
+
+        if (this.has(qualifiedName, namespaceURI)) {
+            const attribute = this.get(qualifiedName, namespaceURI);
+            attribute.value = value;
+            return attribute;
+        }
+        else {
+            const attribute = VisualTreeAttribute.create(qualifiedName, namespaceURI, value);
+            this.add(attribute);
+            return attribute;
+        }
+    }
+
+    delete(qualifiedName: string, namespaceURI: string | null = null): VisualTreeAttribute {
         assertParams({ qualifiedName }, String);
         assertParams({ namespaceURI }, String, null);
-        assertParams({ initialValue }, String, undefined);
 
-        if (this.has(qualifiedName, namespaceURI))
-            throw new InvalidOperationException("Cannot create attribute. An attribute with the specified name already exists in the same namespace.");
-
-        const attribute = VisualTreeAttribute.create(qualifiedName, namespaceURI, initialValue);
-        this.add(attribute);
+        const attribute = this.get(qualifiedName, namespaceURI);
+        this.remove(attribute);
         return attribute;
     }
 
-    createMultiple(map: { [qualifiedName: string]: string | null }, namespaceURI: string | null = null) {
+    setMultiple(map: { [qualifiedName: string]: string }, namespaceURI: string | null = null) {
         assertParams({ map }, Object);
 
         for (let qualifiedName in map) {
-            const initialValue = map[qualifiedName];
+            const value = map[qualifiedName];
 
-            assert({ qualifiedName }, String);
-            assert({ initialValue }, String, null);
+            assert({ qualifiedName, value }, String, null);
 
-            if (initialValue === null)
-                this.create(qualifiedName, namespaceURI);
-            else
-                this.create(qualifiedName, namespaceURI, initialValue);
+            this.set(qualifiedName, namespaceURI, value);
         }
     }
 }

@@ -1,7 +1,6 @@
 import { InvalidOperationException, Destructible } from "../../Standard/index";
 import { assertParams } from "../../Validation/index";
 import { VisualTreeElement } from "./VisualTreeElement";
-import { DependencyObject } from "../DependencyObjects/DependencyObject";
 
 export abstract class VisualTreeNode extends Destructible {
     constructor(domNode: Node) {
@@ -13,11 +12,7 @@ export abstract class VisualTreeNode extends Destructible {
         assertParams({ domNode }, Node);
 
         this.__domNode = domNode;
-
-        this.DependencyObject = new DependencyObject();
     }
-
-    DependencyObject: DependencyObject;
 
     get parent(): VisualTreeElement | null { return this.__parent; }
     __parent: VisualTreeElement | null = null;

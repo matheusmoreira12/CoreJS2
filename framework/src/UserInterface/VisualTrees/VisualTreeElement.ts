@@ -5,6 +5,8 @@ import { DOMUtils } from "../index";
 import { VisualTreeAttribute } from "./VisualTreeAttribute";
 import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection";
 import { assertParams } from "../../Validation/index";
+import { DependencyObject } from "../DependencyObjects/DependencyObject";
+import { PropertyChangeEventArgs } from "../DependencyObjects/index";
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
@@ -22,7 +24,16 @@ export class VisualTreeElement extends VisualTreeNode {
 
         this.__children.ChangeEvent.attach(this.__children_onChange, this);
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
+
+        this.DependencyObject = new DependencyObject();
+        this.DependencyObject.PropertyChangeEvent.attach(this.__DependencyObject_onPropertyChange, this)
     }
+
+    __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+
+    }
+
+    DependencyObject: DependencyObject;
 
     private __removeElement(element: VisualTreeElement) {
         (<Element>this.__domNode).removeChild(element.__domNode);
@@ -104,5 +115,7 @@ export class VisualTreeElement extends VisualTreeNode {
         //Remove self from parent
         if (this.parent)
             this.parent.children.remove(this);
+
+        this.DependencyObject.PropertyChangeEvent.detach(this.__DependencyObject_onPropertyChange, this);
     }
 }

@@ -1,16 +1,15 @@
 import { VisualTreeNode } from "./VisualTreeNode";
 import { assertParams } from "../../Validation/index";
+import { ObjectUtils } from "../../CoreBase/Utils/index";
 
 export class VisualTreeAttribute extends VisualTreeNode {
-    static create(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string): VisualTreeAttribute {
-        assertParams({ qualifiedName }, String);
-        assertParams({ namespaceURI }, String, null);
-        assertParams({ initialValue }, String, undefined);
+    static create(qualifiedName: string, namespaceURI: string | null = null, initialValue: string = ObjectUtils.getDefault(String)): VisualTreeAttribute {
+        assertParams({ qualifiedName, namespaceURI, initialValue }, String);
 
         const domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
         const result = new VisualTreeAttribute(domAttribute);
 
-        if (initialValue !== undefined)
+        if (initialValue !== null)
             result.value = initialValue;
 
         return result;

@@ -8,6 +8,10 @@ import { VisualTreeElement } from "./UserInterface/VisualTrees/index";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+const fontWeightSVGAttributeConverter = new Core.UserInterface.Fonts.ValueConverters.FontWeightSVGAttributeConverter();
+const fontStyleSVGAttributeConverter = new Core.UserInterface.Fonts.ValueConverters.FontStyleSVGAttributeConverter();
+const textDecorationSVGAttributeConverter = new Core.UserInterface.Fonts.ValueConverters.TextDecorationSVGAttributeConverter();
+
 class TextBlock extends Core.UserInterface.Controls.Control {
     constructor(element: Element) {
         super(element);
@@ -15,11 +19,6 @@ class TextBlock extends Core.UserInterface.Controls.Control {
         const PART_canvas = Core.UserInterface.VisualTrees.VisualTreeElement.create("svg", SVG_NS);
         this.__PART_canvas = PART_canvas;
         this.children.add(PART_canvas);
-        PART_canvas.attributes.createMultiple({
-            width: "100px",
-            height: "100px",
-            viewBox: "0 0 0 0"
-        }, null);
 
         const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
         this.__PART_text = PART_text;
@@ -27,15 +26,35 @@ class TextBlock extends Core.UserInterface.Controls.Control {
     }
 
     __updateSize() {
-        const bbox = this.__PART_text;
+        const bbox = (<SVGTextElement>this.__PART_text.domNode).getBBox();
+        const viewBox = `${bbox.x} ${bbox.y} ${bbox.right} ${bbox.bottom}`;
+        this.__PART_canvas.attributes.set("viewBox", viewBox);
     }
 
     __updateFont() {
+        const font = this.font;
+        const fontWeightSVG = fontWeightSVGAttributeConverter.convert(font.weight),
+            fontStyleSVG = fontStyleSVGAttributeConverter.convert(font.style),
+            textDecoration = textDecorationSVGAttributeConverter.convert(font.textDecoration);
 
+        this.__updateAttribute("font-size", this.font.size);
+        this.__updateAttribute("font-style", this.font.size);
+        this.__updateAttribute("text-decoration", this.font.size);
+        this.__updateSize();
+    }
+
+    __updateAttribute(qualifiedName: string, value: string | null) {
+        if (value === null) {
+            if (this.__PART_text.attributes.has(qualifiedName))
+                this.__PART_text.attributes.delete(qualifiedName);
+        }
+        else
+            this.__PART_text.attributes.set(qualifiedName, value);
     }
 
     __updateText() {
-        
+        this.__PART_text.domNode.textContent = this.text;
+        this.__updateSize();
     }
 
     //DependencyObject
