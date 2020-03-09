@@ -25,7 +25,7 @@ export class StringReader {
 
     copyBlock(buffer: string[], index: number, count: number): number {
         const start = this[$index],
-            endOfFile = this[$content].length - 1,
+            endOfFile = this[$content].length,
             endOfBlock = this[$index] + count,
             end = Math.min(endOfFile, endOfBlock),
             copyCount = end - start;

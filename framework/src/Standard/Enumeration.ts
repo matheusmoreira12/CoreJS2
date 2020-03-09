@@ -1,13 +1,13 @@
 import { ArgumentTypeException, FormatException, InvalidOperationException, KeyNotFoundException, InvalidTypeException } from "./Exceptions";
 import { MapUtils } from "../CoreBase/Utils/index";
 
-const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
+export type EnumerationDescriptor = { [key: string]: number | null };
 
-type EnumerationDescriptor = { [key: string]: number | null };
-
-type EnumerationInstance<TDesc extends EnumerationDescriptor> = Enumeration & {
+export type EnumerationInstance<TDesc extends EnumerationDescriptor> = Enumeration & {
     readonly [P in keyof TDesc]: number;
 }
+
+const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
 function splitSetString(setStr: string): string[] {
     return setStr.split("\s*,\s*");
@@ -71,6 +71,12 @@ export class Enumeration {
         }
 
         this[$flags] = flags;
+    }
+
+    assertFlag(flag: number) {
+        const flagsInverted = MapUtils.invert(this[$flags]);
+        if (flagsInverted.get(flag) === undefined)
+            throw new KeyNotFoundException("The specified flag cannot be found in enumeration.");
     }
 
     getLabel(value: number): string | null {
