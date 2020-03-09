@@ -9,9 +9,11 @@ import Type = Core.Standard.Types.Type;
 import VisualTreeElement = Core.UserInterface.VisualTrees.VisualTreeElement;
 //Bindings
 import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeBinding;
+import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
 //Fonts
 import Font = Core.UserInterface.Fonts.Font;
 //Value Converters
+import FontSVGFontFamilyAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontFamilyAttributeConverter;
 import FontSVGFontSizeAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontSizeAttributeConverter;
 import FontSVGFontWeightAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontWeightAttributeConverter;
 import FontSVGFontStyleAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontStyleAttributeConverter;
@@ -31,10 +33,13 @@ class TextBlock extends Core.UserInterface.Controls.Control {
         this.__PART_text = PART_text;
         PART_canvas.children.add(PART_text);
 
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter() });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter() });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter() });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter() });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget });
+
+        this.text = "Hello World!";
 
         this.__updateFont();
         this.__updateText();

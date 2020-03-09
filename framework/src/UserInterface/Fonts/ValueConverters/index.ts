@@ -1,3 +1,4 @@
+export * from "./FontSVGFontFamilyAttributeConverter";
 export * from "./FontSVGFontSizeAttributeConverter";
 export * from "./FontWeightSVGAttributeConverter"
 export * from "./FontSVGFontWeightAttributeConverter";
