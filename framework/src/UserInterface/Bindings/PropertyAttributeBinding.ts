@@ -40,6 +40,8 @@ export class PropertyAttributeBinding extends Binding {
 
         this.__targetElement_attributeMutationObserver = new MutationObserver(this.__targetElement_attributeChange_handler.bind(this));
         this.__targetElement_attributeMutationObserver.observe(targetElement, { attributes: true });
+
+        this.__doInitialPropertyUpdate();
     }
 
     get source(): DependencyObject { return this[$source]; }
@@ -94,6 +96,11 @@ export class PropertyAttributeBinding extends Binding {
             else
                 Storage.setValue(this, this.source, this.sourceProperty, propertyValue);
         }
+    }
+
+    private __doInitialPropertyUpdate() {
+        const attributeValue = this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
+        this.__updateSourceProperty(attributeValue);
     }
 
     private __targetElement_attributeChange_handler(mutations: MutationRecord[]) {
