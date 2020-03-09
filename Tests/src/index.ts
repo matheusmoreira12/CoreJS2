@@ -6,7 +6,7 @@ import PropertyChangeEventArgs = Core.UserInterface.DependencyObjects.PropertyCh
 //Types
 import Type = Core.Standard.Types.Type;
 //Visual Trees
-import VisualTreeElement  = Core.UserInterface.VisualTrees.VisualTreeElement;
+import VisualTreeElement = Core.UserInterface.VisualTrees.VisualTreeElement;
 //Bindings
 import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeBinding;
 //Fonts
@@ -31,10 +31,10 @@ class TextBlock extends Core.UserInterface.Controls.Control {
         this.__PART_text = PART_text;
         PART_canvas.children.add(PART_text);
 
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-size", { valueConverter: new FontSVGFontSizeAttributeConverter() });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-weight", { valueConverter: new FontSVGFontWeightAttributeConverter() });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-style", { valueConverter: new FontSVGFontStyleAttributeConverter() });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "text-decoration", { valueConverter: new FontSVGTextDecorationAttributeConverter() });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter() });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter() });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter() });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter() });
 
         this.__updateFont();
         this.__updateText();

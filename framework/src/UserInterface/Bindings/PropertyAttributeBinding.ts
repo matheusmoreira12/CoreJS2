@@ -4,6 +4,10 @@ import { assertParams } from "../../Validation/index";
 import { DependencyObject } from "../DependencyObjects/DependencyObject";
 import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 
+import * as Storage from "../DependencyObjects/Storage";
+import { Enumeration } from "../../Standard/index";
+import { BindingDirection } from "./Bindings";
+
 //Keys for PropertyAttributeBinding
 const $source = Symbol();
 const $sourceProperty = Symbol();
@@ -35,7 +39,7 @@ export class PropertyAttributeBinding extends Binding {
         source.PropertyChangeEvent.attach(this.__source_PropertyChangeEvent);
 
         this.__targetElement_attributeMutationObserver = new MutationObserver(this.__targetElement_attributeChange_handler.bind(this));
-        this.__targetElement_attributeMutationObserver.observe(targetElement);
+        this.__targetElement_attributeMutationObserver.observe(targetElement, { attributes: true });
     }
 
     get source(): DependencyObject { return this[$source]; }
@@ -50,28 +54,52 @@ export class PropertyAttributeBinding extends Binding {
     get targetAttributeName(): string { return this[$targetAttributeName]; }
     private [$targetAttributeName]: string;
 
-    get  targetAttributeNamespace(): string | null { return this[$targetAttributeNamespace]; }
+    get targetAttributeNamespace(): string | null { return this[$targetAttributeNamespace]; }
     private [$targetAttributeNamespace]: string | null;
 
-    private __updateTargetAttribute(property: DependencyProperty, newValue: any) {
+    private __updateTargetAttribute(propertyValue: any) {
+        const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
+        if (canUpdateToTarget) {
+            let attributeValue: string | null;
+            if (this.options.valueConverter)
+                attributeValue = this.options.valueConverter.convert(propertyValue);
+            else
+                attributeValue = String(propertyValue);
 
+            if (attributeValue === null)
+                this.targetElement.removeAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
+            else
+                this.targetElement.setAttributeNS(this.targetAttributeNamespace, this.targetAttributeName, attributeValue);
+        }
     }
 
     private __source_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.property === this.sourceProperty)
-            this.__updateTargetAttribute(args.property, args.newValue);
+            this.__updateTargetAttribute(args.newValue);
     }
 
     private __source_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
 
-    private __updateSourceProperty() {
+    private __updateSourceProperty(attributeValue: string | null) {
+        const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.options.direction || 0);
+        if (canUpdateToSource) {
+            let propertyValue: any;
+            if (this.options.valueConverter)
+                propertyValue = this.options.valueConverter.convertBack(propertyValue);
+            else
+                propertyValue = attributeValue;
 
+            if (propertyValue === null)
+                Storage.unsetValue(this, this.source, this.sourceProperty);
+            else
+                Storage.setValue(this, this.source, this.sourceProperty, propertyValue);
+        }
     }
 
     private __targetElement_attributeChange_handler(mutations: MutationRecord[]) {
         for (let mutation of mutations) {
             if (mutation.type == "attributes" && mutation.attributeName == this.targetAttributeName && mutation.attributeNamespace == this.targetAttributeNamespace)
-                this.__updateSourceProperty();
+                this.__updateSourceProperty(this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName));
         }
     }
 
