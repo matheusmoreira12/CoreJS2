@@ -1,11 +1,13 @@
 import { FontWeight } from "../index";
+import { Font } from "../Font";
+import { InvalidOperationException } from "../../../Standard/index";
 
 export class FontWeightSVGAttributeConverter {
-    convert(value: number | null): string | null {
+    convert(value: Font | null): string | null {
         if (value === null)
             return null;
         else
-            switch (value) {
+            switch (value.weight) {
                 case FontWeight.Normal:
                     return "normal";
                 case FontWeight.Bold:
@@ -20,20 +22,6 @@ export class FontWeightSVGAttributeConverter {
     }
 
     convertBack(value: string | null): number | null {
-        if (value === null)
-            return null;
-        else
-            switch (value) {
-                case "normal":
-                    return FontWeight.Normal;
-                case "bold":
-                    return FontWeight.Bold;
-                case "bolder":
-                    return FontWeight.Bolder;
-                case "lighter":
-                    return FontWeight.Lighter;
-                default:
-                    return null;
-            }
+        throw new InvalidOperationException("Cannot convert font back from SVG attribute value.");
     }
 };

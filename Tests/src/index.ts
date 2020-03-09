@@ -1,16 +1,22 @@
 import * as Core from "../../framework/src/index";
-import DataContexts = Core.UserInterface.DataContexts;
+//Dependency Objects
 import DependencyProperty = Core.UserInterface.DependencyObjects.DependencyProperty;
+//Events
 import PropertyChangeEventArgs = Core.UserInterface.DependencyObjects.PropertyChangeEventArgs;
-import Font = Core.UserInterface.Fonts.Font;
+//Types
 import Type = Core.Standard.Types.Type;
-import { VisualTreeElement } from "./UserInterface/VisualTrees/index";
+//Visual Trees
+import VisualTreeElement  = Core.UserInterface.VisualTrees.VisualTreeElement;
+//Bindings
+import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeBinding;
+//Fonts
+import Font = Core.UserInterface.Fonts.Font;
+//Value Converters
+import FontWeightSVGAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontWeightSVGAttributeConverter;
+import FontStyleSVGAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontStyleSVGAttributeConverter;
+import TextDecorationSVGAttributeConverter = Core.UserInterface.Fonts.ValueConverters.TextDecorationSVGAttributeConverter;
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-
-const fontWeightSVGAttributeConverter = new Core.UserInterface.Fonts.ValueConverters.FontWeightSVGAttributeConverter();
-const fontStyleSVGAttributeConverter = new Core.UserInterface.Fonts.ValueConverters.FontStyleSVGAttributeConverter();
-const textDecorationSVGAttributeConverter = new Core.UserInterface.Fonts.ValueConverters.TextDecorationSVGAttributeConverter();
 
 class TextBlock extends Core.UserInterface.Controls.Control {
     constructor(element: Element) {
@@ -23,6 +29,10 @@ class TextBlock extends Core.UserInterface.Controls.Control {
         const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
         this.__PART_text = PART_text;
         PART_canvas.children.add(PART_text);
+
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-weight", { valueConverter: new FontWeightSVGAttributeConverter() });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-style", { valueConverter: new FontStyleSVGAttributeConverter() });
+        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "text-decoration", { valueConverter: new TextDecorationSVGAttributeConverter() });
 
         this.__updateFont();
         this.__updateText();
@@ -39,26 +49,7 @@ class TextBlock extends Core.UserInterface.Controls.Control {
     }
 
     __updateFont() {
-        const font = this.font;
-        const fontWeightSVG = fontWeightSVGAttributeConverter.convert(font.weight),
-            fontStyleSVG = fontStyleSVGAttributeConverter.convert(font.style),
-            textDecorationSVG = textDecorationSVGAttributeConverter.convert(font.textDecoration);
-
-        this.__PART_text.attributes.set("font-family", null, font.family);
-        this.__PART_text.attributes.set("font-size", null, font.size);
-        this.__updateAttribute("font-weight", fontWeightSVG);
-        this.__updateAttribute("font-style", fontStyleSVG);
-        this.__updateAttribute("text-decoration", textDecorationSVG);
         this.__updateSize();
-    }
-
-    __updateAttribute(qualifiedName: string, value: string | null) {
-        if (value === null) {
-            if (this.__PART_text.attributes.has(qualifiedName))
-                this.__PART_text.attributes.delete(qualifiedName);
-        }
-        else
-            this.__PART_text.attributes.set(qualifiedName, value);
     }
 
     __updateText() {
@@ -87,9 +78,6 @@ class TextBlock extends Core.UserInterface.Controls.Control {
 }
 
 Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
-
-
-console.log(DataContexts.Context.root);
 /*
 import Type = Core.Standard.Types.Type;
 import MemberType = Core.Standard.Types.MemberType;

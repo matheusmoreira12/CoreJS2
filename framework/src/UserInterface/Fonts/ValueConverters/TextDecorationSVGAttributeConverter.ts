@@ -1,17 +1,18 @@
-import { Enumeration } from "../../../Standard/index";
+import { Enumeration, InvalidOperationException } from "../../../Standard/index";
 import { TextDecoration } from "../index";
+import { Font } from "../Font";
 
 export class TextDecorationSVGAttributeConverter {
-    convert(value: number | null): string | null {
+    convert(value: Font | null): string | null {
         if (value === null)
             return null;
         else {
             const flags = [];
-            if (Enumeration.contains(TextDecoration.Underline, value))
+            if (Enumeration.contains(TextDecoration.Underline, value.textDecoration))
                 flags.push("underline");
-            if (Enumeration.contains(TextDecoration.Overline, value))
+            if (Enumeration.contains(TextDecoration.Overline, value.textDecoration))
                 flags.push("overline");
-            if (Enumeration.contains(TextDecoration.StrikeThrough, value))
+            if (Enumeration.contains(TextDecoration.StrikeThrough, value.textDecoration))
                 flags.push("line-through");
             if (flags.length == 0)
                 return "none";
@@ -19,23 +20,7 @@ export class TextDecorationSVGAttributeConverter {
         }
     }
 
-    convertBack(value: string | null): number | null {
-        if (value === null)
-            return null;
-        else {
-            if (value == "none")
-                return 0;
-            else {
-                const flags = value.split(" ");
-                let result = 0;
-                if (flags.includes("underline"))
-                    result |= TextDecoration.Underline;
-                if (flags.includes("overline"))
-                    result |= TextDecoration.Overline;
-                if (flags.includes("line-through"))
-                    result |= TextDecoration.StrikeThrough;
-                return result;
-            }
-        }
+    convertBack(value: string | null): Font | null {
+        throw new InvalidOperationException("Cannot convert font back from SVG attribute value.");
     }
 };
