@@ -1,4 +1,3 @@
-import { FontWeight } from "../index";
 import { Font } from "../Font";
 import { InvalidOperationException } from "../../../Standard/index";
 import { FontWeightSVGAttributeConverter } from "./FontWeightSVGAttributeConverter";
@@ -11,7 +10,7 @@ export class FontSVGFontWeightAttributeConverter {
             return new FontWeightSVGAttributeConverter().convert(value.weight);
     }
 
-    convertBack(value: string | null): number | null {
+    convertBack(): number | null {
         throw new InvalidOperationException("Cannot convert font back from SVG attribute value.");
     }
 };

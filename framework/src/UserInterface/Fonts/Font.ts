@@ -18,7 +18,7 @@ export class Font {
 
     constructor(family: string, size: Scalar, weight: number = FontWeight.Normal, style: number = FontStyle.Normal, textDecoration: number = TextDecoration.None) {
         assertParams({ family }, String);
-        assertParams({ size }, String);
+        assertParams({ size }, Scalar);
         assertParams({ weight, style, textDecoration }, Number);
 
         this[$family] = family;

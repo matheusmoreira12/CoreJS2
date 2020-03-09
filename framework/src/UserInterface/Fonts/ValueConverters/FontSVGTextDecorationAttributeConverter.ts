@@ -1,5 +1,4 @@
-import { Enumeration, InvalidOperationException } from "../../../Standard/index";
-import { TextDecoration } from "../index";
+import { InvalidOperationException } from "../../../Standard/index";
 import { Font } from "../Font";
 import { TextDecorationSVGAttributeConverter } from "./TextDecorationSVGAttributeConverter";
 
@@ -11,7 +10,7 @@ export class FontSVGTextDecorationAttributeConverter {
             return new TextDecorationSVGAttributeConverter().convert(value.textDecoration);
     }
 
-    convertBack(value: string | null): Font | null {
+    convertBack(): Font | null {
         throw new InvalidOperationException("Cannot convert font back from SVG attribute value.");
     }
 };
