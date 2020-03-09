@@ -1,25 +1,30 @@
 import { FontStyle } from "../index";
-import { Font } from "../Font";
-import { InvalidOperationException } from "../../../Standard/index";
+import { MapUtils } from "../../../CoreBase/Utils/index";
+import { IValueConverter } from "../../ValueConverters/index";
 
-export class FontStyleSVGAttributeConverter {
-    convert(value: Font | null): string | null {
+const FONT_STYLE_SVG_ATTRIBUTE_MAP = new Map([
+    [FontStyle.Normal, "normal"],
+    [FontStyle.Italic, "italic"],
+    [FontStyle.Oblique, "oblique"]
+]);
+
+export class FontStyleSVGAttributeConverter implements IValueConverter {
+    convert(value: number | null): string | null {
         if (value === null)
             return null;
         else
-            switch (value.style) {
-                case FontStyle.Normal:
-                    return "normal";
-                case FontStyle.Italic:
-                    return "italic"
-                case FontStyle.Oblique:
-                    return "oblique";
-                default:
-                    return null;
-            }
+            return FONT_STYLE_SVG_ATTRIBUTE_MAP.get(value) || "";
     }
 
-    convertBack(value: string | null): Font | null {
-        throw new InvalidOperationException("Cannot convert font back from SVG attribute value.");
+    convertBack(value: string | null): number | null {
+        if (value === null)
+            return null;
+        else {
+            const style = MapUtils.invert(FONT_STYLE_SVG_ATTRIBUTE_MAP).get(value);
+            if (style === undefined)
+                return null;
+            else
+                return style;
+        }
     }
 };

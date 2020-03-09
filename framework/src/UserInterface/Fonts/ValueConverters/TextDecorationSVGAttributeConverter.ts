@@ -1,26 +1,31 @@
-import { Enumeration, InvalidOperationException } from "../../../Standard/index";
 import { TextDecoration } from "../index";
-import { Font } from "../Font";
+import { MapUtils } from "../../../CoreBase/Utils/index";
+import { IValueConverter } from "../../ValueConverters/index";
 
-export class TextDecorationSVGAttributeConverter {
-    convert(value: Font | null): string | null {
+const TEXT_DECORATION_SVG_ATTRIBUTE_MAP = new Map([
+    [TextDecoration.None, "none"],
+    [TextDecoration.Overline, "overline"],
+    [TextDecoration.StrikeThrough, "linethrough"],
+    [TextDecoration.Underline, "underline"]
+]);
+
+export class TextDecorationSVGAttributeConverter implements IValueConverter {
+    convert(value: number | null): string | null {
+        if (value === null)
+            return null;
+        else
+            return TEXT_DECORATION_SVG_ATTRIBUTE_MAP.get(value) || "";
+    }
+
+    convertBack(value: string | null): number | null {
         if (value === null)
             return null;
         else {
-            const flags = [];
-            if (Enumeration.contains(TextDecoration.Underline, value.textDecoration))
-                flags.push("underline");
-            if (Enumeration.contains(TextDecoration.Overline, value.textDecoration))
-                flags.push("overline");
-            if (Enumeration.contains(TextDecoration.StrikeThrough, value.textDecoration))
-                flags.push("line-through");
-            if (flags.length == 0)
-                return "none";
-            return flags.join(" ");
+            const decoration = MapUtils.invert(TEXT_DECORATION_SVG_ATTRIBUTE_MAP).get(value);
+            if (decoration === undefined)
+                return null;
+            else
+                return decoration;
         }
-    }
-
-    convertBack(value: string | null): Font | null {
-        throw new InvalidOperationException("Cannot convert font back from SVG attribute value.");
     }
 };
