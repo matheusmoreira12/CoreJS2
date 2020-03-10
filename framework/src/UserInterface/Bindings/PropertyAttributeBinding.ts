@@ -82,7 +82,7 @@ export class PropertyAttributeBinding extends Binding {
             const hasValueConverter = !!this.options.valueConverter;
             let propertyValue: any;
             if (hasValueConverter)
-                propertyValue = (<IValueConverter>this.options.valueConverter).convertBack(propertyValue);
+                propertyValue = (<IValueConverter>this.options.valueConverter).convertBack(attributeValue);
             else
                 propertyValue = attributeValue;
 

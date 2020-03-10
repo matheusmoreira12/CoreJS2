@@ -181,12 +181,12 @@ export abstract class Control extends VisualTreeElement {
 
     //Visual Properties
     //Background Property
-    static backgroundProperty = DependencyProperty.register(<any>Control, "background", { valueType: Type.get(Boolean), defaultValue: false });
+    static backgroundProperty = DependencyProperty.register(<any>Control, "background", { valueType: Type.get(String), defaultValue: "#000" });
     get background() { return this.DependencyObject.get(Control.backgroundProperty); }
     set background(value) { this.DependencyObject.set(Control.backgroundProperty, value); }
 
     //Foreground Property
-    static foregroundProperty = DependencyProperty.register(<any>Control, "foreground", { valueType: Type.get(Boolean), defaultValue: false });
+    static foregroundProperty = DependencyProperty.register(<any>Control, "foreground", { valueType: Type.get(String), defaultValue: "#000" });
     get foreground() { return this.DependencyObject.get(Control.foregroundProperty); }
     set foreground(value) { this.DependencyObject.set(Control.foregroundProperty, value); }
 

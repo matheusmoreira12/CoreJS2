@@ -48,7 +48,7 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
         return attribute;
     }
 
-    setMultiple(map: { [qualifiedName: string]: string }, namespaceURI: string | null = null) {
+    setMany(map: { [qualifiedName: string]: string }, namespaceURI: string | null = null) {
         assertParams({ map }, Object);
 
         for (let qualifiedName in map) {

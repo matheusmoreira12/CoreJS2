@@ -27,89 +27,19 @@ import FontSVGTextDecorationAttributeConverter = Core.UserInterface.Fonts.ValueC
 import GraphicValueSVGAttributeValueConverter = Core.UserInterface.GraphicValues.ValueConverters.GraphicValueSVGAttributeValueConverter;
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-
-export class TextBlock extends Control {
-    constructor(element: Element) {
-        super(element);
-
-        const PART_canvas = Core.UserInterface.VisualTrees.VisualTreeElement.create("svg", SVG_NS);
-        this.__PART_canvas = PART_canvas;
-        this.children.add(PART_canvas);
-
-        const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
-        this.__PART_text = PART_text;
-        PART_canvas.children.add(PART_text);
-
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, TextBlock.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget });
-
-        this.__updateFont();
-        this.__updateText();
-    }
-
-    __updateSize() {
-        const bbox = (<SVGTextElement>this.__PART_text.domNode).getBBox();
-        const viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
-        this.__PART_canvas.attributes.setMultiple({
-            "viewBox": viewBox,
-            "width": `${bbox.width}px`,
-            "height": `${bbox.height}px`
-        });
-    }
-
-    __updateFont() {
-        this.__updateSize();
-    }
-
-    __updateText() {
-        this.__PART_text.domNode.textContent = this.text;
-        this.__updateSize();
-    }
-
-    //DependencyObject
-    __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-        if (args.property === TextBlock.fontProperty)
-            this.__updateFont();
-        else if (args.property === TextBlock.textProperty)
-            this.__updateText();
-    }
-
-    private __PART_canvas: VisualTreeElement;
-    private __PART_text: VisualTreeElement;
-
-    static fontProperty = DependencyProperty.register(<any>TextBlock, "font", { valueType: Type.get(Font), defaultValue: Font.default });
-    get font(): Font { return this.DependencyObject.get(TextBlock.fontProperty); }
-    set font(value: Font) { this.DependencyObject.set(TextBlock.fontProperty, value); }
-
-    static textProperty = DependencyProperty.register(<any>TextBlock, "text", { valueType: Type.get(String), defaultValue: "" });
-    get text(): string { return this.DependencyObject.get(TextBlock.textProperty); }
-    set text(value: string) { this.DependencyObject.set(TextBlock.textProperty, value); }
-}
-
-WidgetManager.register(TextBlock, "core:TextBlock", "core");
+const HTML_NS = "http://www.w3.org/1999/xhtml";
 
 export abstract class Shape extends Control {
     constructor(element: Element) {
         super(element);
 
         const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
+        PART_canvas.attributes.setMany({
+            width: "100%",
+            height: "100%"
+        });
         this.children.add(PART_canvas);
         this.__PART_canvas = PART_canvas;
-    }
-
-    protected abstract __calculateBoundingBox(): DOMRect;
-
-    public invalidateSize() {
-        const bbox = this.__calculateBoundingBox();
-        const viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
-        this.__PART_canvas.attributes.setMultiple({
-            "viewBox": viewBox,
-            "width": `${bbox.width}px`,
-            "height": `${bbox.height}px`
-        });
     }
 
     protected __PART_canvas: VisualTreeElement;
@@ -120,36 +50,21 @@ export class Rectangle extends Shape {
         super(element);
 
         const PART_rect = VisualTreeElement.create("rect", SVG_NS);
+        PART_rect.attributes.setMany({
+            x: "0",
+            y: "0",
+            width: "100%",
+            height: "100%"
+        });
         this.__PART_canvas.children.add(PART_rect);
         this.__PART_rect = PART_rect;
 
-        new PropertyAttributeBinding(this.DependencyObject, Rectangle.xProperty, <Element>this.__PART_rect.domNode, "x", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Rectangle.yProperty, <Element>this.__PART_rect.domNode, "y", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Rectangle.widthProperty, <Element>this.__PART_rect.domNode, "width", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Rectangle.heightProperty, <Element>this.__PART_rect.domNode, "height", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Control.foregroundProperty, <Element>this.__PART_rect.domNode, "fill", null, { direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Rectangle.rxProperty, <Element>this.__PART_rect.domNode, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Rectangle.ryProperty, <Element>this.__PART_rect.domNode, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
-
-        this.invalidateSize();
     }
 
     protected __PART_rect: VisualTreeElement;
-
-    static xProperty = DependencyProperty.register(<any>Rectangle, "x", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get x(): GraphicValue { return this.DependencyObject.get(Rectangle.xProperty); }
-    set x(value: GraphicValue) { this.DependencyObject.set(Rectangle.xProperty, value); }
-
-    static yProperty = DependencyProperty.register(<any>Rectangle, "y", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get y(): GraphicValue { return this.DependencyObject.get(Rectangle.yProperty); }
-    set y(value: GraphicValue) { this.DependencyObject.set(Rectangle.yProperty, value); }
-
-    static widthProperty = DependencyProperty.register(<any>Rectangle, "width", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get width(): GraphicValue { return this.DependencyObject.get(Rectangle.widthProperty); }
-    set width(value: GraphicValue) { this.DependencyObject.set(Rectangle.widthProperty, value); }
-
-    static heightProperty = DependencyProperty.register(<any>Rectangle, "height", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get height(): GraphicValue { return this.DependencyObject.get(Rectangle.heightProperty); }
-    set height(value: GraphicValue) { this.DependencyObject.set(Rectangle.heightProperty, value); }
 
     static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
     get rx(): GraphicValue { return this.DependencyObject.get(Rectangle.rxProperty); }
@@ -158,34 +73,94 @@ export class Rectangle extends Shape {
     static ryProperty = DependencyProperty.register(<any>Rectangle, "ry", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
     get ry(): GraphicValue { return this.DependencyObject.get(Rectangle.ryProperty); }
     set ry(value: GraphicValue) { this.DependencyObject.set(Rectangle.ryProperty, value); }
-
-    protected __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-        if (args.property === Rectangle.xProperty ||
-            args.property === Rectangle.yProperty ||
-            args.property === Rectangle.widthProperty ||
-            args.property === Rectangle.heightProperty)
-            this.invalidateSize();
-    }
-
-    protected __calculateBoundingBox() {
-        const bbox = (<SVGRectElement>this.__PART_rect.domNode).getBBox();
-        return bbox;
-    }
 }
 
 WidgetManager.register(<any>Rectangle, "core:Rectangle", "core");
+
+export class Ellipse extends Shape {
+    constructor(element: Element) {
+        super(element);
+
+        const PART_ellipse = VisualTreeElement.create("ellipse", SVG_NS);
+        PART_ellipse.attributes.setMany({
+            cx: "50%",
+            cy: "50%",
+            rx: "50%",
+            ry: "50%"
+        });
+        this.__PART_canvas.children.add(PART_ellipse);
+        this.__PART_ellipse = PART_ellipse;
+
+        new PropertyAttributeBinding(this.DependencyObject, Control.foregroundProperty, <Element>this.__PART_ellipse.domNode, "fill", null, { direction: BindingDirection.ToTarget });
+    }
+
+    protected __PART_ellipse: VisualTreeElement;
+}
+
+WidgetManager.register(<any>Ellipse, "core:Ellipse", "core");
+
+export class Text extends Shape {
+    constructor(element: Element) {
+        super(element);
+
+        const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
+        this.__PART_text = PART_text;
+        this.__PART_canvas.children.add(PART_text);
+
+        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget });
+
+        this.__updateViewbox();
+    }
+
+    __updateViewbox() {
+        const bbox = (<SVGTextElement>this.__PART_text.domNode).getBBox();
+        const viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
+        this.__PART_canvas.attributes.set("viewBox", null, viewBox);
+    }
+
+    //DependencyObject
+    __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.property === Text.fontProperty ||
+            args.property === Text.textProperty)
+            this.__updateViewbox();
+    }
+
+    private __PART_text: VisualTreeElement;
+
+    static fontProperty = DependencyProperty.register(<any>Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
+    get font(): Font { return this.DependencyObject.get(Text.fontProperty); }
+    set font(value: Font) { this.DependencyObject.set(Text.fontProperty, value); }
+
+    static textProperty = DependencyProperty.register(<any>Text, "text", { valueType: Type.get(String), defaultValue: "" });
+    get text(): string { return this.DependencyObject.get(Text.textProperty); }
+    set text(value: string) { this.DependencyObject.set(Text.textProperty, value); }
+}
+
+WidgetManager.register(Text, "core:Text", "core");
 
 export class Button extends Control {
     constructor(element: Element) {
         super(element);
 
         const PART_background = <Rectangle>WidgetManager.instantiate(Rectangle);
-        PART_background.x = new GraphicValue(0);
-        PART_background.y = new GraphicValue(0);
-        PART_background.width = new GraphicValue(100, GraphicUnit.Percent);
-        PART_background.height = new GraphicValue(100, GraphicUnit.Percent);
         this.children.add(PART_background);
         this.__PART_background = PART_background;
+
+        const style = VisualTreeElement.create("style", HTML_NS);
+        style.attributes.set("scoped", null);
+        this.children.add(style);
+
+        (<HTMLStyleElement>style.domNode).innerHTML = `
+@namespace core "core";
+core|Button {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}`;
     }
 
     private __PART_background: VisualTreeElement;
