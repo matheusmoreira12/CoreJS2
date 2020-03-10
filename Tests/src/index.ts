@@ -10,6 +10,8 @@ import VisualTreeElement = Core.UserInterface.VisualTrees.VisualTreeElement;
 //Bindings
 import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeBinding;
 import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
+//Controls
+import Control = Core.UserInterface.Controls.Control;
 //Fonts
 import Font = Core.UserInterface.Fonts.Font;
 //Value Converters
@@ -21,7 +23,7 @@ import FontSVGTextDecorationAttributeConverter = Core.UserInterface.Fonts.ValueC
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-class TextBlock extends Core.UserInterface.Controls.Control {
+export class TextBlock extends Control {
     constructor(element: Element) {
         super(element);
 
@@ -85,6 +87,12 @@ class TextBlock extends Core.UserInterface.Controls.Control {
 }
 
 Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
+
+export class Button extends Control {
+    
+}
+
+
 /*
 import Type = Core.Standard.Types.Type;
 import MemberType = Core.Standard.Types.MemberType;
