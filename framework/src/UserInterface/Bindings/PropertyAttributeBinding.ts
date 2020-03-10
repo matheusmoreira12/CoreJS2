@@ -52,21 +52,6 @@ export class PropertyAttributeBinding extends Binding {
         this[$doInitialUpdate]();
     }
 
-    get source(): DependencyObject { return this[$source]; }
-    private [$source]: DependencyObject;
-
-    get sourceProperty(): DependencyProperty { return this[$sourceProperty]; }
-    private [$sourceProperty]: DependencyProperty;
-
-    get targetElement(): Element { return this[$targetElement]; }
-    private [$targetElement]: Element;
-
-    get targetAttributeName(): string { return this[$targetAttributeName]; }
-    private [$targetAttributeName]: string;
-
-    get targetAttributeNamespace(): string | null { return this[$targetAttributeNamespace]; }
-    private [$targetAttributeNamespace]: string | null;
-
     private [$updateTargetAttribute](propertyValue: any) {
         const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
         if (canUpdateToTarget) {
@@ -129,6 +114,21 @@ export class PropertyAttributeBinding extends Binding {
     }
 
     private [$targetElement_attributeMutationObserver]: MutationObserver;
+
+    get source(): DependencyObject { return this[$source]; }
+    private [$source]: DependencyObject;
+
+    get sourceProperty(): DependencyProperty { return this[$sourceProperty]; }
+    private [$sourceProperty]: DependencyProperty;
+
+    get targetElement(): Element { return this[$targetElement]; }
+    private [$targetElement]: Element;
+
+    get targetAttributeName(): string { return this[$targetAttributeName]; }
+    private [$targetAttributeName]: string;
+
+    get targetAttributeNamespace(): string | null { return this[$targetAttributeNamespace]; }
+    private [$targetAttributeNamespace]: string | null;
 
     protected destructor(): void {
         this[$source_PropertyChangeEvent].destruct();
