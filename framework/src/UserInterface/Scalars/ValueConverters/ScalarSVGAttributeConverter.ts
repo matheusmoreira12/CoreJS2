@@ -1,26 +1,26 @@
 import { IValueConverter } from "../../ValueConverters/index";
 import { Scalar } from "../Scalar";
-import { VisualUnit } from "../VisualUnit";
+import { GraphicUnit } from "../GraphicUnit";
 import { StringReader } from "../../../Standard/Strings/StringReader";
 import { MapUtils } from "../../../CoreBase/Utils/index";
 
 const UNIT_SVG_UNIT_MAP = new Map([
-    [VisualUnit.Centimeters, "cm"],
-    [VisualUnit.Ch, "ch"],
-    [VisualUnit.Em, "em"],
-    [VisualUnit.Ex, "ex"],
-    [VisualUnit.Inches, "in"],
-    [VisualUnit.Millimeters, "mm"],
-    [VisualUnit.None, ""],
-    [VisualUnit.Percent, "%"],
-    [VisualUnit.Picas, "pc"],
-    [VisualUnit.Pixels, "px"],
-    [VisualUnit.Points, "pt"],
-    [VisualUnit.Rem, "rem"],
-    [VisualUnit.Vh, "vh"],
-    [VisualUnit.Vmax, "vmax"],
-    [VisualUnit.Vmin, "vmin"],
-    [VisualUnit.Vw, "vw"]
+    [GraphicUnit.Centimeters, "cm"],
+    [GraphicUnit.Ch, "ch"],
+    [GraphicUnit.Em, "em"],
+    [GraphicUnit.Ex, "ex"],
+    [GraphicUnit.Inches, "in"],
+    [GraphicUnit.Millimeters, "mm"],
+    [GraphicUnit.None, ""],
+    [GraphicUnit.Percent, "%"],
+    [GraphicUnit.Picas, "pc"],
+    [GraphicUnit.Pixels, "px"],
+    [GraphicUnit.Points, "pt"],
+    [GraphicUnit.Rem, "rem"],
+    [GraphicUnit.Vh, "vh"],
+    [GraphicUnit.Vmax, "vmax"],
+    [GraphicUnit.Vmin, "vmin"],
+    [GraphicUnit.Vw, "vw"]
 ]);
 
 export class ScalarSVGAttributeValueConverter implements IValueConverter {
@@ -47,7 +47,7 @@ export class ScalarSVGAttributeValueConverter implements IValueConverter {
                 s += reader.read();
             const unit = MapUtils.invert(UNIT_SVG_UNIT_MAP).get(s);
             if (unit === undefined)
-                return VisualUnit.Invalid;
+                return GraphicUnit.Invalid;
             else
                 return unit;
         }

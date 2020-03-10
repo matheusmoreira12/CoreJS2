@@ -1,11 +1,11 @@
-import { VisualUnit } from "./VisualUnit";
+import { GraphicUnit } from "./GraphicUnit";
 
 const $unit = Symbol();
 const $value = Symbol();
 
 export class Scalar {
-    constructor(value: number, unit: number = VisualUnit.None) {
-        VisualUnit.assertFlag(unit);
+    constructor(value: number, unit: number = GraphicUnit.None) {
+        GraphicUnit.assertFlag(unit);
 
         this[$value] = value;
         this[$unit] = unit;
