@@ -4,9 +4,6 @@ import { FontStyle } from "./FontStyle";
 import { assertParams } from "../../Validation/index";
 import { GraphicValue, GraphicUnit } from "../GraphicValues/index";
 
-const DEFAULT_FONT_FAMILY = "Arial, Verdana, Sans-serif";
-const DEFAULT_FONT_SIZE = new GraphicValue(10, GraphicUnit.Points);
-
 const $family = Symbol("family");
 const $size = Symbol("size");
 const $weight = Symbol("weight");
@@ -14,7 +11,7 @@ const $style = Symbol("style");
 const $textDecoration = Symbol("textDecoration");
 
 export class Font {
-    static get default(): Font { return new Font(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE); }
+    static get default(): Font { return DEFAULT_FONT; }
 
     constructor(family: string, size: GraphicValue, weight: number = FontWeight.Normal, style: number = FontStyle.Normal, textDecoration: number = TextDecoration.None) {
         assertParams({ family }, String);
@@ -43,3 +40,7 @@ export class Font {
     get textDecoration(): number { return this[$textDecoration]; }
     [$textDecoration]: number;
 }
+
+const DEFAULT_FONT_FAMILY = "Arial, Verdana, Sans-serif";
+const DEFAULT_FONT_SIZE = new GraphicValue(10, GraphicUnit.Points);
+const DEFAULT_FONT = new Font(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE);

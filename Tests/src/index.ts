@@ -12,16 +12,19 @@ import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeB
 import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
 //Controls
 import Control = Core.UserInterface.Controls.Control;
+import WidgetManager = Core.UserInterface.Controls.WidgetManager;
 //Fonts
 import Font = Core.UserInterface.Fonts.Font;
 //Scalars
-import Scalar = Core.UserInterface.Scalars.Scalar;
+import GraphicValue = Core.UserInterface.GraphicValues.GraphicValue;
+import GraphicUnit = Core.UserInterface.GraphicValues.GraphicUnit;
 //Value Converters
 import FontSVGFontFamilyAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontFamilyAttributeConverter;
 import FontSVGFontSizeAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontSizeAttributeConverter;
 import FontSVGFontWeightAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontWeightAttributeConverter;
 import FontSVGFontStyleAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontStyleAttributeConverter;
 import FontSVGTextDecorationAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGTextDecorationAttributeConverter;
+import GraphicValueSVGAttributeValueConverter = Core.UserInterface.GraphicValues.ValueConverters.GraphicValueSVGAttributeValueConverter;
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -86,53 +89,109 @@ export class TextBlock extends Control {
     set text(value: string) { this.DependencyObject.set(TextBlock.textProperty, value); }
 }
 
-Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
+WidgetManager.register(TextBlock, "core:TextBlock", "core");
 
 export abstract class Shape extends Control {
-
-}
-
-export class Rect extends Shape {
-    constructor(element: Element) {
-        super(element);
-    }
-
-    static xProperty = DependencyProperty.register(<any>Rect, "x", { defaultValue: 0, valueType: Type.of(Scalar) });
-    get x(): Scalar { return this.DependencyObject.get(Rect.xProperty); }
-    set x(value: Scalar) { this.DependencyObject.set(Rect.xProperty, value); }
-
-    static yProperty = DependencyProperty.register(<any>Rect, "y", { defaultValue: 0, valueType: Type.of(Scalar) });
-    get y(): Scalar { return this.DependencyObject.get(Rect.yProperty); }
-    set y(value: Scalar) { this.DependencyObject.set(Rect.yProperty, value); }
-
-    static widthProperty = DependencyProperty.register(<any>Rect, "width", { defaultValue: 0, valueType: Type.of(Scalar) });
-    get width(): Scalar { return this.DependencyObject.get(Rect.widthProperty); }
-    set width(value: Scalar) { this.DependencyObject.set(Rect.widthProperty, value); }
-
-    static heightProperty = DependencyProperty.register(<any>Rect, "height", { defaultValue: 0, valueType: Type.of(Scalar) });
-    get height(): Scalar { return this.DependencyObject.get(Rect.heightProperty); }
-    set height(value: Scalar) { this.DependencyObject.set(Rect.heightProperty, value); }
-}
-
-export class Button extends Control {
     constructor(element: Element) {
         super(element);
 
         const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
         this.children.add(PART_canvas);
+        this.__PART_canvas = PART_canvas;
+    }
 
-        const PART_background = VisualTreeElement.create("rect", SVG_NS);
-        PART_background.attributes.setMultiple({
-            x: "0",
-            y: "0",
-            width: "100%",
-            height: "100%",
-            rx: "3px",
-            ry: "3px"
+    protected abstract __calculateBoundingBox(): DOMRect;
+
+    public invalidateSize() {
+        const bbox = this.__calculateBoundingBox();
+        const viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
+        this.__PART_canvas.attributes.setMultiple({
+            "viewBox": viewBox,
+            "width": `${bbox.width}px`,
+            "height": `${bbox.height}px`
         });
+    }
+
+    protected __PART_canvas: VisualTreeElement;
+}
+
+export class Rectangle extends Shape {
+    constructor(element: Element) {
+        super(element);
+
+        const PART_rect = VisualTreeElement.create("rect", SVG_NS);
+        this.__PART_canvas.children.add(PART_rect);
+        this.__PART_rect = PART_rect;
+
+        new PropertyAttributeBinding(this.DependencyObject, Rectangle.xProperty, <Element>this.__PART_rect.domNode, "x", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Rectangle.yProperty, <Element>this.__PART_rect.domNode, "y", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Rectangle.widthProperty, <Element>this.__PART_rect.domNode, "width", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Rectangle.heightProperty, <Element>this.__PART_rect.domNode, "height", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Rectangle.rxProperty, <Element>this.__PART_rect.domNode, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Rectangle.ryProperty, <Element>this.__PART_rect.domNode, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+
+        this.invalidateSize();
+    }
+
+    protected __PART_rect: VisualTreeElement;
+
+    static xProperty = DependencyProperty.register(<any>Rectangle, "x", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get x(): GraphicValue { return this.DependencyObject.get(Rectangle.xProperty); }
+    set x(value: GraphicValue) { this.DependencyObject.set(Rectangle.xProperty, value); }
+
+    static yProperty = DependencyProperty.register(<any>Rectangle, "y", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get y(): GraphicValue { return this.DependencyObject.get(Rectangle.yProperty); }
+    set y(value: GraphicValue) { this.DependencyObject.set(Rectangle.yProperty, value); }
+
+    static widthProperty = DependencyProperty.register(<any>Rectangle, "width", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get width(): GraphicValue { return this.DependencyObject.get(Rectangle.widthProperty); }
+    set width(value: GraphicValue) { this.DependencyObject.set(Rectangle.widthProperty, value); }
+
+    static heightProperty = DependencyProperty.register(<any>Rectangle, "height", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get height(): GraphicValue { return this.DependencyObject.get(Rectangle.heightProperty); }
+    set height(value: GraphicValue) { this.DependencyObject.set(Rectangle.heightProperty, value); }
+
+    static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get rx(): GraphicValue { return this.DependencyObject.get(Rectangle.rxProperty); }
+    set rx(value: GraphicValue) { this.DependencyObject.set(Rectangle.rxProperty, value); }
+
+    static ryProperty = DependencyProperty.register(<any>Rectangle, "ry", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get ry(): GraphicValue { return this.DependencyObject.get(Rectangle.ryProperty); }
+    set ry(value: GraphicValue) { this.DependencyObject.set(Rectangle.ryProperty, value); }
+
+    protected __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.property === Rectangle.xProperty ||
+            args.property === Rectangle.yProperty ||
+            args.property === Rectangle.widthProperty ||
+            args.property === Rectangle.heightProperty)
+            this.invalidateSize();
+    }
+
+    protected __calculateBoundingBox() {
+        const bbox = (<SVGRectElement>this.__PART_rect.domNode).getBBox();
+        return bbox;
     }
 }
 
+WidgetManager.register(<any>Rectangle, "core:Rectangle", "core");
+
+export class Button extends Control {
+    constructor(element: Element) {
+        super(element);
+
+        const PART_background = <Rectangle>WidgetManager.instantiate(Rectangle);
+        PART_background.x = new GraphicValue(0);
+        PART_background.y = new GraphicValue(0);
+        PART_background.width = new GraphicValue(100, GraphicUnit.Percent);
+        PART_background.height = new GraphicValue(100, GraphicUnit.Percent);
+        this.children.add(PART_background);
+        this.__PART_background = PART_background;
+    }
+
+    private __PART_background: VisualTreeElement;
+}
+
+WidgetManager.register(<any>Button, "core:Button", "core");
 
 /*
 import Type = Core.Standard.Types.Type;

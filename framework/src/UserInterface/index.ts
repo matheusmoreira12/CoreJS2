@@ -49,8 +49,8 @@ export { VisualTrees };
 import * as Controls from "./Controls/index";
 export { Controls }
 
-import * as Scalars from "./GraphicValues/index";
-export { Scalars };
+import * as GraphicValues from "./GraphicValues/index";
+export { GraphicValues };
 
 import * as Xaml from "./Xaml/index";
 export { Xaml };

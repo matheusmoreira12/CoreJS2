@@ -29,7 +29,7 @@ export class VisualTreeElement extends VisualTreeNode {
         this.DependencyObject.PropertyChangeEvent.attach(this.__DependencyObject_onPropertyChange, this);
     }
 
-    __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+    protected __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
 
     }
 

@@ -2,7 +2,7 @@ import { Binding, IBindingOptions } from "./index";
 import { DependencyProperty, PropertyChangeEventArgs } from "../DependencyObjects/index";
 import { assertParams } from "../../Validation/index";
 import { DependencyObject } from "../DependencyObjects/DependencyObject";
-import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index";
+import { FrameworkEvent } from "../../Standard/Events/index";
 
 import * as Storage from "../DependencyObjects/Storage";
 import { Enumeration } from "../../Standard/index";
@@ -99,8 +99,10 @@ export class PropertyAttributeBinding extends Binding {
     }
 
     private __doInitialUpdate() {
-        const attributeValue = this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
-        this.__updateSourceProperty(attributeValue);
+        if (this.targetElement.hasAttributeNS(this.targetAttributeNamespace, this.targetAttributeName)) {
+            const attributeValue = this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
+            this.__updateSourceProperty(attributeValue);
+        }
 
         const propertyValue = Storage.getValue(this.source, this.sourceProperty);
         this.__updateTargetAttribute(propertyValue);
