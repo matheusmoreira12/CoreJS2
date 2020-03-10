@@ -3,7 +3,7 @@ import { GraphicUnit } from "./GraphicUnit";
 const $unit = Symbol();
 const $value = Symbol();
 
-export class Scalar {
+export class GraphicValue {
     constructor(value: number, unit: number = GraphicUnit.None) {
         GraphicUnit.assertFlag(unit);
 

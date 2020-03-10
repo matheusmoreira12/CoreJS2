@@ -1,5 +1,5 @@
 import { IValueConverter } from "../../ValueConverters/index";
-import { Scalar } from "../Scalar";
+import { GraphicValue } from "../GraphicValue";
 import { GraphicUnit } from "../GraphicUnit";
 import { StringReader } from "../../../Standard/Strings/StringReader";
 import { MapUtils } from "../../../CoreBase/Utils/index";
@@ -23,8 +23,8 @@ const UNIT_SVG_UNIT_MAP = new Map([
     [GraphicUnit.Vw, "vw"]
 ]);
 
-export class ScalarSVGAttributeValueConverter implements IValueConverter {
-    convert(value: Scalar | null): string | null {
+export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
+    convert(value: GraphicValue | null): string | null {
         if (value === null)
             return null;
         else {
@@ -58,7 +58,7 @@ export class ScalarSVGAttributeValueConverter implements IValueConverter {
             const reader = new StringReader(value);
             const amount = readAmount(reader);
             const unit = readUnit(reader);
-            return new Scalar(amount, unit);
+            return new GraphicValue(amount, unit);
         }
     }
 }

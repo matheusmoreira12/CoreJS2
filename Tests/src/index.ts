@@ -14,6 +14,8 @@ import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
 import Control = Core.UserInterface.Controls.Control;
 //Fonts
 import Font = Core.UserInterface.Fonts.Font;
+//Scalars
+import Scalar = Core.UserInterface.Scalars.Scalar;
 //Value Converters
 import FontSVGFontFamilyAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontFamilyAttributeConverter;
 import FontSVGFontSizeAttributeConverter = Core.UserInterface.Fonts.ValueConverters.FontSVGFontSizeAttributeConverter;
@@ -86,8 +88,49 @@ export class TextBlock extends Control {
 
 Core.UserInterface.Controls.WidgetManager.register(TextBlock, "core:TextBlock", "core");
 
+export abstract class Shape extends Control {
+
+}
+
+export class Rect extends Shape {
+    constructor(element: Element) {
+        super(element);
+    }
+
+    static xProperty = DependencyProperty.register(<any>Rect, "x", { defaultValue: 0, valueType: Type.of(Scalar) });
+    get x(): Scalar { return this.DependencyObject.get(Rect.xProperty); }
+    set x(value: Scalar) { this.DependencyObject.set(Rect.xProperty, value); }
+
+    static yProperty = DependencyProperty.register(<any>Rect, "y", { defaultValue: 0, valueType: Type.of(Scalar) });
+    get y(): Scalar { return this.DependencyObject.get(Rect.yProperty); }
+    set y(value: Scalar) { this.DependencyObject.set(Rect.yProperty, value); }
+
+    static widthProperty = DependencyProperty.register(<any>Rect, "width", { defaultValue: 0, valueType: Type.of(Scalar) });
+    get width(): Scalar { return this.DependencyObject.get(Rect.widthProperty); }
+    set width(value: Scalar) { this.DependencyObject.set(Rect.widthProperty, value); }
+
+    static heightProperty = DependencyProperty.register(<any>Rect, "height", { defaultValue: 0, valueType: Type.of(Scalar) });
+    get height(): Scalar { return this.DependencyObject.get(Rect.heightProperty); }
+    set height(value: Scalar) { this.DependencyObject.set(Rect.heightProperty, value); }
+}
+
 export class Button extends Control {
-    
+    constructor(element: Element) {
+        super(element);
+
+        const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
+        this.children.add(PART_canvas);
+
+        const PART_background = VisualTreeElement.create("rect", SVG_NS);
+        PART_background.attributes.setMultiple({
+            x: "0",
+            y: "0",
+            width: "100%",
+            height: "100%",
+            rx: "3px",
+            ry: "3px"
+        });
+    }
 }
 
 

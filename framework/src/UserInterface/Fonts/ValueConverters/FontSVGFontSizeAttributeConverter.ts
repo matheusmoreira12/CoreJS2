@@ -1,11 +1,11 @@
-import { ScalarSVGAttributeValueConverter } from "../../Scalars/ValueConverters/index";
+import { GraphicValueSVGAttributeValueConverter } from "../../GraphicValues/ValueConverters/index";
 import { IValueConverter } from "../../ValueConverters/index";
 import { Font } from "../Font";
 import { InvalidOperationException } from "../../../Standard/index";
 
 export class FontSVGFontSizeAttributeConverter implements IValueConverter {
     convert(value: Font): string | null {
-        return new ScalarSVGAttributeValueConverter().convert(value.size);
+        return new GraphicValueSVGAttributeValueConverter().convert(value.size);
     }
 
     convertBack(value: string | null): Font | null {
