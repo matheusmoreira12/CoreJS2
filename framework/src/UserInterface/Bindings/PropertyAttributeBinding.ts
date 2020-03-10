@@ -7,6 +7,7 @@ import { FrameworkEvent } from "../../Standard/Events/index";
 import * as Storage from "../DependencyObjects/Storage";
 import { Enumeration } from "../../Standard/index";
 import { BindingDirection } from "./Bindings";
+import { IValueConverter } from "../ValueConverters/index";
 
 //Keys for PropertyAttributeBinding
 const $source = Symbol();
@@ -69,9 +70,10 @@ export class PropertyAttributeBinding extends Binding {
     private [$updateTargetAttribute](propertyValue: any) {
         const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
         if (canUpdateToTarget) {
+            const hasValueConverter = !!this.options.valueConverter;
             let attributeValue: string | null;
-            if (this.options.valueConverter)
-                attributeValue = this.options.valueConverter.convert(propertyValue);
+            if (hasValueConverter)
+                attributeValue = (<IValueConverter>this.options.valueConverter).convert(propertyValue);
             else
                 attributeValue = String(propertyValue);
 
@@ -92,9 +94,10 @@ export class PropertyAttributeBinding extends Binding {
     private [$updateSourceProperty](attributeValue: string | null) {
         const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.options.direction || 0);
         if (canUpdateToSource) {
+            const hasValueConverter = !!this.options.valueConverter;
             let propertyValue: any;
-            if (this.options.valueConverter)
-                propertyValue = this.options.valueConverter.convertBack(propertyValue);
+            if (hasValueConverter)
+                propertyValue = (<IValueConverter>this.options.valueConverter).convertBack(propertyValue);
             else
                 propertyValue = attributeValue;
 
@@ -106,18 +109,21 @@ export class PropertyAttributeBinding extends Binding {
     }
 
     private [$doInitialUpdate]() {
-        if (this.targetElement.hasAttributeNS(this.targetAttributeNamespace, this.targetAttributeName)) {
+        const isAttributeSet = this.targetElement.hasAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
+        if (isAttributeSet) {
             const attributeValue = this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
             this[$updateSourceProperty](attributeValue);
         }
 
         const propertyValue = Storage.getValue(this.source, this.sourceProperty);
-        this[$updateTargetAttribute](propertyValue);
+        if (propertyValue !== null)
+            this[$updateTargetAttribute](propertyValue);
     }
 
     private [$targetElement_attributeChange_handler](mutations: MutationRecord[]) {
         for (let mutation of mutations) {
-            if (mutation.type == "attributes" && mutation.attributeName == this.targetAttributeName && mutation.attributeNamespace == this.targetAttributeNamespace)
+            const isTargetAttribute = mutation.type == "attributes" && mutation.attributeName == this.targetAttributeName && mutation.attributeNamespace == this.targetAttributeNamespace;
+            if (isTargetAttribute)
                 this[$updateSourceProperty](this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName));
         }
     }
