@@ -1,1 +1,1 @@
-export * from "./ScalarSVGAttributeConverter";
+export * from "./GraphicValueSVGAttributeConverter";
