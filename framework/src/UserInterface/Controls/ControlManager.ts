@@ -120,9 +120,15 @@ export function register(controlConstructor: Class<Control>, qualifiedName: stri
     const isControlAlreadyRegistered = !!getRegisteredControlByConstructor(controlConstructor);
     if (isControlAlreadyRegistered)
         throw new InvalidOperationException("Cannot register control. The specified control constructor is already in use.");
-
-    const metadata: ControlMetadata = new ControlMetadata(controlConstructor, qualifiedName, namespaceURI);
-    registerControl(metadata);
+    else {
+        const isControlNameAlreadyInUse = !!getRegisteredControlByName(qualifiedName, namespaceURI);
+        if (isControlNameAlreadyInUse)
+            throw new InvalidOperationException("Cannot register control. The specified control name and namespace URI are already in use.");
+        else {
+            const metadata: ControlMetadata = new ControlMetadata(controlConstructor, qualifiedName, namespaceURI);
+            registerControl(metadata);
+        }
+    }
 }
 
 export function deregister(controlConstructor: Class<Control>): void {
