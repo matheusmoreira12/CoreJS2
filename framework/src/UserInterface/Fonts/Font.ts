@@ -2,10 +2,10 @@ import { FontWeight } from "./FontWeight";
 import { TextDecoration } from "./TextDecoration";
 import { FontStyle } from "./FontStyle";
 import { assertParams } from "../../Validation/index";
-import { Scalar, VisualUnit } from "../Scalars/index";
+import { Scalar, GraphicUnit } from "../Scalars/index";
 
 const DEFAULT_FONT_FAMILY = "Arial, Verdana, Sans-serif";
-const DEFAULT_FONT_SIZE = new Scalar(10, VisualUnit.Points);
+const DEFAULT_FONT_SIZE = new Scalar(10, GraphicUnit.Points);
 
 const $family = Symbol("family");
 const $size = Symbol("size");
