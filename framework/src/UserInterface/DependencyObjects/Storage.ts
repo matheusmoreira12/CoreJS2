@@ -54,15 +54,23 @@ export function unsetValue(source: object, target: DependencyObject, property: D
         setters.splice(index, 1);
 }
 
-export function getValue(target: DependencyObject, property: DependencyProperty): any {
-    const options = Registry.getOptions(property);
+export function getRawValue(target: DependencyObject, property: DependencyProperty): any {
     let setter = setters.reverse().find(s => s.target === target && s.property === property && s.value !== null);
     if (setter)
         return setter.value;
-    else {
+    else
+        return null;
+}
+
+export function getValue(target: DependencyObject, property: DependencyProperty): any {
+    const options = Registry.getOptions(property);
+    const rawValue = getRawValue(target, property);
+    if (rawValue === null) {
         if (options)
             return options.defaultValue;
         else
             return null;
     }
+    else
+        return rawValue;
 }

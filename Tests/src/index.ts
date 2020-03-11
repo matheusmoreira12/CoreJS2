@@ -8,6 +8,7 @@ import Type = Core.Standard.Types.Type;
 //Visual Trees
 import VisualTreeElement = Core.UserInterface.VisualTrees.VisualTreeElement;
 //Bindings
+import PropertyBinding = Core.UserInterface.Bindings.PropertyBinding;
 import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeBinding;
 import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
 //Controls
@@ -107,6 +108,7 @@ export class Text extends Shape {
         this.__PART_text = PART_text;
         this.__PART_canvas.children.add(PART_text);
 
+        new PropertyAttributeBinding(this.DependencyObject, Text.foregroundProperty, <Element>PART_text.domNode, "fill", null, { direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget });
@@ -114,6 +116,7 @@ export class Text extends Shape {
         new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget });
 
         this.__updateViewbox();
+        this.__updateText();
     }
 
     __updateViewbox() {
@@ -122,11 +125,17 @@ export class Text extends Shape {
         this.__PART_canvas.attributes.set("viewBox", null, viewBox);
     }
 
+    __updateText() {
+        (<SVGTextElement>this.__PART_text.domNode).textContent = this.text;
+        this.__updateViewbox();
+    }
+
     //DependencyObject
     __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-        if (args.property === Text.fontProperty ||
-            args.property === Text.textProperty)
+        if (args.property === Text.fontProperty)
             this.__updateViewbox();
+        else if (args.property === Text.textProperty)
+            this.__updateText();
     }
 
     private __PART_text: VisualTreeElement;
@@ -147,8 +156,18 @@ export class Button extends Control {
         super(element);
 
         const PART_background = <Rectangle>WidgetManager.instantiate(Rectangle);
+        PART_background.rx = new GraphicValue(4, GraphicUnit.Pixels);
+        PART_background.ry = new GraphicValue(4, GraphicUnit.Pixels);
         this.children.add(PART_background);
         this.__PART_background = PART_background;
+
+        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_background.DependencyObject, Rectangle.backgroundProperty, { direction: BindingDirection.ToTarget });
+
+        const PART_text = <Text>WidgetManager.instantiate(Text);
+        this.children.add(PART_text);
+        this.__PART_text = PART_text;
+
+        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_background.DependencyObject, Rectangle.backgroundProperty, { direction: BindingDirection.ToTarget });
 
         const style = VisualTreeElement.create("style", HTML_NS);
         style.attributes.set("scoped", null);
@@ -161,9 +180,13 @@ core|Button {
     width: 80px;
     height: 80px;
 }`;
+        this.foreground = "dimgray";
+        this.background = "white";
+        (<Text>this.__PART_text).text = "Click here!";
     }
 
     private __PART_background: VisualTreeElement;
+    private __PART_text: VisualTreeElement;
 }
 
 WidgetManager.register(<any>Button, "core:Button", "core");

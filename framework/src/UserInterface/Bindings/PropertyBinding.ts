@@ -37,6 +37,16 @@ export class PropertyBinding extends Binding {
         source.PropertyChangeEvent.attach(this.__source_PropertyChangeEvent);
         this.__target_PropertyChangeEvent = new FrameworkEvent(this.__target_onPropertyChange, this);
         target.PropertyChangeEvent.attach(this.__target_PropertyChangeEvent);
+
+        this.__doInitialUpdate();
+    }
+
+    private __doInitialUpdate() {
+        const sourcePropertyRawValue = Storage.getRawValue(this.source, this.sourceProperty);
+        this.__updateTargetProperty(sourcePropertyRawValue);
+
+        const targetPropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
+        this.__updateSourceProperty(targetPropertyRawValue);
     }
 
     private __updateTargetProperty(sourceValue: any) {
@@ -58,8 +68,10 @@ export class PropertyBinding extends Binding {
 
     private __source_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         const isSourceProperty = args.property === this.sourceProperty;
-        if (isSourceProperty)
-            this.__updateTargetProperty(args.newValue);
+        if (isSourceProperty) {
+            const sourcePropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
+            this.__updateTargetProperty(sourcePropertyRawValue);
+        }
     }
 
     private __source_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
@@ -83,8 +95,10 @@ export class PropertyBinding extends Binding {
 
     private __target_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         const isTargetProperty = args.property === this.sourceProperty;
-        if (isTargetProperty)
-            this.__updateSourceProperty(args.newValue);
+        if (isTargetProperty) {
+            const targetPropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
+            this.__updateSourceProperty(targetPropertyRawValue);
+        }
     }
 
     private __target_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
