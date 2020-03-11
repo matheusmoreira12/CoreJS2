@@ -9,7 +9,7 @@ type RegistryEntry = {
 
 const registryEntries: RegistryEntry[] = [];
 
-export function register(target: typeof Object, property: DependencyProperty, options: IPropertyOptions = {}) {
+export function register(target: typeof Object, property: DependencyProperty, options: IPropertyOptions) {
     registryEntries.push({
         target,
         property,

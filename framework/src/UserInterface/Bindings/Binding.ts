@@ -2,9 +2,8 @@ import { IBindingOptions, BindingDirection } from "./index";
 import { Destructible, InvalidOperationException } from "../../Standard/index";
 import { assertParams } from "../../Validation/index";
 
-const DEFAULT_BINDING_OPTIONS = {
-    direction: BindingDirection.Both,
-    valueConverter: null
+const DEFAULT_BINDING_OPTIONS: IBindingOptions = {
+    direction: BindingDirection.Both
 };
 
 //Keys for Binding

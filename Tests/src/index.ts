@@ -148,7 +148,7 @@ export class Rectangle extends Shape {
 }
 WidgetManager.register(<any>Rectangle, "core:Rectangle", "core");
 
-export class ContainerControl extends Control {
+export abstract class ContainerControl extends Control {
     constructor(element: Element) {
         super(element);
 
@@ -165,7 +165,7 @@ export class ContainerControl extends Control {
             this.__PART_layoutGrid.children.remove(<VisualTreeElement>this.__PART_child);
 
         if (child !== null)
-            this.__PART_layoutGrid.children.add(<VisualTreeElement>this.__PART_child);
+            this.__PART_layoutGrid.children.add(child);
     }
 
     private __PART_child: VisualTreeElement | null;
@@ -190,9 +190,11 @@ export class Border extends ContainerControl {
         this.__PART_background = PART_background;
 
         //Bind properties from Border to the rectangle part
-        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, this.__PART_background.DependencyObject, Rectangle.fillProperty);
-        new PropertyBinding(this.DependencyObject, Border.borderProperty, this.__PART_background.DependencyObject, Rectangle.strokeProperty);
-        new PropertyBinding(this.DependencyObject, Border.borderThicknessProperty, this.__PART_background.DependencyObject, Rectangle.strokeThicknessProperty);
+        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, this.__PART_background.DependencyObject, Shape.fillProperty);
+        new PropertyBinding(this.DependencyObject, Border.borderProperty, this.__PART_background.DependencyObject, Shape.strokeProperty);
+        new PropertyBinding(this.DependencyObject, Border.borderThicknessProperty, this.__PART_background.DependencyObject, Shape.strokeThicknessProperty);
+        new PropertyBinding(this.DependencyObject, Border.borderRadiusXProperty, this.__PART_background.DependencyObject, Rectangle.rxProperty);
+        new PropertyBinding(this.DependencyObject, Border.borderRadiusYProperty, this.__PART_background.DependencyObject, Rectangle.ryProperty);
     }
 
     static borderProperty = DependencyProperty.register(<any>Border, "border", { valueType: Type.get(String), defaultValue: "transparent" });
@@ -294,13 +296,13 @@ export class Button extends Control {
         PART_border.borderRadiusX = new GraphicValue(4, GraphicUnit.Pixels);
         PART_border.borderRadiusY = new GraphicValue(4, GraphicUnit.Pixels);
         this.children.add(PART_border);
-        this.__PART_background = PART_border;
+        this.__PART_border = PART_border;
 
-        const PART_layoutGrid = <Grid>WidgetManager.instantiate(Grid);
+        const PART_layoutGrid = WidgetManager.instantiate(Grid);
         PART_border.child = PART_layoutGrid;
         this.__PART_layoutGrid = PART_layoutGrid;
 
-        const PART_text = <Text>WidgetManager.instantiate(Text);
+        const PART_text = WidgetManager.instantiate(Text);
         PART_layoutGrid.children.add(PART_text);
         this.__PART_text = PART_text;
 
@@ -308,11 +310,11 @@ export class Button extends Control {
         this.background = "white";
         (<Text>this.__PART_text).text = "Click here!";
 
-        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_border.DependencyObject, Rectangle.fillProperty, { direction: BindingDirection.ToTarget });
-        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_text.DependencyObject, Text.fillProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_border.DependencyObject, Control.backgroundProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_text.DependencyObject, Shape.fillProperty, { direction: BindingDirection.ToTarget });
     }
 
-    private __PART_background: VisualTreeElement;
+    private __PART_border: Border;
     private __PART_text: VisualTreeElement;
     private __PART_layoutGrid: VisualTreeElement;
 }

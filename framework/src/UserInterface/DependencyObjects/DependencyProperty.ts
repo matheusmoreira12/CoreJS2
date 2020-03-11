@@ -3,6 +3,10 @@ import { assertParams } from "../../Validation/index";
 
 import * as Registry from "./Registry";
 
+const DEFAULT_PROPERTY_OPTIONS: IPropertyOptions = {
+    defaultValue: null
+};
+
 //Keys for DependencyProperty
 const $name = Symbol();
 
@@ -13,6 +17,8 @@ export class DependencyProperty {
     static register(target: typeof Object, name: string, options: IPropertyOptions = {}): DependencyProperty {
         assertParams({ target }, Function);
         assertParams({ options }, IPropertyOptions);
+
+        options = Object.assign({}, options);
 
         const property = new DependencyProperty(name);
         Registry.register(target, property, options);

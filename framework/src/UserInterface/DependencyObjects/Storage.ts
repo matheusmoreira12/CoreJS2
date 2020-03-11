@@ -34,13 +34,13 @@ export function setValue(source: object, target: DependencyObject, property: Dep
     else {
         const oldRawValue = getRawValue(target, property);
 
-        let setter = setters.find(s => s.source === source && s.target === target && s.property === property)
-        if (setter)
-            setter.value = value;
-        else {
-            setter = InternalSetter.create(source, target, property, value);
-            setters.push(setter);
-        }
+        const oldSetter = setters.find(s => s.source === source && s.target === target && s.property === property);
+        const hasSetter = !!oldSetter;
+        if (hasSetter)
+            setters.splice(setters.indexOf(<InternalSetter>oldSetter), 1);
+
+        const newSetter = InternalSetter.create(source, target, property, value);
+        setters.push(newSetter);
 
         const hasValueChanged = oldRawValue !== value;
         if (hasValueChanged)
