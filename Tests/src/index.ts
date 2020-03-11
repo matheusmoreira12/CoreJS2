@@ -32,6 +32,10 @@ const HTML_NS = "http://www.w3.org/1999/xhtml";
 
 const controlStyle = `
 @namespace core "core";
+body {
+    display: flex;
+}
+
 core|* {
     display: flex;
     flex: 1;
@@ -39,15 +43,17 @@ core|* {
 }
 
 core|Grid {
-    flex-flow: column;
-    align-items: stretch;
-    justify-items: stretch;
+    position: relative;
+    left: 0;
+    right: 0;
 }
 
-core|Grid>*{
-    margin-left: -100%;
-    min-width: 100%;
-    min-height: 100%;
+core|Grid>* {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
 }
 `;
 
@@ -90,6 +96,18 @@ export abstract class Shape extends Control {
         this.__PART_canvas = PART_canvas;
     }
 
+    static fillProperty = DependencyProperty.register(<any>Shape, "fill", { valueType: Type.get(String), defaultValue: "transparent" });
+    get fill(): string { return this.DependencyObject.get(Shape.fillProperty); }
+    set fill(value: string) { this.DependencyObject.set(Shape.fillProperty, value); }
+
+    static strokeProperty = DependencyProperty.register(<any>Shape, "stroke", { valueType: Type.get(String), defaultValue: "transparent" });
+    get stroke(): string { return this.DependencyObject.get(Shape.strokeProperty); }
+    set stroke(value: string) { this.DependencyObject.set(Shape.strokeProperty, value); }
+
+    static strokeThicknessProperty = DependencyProperty.register(<any>Shape, "strokeThickness", { valueType: Type.get(GraphicValue), defaultValue: GraphicValue.Zero });
+    get strokeThickness(): string { return this.DependencyObject.get(Shape.strokeThicknessProperty); }
+    set strokeThickness(value: string) { this.DependencyObject.set(Shape.strokeThicknessProperty, value); }
+
     protected __PART_canvas: VisualTreeElement;
 }
 
@@ -97,6 +115,7 @@ export class Rectangle extends Shape {
     constructor(element: Element) {
         super(element);
 
+        //Add an SVG Rect to the visual tree
         const PART_rect = VisualTreeElement.create("rect", SVG_NS);
         PART_rect.attributes.setMany({
             x: "0",
@@ -107,7 +126,12 @@ export class Rectangle extends Shape {
         this.__PART_canvas.children.add(PART_rect);
         this.__PART_rect = PART_rect;
 
-        new PropertyAttributeBinding(this.DependencyObject, Control.foregroundProperty, <Element>this.__PART_rect.domNode, "fill", null, { direction: BindingDirection.ToTarget });
+        //Bind properties from Shape to SVG Rect attributes
+        new PropertyAttributeBinding(this.DependencyObject, Shape.fillProperty, <Element>this.__PART_rect.domNode, "fill", null, { direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Shape.fillProperty, <Element>this.__PART_rect.domNode, "stroke", null, { direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Shape.fillProperty, <Element>this.__PART_rect.domNode, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() });
+
+        //Bind properties from Rectangle to SVG Rect attributes
         new PropertyAttributeBinding(this.DependencyObject, Rectangle.rxProperty, <Element>this.__PART_rect.domNode, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Rectangle.ryProperty, <Element>this.__PART_rect.domNode, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
     }
@@ -124,26 +148,93 @@ export class Rectangle extends Shape {
 }
 WidgetManager.register(<any>Rectangle, "core:Rectangle", "core");
 
-export class Ellipse extends Shape {
+export class ContainerControl extends Control {
     constructor(element: Element) {
         super(element);
 
-        const PART_ellipse = VisualTreeElement.create("ellipse", SVG_NS);
-        PART_ellipse.attributes.setMany({
-            cx: "50%",
-            cy: "50%",
-            rx: "50%",
-            ry: "50%"
-        });
-        this.__PART_canvas.children.add(PART_ellipse);
-        this.__PART_ellipse = PART_ellipse;
+        const PART_layoutGrid = WidgetManager.instantiate(Grid);
+        this.children.add(PART_layoutGrid);
+        this.__PART_layoutGrid = PART_layoutGrid;
 
-        new PropertyAttributeBinding(this.DependencyObject, Control.foregroundProperty, <Element>this.__PART_ellipse.domNode, "fill", null, { direction: BindingDirection.ToTarget });
+        this.__PART_child = null;
     }
 
-    protected __PART_ellipse: VisualTreeElement;
+    private __updateChild(child: VisualTreeElement) {
+        const hasChild = !!this.__PART_child;
+        if (hasChild)
+            this.__PART_layoutGrid.children.remove(<VisualTreeElement>this.__PART_child);
+
+        if (child !== null)
+            this.__PART_layoutGrid.children.add(<VisualTreeElement>this.__PART_child);
+    }
+
+    private __PART_child: VisualTreeElement | null;
+    protected __PART_layoutGrid: Grid;
+
+    protected __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+        if (args.property === ContainerControl.childProperty)
+            this.__updateChild(args.newValue);
+    }
+
+    static childProperty = DependencyProperty.register(<any>ContainerControl, "child", { valueType: Type.of(VisualTreeElement) });
+    get child(): VisualTreeElement { return this.DependencyObject.get(ContainerControl.childProperty); }
+    set child(value: VisualTreeElement) { this.DependencyObject.set(ContainerControl.childProperty, value); }
 }
-WidgetManager.register(<any>Ellipse, "core:Ellipse", "core");
+
+export class Border extends ContainerControl {
+    constructor(element: Element) {
+        super(element);
+
+        const PART_background = WidgetManager.instantiate(Rectangle);
+        this.__PART_layoutGrid.children.add(PART_background);
+        this.__PART_background = PART_background;
+
+        //Bind properties from Border to the rectangle part
+        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, this.__PART_background.DependencyObject, Rectangle.fillProperty);
+        new PropertyBinding(this.DependencyObject, Border.borderProperty, this.__PART_background.DependencyObject, Rectangle.strokeProperty);
+        new PropertyBinding(this.DependencyObject, Border.borderThicknessProperty, this.__PART_background.DependencyObject, Rectangle.strokeThicknessProperty);
+    }
+
+    static borderProperty = DependencyProperty.register(<any>Border, "border", { valueType: Type.get(String), defaultValue: "transparent" });
+    get border(): string { return this.DependencyObject.get(Border.borderProperty); }
+    set border(value: string) { this.DependencyObject.set(Border.borderProperty, value); }
+
+    static borderThicknessProperty = DependencyProperty.register(<any>Border, "borderThickness", { valueType: Type.get(GraphicValue), defaultValue: GraphicValue.Zero });
+    get borderThickness(): string { return this.DependencyObject.get(Border.borderThicknessProperty); }
+    set borderThickness(value: string) { this.DependencyObject.set(Border.borderThicknessProperty, value); }
+
+    static borderRadiusXProperty = DependencyProperty.register(<any>Border, "borderRadiusX", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get borderRadiusX(): GraphicValue { return this.DependencyObject.get(Border.borderRadiusXProperty); }
+    set borderRadiusX(value: GraphicValue) { this.DependencyObject.set(Border.borderRadiusXProperty, value); }
+
+    static borderRadiusYProperty = DependencyProperty.register(<any>Border, "borderRadiusY", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
+    get borderRadiusY(): GraphicValue { return this.DependencyObject.get(Border.borderRadiusYProperty); }
+    set borderRadiusY(value: GraphicValue) { this.DependencyObject.set(Border.borderRadiusYProperty, value); }
+
+    private __PART_background: VisualTreeElement;
+}
+WidgetManager.register(<any>Border, "core:Border", "core");
+
+//export class Ellipse extends Shape {
+//    constructor(element: Element) {
+//        super(element);
+
+//        const PART_ellipse = VisualTreeElement.create("ellipse", SVG_NS);
+//        PART_ellipse.attributes.setMany({
+//            cx: "50%",
+//            cy: "50%",
+//            rx: "50%",
+//            ry: "50%"
+//        });
+//        this.__PART_canvas.children.add(PART_ellipse);
+//        this.__PART_ellipse = PART_ellipse;
+
+//        new PropertyAttributeBinding(this.DependencyObject, Control.foregroundProperty, <Element>this.__PART_ellipse.domNode, "fill", null, { direction: BindingDirection.ToTarget });
+//    }
+
+//    protected __PART_ellipse: VisualTreeElement;
+//}
+//WidgetManager.register(<any>Ellipse, "core:Ellipse", "core");
 
 export class Text extends Shape {
     constructor(element: Element) {
@@ -153,7 +244,7 @@ export class Text extends Shape {
         this.__PART_text = PART_text;
         this.__PART_canvas.children.add(PART_text);
 
-        new PropertyAttributeBinding(this.DependencyObject, Text.foregroundProperty, <Element>PART_text.domNode, "fill", null, { direction: BindingDirection.ToTarget });
+        new PropertyAttributeBinding(this.DependencyObject, Text.fillProperty, <Element>PART_text.domNode, "fill", null, { direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget });
         new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget });
@@ -199,14 +290,15 @@ export class Button extends Control {
     constructor(element: Element) {
         super(element);
 
-        const PART_layoutGrid = <Grid>WidgetManager.instantiate(Grid);
-        this.__PART_layoutGrid = PART_layoutGrid;
+        const PART_border = <Border>WidgetManager.instantiate(Border);
+        PART_border.borderRadiusX = new GraphicValue(4, GraphicUnit.Pixels);
+        PART_border.borderRadiusY = new GraphicValue(4, GraphicUnit.Pixels);
+        this.children.add(PART_border);
+        this.__PART_background = PART_border;
 
-        const PART_background = <Rectangle>WidgetManager.instantiate(Rectangle);
-        PART_background.rx = new GraphicValue(4, GraphicUnit.Pixels);
-        PART_background.ry = new GraphicValue(4, GraphicUnit.Pixels);
-        PART_layoutGrid.children.add(PART_background);
-        this.__PART_background = PART_background;
+        const PART_layoutGrid = <Grid>WidgetManager.instantiate(Grid);
+        PART_border.child = PART_layoutGrid;
+        this.__PART_layoutGrid = PART_layoutGrid;
 
         const PART_text = <Text>WidgetManager.instantiate(Text);
         PART_layoutGrid.children.add(PART_text);
@@ -216,8 +308,8 @@ export class Button extends Control {
         this.background = "white";
         (<Text>this.__PART_text).text = "Click here!";
 
-        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_background.DependencyObject, Control.foregroundProperty, { direction: BindingDirection.ToTarget });
-        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_text.DependencyObject, Control.foregroundProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_border.DependencyObject, Rectangle.fillProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_text.DependencyObject, Text.fillProperty, { direction: BindingDirection.ToTarget });
     }
 
     private __PART_background: VisualTreeElement;
