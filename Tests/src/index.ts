@@ -30,9 +30,32 @@ import GraphicValueSVGAttributeValueConverter = Core.UserInterface.GraphicValues
 const SVG_NS = "http://www.w3.org/2000/svg";
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
+const controlStyle = `
+@namespace core "core";
+core|* {
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+    width: auto;
+    height: auto;
+    margin: 0;
+}`;
+
+const stylesheetBlob = new Blob([controlStyle], { type: "text" });
+const stylesheetPath = URL.createObjectURL(stylesheetBlob);
+
 export abstract class Shape extends Control {
     constructor(element: Element) {
         super(element);
+
+        const style = VisualTreeElement.create("link", HTML_NS);
+        style.attributes.setMany({
+            rel: "stylesheet",
+            type: "text/css",
+            href: stylesheetPath
+        }, null);
+        this.children.add(style);
 
         const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
         PART_canvas.attributes.setMany({
@@ -165,21 +188,9 @@ export class Button extends Control {
         this.children.add(PART_text);
         this.__PART_text = PART_text;
 
-        const style = VisualTreeElement.create("style", HTML_NS);
-        style.attributes.set("scoped", null);
-        this.children.add(style);
-
         this.foreground = "dimgray";
         this.background = "white";
         (<Text>this.__PART_text).text = "Click here!";
-
-        (<HTMLStyleElement>style.domNode).innerHTML = `
-@namespace core "core";
-core|Button {
-    display: inline-block;
-    width: 80px;
-    height: 80px;
-}`;
 
         new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_background.DependencyObject, Control.foregroundProperty, { direction: BindingDirection.ToTarget });
         new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_text.DependencyObject, Control.foregroundProperty, { direction: BindingDirection.ToTarget });
