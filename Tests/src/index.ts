@@ -34,16 +34,40 @@ const controlStyle = `
 @namespace core "core";
 core|* {
     display: flex;
-    flex-direction: column;
-    justify-items: center;
-    align-items: center;
-    width: auto;
-    height: auto;
+    flex: 1;
     margin: 0;
-}`;
+}
+
+core|Grid {
+    flex-flow: column;
+    align-items: stretch;
+    justify-items: stretch;
+}
+
+core|Grid>*{
+    margin-left: -100%;
+    min-width: 100%;
+    min-height: 100%;
+}
+`;
 
 const stylesheetBlob = new Blob([controlStyle], { type: "text" });
 const stylesheetPath = URL.createObjectURL(stylesheetBlob);
+
+export class Grid extends Control {
+    constructor(element: Element) {
+        super(element);
+
+        const style = VisualTreeElement.create("link", HTML_NS);
+        style.attributes.setMany({
+            rel: "stylesheet",
+            type: "text/css",
+            href: stylesheetPath
+        }, null);
+        this.children.add(style);
+    }
+}
+WidgetManager.register(<any>Grid, "core:Grid", "core");
 
 export abstract class Shape extends Control {
     constructor(element: Element) {
@@ -98,7 +122,6 @@ export class Rectangle extends Shape {
     get ry(): GraphicValue { return this.DependencyObject.get(Rectangle.ryProperty); }
     set ry(value: GraphicValue) { this.DependencyObject.set(Rectangle.ryProperty, value); }
 }
-
 WidgetManager.register(<any>Rectangle, "core:Rectangle", "core");
 
 export class Ellipse extends Shape {
@@ -120,7 +143,6 @@ export class Ellipse extends Shape {
 
     protected __PART_ellipse: VisualTreeElement;
 }
-
 WidgetManager.register(<any>Ellipse, "core:Ellipse", "core");
 
 export class Text extends Shape {
@@ -171,21 +193,23 @@ export class Text extends Shape {
     get text(): string { return this.DependencyObject.get(Text.textProperty); }
     set text(value: string) { this.DependencyObject.set(Text.textProperty, value); }
 }
-
 WidgetManager.register(Text, "core:Text", "core");
 
 export class Button extends Control {
     constructor(element: Element) {
         super(element);
 
+        const PART_layoutGrid = <Grid>WidgetManager.instantiate(Grid);
+        this.__PART_layoutGrid = PART_layoutGrid;
+
         const PART_background = <Rectangle>WidgetManager.instantiate(Rectangle);
         PART_background.rx = new GraphicValue(4, GraphicUnit.Pixels);
         PART_background.ry = new GraphicValue(4, GraphicUnit.Pixels);
-        this.children.add(PART_background);
+        PART_layoutGrid.children.add(PART_background);
         this.__PART_background = PART_background;
 
         const PART_text = <Text>WidgetManager.instantiate(Text);
-        this.children.add(PART_text);
+        PART_layoutGrid.children.add(PART_text);
         this.__PART_text = PART_text;
 
         this.foreground = "dimgray";
@@ -198,8 +222,8 @@ export class Button extends Control {
 
     private __PART_background: VisualTreeElement;
     private __PART_text: VisualTreeElement;
+    private __PART_layoutGrid: VisualTreeElement;
 }
-
 WidgetManager.register(<any>Button, "core:Button", "core");
 
 /*
