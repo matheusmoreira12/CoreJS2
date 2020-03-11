@@ -18,7 +18,7 @@ export class DependencyProperty {
         assertParams({ target }, Function);
         assertParams({ options }, IPropertyOptions);
 
-        options = Object.assign({}, options);
+        options = Object.assign({}, DEFAULT_PROPERTY_OPTIONS, options);
 
         const property = new DependencyProperty(name);
         Registry.register(target, property, options);

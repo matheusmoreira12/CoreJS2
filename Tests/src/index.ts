@@ -190,11 +190,11 @@ export class Border extends ContainerControl {
         this.__PART_background = PART_background;
 
         //Bind properties from Border to the rectangle part
-        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, this.__PART_background.DependencyObject, Shape.fillProperty);
-        new PropertyBinding(this.DependencyObject, Border.borderProperty, this.__PART_background.DependencyObject, Shape.strokeProperty);
-        new PropertyBinding(this.DependencyObject, Border.borderThicknessProperty, this.__PART_background.DependencyObject, Shape.strokeThicknessProperty);
-        new PropertyBinding(this.DependencyObject, Border.borderRadiusXProperty, this.__PART_background.DependencyObject, Rectangle.rxProperty);
-        new PropertyBinding(this.DependencyObject, Border.borderRadiusYProperty, this.__PART_background.DependencyObject, Rectangle.ryProperty);
+        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, this.__PART_background.DependencyObject, Shape.fillProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Border.borderProperty, this.__PART_background.DependencyObject, Shape.strokeProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Border.borderThicknessProperty, this.__PART_background.DependencyObject, Shape.strokeThicknessProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Border.borderRadiusXProperty, this.__PART_background.DependencyObject, Rectangle.rxProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Border.borderRadiusYProperty, this.__PART_background.DependencyObject, Rectangle.ryProperty, { direction: BindingDirection.ToTarget });
     }
 
     static borderProperty = DependencyProperty.register(<any>Border, "border", { valueType: Type.get(String), defaultValue: "transparent" });
