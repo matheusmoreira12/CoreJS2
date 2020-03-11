@@ -161,17 +161,17 @@ export class Button extends Control {
         this.children.add(PART_background);
         this.__PART_background = PART_background;
 
-        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_background.DependencyObject, Rectangle.backgroundProperty, { direction: BindingDirection.ToTarget });
-
         const PART_text = <Text>WidgetManager.instantiate(Text);
         this.children.add(PART_text);
         this.__PART_text = PART_text;
 
-        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_background.DependencyObject, Rectangle.backgroundProperty, { direction: BindingDirection.ToTarget });
-
         const style = VisualTreeElement.create("style", HTML_NS);
         style.attributes.set("scoped", null);
         this.children.add(style);
+
+        this.foreground = "dimgray";
+        this.background = "white";
+        (<Text>this.__PART_text).text = "Click here!";
 
         (<HTMLStyleElement>style.domNode).innerHTML = `
 @namespace core "core";
@@ -180,9 +180,9 @@ core|Button {
     width: 80px;
     height: 80px;
 }`;
-        this.foreground = "dimgray";
-        this.background = "white";
-        (<Text>this.__PART_text).text = "Click here!";
+
+        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_background.DependencyObject, Control.foregroundProperty, { direction: BindingDirection.ToTarget });
+        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_text.DependencyObject, Control.foregroundProperty, { direction: BindingDirection.ToTarget });
     }
 
     private __PART_background: VisualTreeElement;

@@ -38,10 +38,10 @@ export class PropertyBinding extends Binding {
         this.__target_PropertyChangeEvent = new FrameworkEvent(this.__target_onPropertyChange, this);
         target.PropertyChangeEvent.attach(this.__target_PropertyChangeEvent);
 
-        this.__doInitialUpdate();
+        this.__doInitialCrossingUpdate();
     }
 
-    private __doInitialUpdate() {
+    private __doInitialCrossingUpdate() {
         const sourcePropertyRawValue = Storage.getRawValue(this.source, this.sourceProperty);
         this.__updateTargetProperty(sourcePropertyRawValue);
 

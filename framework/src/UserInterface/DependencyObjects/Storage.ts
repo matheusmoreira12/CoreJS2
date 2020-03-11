@@ -29,12 +29,11 @@ function notifyValueChange(target: DependencyObject, property: DependencyPropert
 }
 
 export function setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
-    const oldValue = getValue(target, property);
-    const hasValueChanged = oldValue !== value;
-
     if (value === null)
         unsetValue(source, target, property);
     else {
+        const oldRawValue = getRawValue(target, property);
+
         let setter = setters.find(s => s.source === source && s.target === target && s.property === property)
         if (setter)
             setter.value = value;
@@ -42,10 +41,11 @@ export function setValue(source: object, target: DependencyObject, property: Dep
             setter = InternalSetter.create(source, target, property, value);
             setters.push(setter);
         }
-    }
 
-    if (hasValueChanged)
-        notifyValueChange(target, property, oldValue, value);
+        const hasValueChanged = oldRawValue !== value;
+        if (hasValueChanged)
+            notifyValueChange(target, property, oldRawValue, value);
+    }
 }
 
 export function unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
@@ -55,11 +55,13 @@ export function unsetValue(source: object, target: DependencyObject, property: D
 }
 
 export function getRawValue(target: DependencyObject, property: DependencyProperty): any {
-    let setter = setters.reverse().find(s => s.target === target && s.property === property && s.value !== null);
-    if (setter)
-        return setter.value;
-    else
-        return null;
+    for (let setter of setters) {
+        if (setter.target === target && 
+            setter.property === property && 
+            setter.value !== null)
+            return setter.value;
+    }
+    return null;
 }
 
 export function getValue(target: DependencyObject, property: DependencyProperty): any {
