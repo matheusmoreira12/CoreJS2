@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="210" height="210">
+    <defs>
+        <filter id="arcReactorGlow" height="300%" width="300%" x="-100%" y="-100%">
+            <!--Thicken out the original shape-->
+            <feMorphology operator="dilate" radius="5" in="SourceAlpha" result="thicken"/>
+            <!--Use a gaussian blur to create the soft blurriness of the glow-->
+            <feGaussianBlur in="thicken" stdDeviation="10" result="blurred"/>
+            <!--Change the colour-->
+            <feFlood flood-color="#d1b1f1" result="glowColor"/>
+            <!--Color in the glows-->
+            <feComposite in="glowColor" in2="blurred" operator="in" result="softGlow_colored"/>
+            <!--Layer the effects together-->
+            <feMerge>
+                <feMergeNode in="softGlow_colored"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <circle cx="105" cy="105" r="100" style="fill:transparent;stroke:#fbb4b4;stroke-width:2;stroke-dasharray:31,8" opacity="0">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 105 105" to="-360 105 105" begin="0s" dur="25s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin="1.4s" dur=".5s" fill="freeze"/>
+    </circle>
+    <circle cx="105" cy="105" r="95" style="fill:transparent;stroke:#ef6464;stroke-width:1.5" opacity="0">
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin="1.2s" dur=".5s" fill="freeze"/>
+    </circle>
+    <circle cx="105" cy="105" r="80" style="fill:transparent;stroke:#fbb4b4;stroke-width:10;stroke-dasharray:2,2.29" transform="rotate(52.5658 105 105)" opacity="0">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 105 105" to="-360 105 105" begin="0s" dur="15s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin="1s" dur=".5s" fill="freeze"/>
+    </circle>
+    <circle cx="105" cy="105" r="67" transform="rotate(-52.5658 105 105)" style="fill:transparent;stroke:#fbb4b4;stroke-width:2;stroke-dasharray:158,52" opacity="0">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 105 105" to="360 105 105" dur="10s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin=".8s" dur=".5s" fill="freeze"/>
+    </circle>
+    <circle cx="105" cy="105" r="61" transform="rotate(-52.5658 105 105)" style="fill:transparent;stroke:#fbb4b4;stroke-width:2;stroke-dasharray:71,23" opacity="0">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 105 105" to="-360 105 105" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin=".6s" dur=".5s" fill="freeze"/>
+    </circle>
+    <circle cx="105" cy="105" r="50" style="fill:transparent;stroke:#ef6464;stroke-width:15" opacity="0">
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin=".4s" dur=".5s" fill="freeze"/>
+    </circle>
+    <circle cx="105" cy="105" r="40" style="fill:transparent;stroke:#ef6464;stroke-width:2" opacity="0">
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin=".2s" dur=".5s" fill="freeze"/>
+    </circle>
+    <path d="M 105 120 L 130 95 L 80 95 z" style="fill:#fcd1d1;filter:url(#arcReactorGlow)" opacity="0">
+        <animate attributeName="opacity" attributeType="XML" from="0" to="1" begin="0s" dur=".5s" fill="freeze"/>
+    </path>
+</svg>
