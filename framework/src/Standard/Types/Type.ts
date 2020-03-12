@@ -207,6 +207,14 @@ export class Type<T = any> {
         return false;
     }
 
+    matchesAll(...others: (Type | Interface)[]) {
+        for (let other of others) {
+            if (!this.matches(other))
+                return false;
+        }
+        return true;
+    }
+
     implements(_interface: Interface) {
         this[$checkInitializationStatus]();
 

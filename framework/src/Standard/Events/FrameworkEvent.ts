@@ -2,7 +2,7 @@ import { Destructible } from "../Destructible";
 import { FrameworkEventArgs } from "./index";
 import { FrameworkEventListener } from "./index";
 import { Dictionary } from "../Collections/Dictionary";
-import { assertParams, assertEachParams } from "../../Validation/index";
+import { assertParams } from "../../Validation/Standalone";
 
 type FrameworkEventListenerData = { thisArg: any };
 
@@ -12,7 +12,7 @@ type FrameworkEventListenerData = { thisArg: any };
 export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArgs> extends Destructible {
     static attachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
         assertParams({ listener }, Function, FrameworkEvent);
-        assertEachParams({ events }, Array, FrameworkEvent);
+        assertParams({ events }, Array);
 
         for (let event of events)
             event.attach(listener);
@@ -20,7 +20,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
 
     static detachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
         assertParams({ listener }, Function, FrameworkEvent);
-        assertEachParams({ events }, Array, FrameworkEvent);
+        assertParams({ events }, Array);
 
         for (let event of events)
             event.detach(listener);
