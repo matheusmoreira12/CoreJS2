@@ -1,8 +1,8 @@
 import { Destructible } from "../Destructible";
 import { FrameworkEventArgs } from "./index";
 import { FrameworkEventListener } from "./index";
-import { ArgumentTypeException } from "../index";
 import { Dictionary } from "../Collections/Dictionary";
+import { assertParams, assertEachParams } from "../../Validation/index";
 
 type FrameworkEventListenerData = { thisArg: any };
 
@@ -11,11 +11,17 @@ type FrameworkEventListenerData = { thisArg: any };
  * Enables event creation and manipulation, avoiding the use of callbacks.*/
 export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArgs> extends Destructible {
     static attachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
+        assertParams({ listener }, Function, FrameworkEvent);
+        assertEachParams({ events }, Array, FrameworkEvent);
+
         for (let event of events)
             event.attach(listener);
     }
 
     static detachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
+        assertParams({ listener }, Function, FrameworkEvent);
+        assertEachParams({ events }, Array, FrameworkEvent);
+
         for (let event of events)
             event.detach(listener);
     }
@@ -23,12 +29,10 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
     constructor(defaultListener?: FrameworkEventListener<TArgs>, defaultListenerThisArg?: any) {
         super();
 
-        if (defaultListener !== undefined) {
-            if (defaultListener instanceof Function)
-                this.attach(defaultListener, defaultListenerThisArg);
-            else
-                throw new ArgumentTypeException("defaultListener", defaultListener, Function);
-        }
+        assertParams({ defaultListener }, Function, FrameworkEvent);
+
+        if (defaultListener !== undefined)
+            this.attach(defaultListener, defaultListenerThisArg);
     }
 
     __detachAll(): void {
@@ -36,9 +40,10 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
             this.detach(listener.key);
     }
 
+    attach(event: FrameworkEvent<TArgs>): boolean;
+    attach(listener: FrameworkEventListener<TArgs>, thisArg?: any): boolean;
     attach(listener: FrameworkEventListener<TArgs> | FrameworkEvent<TArgs>, thisArg?: any): boolean {
-        if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
-            throw new ArgumentTypeException("listener", listener, [Function, FrameworkEvent]);
+        assertParams({ listener }, FrameworkEvent, Function);
 
         if (this.__listeners.has(listener))
             return false;
@@ -50,8 +55,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
     }
 
     detach(listener: FrameworkEventListener<TArgs> | FrameworkEvent<TArgs>): boolean {
-        if (!(listener instanceof Function) && !(listener instanceof FrameworkEvent))
-            throw new ArgumentTypeException("listener", listener, [Function, FrameworkEvent]);
+        assertParams({ listener }, FrameworkEvent, Function);
 
         if (!this.__listeners.has(listener))
             return false;

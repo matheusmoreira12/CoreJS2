@@ -4,6 +4,7 @@ import { PropertyTrigger } from "../Triggers/index";
 import { Destructible } from "../../Standard/index";
 import { Collection } from "../../Standard/Collections/index";
 import { $setTrigger, $unsetTrigger } from "./SetterCollection";
+import { DependencyObject } from "../DependencyObjects/DependencyObject";
 
 const allSetters: Collection<Setter> = new Collection();
 
@@ -19,9 +20,10 @@ const $trigger = Symbol();
 export class Setter extends Destructible {
     static getAll(): Setter[] { return [...allSetters]; }
 
-    constructor(target: object, property: DependencyProperty, value: any) {
+    constructor(target: DependencyObject, property: DependencyProperty, value: any) {
         super();
 
+        assertParams({ target }, DependencyObject);
         assertParams({ property }, DependencyProperty);
 
         this[$target] = target;
@@ -30,6 +32,8 @@ export class Setter extends Destructible {
         this[$trigger] = null;
 
         allSetters.add(this);
+
+        target.PropertyChangeEvent.attach(this.__target_PropertyChangeEvent);
     }
 
     get target(): object { return this[$target]; }

@@ -57,7 +57,7 @@ core|Grid>* {
 }
 `;
 
-const stylesheetBlob = new Blob([controlStyle], { type: "text" });
+const stylesheetBlob = new Blob([controlStyle], { type: "text/css" });
 const stylesheetPath = URL.createObjectURL(stylesheetBlob);
 
 export class Grid extends Control {
