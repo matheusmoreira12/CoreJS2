@@ -56,7 +56,7 @@ export class URL {
         assertParams({ protocol }, String, null);
         assertParams({ port }, Number, null);
         assertParams({ query }, URLQuery, null);
-        assertParams({ fragment }, String, null)
+        assertParams({ fragment }, String, null);
 
         this.protocol = protocol;
         this.hostname = hostname;
