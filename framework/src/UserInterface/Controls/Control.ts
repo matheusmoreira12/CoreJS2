@@ -3,7 +3,7 @@ import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
 import { BooleanAttributeValueConverter } from "../ValueConverters/index";
-import { DependencyProperty } from "../DependencyObjects/index";
+import { DependencyProperty, DependencyObject } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 import { Blender } from "../../Standard/Blender/Blender";
@@ -33,8 +33,6 @@ export abstract class Control extends VisualTreeElement {
         this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
-
-        Blender.blend(Destructible, this);
     }
 
     //Helper Class Instances
@@ -158,40 +156,40 @@ export abstract class Control extends VisualTreeElement {
     //Mouse State Properties
     //Is Mouse Over Property
     static isMouseOverProperty = DependencyProperty.register(<any>Control, "isMouseOver", { valueType: Type.get(Boolean), defaultValue: false });
-    get isMouseOver() { return this.DependencyObject.get(Control.isMouseOverProperty); }
-    set isMouseOver(value) { this.DependencyObject.set(Control.isMouseOverProperty, value); }
+    get isMouseOver() { return Blender.do(this, DependencyObject, o => o.get(Control.isMouseOverProperty)); }
+    set isMouseOver(value) { Blender.do(this, DependencyObject, o => o.set(Control.isMouseOverProperty, value)); }
 
     //Is Mouse Down Property
     static isMouseDownProperty = DependencyProperty.register(<any>Control, "isMouseDown", { valueType: Type.get(Boolean), defaultValue: false });
-    get isMouseDown() { return this.DependencyObject.get(Control.isMouseDownProperty); }
-    set isMouseDown(value) { this.DependencyObject.set(Control.isMouseDownProperty, value); }
+    get isMouseDown() { return Blender.do(this, DependencyObject, o => o.get(Control.isMouseDownProperty)); }
+    set isMouseDown(value) { Blender.do(this, DependencyObject, o => o.set(Control.isMouseDownProperty, value)); }
 
     //Drag State Properties
     //Is Dragging Property
     static isDraggingProperty = DependencyProperty.register(<any>Control, "isDragging", { valueType: Type.get(Boolean), defaultValue: false });
-    get isDragging() { return this.DependencyObject.get(Control.isDraggingProperty); }
-    set isDragging(value) { this.DependencyObject.set(Control.isDraggingProperty, value); }
+    get isDragging() { return Blender.do(this, DependencyObject, o => o.get(Control.isDraggingProperty)); }
+    set isDragging(value) { Blender.do(this, DependencyObject, o => o.set(Control.isDraggingProperty, value)); }
 
     //Is Drag Over Property
     static isDragOverProperty = DependencyProperty.register(<any>Control, "isDragOver", { valueType: Type.get(Boolean), defaultValue: false });
-    get isDragOver() { return this.DependencyObject.get(Control.isDragOverProperty); }
-    set isDragOver(value) { this.DependencyObject.set(Control.isDragOverProperty, value); }
+    get isDragOver() { return Blender.do(this, DependencyObject, o => o.get(Control.isDragOverProperty)); }
+    set isDragOver(value) { Blender.do(this, DependencyObject, o => o.set(Control.isDragOverProperty, value)); }
 
     //Drag Properties
     static isDraggableProperty = DependencyProperty.register(<any>Control, "isDraggable", { valueType: Type.get(Boolean), defaultValue: false });
-    get isDraggable() { return this.DependencyObject.get(Control.isDraggableProperty); }
-    set isDraggable(value) { this.DependencyObject.set(Control.isDraggableProperty, value); }
+    get isDraggable() { return Blender.do(this, DependencyObject, o => o.get(Control.isDraggableProperty)); }
+    set isDraggable(value) { Blender.do(this, DependencyObject, o => o.set(Control.isDraggableProperty, value)); }
 
     //Visual Properties
     //Background Property
     static backgroundProperty = DependencyProperty.register(<any>Control, "background", { valueType: Type.get(String), defaultValue: "#000" });
-    get background() { return this.DependencyObject.get(Control.backgroundProperty); }
-    set background(value) { this.DependencyObject.set(Control.backgroundProperty, value); }
+    get background() { return Blender.do(this, DependencyObject, o => o.get(Control.backgroundProperty)); }
+    set background(value) { Blender.do(this, DependencyObject, o => o.set(Control.backgroundProperty, value)); }
 
     //Foreground Property
     static foregroundProperty = DependencyProperty.register(<any>Control, "foreground", { valueType: Type.get(String), defaultValue: "#000" });
-    get foreground() { return this.DependencyObject.get(Control.foregroundProperty); }
-    set foreground(value) { this.DependencyObject.set(Control.foregroundProperty, value); }
+    get foreground() { return Blender.do(this, DependencyObject, o => o.get(Control.foregroundProperty)); }
+    set foreground(value) { Blender.do(this, DependencyObject, o => o.set(Control.foregroundProperty, value)); }
 
     protected destructor() {
         super.destructor();

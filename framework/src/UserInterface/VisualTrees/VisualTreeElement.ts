@@ -1,5 +1,5 @@
 import { VisualTreeNode } from "./VisualTreeNode";
-import { InvalidOperationException, Enumeration } from "../../Standard/index";
+import { InvalidOperationException, Enumeration, FrameworkException } from "../../Standard/index";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index";
 import { DOMUtils } from "../index";
 import { VisualTreeAttribute } from "./VisualTreeAttribute";
@@ -7,6 +7,7 @@ import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection";
 import { assertParams } from "../../Validation/index";
 import { DependencyObject } from "../DependencyObjects/DependencyObject";
 import { PropertyChangeEventArgs } from "../DependencyObjects/index";
+import { Blender } from "../../Standard/Blender/Blender";
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
@@ -27,6 +28,12 @@ export class VisualTreeElement extends VisualTreeNode {
 
         this.DependencyObject = new DependencyObject();
         this.DependencyObject.PropertyChangeEvent.attach(this.__DependencyObject_onPropertyChange, this);
+
+        //Blend with DependencyObject
+        if (Blender.blend(DependencyObject, this))
+            Blender.initialize(this, DependencyObject);
+        else
+            throw new FrameworkException("Failed to blend with DependencyObject.");
     }
 
     protected __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
@@ -116,6 +123,7 @@ export class VisualTreeElement extends VisualTreeNode {
         if (this.parent)
             this.parent.children.remove(this);
 
-        this.DependencyObject.PropertyChangeEvent.detach(this.__DependencyObject_onPropertyChange);
+        if (!Blender.deblend(this, DependencyObject))
+            throw new FrameworkException("Failed to de-blend from DependencyObject.");
     }
 }

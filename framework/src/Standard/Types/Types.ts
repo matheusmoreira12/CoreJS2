@@ -1,11 +1,11 @@
 import { Enumeration } from "../Enumeration";
 
-export type Constructor<T extends Object> = Function | T["constructor"] | (new () => T);
+export type Constructor<T extends Object> = Function & T["constructor"] & (new (...args: []) => T);
 
-export type Class<T extends Object> = {
+export type Class<T extends Object> = Constructor<T> & {
     prototype: T,
     constructor: Constructor<T>
-} & Constructor<T>;
+};
 
 export type Instance<TClass extends Class<Object>> = Object & TClass["prototype"];
 
