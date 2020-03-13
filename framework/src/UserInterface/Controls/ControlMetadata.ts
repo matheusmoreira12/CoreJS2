@@ -4,14 +4,14 @@ import { Collection } from "../../Standard/Collections/Collection";
 
 export class ControlMetadata {
     constructor(widgetConstructor: Class<Control>, qualifiedName: string, namespaceURI?: string | null) {
-        this.__widgetConstructor = widgetConstructor;
+        this.__controlClass = widgetConstructor;
         this.__namespaceURI = namespaceURI || null;
         this.__qualifiedName = qualifiedName;
         this.__activeInstances = new Collection();
     }
 
-    get controlConstructor(): Class<Control> { return this.__widgetConstructor; }
-    private __widgetConstructor: Class<Control>;
+    get controlClass(): Class<Control> { return this.__controlClass; }
+    private __controlClass: Class<Control>;
 
     get namespaceURI(): string | null { return this.__namespaceURI; }
     private __namespaceURI: string | null;

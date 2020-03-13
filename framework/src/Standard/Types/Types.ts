@@ -1,6 +1,13 @@
 import { Enumeration } from "../Enumeration";
 
-export type Class<T> = Function & { prototype: T };
+export type Constructor<T extends Object> = Function | T["constructor"] | (new () => T);
+
+export type Class<T extends Object> = {
+    prototype: T,
+    constructor: Constructor<T>
+} & Constructor<T>;
+
+export type Instance<TClass extends Class<Object>> = Object & TClass["prototype"];
 
 export const MemberSelectionAttributes = Enumeration.create({
     Any: 0,

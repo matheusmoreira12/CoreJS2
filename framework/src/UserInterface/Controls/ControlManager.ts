@@ -1,5 +1,5 @@
 ﻿import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index";
-import { Type, Class } from "../../Standard/Types/index";
+import { Type, Class, Instance } from "../../Standard/Types/index";
 import { Collection } from "../../Standard/Collections/index";
 import { DOMUtils } from "../index";
 import { ControlMetadata } from "./ControlMetadata";
@@ -13,16 +13,17 @@ function getRegisteredControlByName(qualifiedName: string, namespaceURI?: string
 }
 
 function getRegisteredControlByConstructor(controlConstructor: Class<Control>): ControlMetadata | null {
-    return registeredControls.find(m => m.controlConstructor === controlConstructor) || null;
+    return registeredControls.find(m => m.controlClass === controlConstructor) || null;
 }
 
 function registerControl(metadata: ControlMetadata) {
     registeredControls.add(metadata);
 }
 
+//@ignore
 function initializeControlInstance(metadata: ControlMetadata, element: Element): Control {
-    const controlConstructor: Class<Control> = metadata.controlConstructor;
-    const controlInstance: Control = new controlConstructor(element);
+    const controlClass: Class<Control> = metadata.controlClass;
+    const controlInstance: Control = new controlClass(element);
 
     metadata.activeInstances.add(controlInstance);
 
@@ -143,15 +144,15 @@ export function deregister(controlConstructor: Class<Control>): void {
         throw new InvalidOperationException("Cannot deregister control. No registered control matches the specified control constructor.");
 }
 
-export function instantiate<TControl extends Control>(controlConstructor: Class<Control>): TControl {
-    assertParams({ controlConstructor }, [Function]);
-    assertControlConstructor(controlConstructor);
+export function instantiate<TControl extends Control>(controlClass: Class<Control>): Instance<typeof controlClass> {
+    assertParams({ controlClass }, [Function]);
+    assertControlConstructor(controlClass);
 
-    const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlConstructor);
+    const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlClass);
     const isControlRegistered = !!metadata;
     if (isControlRegistered) {
         const element = DOMUtils.createElement((<ControlMetadata>metadata).qualifiedName, (<ControlMetadata>metadata).namespaceURI);
-        return <TControl>initializeControlInstance(<ControlMetadata>metadata, element);
+        return <Instance<typeof controlClass>><unknown>initializeControlInstance(<ControlMetadata>metadata, element);
     }
     else
         throw new InvalidOperationException("Cannot instantiate control. No registered control matches the specified control constructor.");
