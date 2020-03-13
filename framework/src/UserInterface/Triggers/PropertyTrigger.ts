@@ -1,8 +1,8 @@
 import { Trigger } from "./index";
-import { DependencyProperty, IDependencyObject } from "../DependencyObjects/index";
+import { DependencyProperty, DependencyObject } from "../DependencyObjects/index";
 import { Setter } from "../Setters/index";
 import { SetterCollection } from "../Setters/SetterCollection";
-import { assertParams, assertEachParams } from "../../Validation/index";
+import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index";
 
 //Keys for PropertyTrigger
 const $target = Symbol();
@@ -16,12 +16,12 @@ const $removeAllSetters = Symbol();
  * Triggers a group of setters when the specified property matches the specified value.
  */
 export class PropertyTrigger extends Trigger {
-    constructor(target: IDependencyObject, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
+    constructor(target: DependencyObject, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
         super();
 
         assertParams({ target }, [Object]);
         assertParams({ targetProperty }, [DependencyProperty]);
-        assertEachParams({ setters }, [Array, Setter]);
+        assertEachParams({ setters }, [Setter], TypeValidationMode.MatchAny, [Array]);
 
         this[$target] = target;
         this[$targetProperty] = targetProperty;

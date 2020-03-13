@@ -2,7 +2,7 @@ import { Destructible } from "../Destructible";
 import { FrameworkEventArgs } from "./index";
 import { FrameworkEventListener } from "./index";
 import { Dictionary } from "../Collections/Dictionary";
-import { assertParams } from "../../Validation/Standalone";
+import { assertParams } from "../..\/ValidationStandalone/index";
 
 type FrameworkEventListenerData = { thisArg: any };
 
@@ -29,7 +29,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
     constructor(defaultListener?: FrameworkEventListener<TArgs>, defaultListenerThisArg?: any) {
         super();
 
-        assertParams({ defaultListener }, Function, FrameworkEvent);
+        assertParams({ defaultListener }, Function, FrameworkEvent, undefined);
 
         if (defaultListener !== undefined)
             this.attach(defaultListener, defaultListenerThisArg);

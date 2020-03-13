@@ -6,7 +6,9 @@ import { TypeValidationMode } from "./TypeValidationMode";
 
 function* resolveTypes(typeDesignators: Iterable<TypeDesignator>): Iterable<Type | Interface> {
     for (let type of typeDesignators) {
-        if (type instanceof Type || type instanceof Interface)
+        if (type === undefined || type === null)
+            yield Type.of(type);
+        else if (type instanceof Type || type instanceof Interface)
             yield type;
         else if (type instanceof Function)
             yield Type.get(type);

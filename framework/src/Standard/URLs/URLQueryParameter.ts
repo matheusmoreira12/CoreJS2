@@ -1,5 +1,5 @@
 ﻿import { URLToken } from "./URLTokenifier";
-import { assertParams } from "../../Validation/index";
+import { assertParams } from "../..\/ValidationStandalone/index";
 
 export class URLQueryParameter {
     static fromToken(token: URLToken): URLQueryParameter | null {

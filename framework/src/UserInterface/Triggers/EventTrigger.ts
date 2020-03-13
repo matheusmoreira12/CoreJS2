@@ -2,7 +2,7 @@ import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index"
 import { Trigger } from "./index";
 import { Dictionary } from "../../Standard/Collections/index";
 import { Action, ActionCollection } from "../Actions/index";
-import { assertParams, assertEachParams } from "../../Validation/index";
+import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index";
 
 //Keys for EventTrigger
 const $targetEvent = Symbol();
@@ -20,7 +20,7 @@ export class EventTrigger extends Trigger {
         super();
 
         assertParams({ targetEvent }, [FrameworkEvent]);
-        assertEachParams({ actions }, [Array, Action]);
+        assertEachParams({ actions }, [Action], TypeValidationMode.MatchAny, [Array]);
 
         this[$targetEvent] = targetEvent;
         this[$actions] = new ActionCollection(this, ...actions);

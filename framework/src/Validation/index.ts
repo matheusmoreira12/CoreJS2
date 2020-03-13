@@ -1,7 +1,6 @@
 export * from "./Validation";
 
+export * from "./TypeValidationMode";
+
 import * as Decorators from "./Decorators";
 export { Decorators };
-
-import * as Standalone from "./Standalone";
-export { Standalone }

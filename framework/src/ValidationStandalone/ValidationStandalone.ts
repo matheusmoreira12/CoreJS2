@@ -1,4 +1,4 @@
-import { ArgumentTypeException, InvalidTypeException } from "../Standard/index";
+import { ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
 import { TypeDesignator, Constructor } from "./Types";
 
 function* resolveConstructors(...types: TypeDesignator[]): Iterable<Constructor> {
@@ -17,6 +17,8 @@ function getConstructor(value: any): Constructor {
 
 function constructorMatchesAny(ctor: Constructor, ...ctors: Constructor[]) {
     if (ctor === null || ctor === undefined)
+        return ctors.indexOf(ctor) != -1;
+    else
         while (ctor instanceof Function) {
             const isMatch = ctors.indexOf(ctor) !== -1;
             if (isMatch)

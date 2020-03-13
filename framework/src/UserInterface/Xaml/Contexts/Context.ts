@@ -1,5 +1,5 @@
 import { TreeItem } from "../../../Standard/Collections/index";
-import { assertParams, assertEachParams } from "../../../Validation/index";
+import { assertParams, assertEachParams, TypeValidationMode } from "../../../Validation/index";
 import { InvalidOperationException } from "../../../Standard/index";
 
 //Keys for DataContext
@@ -12,7 +12,7 @@ export class Context extends TreeItem<Context> {
     static get root() { return mainContext; }
 
     constructor(target: object | null, ...children: Context[]) {
-        assertEachParams({ children }, [Array, Context]);
+        assertEachParams({ children }, [Context], TypeValidationMode.MatchAny, [Array]);
 
         super(...children)
 
