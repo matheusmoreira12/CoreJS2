@@ -144,7 +144,7 @@ export function deregister(controlConstructor: Class<Control>): void {
         throw new InvalidOperationException("Cannot deregister control. No registered control matches the specified control constructor.");
 }
 
-export function instantiate<TControl extends Control>(controlClass: Class<Control>): Instance<typeof controlClass> {
+export function instantiate<TControl extends Control>(controlClass: Class<TControl>): TControl {
     assertParams({ controlClass }, [Function]);
     assertControlConstructor(controlClass);
 
@@ -152,7 +152,7 @@ export function instantiate<TControl extends Control>(controlClass: Class<Contro
     const isControlRegistered = !!metadata;
     if (isControlRegistered) {
         const element = DOMUtils.createElement((<ControlMetadata>metadata).qualifiedName, (<ControlMetadata>metadata).namespaceURI);
-        return <Instance<typeof controlClass>><unknown>initializeControlInstance(<ControlMetadata>metadata, element);
+        return <TControl>initializeControlInstance(<ControlMetadata>metadata, element);
     }
     else
         throw new InvalidOperationException("Cannot instantiate control. No registered control matches the specified control constructor.");

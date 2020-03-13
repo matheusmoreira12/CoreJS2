@@ -1,26 +1,8 @@
 import { Class } from "../../CoreBase/Utils/Types";
-import { Instance } from "../Types/Types";
 import { Destructible } from "../Destructible";
-
-type BlendedInstanceInfo = {
-    blendClass: Class<any>,
-    blend: any
-    obj: object
-};
-
-namespace BlendedInstanceInfo {
-    export function create(blendClass: Class<any>, obj: object): BlendedInstanceInfo {
-        return {
-            blendClass,
-            blend: null,
-            obj
-        }
-    }
-}
+import { BlendedInstanceInfo, DoPredicate } from "./Types";
 
 const allBlendedInstances: BlendedInstanceInfo[] = [];
-
-type DoPredicate<TBlend extends Object, TResult> = (blend: TBlend) => TResult;
 
 export const Blender = {
     blend(blendClass: Class<any>, destObj: object) {

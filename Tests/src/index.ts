@@ -8,6 +8,8 @@ import Type = Core.Standard.Types.Type;
 //Visual Trees
 import VisualTreeElement = Core.UserInterface.VisualTrees.VisualTreeElement;
 //Bindings
+import DependencyObject = Core.UserInterface.DependencyObjects.DependencyObject;
+import Blender = Core.Standard.Blender.Blender;
 import PropertyBinding = Core.UserInterface.Bindings.PropertyBinding;
 import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeBinding;
 import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
@@ -97,16 +99,16 @@ export abstract class Shape extends Control {
     }
 
     static fillProperty = DependencyProperty.register(<any>Shape, "fill", { valueType: Type.get(String), defaultValue: "transparent" });
-    get fill(): string { return this.DependencyObject.get(Shape.fillProperty); }
-    set fill(value: string) { this.DependencyObject.set(Shape.fillProperty, value); }
+    get fill(): string { return Blender.do(this, DependencyObject, o => o.get(Shape.fillProperty)); }
+    set fill(value: string) { Blender.do(this, DependencyObject, o => o.set(Shape.fillProperty, value)); }
 
     static strokeProperty = DependencyProperty.register(<any>Shape, "stroke", { valueType: Type.get(String), defaultValue: "transparent" });
-    get stroke(): string { return this.DependencyObject.get(Shape.strokeProperty); }
-    set stroke(value: string) { this.DependencyObject.set(Shape.strokeProperty, value); }
+    get stroke(): string { return Blender.do(this, DependencyObject, o => o.get(Shape.strokeProperty)); }
+    set stroke(value: string) { Blender.do(this, DependencyObject, o => o.set(Shape.strokeProperty, value)); }
 
     static strokeThicknessProperty = DependencyProperty.register(<any>Shape, "strokeThickness", { valueType: Type.get(GraphicValue), defaultValue: GraphicValue.Zero });
-    get strokeThickness(): string { return this.DependencyObject.get(Shape.strokeThicknessProperty); }
-    set strokeThickness(value: string) { this.DependencyObject.set(Shape.strokeThicknessProperty, value); }
+    get strokeThickness(): string { return Blender.do(this, DependencyObject, o => o.get(Shape.strokeThicknessProperty)); }
+    set strokeThickness(value: string) { Blender.do(this, DependencyObject, o => o.set(Shape.strokeThicknessProperty, value)); }
 
     protected __PART_canvas: VisualTreeElement;
 }
@@ -127,24 +129,24 @@ export class Rectangle extends Shape {
         this.__PART_rect = PART_rect;
 
         //Bind properties from Shape to SVG Rect attributes
-        new PropertyAttributeBinding(this.DependencyObject, Shape.fillProperty, <Element>this.__PART_rect.domNode, "fill", null, { direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Shape.fillProperty, <Element>this.__PART_rect.domNode, "stroke", null, { direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Shape.fillProperty, <Element>this.__PART_rect.domNode, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() });
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domNode, "fill", null, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domNode, "stroke", null, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domNode, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() }));
 
         //Bind properties from Rectangle to SVG Rect attributes
-        new PropertyAttributeBinding(this.DependencyObject, Rectangle.rxProperty, <Element>this.__PART_rect.domNode, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Rectangle.ryProperty, <Element>this.__PART_rect.domNode, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget });
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.rxProperty, <Element>this.__PART_rect.domNode, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.ryProperty, <Element>this.__PART_rect.domNode, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
     }
 
     protected __PART_rect: VisualTreeElement;
 
     static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get rx(): GraphicValue { return this.DependencyObject.get(Rectangle.rxProperty); }
-    set rx(value: GraphicValue) { this.DependencyObject.set(Rectangle.rxProperty, value); }
+    get rx(): GraphicValue { return Blender.do(this, DependencyObject, o => o.get(Rectangle.rxProperty)); }
+    set rx(value: GraphicValue) { Blender.do(this, DependencyObject, o => o.set(Rectangle.rxProperty, value)); }
 
     static ryProperty = DependencyProperty.register(<any>Rectangle, "ry", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get ry(): GraphicValue { return this.DependencyObject.get(Rectangle.ryProperty); }
-    set ry(value: GraphicValue) { this.DependencyObject.set(Rectangle.ryProperty, value); }
+    get ry(): GraphicValue { return Blender.do(this, DependencyObject, o => o.get(Rectangle.ryProperty)); }
+    set ry(value: GraphicValue) { Blender.do(this, DependencyObject, o => o.set(Rectangle.ryProperty, value)); }
 }
 WidgetManager.register(<any>Rectangle, "core:Rectangle", "core");
 
@@ -177,8 +179,8 @@ export abstract class ContainerControl extends Control {
     }
 
     static childProperty = DependencyProperty.register(<any>ContainerControl, "child", { valueType: Type.of(VisualTreeElement) });
-    get child(): VisualTreeElement { return this.DependencyObject.get(ContainerControl.childProperty); }
-    set child(value: VisualTreeElement) { this.DependencyObject.set(ContainerControl.childProperty, value); }
+    get child(): VisualTreeElement { return Blender.do(this, DependencyObject, o => o.get(ContainerControl.childProperty)); }
+    set child(value: VisualTreeElement) { Blender.do(this, DependencyObject, o => o.set(ContainerControl.childProperty, value)); }
 }
 
 export class Border extends ContainerControl {
@@ -190,28 +192,28 @@ export class Border extends ContainerControl {
         this.__PART_background = PART_background;
 
         //Bind properties from Border to the rectangle part
-        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, this.__PART_background.DependencyObject, Shape.fillProperty, { direction: BindingDirection.ToTarget });
-        new PropertyBinding(this.DependencyObject, Border.borderProperty, this.__PART_background.DependencyObject, Shape.strokeProperty, { direction: BindingDirection.ToTarget });
-        new PropertyBinding(this.DependencyObject, Border.borderThicknessProperty, this.__PART_background.DependencyObject, Shape.strokeThicknessProperty, { direction: BindingDirection.ToTarget });
-        new PropertyBinding(this.DependencyObject, Border.borderRadiusXProperty, this.__PART_background.DependencyObject, Rectangle.rxProperty, { direction: BindingDirection.ToTarget });
-        new PropertyBinding(this.DependencyObject, Border.borderRadiusYProperty, this.__PART_background.DependencyObject, Rectangle.ryProperty, { direction: BindingDirection.ToTarget });
+        Blender.do(this, DependencyObject, o => new PropertyBinding(o, Control.backgroundProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyBinding(o, Border.borderProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Shape.strokeProperty, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyBinding(o, Border.borderThicknessProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Shape.strokeThicknessProperty, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyBinding(o, Border.borderRadiusXProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Rectangle.rxProperty, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyBinding(o, Border.borderRadiusYProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Rectangle.ryProperty, { direction: BindingDirection.ToTarget }));
     }
 
     static borderProperty = DependencyProperty.register(<any>Border, "border", { valueType: Type.get(String), defaultValue: "transparent" });
-    get border(): string { return this.DependencyObject.get(Border.borderProperty); }
-    set border(value: string) { this.DependencyObject.set(Border.borderProperty, value); }
+    get border(): string { return Blender.do(this, DependencyObject, o => o.get(Border.borderProperty)); }
+    set border(value: string) { Blender.do(this, DependencyObject, o => o.set(Border.borderProperty, value)); }
 
     static borderThicknessProperty = DependencyProperty.register(<any>Border, "borderThickness", { valueType: Type.get(GraphicValue), defaultValue: GraphicValue.Zero });
-    get borderThickness(): string { return this.DependencyObject.get(Border.borderThicknessProperty); }
-    set borderThickness(value: string) { this.DependencyObject.set(Border.borderThicknessProperty, value); }
+    get borderThickness(): string { return Blender.do(this, DependencyObject, o => o.get(Border.borderThicknessProperty)); }
+    set borderThickness(value: string) { Blender.do(this, DependencyObject, o => o.set(Border.borderThicknessProperty, value)); }
 
     static borderRadiusXProperty = DependencyProperty.register(<any>Border, "borderRadiusX", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get borderRadiusX(): GraphicValue { return this.DependencyObject.get(Border.borderRadiusXProperty); }
-    set borderRadiusX(value: GraphicValue) { this.DependencyObject.set(Border.borderRadiusXProperty, value); }
+    get borderRadiusX(): GraphicValue { return Blender.do(this, DependencyObject, o => o.get(Border.borderRadiusXProperty)); }
+    set borderRadiusX(value: GraphicValue) { Blender.do(this, DependencyObject, o => o.set(Border.borderRadiusXProperty, value)); }
 
     static borderRadiusYProperty = DependencyProperty.register(<any>Border, "borderRadiusY", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get borderRadiusY(): GraphicValue { return this.DependencyObject.get(Border.borderRadiusYProperty); }
-    set borderRadiusY(value: GraphicValue) { this.DependencyObject.set(Border.borderRadiusYProperty, value); }
+    get borderRadiusY(): GraphicValue { return Blender.do(this, DependencyObject, o => o.get(Border.borderRadiusYProperty)); }
+    set borderRadiusY(value: GraphicValue) { Blender.do(this, DependencyObject, o => o.set(Border.borderRadiusYProperty, value)); }
 
     private __PART_background: VisualTreeElement;
 }
@@ -231,7 +233,7 @@ WidgetManager.register(<any>Border, "core:Border", "core");
 //        this.__PART_canvas.children.add(PART_ellipse);
 //        this.__PART_ellipse = PART_ellipse;
 
-//        new PropertyAttributeBinding(this.DependencyObject, Control.foregroundProperty, <Element>this.__PART_ellipse.domNode, "fill", null, { direction: BindingDirection.ToTarget });
+//        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(Control.foregroundProperty, <Element>this.__PART_ellipse.domNode, "fill", null, { direction: BindingDirection.ToTarget }));
 //    }
 
 //    protected __PART_ellipse: VisualTreeElement;
@@ -246,12 +248,12 @@ export class Text extends Shape {
         this.__PART_text = PART_text;
         this.__PART_canvas.children.add(PART_text);
 
-        new PropertyAttributeBinding(this.DependencyObject, Text.fillProperty, <Element>PART_text.domNode, "fill", null, { direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget });
-        new PropertyAttributeBinding(this.DependencyObject, Text.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget });
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fillProperty, <Element>PART_text.domNode, "fill", null, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget }));
 
         this.__updateViewbox();
         this.__updateText();
@@ -279,12 +281,12 @@ export class Text extends Shape {
     private __PART_text: VisualTreeElement;
 
     static fontProperty = DependencyProperty.register(<any>Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
-    get font(): Font { return this.DependencyObject.get(Text.fontProperty); }
-    set font(value: Font) { this.DependencyObject.set(Text.fontProperty, value); }
+    get font(): Font { return Blender.do(this, DependencyObject, o => o.get(Text.fontProperty)); }
+    set font(value: Font) { Blender.do(this, DependencyObject, o => o.set(Text.fontProperty, value)); }
 
     static textProperty = DependencyProperty.register(<any>Text, "text", { valueType: Type.get(String), defaultValue: "" });
-    get text(): string { return this.DependencyObject.get(Text.textProperty); }
-    set text(value: string) { this.DependencyObject.set(Text.textProperty, value); }
+    get text(): string { return Blender.do(this, DependencyObject, o => o.get(Text.textProperty)); }
+    set text(value: string) { Blender.do(this, DependencyObject, o => o.set(Text.textProperty, value)); }
 }
 WidgetManager.register(Text, "core:Text", "core");
 
@@ -310,8 +312,8 @@ export class Button extends Control {
         this.background = "white";
         (<Text>this.__PART_text).text = "Click here!";
 
-        new PropertyBinding(this.DependencyObject, Control.backgroundProperty, PART_border.DependencyObject, Control.backgroundProperty, { direction: BindingDirection.ToTarget });
-        new PropertyBinding(this.DependencyObject, Control.foregroundProperty, PART_text.DependencyObject, Shape.fillProperty, { direction: BindingDirection.ToTarget });
+        Blender.do(this, DependencyObject, o => new PropertyBinding(o, Control.backgroundProperty, <DependencyObject>Blender.get(PART_border, DependencyObject), Control.backgroundProperty, { direction: BindingDirection.ToTarget }));
+        Blender.do(this, DependencyObject, o => new PropertyBinding(o, Control.foregroundProperty, <DependencyObject>Blender.get(PART_text, DependencyObject), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
     }
 
     private __PART_border: Border;

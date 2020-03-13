@@ -40,8 +40,6 @@ export class VisualTreeElement extends VisualTreeNode {
 
     }
 
-    DependencyObject: DependencyObject;
-
     private __removeElement(element: VisualTreeElement) {
         (<Element>this.__domNode).removeChild(element.__domNode);
         element.__parent = null;

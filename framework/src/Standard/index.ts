@@ -9,6 +9,9 @@ export * from "./Tokens";
 import * as APIs from "./APIs/index";
 export { APIs };
 
+import * as Blender from "./Blender/index";
+export { Blender };
+
 import * as Collections from "./Collections/index";
 export { Collections };
 
