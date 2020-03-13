@@ -1,6 +1,6 @@
 import { Class } from "../../CoreBase/Utils/Types";
-import { InvalidOperationException } from "../Exceptions";
 import { Instance } from "../Types/Types";
+import { Destructible } from "../Destructible";
 
 type BlendedInstanceInfo = {
     blendedClass: Class<any>,
@@ -56,6 +56,9 @@ export const Blender = {
         const blendedInstance = this.get(sourceObj, blendedClass);
         const isBlended = !!blendedInstance;
         if (isBlended) {
+            const isInstanceDestructible = blendedInstance instanceof Destructible;
+            if (isInstanceDestructible && !blendedInstance.isDestructed)
+                blendedInstance.Destruct();
 
             return true;
         }
