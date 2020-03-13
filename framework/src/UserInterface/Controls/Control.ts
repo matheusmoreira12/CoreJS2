@@ -1,4 +1,4 @@
-import { InvalidOperationException } from "../../Standard/index";
+import { InvalidOperationException, Destructible } from "../../Standard/index";
 import { PropertyAttributeBinding } from "../Bindings/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
@@ -6,6 +6,7 @@ import { BooleanAttributeValueConverter } from "../ValueConverters/index";
 import { DependencyProperty } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
+import { Blender } from "../../Standard/Blender/Blender";
 
 ///TODO: fix this mess
 
@@ -32,6 +33,8 @@ export abstract class Control extends VisualTreeElement {
         this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
+
+        Blender.blend(Destructible, this);
     }
 
     //Helper Class Instances

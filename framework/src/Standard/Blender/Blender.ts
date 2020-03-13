@@ -5,15 +5,15 @@ import { Destructible } from "../Destructible";
 type BlendedInstanceInfo = {
     blendedClass: Class<any>,
     blendedInstance: any
-    destObj: object
+    obj: object
 };
 
 namespace BlendedInstanceInfo {
-    export function create(blendedClass: Class<any>, destObj: object): BlendedInstanceInfo {
+    export function create(blendedClass: Class<any>, obj: object): BlendedInstanceInfo {
         return {
             blendedClass,
             blendedInstance: null,
-            destObj
+            obj
         }
     }
 }
@@ -32,8 +32,8 @@ export const Blender = {
         }
     },
 
-    initialize(blendClass: Class<any>, destObj: object, ...args: []): Instance<typeof blendClass> {
-        const blendedInstance = allBlendedInstances.find(bi => bi.destObj === destObj || bi.blendedClass === blendClass);
+    initialize(sourceObj: object, blendClass: Class<any>, ...args: []): Instance<typeof blendClass> {
+        const blendedInstance = allBlendedInstances.find(bi => bi.obj === sourceObj || bi.blendedClass === blendClass);
         const isBlended = !!blendedInstance;
         if (isBlended) {
             const newBlendedInstance = new blendClass(args);
@@ -44,7 +44,7 @@ export const Blender = {
     },
 
     get(sourceObj: object, blendedClass: Class<any>): (Instance<typeof blendedClass>) | null {
-        const blendedInstanceInfo = allBlendedInstances.find(bi => bi.destObj === sourceObj || bi.blendedClass === blendedClass);
+        const blendedInstanceInfo = allBlendedInstances.find(bi => bi.obj === sourceObj || bi.blendedClass === blendedClass);
         const isBlended = !!blendedInstanceInfo;
         if (isBlended)
             return <Instance<typeof blendedClass>>(<BlendedInstanceInfo>blendedInstanceInfo).blendedClass;
