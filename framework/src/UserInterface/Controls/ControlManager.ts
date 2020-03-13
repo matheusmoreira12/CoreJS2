@@ -93,8 +93,8 @@ export function getRegisteredControls(): ControlMetadata[] {
 }
 
 export function getByName(qualifiedName: string, namespaceURI: string | null = null) {
-    assertParams({ qualifiedName }, String);
-    assertParams({ namespaceURI }, String, null);
+    assertParams({ qualifiedName }, [String]);
+    assertParams({ namespaceURI }, [String, null]);
 
     return getRegisteredControlByName(qualifiedName, namespaceURI);
 }
@@ -105,16 +105,16 @@ function assertControlConstructor(controlConstructor: Class<Control>) {
 }
 
 export function getByConstructor(controlConstructor: Class<Control>) {
-    assertParams({ controlConstructor }, Function);
+    assertParams({ controlConstructor }, [Function]);
     assertControlConstructor(controlConstructor);
 
     return getRegisteredControlByConstructor(controlConstructor);
 }
 
 export function register(controlConstructor: Class<Control>, qualifiedName: string, namespaceURI: string | null = null): void {
-    assertParams({ controlConstructor }, Function);
-    assertParams({ qualifiedName }, String);
-    assertParams({ namespaceURI }, String, null);
+    assertParams({ controlConstructor }, [Function]);
+    assertParams({ qualifiedName }, [String]);
+    assertParams({ namespaceURI }, [String, null]);
     assertControlConstructor(controlConstructor);
 
     const isControlAlreadyRegistered = !!getRegisteredControlByConstructor(controlConstructor);
@@ -132,7 +132,7 @@ export function register(controlConstructor: Class<Control>, qualifiedName: stri
 }
 
 export function deregister(controlConstructor: Class<Control>): void {
-    assertParams({ controlConstructor }, Function);
+    assertParams({ controlConstructor }, [Function]);
     assertControlConstructor(controlConstructor);
 
     const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlConstructor);
@@ -144,7 +144,7 @@ export function deregister(controlConstructor: Class<Control>): void {
 }
 
 export function instantiate<TControl extends Control>(controlConstructor: Class<Control>): TControl {
-    assertParams({ controlConstructor }, Function);
+    assertParams({ controlConstructor }, [Function]);
     assertControlConstructor(controlConstructor);
 
     const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlConstructor);

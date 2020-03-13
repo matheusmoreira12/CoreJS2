@@ -19,8 +19,8 @@ export class PropertyTrigger extends Trigger {
     constructor(target: IDependencyObject, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
         super();
 
-        assertParams({ target }, Object);
-        assertParams({ targetProperty }, DependencyProperty);
+        assertParams({ target }, [Object]);
+        assertParams({ targetProperty }, [DependencyProperty]);
         assertEachParams({ setters }, Array, Setter);
 
         this[$target] = target;

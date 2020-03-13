@@ -14,9 +14,9 @@ export class Font {
     static get default(): Font { return DEFAULT_FONT; }
 
     constructor(family: string, size: GraphicValue, weight: number = FontWeight.Normal, style: number = FontStyle.Normal, textDecoration: number = TextDecoration.None) {
-        assertParams({ family }, String);
-        assertParams({ size }, GraphicValue);
-        assertParams({ weight, style, textDecoration }, Number);
+        assertParams({ family }, [String]);
+        assertParams({ size }, [GraphicValue]);
+        assertParams({ weight, style, textDecoration }, [Number]);
 
         this[$family] = family;
         this[$size] = size;

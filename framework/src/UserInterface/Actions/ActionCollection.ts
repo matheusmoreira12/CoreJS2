@@ -9,7 +9,7 @@ export const $unsetTrigger = Symbol();
 
 export class ActionCollection extends ObservableCollection<Action> {
     constructor(parentTrigger: EventTrigger, ...items: Action[]) {
-        assertParams({ parentTrigger }, EventTrigger);
+        assertParams({ parentTrigger }, [EventTrigger]);
 
         super(...items);
 

@@ -10,8 +10,8 @@ import { PropertyChangeEventArgs } from "../DependencyObjects/index";
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
-        assertParams({ qualifiedName }, String);
-        assertParams({ namespaceURI }, String, null);
+        assertParams({ qualifiedName }, [String]);
+        assertParams({ namespaceURI }, [String, null]);
 
         const domElement = document.createElementNS(namespaceURI, qualifiedName);
         return new VisualTreeElement(domElement);
@@ -20,7 +20,7 @@ export class VisualTreeElement extends VisualTreeNode {
     constructor(domElement: Element) {
         super(domElement);
 
-        assertParams({ domElement }, Element);
+        assertParams({ domElement }, [Element]);
 
         this.__children.ChangeEvent.attach(this.__children_onChange, this);
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);

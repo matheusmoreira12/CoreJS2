@@ -23,8 +23,8 @@ export class Setter extends Destructible {
     constructor(target: DependencyObject, property: DependencyProperty, value: any) {
         super();
 
-        assertParams({ target }, DependencyObject);
-        assertParams({ property }, DependencyProperty);
+        assertParams({ target }, [DependencyObject]);
+        assertParams({ property }, [DependencyProperty]);
 
         this[$target] = target;
         this[$property] = property;

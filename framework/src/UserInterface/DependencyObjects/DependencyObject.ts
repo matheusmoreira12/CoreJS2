@@ -13,13 +13,13 @@ export class DependencyObject {
     }
 
     get(property: DependencyProperty): any {
-        assertParams({ property }, DependencyProperty);
+        assertParams({ property }, [DependencyProperty]);
 
         return Storage.getValue(this, property);
     }
 
     set(property: DependencyProperty, value: any): void {
-        assertParams({ property }, DependencyProperty);
+        assertParams({ property }, [DependencyProperty]);
 
         Storage.setValue(this, this, property, value);
     }

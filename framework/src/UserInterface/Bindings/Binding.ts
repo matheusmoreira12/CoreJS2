@@ -19,7 +19,7 @@ export abstract class Binding extends Destructible {
 
         super();
 
-        assertParams({ options }, IBindingOptions);
+        assertParams({ options }, [IBindingOptions]);
 
         this[$options] = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
     }

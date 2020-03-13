@@ -15,8 +15,8 @@ const $name = Symbol();
  */
 export class DependencyProperty {
     static register(target: typeof Object, name: string, options: IPropertyOptions = {}): DependencyProperty {
-        assertParams({ target }, Function);
-        assertParams({ options }, IPropertyOptions);
+        assertParams({ target }, [Function]);
+        assertParams({ options }, [IPropertyOptions]);
 
         options = Object.assign({}, DEFAULT_PROPERTY_OPTIONS, options);
 
@@ -26,7 +26,7 @@ export class DependencyProperty {
     }
 
     constructor(name: string) {
-        assertParams({ name }, String);
+        assertParams({ name }, [String]);
 
         this[$name] = name;
     }

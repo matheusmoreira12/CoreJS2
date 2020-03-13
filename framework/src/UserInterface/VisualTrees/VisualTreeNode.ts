@@ -9,7 +9,7 @@ export abstract class VisualTreeNode extends Destructible {
         if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
 
-        assertParams({ domNode }, Node);
+        assertParams({ domNode }, [Node]);
 
         this.__domNode = domNode;
     }

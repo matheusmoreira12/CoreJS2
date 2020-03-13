@@ -30,10 +30,10 @@ export class PropertyBinding extends Binding {
     constructor(source: DependencyObject, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, options?: IBindingOptions) {
         super(options);
 
-        assertParams({ source }, DependencyObject);
-        assertParams({ sourceProperty }, DependencyProperty);
-        assertParams({ target }, DependencyObject);
-        assertParams({ targetProperty }, IBindingOptions);
+        assertParams({ source }, [DependencyObject]);
+        assertParams({ sourceProperty }, [DependencyProperty]);
+        assertParams({ target }, [DependencyObject]);
+        assertParams({ targetProperty }, [IBindingOptions]);
 
         this[$source] = source;
         this[$sourceProperty] = sourceProperty;

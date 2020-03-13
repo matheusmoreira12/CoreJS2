@@ -31,11 +31,11 @@ export class PropertyAttributeBinding extends Binding {
     constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, targetAttributeNamespace: string | null = null, options?: IBindingOptions) {
         super(options);
 
-        assertParams({ source }, DependencyObject);
-        assertParams({ sourceProperty }, DependencyProperty);
-        assertParams({ targetElement }, Element);
-        assertParams({ targetAttributeName }, String);
-        assertParams({ targetAttributeNamespace }, String, null);
+        assertParams({ source }, [DependencyObject]);
+        assertParams({ sourceProperty }, [DependencyProperty]);
+        assertParams({ targetElement }, [Element]);
+        assertParams({ targetAttributeName }, [String]);
+        assertParams({ targetAttributeNamespace }, [String, null]);
 
         this[$source] = source;
         this[$sourceProperty] = sourceProperty;
