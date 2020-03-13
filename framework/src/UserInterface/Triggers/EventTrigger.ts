@@ -20,7 +20,7 @@ export class EventTrigger extends Trigger {
         super();
 
         assertParams({ targetEvent }, [FrameworkEvent]);
-        assertEachParams({ actions }, Array, Action);
+        assertEachParams({ actions }, [Array, Action]);
 
         this[$targetEvent] = targetEvent;
         this[$actions] = new ActionCollection(this, ...actions);

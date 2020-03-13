@@ -12,7 +12,7 @@ export class Context extends TreeItem<Context> {
     static get root() { return mainContext; }
 
     constructor(target: object | null, ...children: Context[]) {
-        assertEachParams({ children }, Array, Context);
+        assertEachParams({ children }, [Array, Context]);
 
         super(...children)
 
