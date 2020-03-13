@@ -4,9 +4,14 @@ import { BlendedInstanceInfo, DoPredicate } from "./Types";
 
 const allBlendedInstances: BlendedInstanceInfo[] = [];
 
+function getBlendInstanceInfoIndex(sourceObj: object, blendClass: Class<any>): number {
+    return allBlendedInstances.findIndex(bi => bi.obj === sourceObj && bi.blendClass === blendClass);
+}
+
 export const Blender = {
     blend(blendClass: Class<any>, destObj: object) {
-        const isBlended = !!this.get(destObj, blendClass);
+        const infoIndex = getBlendInstanceInfoIndex(destObj, blendClass);
+        const isBlended = infoIndex != -1;
         if (isBlended)
             return false;
         else {
@@ -16,45 +21,52 @@ export const Blender = {
         }
     },
 
+    get<TBlendedInstance extends Object>(sourceObj: object, blendClass: Class<TBlendedInstance>): TBlendedInstance | null {
+        const infoIndex = getBlendInstanceInfoIndex(sourceObj, blendClass);
+        const isBlended = infoIndex != -1;
+        if (isBlended)
+            return <TBlendedInstance>(<BlendedInstanceInfo>allBlendedInstances[infoIndex]).blend;
+        else
+            return null;
+    },
+
     initialize<TBlendInstance extends Object>(sourceObj: object, blendClass: Class<TBlendInstance>, ...constructorArgs: []): TBlendInstance | null {
-        const blend = allBlendedInstances.find(bi => bi.obj === sourceObj || bi.blendClass === blendClass);
-        const isBlended = !!blend;
+        const infoIndex = getBlendInstanceInfoIndex(sourceObj, blendClass);
+        const isBlended = infoIndex != -1;
         if (isBlended) {
-            const newBlendedInstance = new blendClass(constructorArgs);
-            return <TBlendInstance>newBlendedInstance;
+            const newBlend = new blendClass(constructorArgs);
+
+            const info = allBlendedInstances[infoIndex];
+            info.blend = newBlend;
+
+            return <TBlendInstance>newBlend;
         }
         else
             return null;
     },
 
-    get<TBlendedInstance extends Object>(sourceObj: object, blendClass: Class<TBlendedInstance>): TBlendedInstance | null {
-        const blendInfo = allBlendedInstances.find(bi => bi.obj === sourceObj || bi.blendClass === blendClass);
-        const isBlended = !!blendInfo;
-        if (isBlended)
-            return <TBlendedInstance>(<BlendedInstanceInfo>blendInfo).blend;
-        else
-            return null;
-    },
-
     deblend(sourceObj: object, blendClass: Class<any>): boolean {
-        const blend = this.get(sourceObj, blendClass);
-        const isBlended = !!blend;
+        const infoIndex = getBlendInstanceInfoIndex(sourceObj, blendClass);
+        const isBlended = infoIndex != -1;
         if (isBlended) {
-            const isInstanceDestructible = blend instanceof Destructible;
-            if (isInstanceDestructible && !blend.isDestructed)
-                blend.Destruct();
+            const info = allBlendedInstances[infoIndex];
 
+            const isInstanceDestructible = info.blend instanceof Destructible;
+            if (isInstanceDestructible && !info.blend.isDestructed)
+                info.blend.Destruct();
+
+            allBlendedInstances.splice(infoIndex, 1);
             return true;
         }
         else
             return false;
     },
 
-    do<TBlend extends Object, TResult>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>): TResult | undefined {
+    do<TBlend extends Object, TResult>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>, thisArg?: any): TResult | undefined {
         const blend = this.get(sourceObj, blendClass);
         const isBlended = !!blend;
         if (isBlended)
-            return predicate(<TBlend>blend);
+            return predicate.call(thisArg, <TBlend>blend);
         else
             return undefined;
     }

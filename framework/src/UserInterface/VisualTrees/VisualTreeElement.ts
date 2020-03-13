@@ -26,18 +26,11 @@ export class VisualTreeElement extends VisualTreeNode {
         this.__children.ChangeEvent.attach(this.__children_onChange, this);
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
 
-        this.DependencyObject = new DependencyObject();
-        this.DependencyObject.PropertyChangeEvent.attach(this.__DependencyObject_onPropertyChange, this);
-
         //Blend with DependencyObject
         if (Blender.blend(DependencyObject, this))
             Blender.initialize(this, DependencyObject);
         else
             throw new FrameworkException("Failed to blend with DependencyObject.");
-    }
-
-    protected __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-
     }
 
     private __removeElement(element: VisualTreeElement) {

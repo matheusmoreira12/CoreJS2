@@ -18,9 +18,7 @@ export abstract class Control extends VisualTreeElement {
             throw new InvalidOperationException("Invalid constructor");
 
         //Create Bindings
-        new PropertyAttributeBinding(this.DependencyObject, Control.isDraggableProperty, <Element>this.__domNode, "core:draggable", "core", {
-            valueConverter: new BooleanAttributeValueConverter()
-        });
+        Blender.do(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, <Element>this.__domNode, "core:draggable", "core", { valueConverter: new BooleanAttributeValueConverter() }));
 
         //Attach Event Handlers
         //  Drag/Drop Handler Events

@@ -159,6 +159,8 @@ export abstract class ContainerControl extends Control {
         this.__PART_layoutGrid = PART_layoutGrid;
 
         this.__PART_child = null;
+
+        Blender.do(this, DependencyObject, o => o.PropertyChangeEvent.attach(this.__onPropertyChange, this));
     }
 
     private __updateChild(child: VisualTreeElement) {
@@ -173,7 +175,7 @@ export abstract class ContainerControl extends Control {
     private __PART_child: VisualTreeElement | null;
     protected __PART_layoutGrid: Grid;
 
-    protected __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.property === ContainerControl.childProperty)
             this.__updateChild(args.newValue);
     }
@@ -257,6 +259,8 @@ export class Text extends Shape {
 
         this.__updateViewbox();
         this.__updateText();
+
+        Blender.do(this, DependencyObject, o => o.PropertyChangeEvent.attach(this.__onPropertyChange, this));
     }
 
     __updateViewbox() {
@@ -271,7 +275,7 @@ export class Text extends Shape {
     }
 
     //DependencyObject
-    __DependencyObject_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.property === Text.fontProperty)
             this.__updateViewbox();
         else if (args.property === Text.textProperty)
