@@ -52,11 +52,14 @@ export namespace Blender {
         const storageTryGetOutput: TryOutput<BlendedInstanceInfo<TSource, TBlend>> = {};
         if (Storage.tryGet(blendClass, sourceObj, storageTryGetOutput)) {
             const info = <BlendedInstanceInfo<TSource, TBlend>>storageTryGetOutput.result;
-            const isInstanceIntitialized = info.blend !== null;
-            if (isInstanceIntitialized)
-                return false;
+            const isBlendIntitialized = info.blend !== null;
+            if (isBlendIntitialized) {
+                const blend = new blendClass(...constructorArgs);
+                info.blend = blend;
+                output.result = blend;
+                return true;
+            }
             else {
-                output.result;
                 return false;
             }
         }
