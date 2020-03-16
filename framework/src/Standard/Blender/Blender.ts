@@ -28,7 +28,7 @@ export namespace Blender {
             const info = <BlendedInstanceInfo<TSource, TBlend>>storageTryGetOutput.result;
             const isInstanceIntitialized = info.blend !== null;
             if (isInstanceIntitialized) {
-                output.result;
+                output.result = <TBlend>info.blend;
                 return true;
             }
             else
@@ -53,14 +53,13 @@ export namespace Blender {
         if (Storage.tryGet(blendClass, sourceObj, storageTryGetOutput)) {
             const info = <BlendedInstanceInfo<TSource, TBlend>>storageTryGetOutput.result;
             const isBlendIntitialized = info.blend !== null;
-            if (isBlendIntitialized) {
+            if (isBlendIntitialized)
+                return false;
+            else {
                 const blend = new blendClass(...constructorArgs);
                 info.blend = blend;
                 output.result = blend;
                 return true;
-            }
-            else {
-                return false;
             }
         }
         else
@@ -103,10 +102,10 @@ export namespace Blender {
 
     export function execute<TBlend extends Object, TResult = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>): TResult;
     export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult;
-    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg) {
+    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult {
         const tryExecuteOutput: TryOutput<TResult> = {};
-        if (tryExecute(sourceObj, blendClass, predicate, tryExecuteOutput))
-            return tryExecuteOutput.result;
+        if (tryExecute(sourceObj, blendClass, predicate, <TThisArg>thisArg, tryExecuteOutput))
+            return <TResult>tryExecuteOutput.result;
         else
             throw new InvalidOperationException("Cannot de-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
     }
