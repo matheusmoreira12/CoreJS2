@@ -1,69 +1,94 @@
 import { Class } from "../../CoreBase/Utils/Types";
 import { Destructible } from "../Destructible";
-import { BlendedInstanceInfo, DoPredicate } from "./Types";
+import { DoPredicate } from "./Types";
+import { Storage } from "./Storage";
+import { InvalidOperationException } from "../Exceptions";
+import { TryOutput } from "../Types/Types";
+import { BlendedInstanceInfo } from "./BlendedInstanceInfo";
 
-const allBlendedInstances: BlendedInstanceInfo[] = [];
-
-function getBlendInstanceInfoIndex(sourceObj: object, blendClass: Class<any>): number {
-    return allBlendedInstances.findIndex(bi => bi.obj === sourceObj && bi.blendClass === blendClass);
-}
-
-export const Blender = {
-    blend(blendClass: Class<any>, destObj: object) {
-        const infoIndex = getBlendInstanceInfoIndex(destObj, blendClass);
-        const isBlended = infoIndex != -1;
-        if (isBlended)
+export namespace Blender {
+    export function tryBlend<TTarget extends object, TBlend>(blendClass: Class<TBlend>, targetObj: TTarget): boolean {
+        const isBlendSuccessful = Storage.tryStore(blendClass, targetObj);
+        if (isBlendSuccessful)
+            return true;
+        else
             return false;
-        else {
-            const blendInfo = BlendedInstanceInfo.create(blendClass, destObj);
-            allBlendedInstances.push(blendInfo);
-            return true;
-        }
-    },
+    }
 
-    get<TBlendedInstance extends Object>(sourceObj: object, blendClass: Class<TBlendedInstance>): TBlendedInstance | null {
-        const infoIndex = getBlendInstanceInfoIndex(sourceObj, blendClass);
-        const isBlended = infoIndex != -1;
-        if (isBlended)
-            return <TBlendedInstance>(<BlendedInstanceInfo>allBlendedInstances[infoIndex]).blend;
-        else
-            return null;
-    },
+    export function blend<TTarget extends object, TBlend>(blendClass: Class<TBlend>, targetObj: TTarget) {
+        if (!tryBlend(blendClass, targetObj))
+            throw new InvalidOperationException("Cannot blend class with object. The specified class may have already been blended with the specified object.")
+    }
 
-    initialize<TBlendInstance extends Object>(sourceObj: object, blendClass: Class<TBlendInstance>, ...constructorArgs: []): TBlendInstance | null {
-        const infoIndex = getBlendInstanceInfoIndex(sourceObj, blendClass);
-        const isBlended = infoIndex != -1;
-        if (isBlended) {
-            const newBlend = new blendClass(constructorArgs);
-
-            const info = allBlendedInstances[infoIndex];
-            info.blend = newBlend;
-
-            return <TBlendInstance>newBlend;
-        }
-        else
-            return null;
-    },
-
-    deblend(sourceObj: object, blendClass: Class<any>): boolean {
-        const infoIndex = getBlendInstanceInfoIndex(sourceObj, blendClass);
-        const isBlended = infoIndex != -1;
-        if (isBlended) {
-            const info = allBlendedInstances[infoIndex];
-
-            const isInstanceDestructible = info.blend instanceof Destructible;
-            if (isInstanceDestructible && !info.blend.isDestructed)
-                info.blend.Destruct();
-
-            allBlendedInstances.splice(infoIndex, 1);
-            return true;
+    export function tryGet<TBlend, TSource extends Object>(blendClass: Class<TBlend>, sourceObj: TSource, output: TryOutput<TBlend>): boolean {
+        const storageTryGetOutput: TryOutput<BlendedInstanceInfo<TSource, TBlend>> = {};
+        if (Storage.tryGet(blendClass, sourceObj, storageTryGetOutput)) {
+            const info = <BlendedInstanceInfo<TSource, TBlend>>storageTryGetOutput.result;
+            const isInstanceIntitialized = info.blend !== null;
+            if (isInstanceIntitialized) {
+                output.result;
+                return true;
+            }
+            else
+                return false;
         }
         else
             return false;
-    },
+    }
 
-    do<TBlend extends Object, TResult>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>, thisArg?: any): TResult | undefined {
-        const blend = this.get(sourceObj, blendClass);
+    export function get<TBlend, TSource extends Object>(blendClass: Class<TBlend>, sourceObj: TSource): TBlend {
+        const tryGetOutput: TryOutput<TBlend> = {};
+        if (tryGet(blendClass, sourceObj, tryGetOutput)) {
+            const blend = <TBlend>tryGetOutput.result;
+            return blend;
+        }
+        else
+            throw new InvalidOperationException("Cannot get blend from the specified object by the specified class. The specified class may have not been blended with the specified object, or the instance may not have been initialized.");
+    }
+
+    export function tryInitialize<TBlend, TSource extends object>(sourceObj: object, blendClass: Class<TBlend>, output: TryOutput<TBlend>, ...constructorArgs: []): boolean {
+        const storageTryGetOutput: TryOutput<BlendedInstanceInfo<TSource, TBlend>> = {};
+        if (Storage.tryGet(blendClass, sourceObj, storageTryGetOutput)) {
+            const info = <BlendedInstanceInfo<TSource, TBlend>>storageTryGetOutput.result;
+            const isInstanceIntitialized = info.blend !== null;
+            if (isInstanceIntitialized)
+                return false;
+            else {
+                output.result;
+                return false;
+            }
+        }
+        else
+            return false;
+    }
+
+    export function tryDeblend<TBlend, TSource extends object>(blendClass: Class<TBlend>, sourceObj: TSource): boolean {
+        const storageTryGetOutput: TryOutput<BlendedInstanceInfo<TSource, TBlend>> = {};
+        if (Storage.tryGet(blendClass, sourceObj, storageTryGetOutput)) {
+            const info = <BlendedInstanceInfo<TSource, TBlend>>storageTryGetOutput.result;
+            const blend = info.blend;
+            if (Storage.tryDiscard(blendClass, sourceObj)) {
+                const isInstanceIntitialized = blend !== null;
+                if (isInstanceIntitialized) {
+                    if (blend instanceof Destructible) {
+                        if ((<Destructible>blend).isDestructed)
+                            (<Destructible>blend).destruct();
+                    }
+                    return true;
+                }
+            }
+            else
+                return false;
+        }
+        else
+            return false;
+    }
+
+    export function execute<TBlend extends Object>(sourceObj: object, blendClass: Class<TBlend>): undefined;
+    export function execute<TBlend extends Object, TResult>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, undefined>): TResult | undefined;
+    export function execute<TBlend extends Object, TResult, TThis>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThis>, thisArg: TThis): TResult | undefined;
+    export function execute<TBlend extends Object, TResult = void, TThis = never>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThis>, thisArg: TThis): TResult | undefined {
+        const blend = Blender.get(sourceObj, blendClass);
         const isBlended = !!blend;
         if (isBlended)
             return predicate.call(thisArg, <TBlend>blend);
