@@ -1,5 +1,6 @@
 import { BlendedInstanceInfo } from "./BlendedInstanceInfo";
 import { Class, TryOutput } from "../../Standard/Types/index";
+import { Destructible } from "../Destructible";
 
 export namespace Storage {
     const allBlendedInstances: BlendedInstanceInfo<object, any>[] = [];
@@ -21,6 +22,18 @@ export namespace Storage {
     export function tryDiscard<TBlend, TTarget extends object>(baseClass: Class<TBlend>, targetObj: TTarget): boolean {
         const tryGetOutput: TryOutput<BlendedInstanceInfo<TTarget, TBlend>> = {};
         if (tryGet(baseClass, targetObj, {})) {
+            const info = <BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.result;
+            if (info.blend) {
+                const blend = <TBlend>info.blend;
+                const isInstanceIntitialized = blend !== null;
+                if (isInstanceIntitialized) {
+                    if (blend instanceof Destructible) {
+                        if ((<Destructible>blend).isDestructed)
+                            (<Destructible>blend).destruct();
+                    }
+                }
+                return true;
+            }
             removeInstance(<BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.result);
             return true;
         }

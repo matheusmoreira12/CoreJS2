@@ -1,1 +1,1 @@
-export type DoPredicate<TBlend extends Object, TResult, TThis> = (this: TThis, blend: TBlend) => TResult;
+export type DoPredicate<TBlend extends Object, TResult, TThis = never> = (this: TThis, blend: TBlend) => TResult;

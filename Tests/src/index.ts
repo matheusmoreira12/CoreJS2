@@ -194,11 +194,11 @@ export class Border extends ContainerControl {
         this.__PART_background = PART_background;
 
         //Bind properties from Border to the rectangle part
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.backgroundProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Shape.strokeProperty, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderThicknessProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Shape.strokeThicknessProperty, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderRadiusXProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Rectangle.rxProperty, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderRadiusYProperty, <DependencyObject>Blender.get(this.__PART_background, DependencyObject), Rectangle.ryProperty, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.backgroundProperty, <DependencyObject>Blender.get(DependencyObject, this.__PART_background), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderProperty, <DependencyObject>Blender.get(DependencyObject, this.__PART_background), Shape.strokeProperty, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderThicknessProperty, <DependencyObject>Blender.get(DependencyObject, this.__PART_background), Shape.strokeThicknessProperty, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderRadiusXProperty, <DependencyObject>Blender.get(DependencyObject, this.__PART_background), Rectangle.rxProperty, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderRadiusYProperty, <DependencyObject>Blender.get(DependencyObject, this.__PART_background), Rectangle.ryProperty, { direction: BindingDirection.ToTarget }));
     }
 
     static borderProperty = DependencyProperty.register(<any>Border, "border", { valueType: Type.get(String), defaultValue: "transparent" });
@@ -316,8 +316,8 @@ export class Button extends Control {
         this.background = "white";
         (<Text>this.__PART_text).text = "Click here!";
 
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.backgroundProperty, <DependencyObject>Blender.get(PART_border, DependencyObject), Control.backgroundProperty, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.foregroundProperty, <DependencyObject>Blender.get(PART_text, DependencyObject), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.backgroundProperty, <DependencyObject>Blender.get(DependencyObject, PART_border), Control.backgroundProperty, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.foregroundProperty, <DependencyObject>Blender.get(DependencyObject, PART_text), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
     }
 
     private __PART_border: Border;
