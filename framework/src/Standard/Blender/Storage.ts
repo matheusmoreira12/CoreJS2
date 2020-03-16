@@ -25,7 +25,7 @@ export namespace Storage {
             const info = <BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.result;
             if (info.blend) {
                 const blend = <TBlend>info.blend;
-                const isInstanceIntitialized = blend !== null;
+                const isInstanceIntitialized = !!blend;
                 if (isInstanceIntitialized) {
                     if (blend instanceof Destructible) {
                         if ((<Destructible>blend).isDestructed)
@@ -49,11 +49,11 @@ export namespace Storage {
         output = output || {};
 
         const instance = <BlendedInstanceInfo<TSource, TBlend>>getInstance(blendClass, sourceObj);
-        if (instance === undefined)
-            return false;
-        else {
+        if (instance) {
             output.result = instance;
             return true;
         }
+        else
+            return false;
     }
 }

@@ -17,7 +17,7 @@ export namespace Blender {
 
     export function blend<TTarget extends object, TBlend>(blendClass: Class<TBlend>, targetObj: TTarget) {
         if (!tryBlend(blendClass, targetObj))
-            throw new InvalidOperationException("Cannot blend class with object. The specified class may have already been blended with the specified object.")
+            throw new InvalidOperationException("Cannot blend class with object. The specified class may have already been blended with the specified object.");
     }
 
     export function tryGet<TBlend, TSource extends Object>(blendClass: Class<TBlend>, sourceObj: TSource, output: TryOutput<TBlend> = {}): boolean {
@@ -64,9 +64,12 @@ export namespace Blender {
             return false;
     }
 
-    export function deBlend<TBlend, TSource extends Object>(blendClass: Class<TBlend>, sourceObj: TSource) {
-        if (!Storage.tryDiscard(blendClass, sourceObj))
-            throw new InvalidOperationException("Cannot de-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
+    export function initialize<TBlend, TSource extends Object>(blendClass: Class<TBlend>, sourceObj: TSource) {
+        const tryInitializeOutput: TryOutput<TBlend> = {};
+        if (tryInitialize(sourceObj, blendClass, tryInitializeOutput))
+            return tryInitializeOutput.result;
+        else
+            throw new InvalidOperationException("Cannot initialize an instance for the specified class on the specified object. The specified class may have not been blended with the specified object.");
     }
 
     export function tryDeblend<TBlend, TSource extends object>(blendClass: Class<TBlend>, sourceObj: TSource): boolean {
@@ -76,10 +79,8 @@ export namespace Blender {
             return false;
     }
 
-    export function execute<TBlend extends Object, TResult = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>): TResult;
-    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult;
-    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg) {
-        if (!tryExecute(sourceObj, blendClass, predicate, thisArg))
+    export function deBlend<TBlend, TSource extends Object>(blendClass: Class<TBlend>, sourceObj: TSource) {
+        if (!tryDeblend(blendClass, sourceObj))
             throw new InvalidOperationException("Cannot de-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
     }
 
@@ -95,5 +96,15 @@ export namespace Blender {
         }
         else
             return false;
+    }
+
+    export function execute<TBlend extends Object, TResult = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>): TResult;
+    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult;
+    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg) {
+        const tryExecuteOutput: TryOutput<TResult> = {};
+        if (tryExecute(sourceObj, blendClass, predicate, tryExecuteOutput))
+            return tryExecuteOutput.result;
+        else
+            throw new InvalidOperationException("Cannot de-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
     }
 };

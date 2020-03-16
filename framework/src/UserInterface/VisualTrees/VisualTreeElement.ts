@@ -26,11 +26,8 @@ export class VisualTreeElement extends VisualTreeNode {
         this.__children.ChangeEvent.attach(this.__children_onChange, this);
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
 
-        //Blend with DependencyObject
-        if (Blender.blend(DependencyObject, this))
-            Blender.initialize(this, DependencyObject);
-        else
-            throw new FrameworkException("Failed to blend with DependencyObject.");
+        Blender.blend(DependencyObject, this);
+        Blender.initialize(DependencyObject, this);
     }
 
     private __removeElement(element: VisualTreeElement) {
@@ -114,7 +111,6 @@ export class VisualTreeElement extends VisualTreeNode {
         if (this.parent)
             this.parent.children.remove(this);
 
-        if (!Blender.deblend(this, DependencyObject))
-            throw new FrameworkException("Failed to de-blend from DependencyObject.");
+        Blender.deBlend(DependencyObject, this);
     }
 }
