@@ -1,26 +1,19 @@
 import { VisualTreeNode } from "./VisualTreeNode";
 import { assertParams } from "../../Validation/index";
-import { ObjectUtils } from "../../CoreBase/Utils/index";
+import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../DependencyObjects/index";
+import { Type } from "../../Standard/Types/Type";
+import { Blender } from "../../Standard/index";
 
 export class VisualTreeAttribute extends VisualTreeNode {
-    static create(qualifiedName: string, namespaceURI: string | null = null, initialValue: string = ObjectUtils.getDefault(String)): VisualTreeAttribute {
+    constructor(qualifiedName: string, namespaceURI: string | null = null, initialValue?: string) {
+        super(qualifiedName, namespaceURI);
+
         assertParams({ qualifiedName }, [String]);
         assertParams({ namespaceURI }, [String, null]);
-        assertParams({ initialValue }, [String]);
+        assertParams({ initialValue }, [String, undefined]);
 
-        const domAttribute = document.createAttributeNS(namespaceURI, qualifiedName);
-        const result = new VisualTreeAttribute(domAttribute);
-
-        if (initialValue !== null)
-            result.value = initialValue;
-
-        return result;
-    }
-
-    constructor(domAttribute: Attr) {
-        assertParams({ domAttribute }, [Attr]);
-
-        super(domAttribute);
+        if (initialValue !== undefined)
+            this.value = this.value;
     }
 
     destructor() {
@@ -29,6 +22,15 @@ export class VisualTreeAttribute extends VisualTreeNode {
             this.parent.attributes.remove(this);
     }
 
-    get value(): string { return (<Attr>this.__domNode).value; }
+    private __updateValue(value: string) {
+    }
+
+    protected onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
+        if (args.property === VisualTreeAttribute.valueProperty)
+            __updateValue(String(args.newValue));
+    }
+
+    static valueProperty = DependencyProperty.register(<any>VisualTreeAttribute, "", { valueType: Type.get(String), defaultValue: "" });
+    get value(): string { return Blender.execute(); }
     set value(value: string) { (<Attr>this.__domNode).value = value; }
-}
+    }

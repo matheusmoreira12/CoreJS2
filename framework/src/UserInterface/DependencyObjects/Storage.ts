@@ -36,7 +36,6 @@ export function internal_unsetValue(source: object, target: DependencyObject, pr
 }
 
 export function internal_setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
-    internal_unsetValue(source, target, property);
     if (value !== null) {
         const newSetter = InternalSetter.create(source, target, property, value);
         setters.push(newSetter);

@@ -1,5 +1,4 @@
 import { Class } from "../../CoreBase/Utils/Types";
-import { Destructible } from "../Destructible";
 import { DoPredicate } from "./Types";
 import { Storage } from "./Storage";
 import { InvalidOperationException } from "../Exceptions";

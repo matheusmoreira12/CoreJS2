@@ -86,10 +86,7 @@ export class PropertyAttributeBinding extends Binding {
             else
                 propertyValue = attributeValue;
 
-            if (propertyValue === null)
-                Storage.unsetValue(this, this.source, this.sourceProperty);
-            else
-                Storage.setValue(this, this.source, this.sourceProperty, propertyValue);
+            Storage.setValue(this, this.source, this.sourceProperty, propertyValue);
         }
     }
 

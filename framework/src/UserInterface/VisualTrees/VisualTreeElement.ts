@@ -5,9 +5,9 @@ import { DOMUtils } from "../index";
 import { VisualTreeAttribute } from "./VisualTreeAttribute";
 import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection";
 import { assertParams } from "../../Validation/index";
-import { DependencyObject } from "../DependencyObjects/DependencyObject";
-import { PropertyChangeEventArgs } from "../DependencyObjects/index";
-import { Blender } from "../../Standard/Blender/Blender";
+
+export const $set_parent;
+export const $unset_parent;
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
@@ -25,14 +25,11 @@ export class VisualTreeElement extends VisualTreeNode {
 
         this.__children.ChangeEvent.attach(this.__children_onChange, this);
         this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
-
-        Blender.blend(DependencyObject, this);
-        Blender.initialize(DependencyObject, this);
     }
 
     private __removeElement(element: VisualTreeElement) {
         (<Element>this.__domNode).removeChild(element.__domNode);
-        element.__parent = null;
+        element[$unset_parent]();
     }
 
     private __insertElement(element: VisualTreeElement, index: number) {
@@ -40,7 +37,7 @@ export class VisualTreeElement extends VisualTreeNode {
             throw new InvalidOperationException("Cannot add attribute. The provided element already has a parent.");
 
         DOMUtils.insertElementAt(<Element>this.domNode, index, <Element>element.domNode);
-        element.__parent = this;
+        element[$set_parent](this);
     }
 
     private __children_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
@@ -66,7 +63,7 @@ export class VisualTreeElement extends VisualTreeNode {
 
     private __removeAttribute(attribute: VisualTreeAttribute) {
         (<Element>this.domNode).removeAttributeNode(<Attr>attribute.domNode);
-        attribute.__parent = null;
+        attribute[$unset_parent]();
     }
 
     private __addAttribute(attribute: VisualTreeAttribute) {
@@ -74,7 +71,7 @@ export class VisualTreeElement extends VisualTreeNode {
             throw new InvalidOperationException("Cannot add attribute. The provided attribute already has a parent.");
 
         (<Element>this.domNode).setAttributeNodeNS(<Attr>attribute.domNode);
-        attribute.__parent = this;
+        attribute[$set_parent](this);
     }
 
     private __attributes_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeAttribute>) {
@@ -110,7 +107,5 @@ export class VisualTreeElement extends VisualTreeNode {
         //Remove self from parent
         if (this.parent)
             this.parent.children.remove(this);
-
-        Blender.deBlend(DependencyObject, this);
     }
 }

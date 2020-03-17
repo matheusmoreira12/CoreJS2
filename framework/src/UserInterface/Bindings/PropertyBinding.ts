@@ -66,10 +66,7 @@ export class PropertyBinding extends Binding {
             else
                 targetValue = sourceValue;
 
-            if (targetValue === null)
-                Storage.unsetValue(this, this.target, this.targetProperty);
-            else
-                Storage.setValue(this, this.target, this.targetProperty, targetValue);
+            Storage.setValue(this, this.target, this.targetProperty, targetValue);
         }
     }
 
@@ -93,10 +90,7 @@ export class PropertyBinding extends Binding {
             else
                 sourceValue = targetValue;
 
-            if (sourceValue === null)
-                Storage.unsetValue(this, this.target, this.targetProperty);
-            else
-                Storage.setValue(this, this.target, this.targetProperty, sourceValue);
+            Storage.setValue(this, this.target, this.targetProperty, sourceValue);
         }
     }
 
