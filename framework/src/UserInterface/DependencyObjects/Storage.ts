@@ -24,40 +24,40 @@ namespace InternalSetter {
     }
 }
 
-function notifyValueChange(target: DependencyObject, property: DependencyProperty, oldValue: any, newValue: any) {
-    target.PropertyChangeEvent.invoke(target, new PropertyChangeEventArgs(target, property, oldValue, newValue));
+function notifyValueChange(source: object, target: DependencyObject, property: DependencyProperty, oldValue: any, newValue: any) {
+    const args = new PropertyChangeEventArgs(target, property, oldValue, newValue);
+    target.PropertyChangeEvent.invoke(source, args);
 }
 
-export function setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
-    if (value === null)
-        unsetValue(source, target, property);
-    else {
-        const oldRawValue = getRawValue(target, property);
-
-        const oldSetter = setters.find(s => s.source === source && s.target === target && s.property === property);
-        const hasSetter = !!oldSetter;
-        if (hasSetter)
-            setters.splice(setters.indexOf(<InternalSetter>oldSetter), 1);
-
-        const newSetter = InternalSetter.create(source, target, property, value);
-        setters.push(newSetter);
-
-        const hasValueChanged = oldRawValue !== value;
-        if (hasValueChanged)
-            notifyValueChange(target, property, oldRawValue, value);
-    }
-}
-
-export function unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
+export function internal_unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
     let index = setters.findIndex(s => s.source === source && s.target === target && s.property === property);
     if (index != -1)
         setters.splice(index, 1);
 }
 
+export function internal_setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
+    internal_unsetValue(source, target, property);
+    if (value !== null) {
+        const newSetter = InternalSetter.create(source, target, property, value);
+        setters.push(newSetter);
+    }
+}
+
+export function setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
+    const oldValue = getValue(target, property);
+    internal_unsetValue(source, target, property);
+    if (value !== null)
+        internal_setValue(source, target, property, value);
+    const newValue = getValue(target, property);
+    const hasValueChanged = oldValue !== newValue;
+    if (hasValueChanged)
+        notifyValueChange(source, target, property, oldValue, newValue);
+}
+
 export function getRawValue(target: DependencyObject, property: DependencyProperty): any {
     for (let setter of setters) {
-        if (setter.target === target && 
-            setter.property === property && 
+        if (setter.target === target &&
+            setter.property === property &&
             setter.value !== null)
             return setter.value;
     }
