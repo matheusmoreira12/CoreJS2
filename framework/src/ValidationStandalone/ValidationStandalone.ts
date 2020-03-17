@@ -1,6 +1,6 @@
 import { ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions";
 import { TypeDesignator, AssertionMode } from "./Types";
-import { tryAssert, rejectAssert } from "./Utils/Assertion";
+import { tryAssert, rejectAssert } from "./Utils/AssertionUtils";
 
 export function assert(map: { [name: string]: any }, types: Iterable<TypeDesignator>, mode: AssertionMode = "any") {
     if (!tryAssert(map, [Object]))

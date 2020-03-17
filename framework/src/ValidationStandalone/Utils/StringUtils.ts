@@ -1,12 +1,21 @@
 import { TypeDesignator } from "../Types";
 import { resolveValueCtor, resolveCtors } from "./CtorUtils";
 
+function treatValueString(valueStr: string){
+    valueStr = valueStr.replace(/[\n\t]/, " ");
+    valueStr = valueStr.replace("\r", "");
+    if (valueStr.length > 20)
+        return valueStr.slice(0, 19) + "...";
+    else
+        return valueStr;
+}
+
 export function getValueString(value: any) {
     const receivedValueCtor = resolveValueCtor(value);
     if (receivedValueCtor === undefined || receivedValueCtor === null)
-        return `(none)(${String(value)})`;
+        return `(none)(${treatValueString(String(value))})`;
     else
-        return `${receivedValueCtor.name}(${String()})`;
+        return `${receivedValueCtor.name}(${String(value)})`;
 }
 
 export function getTypeDesigatorArrayString(types: TypeDesignator[]) {

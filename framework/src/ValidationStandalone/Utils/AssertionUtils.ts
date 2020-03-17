@@ -12,8 +12,10 @@ export function tryAssert(value: any, types: Iterable<TypeDesignator>, mode: Ass
         return ctorMatchesAll(ctor, ctors);
     else if (mode == "none")
         return ctorMatchesNone(ctor, ctors);
+    else
+        return false;
 }
 
-export function rejectAssert(expectedTypes: TypeDesignator[], receivedValue: any, mode: AssertionMode = "any") {
-    throw new Error(`Assert: Invalid value type. A type of ${getTypeDesigatorArrayString(expectedTypes)} was expected to match type ${getValueString(receivedValue)} with a mode of [${mode}].`);
+export function rejectAssert(expectedTypes: TypeDesignator[], rejectedValue: any, mode: AssertionMode = "any") {
+    throw new Error(`Assert: Invalid value type. A type of ${getValueString(rejectedValue)} was expected to match type ${getTypeDesigatorArrayString(expectedTypes)} with a mode of [${mode}].`);
 }
