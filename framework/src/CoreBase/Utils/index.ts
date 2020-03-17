@@ -1,13 +1,9 @@
 export * from "./Types";
 
-import * as ArrayUtils from "./ArrayUtils";
-export { ArrayUtils };
+export * from "./ArrayUtils";
 
-import * as MapUtils from "./MapUtils";
-export { MapUtils };
+export * from "./MapUtils";
 
-import * as ObjectUtils from "./ObjectUtils";
-export { ObjectUtils };
+export * from "./ObjectUtils";
 
-import * as StringUtils from "./StringUtils";
-export { StringUtils };
+export * from "./StringUtils";
