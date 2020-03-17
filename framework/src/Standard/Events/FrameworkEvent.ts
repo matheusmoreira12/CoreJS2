@@ -11,16 +11,16 @@ type FrameworkEventListenerData = { thisArg: any };
  * Enables event creation and manipulation, avoiding the use of callbacks.*/
 export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArgs> extends Destructible {
     static attachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
-        assertParams({ listener }, Function, FrameworkEvent);
-        assertParams({ events }, Array);
+        assertParams({ listener }, [Function, FrameworkEvent]);
+        assertParams({ events }, [Array]);
 
         for (let event of events)
             event.attach(listener);
     }
 
     static detachMultiple<TArgs extends FrameworkEventArgs>(listener: FrameworkEventListener<TArgs>, ...events: FrameworkEvent<TArgs>[]): void {
-        assertParams({ listener }, Function, FrameworkEvent);
-        assertParams({ events }, Array);
+        assertParams({ listener }, [Function, FrameworkEvent]);
+        assertParams({ events }, [Array]);
 
         for (let event of events)
             event.detach(listener);
@@ -29,7 +29,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
     constructor(defaultListener?: FrameworkEventListener<TArgs>, defaultListenerThisArg?: any) {
         super();
 
-        assertParams({ defaultListener }, Function, FrameworkEvent, undefined);
+        assertParams({ defaultListener }, [Function, FrameworkEvent, undefined]);
 
         if (defaultListener !== undefined)
             this.attach(defaultListener, defaultListenerThisArg);
@@ -43,7 +43,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
     attach(event: FrameworkEvent<TArgs>): boolean;
     attach(listener: FrameworkEventListener<TArgs>, thisArg?: any): boolean;
     attach(listener: FrameworkEventListener<TArgs> | FrameworkEvent<TArgs>, thisArg?: any): boolean {
-        assertParams({ listener }, FrameworkEvent, Function);
+        assertParams({ listener }, [FrameworkEvent, Function]);
 
         if (this.__listeners.has(listener))
             return false;
@@ -55,7 +55,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
     }
 
     detach(listener: FrameworkEventListener<TArgs> | FrameworkEvent<TArgs>): boolean {
-        assertParams({ listener }, FrameworkEvent, Function);
+        assertParams({ listener }, [FrameworkEvent, Function]);
 
         if (!this.__listeners.has(listener))
             return false;
