@@ -42,7 +42,7 @@ export abstract class VisualTreeNode extends Destructible {
     __parent: VisualTreeElement | null = null;
 
     get namespaceURI(): string | null { return this.__namespaceURI; }
-    private __namespaceURI: string;
+    private __namespaceURI: string | null;
 
     get qualifiedName(): string { return this.__qualifiedName; }
     private __qualifiedName: string;
