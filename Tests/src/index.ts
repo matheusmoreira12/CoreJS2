@@ -15,7 +15,7 @@ import PropertyAttributeBinding = Core.UserInterface.Bindings.PropertyAttributeB
 import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
 //Controls
 import Control = Core.UserInterface.Controls.Control;
-import WidgetManager = Core.UserInterface.Controls.WidgetManager;
+import ControlManager = Core.UserInterface.Controls.ControlManager;
 //Fonts
 import Font = Core.UserInterface.Fonts.Font;
 //Scalars
@@ -63,9 +63,7 @@ const stylesheetBlob = new Blob([controlStyle], { type: "text/css" });
 const stylesheetPath = URL.createObjectURL(stylesheetBlob);
 
 export class Grid extends Control {
-    constructor(element: Element) {
-        super(element);
-
+    initialize() {
         const style = VisualTreeElement.create("link", HTML_NS);
         style.attributes.setMany({
             rel: "stylesheet",
@@ -75,12 +73,10 @@ export class Grid extends Control {
         this.children.add(style);
     }
 }
-WidgetManager.register(<any>Grid, "core:Grid", "core");
+ControlManager.register(<any>Grid, "core:Grid", "core");
 
 export abstract class Shape extends Control {
-    constructor(element: Element) {
-        super(element);
-
+    initialize() {
         const style = VisualTreeElement.create("link", HTML_NS);
         style.attributes.setMany({
             rel: "stylesheet",
@@ -110,13 +106,11 @@ export abstract class Shape extends Control {
     get strokeThickness(): string { return Blender.execute(this, DependencyObject, o => o.get(Shape.strokeThicknessProperty)); }
     set strokeThickness(value: string) { Blender.execute(this, DependencyObject, o => o.set(Shape.strokeThicknessProperty, value)); }
 
-    protected __PART_canvas: VisualTreeElement;
+    protected __PART_canvas!: VisualTreeElement;
 }
 
 export class Rectangle extends Shape {
-    constructor(element: Element) {
-        super(element);
-
+    initialize() {
         //Add an SVG Rect to the visual tree
         const PART_rect = VisualTreeElement.create("rect", SVG_NS);
         PART_rect.attributes.setMany({
@@ -129,16 +123,16 @@ export class Rectangle extends Shape {
         this.__PART_rect = PART_rect;
 
         //Bind properties from Shape to SVG Rect attributes
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domNode, "fill", null, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domNode, "stroke", null, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domNode, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domElement, "fill", null, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domElement, "stroke", null, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domElement, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() }));
 
         //Bind properties from Rectangle to SVG Rect attributes
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.rxProperty, <Element>this.__PART_rect.domNode, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.ryProperty, <Element>this.__PART_rect.domNode, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.rxProperty, <Element>this.__PART_rect.domElement, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.ryProperty, <Element>this.__PART_rect.domElement, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
     }
 
-    protected __PART_rect: VisualTreeElement;
+    protected __PART_rect!: VisualTreeElement;
 
     static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
     get rx(): GraphicValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.rxProperty)); }
@@ -148,13 +142,11 @@ export class Rectangle extends Shape {
     get ry(): GraphicValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.ryProperty)); }
     set ry(value: GraphicValue) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.ryProperty, value)); }
 }
-WidgetManager.register(<any>Rectangle, "core:Rectangle", "core");
+ControlManager.register(<any>Rectangle, "core:Rectangle", "core");
 
 export abstract class ContainerControl extends Control {
-    constructor(element: Element) {
-        super(element);
-
-        const PART_layoutGrid = WidgetManager.instantiate(Grid);
+    initialize() {
+        const PART_layoutGrid = ControlManager.instantiate(Grid);
         this.children.add(PART_layoutGrid);
         this.__PART_layoutGrid = PART_layoutGrid;
 
@@ -172,8 +164,8 @@ export abstract class ContainerControl extends Control {
             this.__PART_layoutGrid.children.add(child);
     }
 
-    private __PART_child: VisualTreeElement | null;
-    protected __PART_layoutGrid: Grid;
+    private __PART_child!: VisualTreeElement | null;
+    protected __PART_layoutGrid!: Grid;
 
     protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.property === ContainerControl.childProperty)
@@ -186,10 +178,8 @@ export abstract class ContainerControl extends Control {
 }
 
 export class Border extends ContainerControl {
-    constructor(element: Element) {
-        super(element);
-
-        const PART_background = WidgetManager.instantiate(Rectangle);
+    initialize() {
+        const PART_background = ControlManager.instantiate(Rectangle);
         this.__PART_layoutGrid.children.add(PART_background);
         this.__PART_background = PART_background;
 
@@ -217,9 +207,9 @@ export class Border extends ContainerControl {
     get borderRadiusY(): GraphicValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusYProperty)); }
     set borderRadiusY(value: GraphicValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusYProperty, value)); }
 
-    private __PART_background: VisualTreeElement;
+    private __PART_background: VisualTreeElement | undefined;
 }
-WidgetManager.register(<any>Border, "core:Border", "core");
+ControlManager.register(<any>Border, "core:Border", "core");
 
 //export class Ellipse extends Shape {
 //    constructor(element: Element) {
@@ -235,7 +225,7 @@ WidgetManager.register(<any>Border, "core:Border", "core");
 //        this.__PART_canvas.children.add(PART_ellipse);
 //        this.__PART_ellipse = PART_ellipse;
 
-//        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(Control.foregroundProperty, <Element>this.__PART_ellipse.domNode, "fill", null, { direction: BindingDirection.ToTarget }));
+//        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(Control.foregroundProperty, <Element>this.__PART_ellipse.domElement, "fill", null, { direction: BindingDirection.ToTarget }));
 //    }
 
 //    protected __PART_ellipse: VisualTreeElement;
@@ -243,19 +233,17 @@ WidgetManager.register(<any>Border, "core:Border", "core");
 //WidgetManager.register(<any>Ellipse, "core:Ellipse", "core");
 
 export class Text extends Shape {
-    constructor(element: Element) {
-        super(element);
-
+    initialize() {
         const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
         this.__PART_text = PART_text;
         this.__PART_canvas.children.add(PART_text);
 
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fillProperty, <Element>PART_text.domNode, "fill", null, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domNode, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fillProperty, <Element>PART_text.domElement, "fill", null, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "font-family", null, { valueConverter: new FontSVGFontFamilyAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "font-size", null, { valueConverter: new FontSVGFontSizeAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "font-weight", null, { valueConverter: new FontSVGFontWeightAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget }));
 
         this.__updateViewbox();
         this.__updateText();
@@ -264,13 +252,13 @@ export class Text extends Shape {
     }
 
     __updateViewbox() {
-        const bbox = (<SVGTextElement>this.__PART_text.domNode).getBBox();
+        const bbox = (<SVGTextElement>this.__PART_text.domElement).getBBox();
         const viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
         this.__PART_canvas.attributes.set("viewBox", null, viewBox);
     }
 
     __updateText() {
-        (<SVGTextElement>this.__PART_text.domNode).textContent = this.text;
+        (<SVGTextElement>this.__PART_text.domElement).textContent = this.text;
         this.__updateViewbox();
     }
 
@@ -282,7 +270,7 @@ export class Text extends Shape {
             this.__updateText();
     }
 
-    private __PART_text: VisualTreeElement;
+    private __PART_text!: VisualTreeElement;
 
     static fontProperty = DependencyProperty.register(<any>Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
     get font(): Font { return Blender.execute(this, DependencyObject, o => o.get(Text.fontProperty)); }
@@ -292,23 +280,25 @@ export class Text extends Shape {
     get text(): string { return Blender.execute(this, DependencyObject, o => o.get(Text.textProperty)); }
     set text(value: string) { Blender.execute(this, DependencyObject, o => o.set(Text.textProperty, value)); }
 }
-WidgetManager.register(Text, "core:Text", "core");
+ControlManager.register(Text, "core:Text", "core");
 
 export class Button extends Control {
-    constructor(element: Element) {
-        super(element);
+    constructor(qualifiedName: string, namespaceURI: string | null) {
+        super(qualifiedName, namespaceURI)
+    }
 
-        const PART_border = <Border>WidgetManager.instantiate(Border);
+    initialize() {
+        const PART_border = <Border>ControlManager.instantiate(Border);
         PART_border.borderRadiusX = new GraphicValue(4, GraphicUnit.Pixels);
         PART_border.borderRadiusY = new GraphicValue(4, GraphicUnit.Pixels);
         this.children.add(PART_border);
         this.__PART_border = PART_border;
 
-        const PART_layoutGrid = WidgetManager.instantiate(Grid);
+        const PART_layoutGrid = ControlManager.instantiate(Grid);
         PART_border.child = PART_layoutGrid;
         this.__PART_layoutGrid = PART_layoutGrid;
 
-        const PART_text = WidgetManager.instantiate(Text);
+        const PART_text = ControlManager.instantiate(Text);
         PART_layoutGrid.children.add(PART_text);
         this.__PART_text = PART_text;
 
@@ -320,11 +310,11 @@ export class Button extends Control {
         (<Text>this.__PART_text).text = "Click here!";
     }
 
-    private __PART_border: Border;
-    private __PART_text: VisualTreeElement;
-    private __PART_layoutGrid: VisualTreeElement;
+    private __PART_border!: Border;
+    private __PART_text!: VisualTreeElement;
+    private __PART_layoutGrid!: VisualTreeElement;
 }
-WidgetManager.register(<any>Button, "core:Button", "core");
+ControlManager.register(<any>Button, "core:Button", "core");
 
 /*
 import Type = Core.Standard.Types.Type;
