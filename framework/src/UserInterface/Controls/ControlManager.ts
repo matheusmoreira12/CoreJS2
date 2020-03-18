@@ -12,7 +12,7 @@ function getRegisteredControlByName(qualifiedName: string, namespaceURI?: string
     return registeredControls.find(m => m.namespaceURI === namespaceURI && m.qualifiedName === qualifiedName) || null;
 }
 
-function getRegisteredControlByConstructor(controlConstructor: Class<Control>): ControlMetadata | null {
+function getRegisteredControlByConstructor<TControl extends Control>(controlConstructor: Class<Control>): ControlMetadata<TControl> | null {
     return registeredControls.find(m => m.controlClass === controlConstructor) || null;
 }
 
@@ -21,12 +21,11 @@ function registerControl(metadata: ControlMetadata) {
 }
 
 //@ignore
-function initializeControlInstance(metadata: ControlMetadata, element: Element): Control {
+function initializeControlInstance<TControl extends Control>(metadata: ControlMetadata, element: Element): TControl {
     const controlClass: Class<Control> = metadata.controlClass;
-    const controlInstance: Control = new controlClass(element);
-
+    const controlInstance = new (<any>controlClass)(metadata.qualifiedName, metadata.namespaceURI);
+    controlInstance.initialize(element);
     metadata.activeInstances.add(controlInstance);
-
     return controlInstance;
 }
 
@@ -54,7 +53,7 @@ function finalizeControlInstance(metadata: ControlMetadata, instance: Control): 
 }
 
 function getControlInstanceByElement(metadata: ControlMetadata, element: Element): Control | null {
-    return metadata.activeInstances.find(m => m.domNode === element) || null;
+    return metadata.activeInstances.find(m => m.domElement === element) || null;
 }
 
 function finalizeControlInstanceByElement(element: Element) {

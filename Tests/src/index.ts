@@ -63,7 +63,7 @@ const stylesheetBlob = new Blob([controlStyle], { type: "text/css" });
 const stylesheetPath = URL.createObjectURL(stylesheetBlob);
 
 export class Grid extends Control {
-    initialize() {
+    initialization() {
         const style = VisualTreeElement.create("link", HTML_NS);
         style.attributes.setMany({
             rel: "stylesheet",
@@ -76,7 +76,7 @@ export class Grid extends Control {
 ControlManager.register(<any>Grid, "core:Grid", "core");
 
 export abstract class Shape extends Control {
-    initialize() {
+    initialization() {
         const style = VisualTreeElement.create("link", HTML_NS);
         style.attributes.setMany({
             rel: "stylesheet",
@@ -110,7 +110,7 @@ export abstract class Shape extends Control {
 }
 
 export class Rectangle extends Shape {
-    initialize() {
+    initialization() {
         //Add an SVG Rect to the visual tree
         const PART_rect = VisualTreeElement.create("rect", SVG_NS);
         PART_rect.attributes.setMany({
@@ -145,7 +145,7 @@ export class Rectangle extends Shape {
 ControlManager.register(<any>Rectangle, "core:Rectangle", "core");
 
 export abstract class ContainerControl extends Control {
-    initialize() {
+    initialization() {
         const PART_layoutGrid = ControlManager.instantiate(Grid);
         this.children.add(PART_layoutGrid);
         this.__PART_layoutGrid = PART_layoutGrid;
@@ -178,7 +178,7 @@ export abstract class ContainerControl extends Control {
 }
 
 export class Border extends ContainerControl {
-    initialize() {
+    initialization() {
         const PART_background = ControlManager.instantiate(Rectangle);
         this.__PART_layoutGrid.children.add(PART_background);
         this.__PART_background = PART_background;
@@ -233,7 +233,7 @@ ControlManager.register(<any>Border, "core:Border", "core");
 //WidgetManager.register(<any>Ellipse, "core:Ellipse", "core");
 
 export class Text extends Shape {
-    initialize() {
+    initialization() {
         const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
         this.__PART_text = PART_text;
         this.__PART_canvas.children.add(PART_text);
@@ -287,7 +287,7 @@ export class Button extends Control {
         super(qualifiedName, namespaceURI)
     }
 
-    initialize() {
+    initialization() {
         const PART_border = <Border>ControlManager.instantiate(Border);
         PART_border.borderRadiusX = new GraphicValue(4, GraphicUnit.Pixels);
         PART_border.borderRadiusY = new GraphicValue(4, GraphicUnit.Pixels);

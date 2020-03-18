@@ -9,22 +9,22 @@ import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection";
 export const $updateAttribute = Symbol("updateAttribute");
 
 //Keys for VisualTreeElement
-export const $attributes = Symbol("attributes");
-export const $attributes_onChange = Symbol("attributes_onChange");
-export const $addAttribute = Symbol("addAttribute");
-export const $removeAttribute = Symbol("removeAttribute");
-export const $children = Symbol("children");
-export const $children_onChange = Symbol("children_onChange");
-export const $insertChild = Symbol("insertElement");
-export const $removeChild = Symbol("removeElement");
-export const $domElement = Symbol("domElement");
+const $attributes = Symbol("attributes");
+const $attributes_onChange = Symbol("attributes_onChange");
+const $addAttribute = Symbol("addAttribute");
+const $removeAttribute = Symbol("removeAttribute");
+const $children = Symbol("children");
+const $children_onChange = Symbol("children_onChange");
+const $insertChild = Symbol("insertElement");
+const $removeChild = Symbol("removeElement");
+const $domElement = Symbol("domElement");
+const $isInitialized = Symbol("isInitialized");
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
         const domElement = document.createElementNS(namespaceURI, qualifiedName);
         const element = new VisualTreeElement(qualifiedName, namespaceURI);
-        element[$domElement] = domElement;
-        element.initialize();
+        element.initialize(domElement);
         return element;
     }
 
@@ -35,8 +35,41 @@ export class VisualTreeElement extends VisualTreeNode {
         this[$attributes].ChangeEvent.attach(this[$attributes_onChange], this);
     }
 
-    protected initialize(): void { }
-    protected finalize(): void { }
+    protected initialization(): void {}
+
+    protected finalization(): void { 
+        //Remove all elements
+        const childrenCopy = [...this.children];
+        for (let child of childrenCopy)
+            !child.isDestructed && child.destruct();
+
+        //Remove all attributes
+        const attributesCopy = [...this.attributes];
+        for (let attribute of attributesCopy)
+            !attribute.isDestructed && attribute.destruct();
+    }
+
+    initialize(domElement: Element) {
+        if (this[$isInitialized])
+            throw new InvalidOperationException("Cannot initialize VisualTreeElement instance. This VisualTreeElement instance has already been initialized.");
+        else {
+            this[$domElement] = domElement;
+            this.initialization();
+            this[$isInitialized] = true;
+        }
+    }
+
+    finalize() {
+        if (!this[$isInitialized])
+            throw new InvalidOperationException("Cannot finalize VisualTreeElement instance. This VisualTreeElement instance has not been initialized.");
+        else {
+            this.initialization();
+            this[$isInitialized] = true;
+        }
+    }
+
+    get isInitialized() { return this[$isInitialized]; }
+    private [$isInitialized]: boolean = false;
 
     private [$removeChild](element: VisualTreeElement) {
         (<Element>this[$domElement]).removeChild(<Element>element[$domElement]);
@@ -111,17 +144,8 @@ export class VisualTreeElement extends VisualTreeNode {
     protected [$domElement]: Element | null;
 
     protected destructor() {
-        this.finalize();
-
-        //Remove all elements
-        const childrenCopy = [...this.children];
-        for (let child of childrenCopy)
-            !child.isDestructed && child.destruct();
-
-        //Remove all attributes
-        const attributesCopy = [...this.attributes];
-        for (let attribute of attributesCopy)
-            !attribute.isDestructed && attribute.destruct();
+        if (this.isInitialized)
+            this.finalize();
 
         //Remove self from parent
         if (this.parent)

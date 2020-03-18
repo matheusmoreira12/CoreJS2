@@ -1,8 +1,6 @@
-import { InvalidOperationException, Destructible } from "../../Standard/index";
-import { PropertyAttributeBinding } from "../Bindings/index";
+import { InvalidOperationException } from "../../Standard/index";
 import { DragDropHandler } from "../index";
-import { FrameworkEvent, NativeEvent, FrameworkEventArgs, NativeEventArgs } from "../../Standard/Events/index";
-import { BooleanAttributeValueConverter } from "../ValueConverters/index";
+import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { DependencyProperty, DependencyObject } from "../DependencyObjects/index";
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
@@ -18,25 +16,25 @@ export abstract class Control extends VisualTreeElement {
             throw new InvalidOperationException("Invalid constructor");
     }
 
-    protected initialize() {
-        //Attach Event Handlers
-        //  Drag/Drop Handler Events
-        this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
-        this.__dragDropHandler.DragStartEvent.attach(this.__dragDropHandler__onDragStart, this);
-        this.__dragDropHandler.DragMoveEvent.attach(this.__dragDropHandler__onDragMove, this);
-        this.__dragDropHandler.DragEndEvent.attach(this.__dragDropHandler__onDragEnd, this);
-        this.__dragDropHandler.DragCancelEvent.attach(this.__dragDropHandler__onDragCancel, this);
-        this.__dragDropHandler.DragEnterEvent.attach(this.__dragDropHandler__onDragEnter, this);
-        this.__dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
-        this.__dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
-        this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
+    protected initialization() {
+        const dragDropHandler = new DragDropHandler(<Element>this.domElement);
+        this.__dragDropHandler = dragDropHandler;
+        dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
+        dragDropHandler.DragStartEvent.attach(this.__dragDropHandler__onDragStart, this);
+        dragDropHandler.DragMoveEvent.attach(this.__dragDropHandler__onDragMove, this);
+        dragDropHandler.DragEndEvent.attach(this.__dragDropHandler__onDragEnd, this);
+        dragDropHandler.DragCancelEvent.attach(this.__dragDropHandler__onDragCancel, this);
+        dragDropHandler.DragEnterEvent.attach(this.__dragDropHandler__onDragEnter, this);
+        dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
+        dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
+        dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
     }
 
-    protected finalize() {
+    protected finalization() {
     }
 
     //Helper Class Instances
-    private __dragDropHandler = new DragDropHandler(<Element>this.domElement);
+    protected __dragDropHandler!: DragDropHandler;
 
     //Drag/Drop Handler Event Listeners
     private __dragDropHandler__onRequestDragStart(args: FrameworkEventArgs) {

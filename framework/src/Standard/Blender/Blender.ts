@@ -47,7 +47,7 @@ export namespace Blender {
             throw new InvalidOperationException("Cannot get blend from the specified object by the specified class. The specified class may have not been blended with the specified object, or the instance may not have been initialized.");
     }
 
-    export function tryInitialize<TBlend, TSource extends DataType>(sourceObj: object, blendClass: Class<TBlend>, output: TryOutput<TBlend>, ...constructorArgs: []): boolean {
+    export function tryInitialize<TBlend, TSource extends DataType>(sourceObj: TSource, blendClass: Class<TBlend>, output: TryOutput<TBlend>, ...constructorArgs: []): boolean {
         const storageTryGetOutput: TryOutput<BlendedInstanceInfo<TSource, TBlend>> = {};
         if (Storage.tryGet(blendClass, sourceObj, storageTryGetOutput)) {
             const info = <BlendedInstanceInfo<TSource, TBlend>>storageTryGetOutput.result;
