@@ -9,7 +9,6 @@ const $target = Symbol("target");
 const $targetProperty = Symbol("targetProperty");
 const $value = Symbol("value");
 const $setters = Symbol("setters");
-const $removeAllSetters = Symbol("removeAllSetters");
 
 /**
  * PropertyTrigger class
@@ -41,13 +40,7 @@ export class PropertyTrigger extends Trigger {
     get setters(): SetterCollection { return this[$setters]; }
     private [$setters]: SetterCollection;
 
-    private [$removeAllSetters]() {
-        const settersCopy = [...this.setters];
-        for (let setter of settersCopy)
-            setter.unsetTrigger();
-    }
-
     protected destructor() {
-        this[$removeAllSetters]();
+        this.setters.clear();
     }
 }

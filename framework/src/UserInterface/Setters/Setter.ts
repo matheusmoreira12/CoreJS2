@@ -3,10 +3,13 @@ import { assertParams } from "../../Validation/index";
 import { PropertyTrigger } from "../Triggers/index";
 import { Destructible } from "../../Standard/index";
 import { Collection } from "../../Standard/Collections/index";
-import { $setTrigger, $unsetTrigger } from "./SetterCollection";
 import { DependencyObject } from "../DependencyObjects/DependencyObject";
 
 const allSetters: Collection<Setter> = new Collection();
+
+//Public keys for Setter
+export const $setTrigger = Symbol("setTrigger");
+export const $unsetTrigger = Symbol("unsetTrigger");
 
 //Keys for Setter
 const $property = Symbol("property");
@@ -32,8 +35,6 @@ export class Setter extends Destructible {
         this[$trigger] = null;
 
         allSetters.add(this);
-
-        target.PropertyChangeEvent.attach(this.__target_PropertyChangeEvent);
     }
 
     get target(): object { return this[$target]; }

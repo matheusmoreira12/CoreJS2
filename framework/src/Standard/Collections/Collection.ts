@@ -78,4 +78,8 @@ export class Collection<T> extends Array<T> {
             throw new KeyNotFoundException();
         this.removeAt(index);
     }
+
+    clear(): T[] {
+        return this.splice(0, this.length);
+    }
 }

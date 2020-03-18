@@ -16,9 +16,6 @@ export abstract class Control extends VisualTreeElement {
 
         if (new.target === Control)
             throw new InvalidOperationException("Invalid constructor");
-
-        //Create Bindings
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, <Element>this.domElement, "core:draggable", "core", { valueConverter: new BooleanAttributeValueConverter() }));
     }
 
     protected initialize() {
@@ -36,7 +33,6 @@ export abstract class Control extends VisualTreeElement {
     }
 
     protected finalize() {
-
     }
 
     //Helper Class Instances
@@ -194,8 +190,4 @@ export abstract class Control extends VisualTreeElement {
     static foregroundProperty = DependencyProperty.register(<any>Control, "foreground", { valueType: Type.get(String), defaultValue: "#000" });
     get foreground() { return Blender.execute(this, DependencyObject, o => o.get(Control.foregroundProperty)); }
     set foreground(value) { Blender.execute(this, DependencyObject, o => o.set(Control.foregroundProperty, value)); }
-
-    protected destructor() {
-        super.destructor();
-    }
 }

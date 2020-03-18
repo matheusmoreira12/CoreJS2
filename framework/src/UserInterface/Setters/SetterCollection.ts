@@ -1,11 +1,8 @@
 import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "../../Standard/Collections/index"
-import { Setter } from "./Setter"
+import { Setter, $setTrigger, $unsetTrigger } from "./Setter"
 import { Enumeration } from "../../Standard/index"
 import { PropertyTrigger } from "../Triggers/index";
 import { assertParams } from "../../Validation/index";
-
-export const $setTrigger = Symbol("setTrigger");
-export const $unsetTrigger = Symbol("unsetTrigger");
 
 export class SetterCollection extends ObservableCollection<Setter> {
     constructor(parentTrigger: PropertyTrigger, ...items: Setter[]) {
