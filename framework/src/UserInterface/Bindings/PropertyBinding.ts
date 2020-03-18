@@ -10,17 +10,17 @@ import { IValueConverter } from "../ValueConverters/index";
 import * as Storage from "../DependencyObjects/Storage";
 
 //Keys for PropertyBinding
-const $source = Symbol();
-const $source_PropertyChangeEvent = Symbol();
-const $source_onPropertyChange = Symbol();
-const $sourceProperty = Symbol();
-const $updateSourceProperty = Symbol();
-const $target = Symbol();
-const $target_PropertyChangeEvent = Symbol();
-const $target_onPropertyChange = Symbol();
-const $targetProperty = Symbol();
-const $updateTargetProperty = Symbol();
-const $doInitialCrossingUpdate = Symbol();
+const $source = Symbol("source");
+const $source_PropertyChangeEvent = Symbol("source_PropertyChangeEvent");
+const $source_onPropertyChange = Symbol("source_onPropertyChange");
+const $sourceProperty = Symbol("sourceProperty");
+const $updateSourceProperty = Symbol("updateSourceProperty");
+const $target = Symbol("target");
+const $target_PropertyChangeEvent = Symbol("target_PropertyChangeEvent");
+const $target_onPropertyChange = Symbol("target_onPropertyChange");
+const $targetProperty = Symbol("targetProperty");
+const $updateTargetProperty = Symbol("updateTargetProperty");
+const $doInitialCrossingUpdate = Symbol("doInitialCrossingUpdate");
 
 /**
  * PropertyBinding class

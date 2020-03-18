@@ -9,10 +9,10 @@ import { DependencyObject } from "../DependencyObjects/DependencyObject";
 const allSetters: Collection<Setter> = new Collection();
 
 //Keys for Setter
-const $property = Symbol();
-const $value = Symbol();
-const $target = Symbol();
-const $trigger = Symbol();
+const $property = Symbol("property");
+const $value = Symbol("value");
+const $target = Symbol("target");
+const $trigger = Symbol("trigger");
 
 /**
  * Sets the value of the specified property on the specified target to the specified value whenever the trigger's condition is met.

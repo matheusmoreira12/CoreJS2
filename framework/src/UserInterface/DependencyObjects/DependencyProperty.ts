@@ -8,7 +8,7 @@ const DEFAULT_PROPERTY_OPTIONS: IPropertyOptions = {
 };
 
 //Keys for DependencyProperty
-const $name = Symbol();
+const $name = Symbol("name");
 
 /**
  * Eases the integration between user-defined properties and framework features.

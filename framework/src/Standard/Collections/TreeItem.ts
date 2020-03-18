@@ -2,9 +2,9 @@ import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollect
 import { Enumeration } from "../index";
 
 //Keys for TreeItem
-const $children = Symbol();
-const $parent = Symbol();
-const $children_onChange = Symbol();
+const $children = Symbol("children");
+const $parent = Symbol("parent");
+const $children_onChange = Symbol("children_onChange");
 
 export class TreeItem<T extends TreeItem<T>> {
     constructor(...children: T[]) {

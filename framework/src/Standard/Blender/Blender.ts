@@ -1,5 +1,5 @@
 import { Class } from "../../CoreBase/Utils/Types";
-import { DoPredicate } from "./Types";
+import { ExecutePredicate } from "./Types";
 import { Storage } from "./Storage";
 import { InvalidOperationException } from "../Exceptions";
 import { TryOutput } from "../Types/Types";
@@ -85,9 +85,9 @@ export namespace Blender {
             throw new InvalidOperationException("Cannot de-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
     }
 
-    export function tryExecute<TBlend extends Object, TResult>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>, output: TryOutput<TResult>): TResult | undefined;
-    export function tryExecute<TBlend extends Object, TResult, TThis>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThis>, thisArg: TThis, output: TryOutput<TResult>): TResult | undefined;
-    export function tryExecute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg, output?: TryOutput<TResult>): boolean {
+    export function tryExecute<TBlend extends Object, TResult>(sourceObj: object, blendClass: Class<TBlend>, predicate: ExecutePredicate<TBlend, TResult>, output: TryOutput<TResult>): TResult | undefined;
+    export function tryExecute<TBlend extends Object, TResult, TThis>(sourceObj: object, blendClass: Class<TBlend>, predicate: ExecutePredicate<TBlend, TResult, TThis>, thisArg: TThis, output: TryOutput<TResult>): TResult | undefined;
+    export function tryExecute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: ExecutePredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg, output?: TryOutput<TResult>): boolean {
         output = output || {};
 
         const tryGetOutput = {};
@@ -99,9 +99,9 @@ export namespace Blender {
             return false;
     }
 
-    export function execute<TBlend extends Object, TResult = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult>): TResult;
-    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult;
-    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: DoPredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult {
+    export function execute<TBlend extends Object, TResult = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: ExecutePredicate<TBlend, TResult>): TResult;
+    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: ExecutePredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult;
+    export function execute<TBlend extends Object, TResult = any, TThisArg = any>(sourceObj: object, blendClass: Class<TBlend>, predicate: ExecutePredicate<TBlend, TResult, TThisArg>, thisArg?: TThisArg): TResult {
         const tryExecuteOutput: TryOutput<TResult> = {};
         if (tryExecute(sourceObj, blendClass, predicate, <TThisArg>thisArg, tryExecuteOutput))
             return <TResult>tryExecuteOutput.result;

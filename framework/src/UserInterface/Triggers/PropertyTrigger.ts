@@ -5,11 +5,11 @@ import { SetterCollection } from "../Setters/SetterCollection";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index";
 
 //Keys for PropertyTrigger
-const $target = Symbol();
-const $targetProperty = Symbol();
-const $value = Symbol();
-const $setters = Symbol();
-const $removeAllSetters = Symbol();
+const $target = Symbol("target");
+const $targetProperty = Symbol("targetProperty");
+const $value = Symbol("value");
+const $setters = Symbol("setters");
+const $removeAllSetters = Symbol("removeAllSetters");
 
 /**
  * PropertyTrigger class

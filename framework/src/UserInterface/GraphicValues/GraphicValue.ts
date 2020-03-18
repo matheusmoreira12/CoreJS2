@@ -1,7 +1,7 @@
 import { GraphicUnit } from "./GraphicUnit";
 
-const $unit = Symbol();
-const $value = Symbol();
+const $unit = Symbol("unit");
+const $value = Symbol("value");
 
 export class GraphicValue {
     static get Zero() { return GRAPHIC_VALUE_ZERO; }

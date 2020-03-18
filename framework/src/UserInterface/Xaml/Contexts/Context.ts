@@ -3,7 +3,7 @@ import { assertParams, assertEachParams, TypeValidationMode } from "../../../Val
 import { InvalidOperationException } from "../../../Standard/index";
 
 //Keys for DataContext
-const $target = Symbol();
+const $target = Symbol("target");
 
 /**
  * Holds context information for data transactions.

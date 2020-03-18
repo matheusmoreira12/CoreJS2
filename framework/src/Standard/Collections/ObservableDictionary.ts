@@ -3,10 +3,10 @@ import { Enumeration } from "../Enumeration";
 import { FrameworkEvent } from "../Events/FrameworkEvent";
 import { FrameworkEventArgs } from "../Events/index";
 
-const $action = Symbol();
-const $key = Symbol();
-const $oldValue = Symbol();
-const $newValue = Symbol();
+const $action = Symbol("action");
+const $key = Symbol("key");
+const $oldValue = Symbol("oldValue");
+const $newValue = Symbol("newValue");
 
 export class ObservableDictionaryChangeArgs<TKey, TValue> extends FrameworkEventArgs {
     constructor(action: number, key: TKey, oldValue: TValue | null, newValue: TValue | null) {

@@ -1,50 +1,61 @@
-import { VisualTreeNode } from "./VisualTreeNode";
-import { InvalidOperationException, Enumeration, FrameworkException } from "../../Standard/index";
+import { VisualTreeNode, $unsetParent, $setParent } from "./VisualTreeNode";
+import { InvalidOperationException, Enumeration } from "../../Standard/index";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index";
 import { DOMUtils } from "../index";
 import { VisualTreeAttribute } from "./VisualTreeAttribute";
 import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection";
-import { assertParams } from "../../Validation/index";
 
-export const $set_parent;
-export const $unset_parent;
+//Public keys for VisualTreeElement
+export const $updateAttribute = Symbol("updateAttribute");
+
+//Keys for VisualTreeElement
+export const $attributes = Symbol("attributes");
+export const $attributes_onChange = Symbol("attributes_onChange");
+export const $addAttribute = Symbol("addAttribute");
+export const $removeAttribute = Symbol("removeAttribute");
+export const $children = Symbol("children");
+export const $children_onChange = Symbol("children_onChange");
+export const $insertChild = Symbol("insertElement");
+export const $removeChild = Symbol("removeElement");
+export const $domElement = Symbol("domElement");
 
 export class VisualTreeElement extends VisualTreeNode {
     static create(qualifiedName: string, namespaceURI: string | null = null): VisualTreeElement {
-        assertParams({ qualifiedName }, [String]);
-        assertParams({ namespaceURI }, [String, null]);
-
         const domElement = document.createElementNS(namespaceURI, qualifiedName);
-        return new VisualTreeElement(domElement);
+        const element = new VisualTreeElement(qualifiedName, namespaceURI);
+        element[$domElement] = domElement;
+        element.initialize();
+        return element;
     }
 
-    constructor(domElement: Element) {
-        super(domElement);
+    constructor(qualifiedName: string, namespaceURI: string | null = null) {
+        super(qualifiedName, namespaceURI);
 
-        assertParams({ domElement }, [Element]);
-
-        this.__children.ChangeEvent.attach(this.__children_onChange, this);
-        this.__attributes.ChangeEvent.attach(this.__attributes_onChange, this);
+        this[$children].ChangeEvent.attach(this[$children_onChange], this);
+        this[$attributes].ChangeEvent.attach(this[$attributes_onChange], this);
     }
 
-    private __removeElement(element: VisualTreeElement) {
-        (<Element>this.__domNode).removeChild(element.__domNode);
-        element[$unset_parent]();
+    protected initialize(): void { }
+    protected finalize(): void { }
+
+    private [$removeChild](element: VisualTreeElement) {
+        (<Element>this[$domElement]).removeChild(<Element>element[$domElement]);
+        element[$unsetParent]();
     }
 
-    private __insertElement(element: VisualTreeElement, index: number) {
+    private [$insertChild](element: VisualTreeElement, index: number) {
         if (element.parent)
             throw new InvalidOperationException("Cannot add attribute. The provided element already has a parent.");
 
-        DOMUtils.insertElementAt(<Element>this.domNode, index, <Element>element.domNode);
-        element[$set_parent](this);
+        DOMUtils.insertElementAt(<Element>this.domElement, index, <Element>element.domElement);
+        element[$setParent](this);
     }
 
-    private __children_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
+    private [$children_onChange](sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
                 if (item instanceof VisualTreeElement)
-                    this.__removeElement(item);
+                    this[$removeChild](item);
             }
         }
 
@@ -52,48 +63,56 @@ export class VisualTreeElement extends VisualTreeNode {
             let index = args.newIndex;
             for (let item of args.newItems) {
                 if (item instanceof VisualTreeElement)
-                    this.__insertElement(item, index);
+                    this[$insertChild](item, index);
                 index++;
             }
         }
     }
 
-    get children(): ObservableCollection<VisualTreeElement> { return this.__children; }
-    protected __children: ObservableCollection<VisualTreeElement> = new ObservableCollection();
+    get children(): ObservableCollection<VisualTreeElement> { return this[$children]; }
+    protected [$children]: ObservableCollection<VisualTreeElement> = new ObservableCollection();
 
-    private __removeAttribute(attribute: VisualTreeAttribute) {
-        (<Element>this.domNode).removeAttributeNode(<Attr>attribute.domNode);
-        attribute[$unset_parent]();
+    private [$removeAttribute](attribute: VisualTreeAttribute) {
+        (<Element>this.domElement).removeAttributeNS(attribute.namespaceURI, attribute.qualifiedName);
+        attribute[$unsetParent]();
     }
 
-    private __addAttribute(attribute: VisualTreeAttribute) {
+    private [$addAttribute](attribute: VisualTreeAttribute) {
         if (attribute.parent)
             throw new InvalidOperationException("Cannot add attribute. The provided attribute already has a parent.");
 
-        (<Element>this.domNode).setAttributeNodeNS(<Attr>attribute.domNode);
-        attribute[$set_parent](this);
+        (<Element>this.domElement).setAttributeNS(attribute.namespaceURI, attribute.qualifiedName, attribute.value);
     }
 
-    private __attributes_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeAttribute>) {
+    [$updateAttribute](attribute: VisualTreeAttribute, value: any) {
+        (<Element>this.domElement).setAttributeNS(attribute.namespaceURI, attribute.qualifiedName, value);
+    }
+
+    private [$attributes_onChange](sender: any, args: ObservableCollectionChangeArgs<VisualTreeAttribute>) {
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems) {
                 if (item instanceof VisualTreeAttribute)
-                    this.__removeAttribute(item);
+                    this[$removeAttribute](item);
             }
         }
 
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
             for (let item of args.newItems) {
                 if (item instanceof VisualTreeAttribute)
-                    this.__addAttribute(item);
+                    this[$addAttribute](item);
             }
         }
     }
 
-    get attributes(): VisualTreeAttributeCollection { return this.__attributes; }
-    protected __attributes: VisualTreeAttributeCollection = new VisualTreeAttributeCollection();
+    get attributes(): VisualTreeAttributeCollection { return this[$attributes]; }
+    protected [$attributes]: VisualTreeAttributeCollection = new VisualTreeAttributeCollection();
+
+    get domElement(): Element | null { return this[$domElement]; }
+    protected [$domElement]: Element | null;
 
     protected destructor() {
+        this.finalize();
+
         //Remove all elements
         const childrenCopy = [...this.children];
         for (let child of childrenCopy)

@@ -1,5 +1,5 @@
-const $content = Symbol();
-const $index = Symbol();
+const $content = Symbol("content");
+const $index = Symbol("index");
 
 export class StringReader {
     constructor(content: string) {

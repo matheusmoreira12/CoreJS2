@@ -3,11 +3,11 @@ import { Enumeration } from "../Enumeration";
 import { FrameworkEvent } from "../Events/FrameworkEvent";
 import { FrameworkEventArgs } from "../Events/index";
 
-const $action = Symbol();
-const $oldItems = Symbol();
-const $oldIndex = Symbol();
-const $newItems = Symbol();
-const $newIndex = Symbol();
+const $action = Symbol("action");
+const $oldItems = Symbol("oldItems");
+const $oldIndex = Symbol("oldIndex");
+const $newItems = Symbol("newItems");
+const $newIndex = Symbol("newIndex");
 
 export class ObservableCollectionChangeArgs<T> extends FrameworkEventArgs {
     constructor(action: number, oldItems: T[], oldIndex: number, newItems: T[], newIndex: number) {

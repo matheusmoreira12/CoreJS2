@@ -1,4 +1,4 @@
-const $takenIDs = Symbol();
+const $takenIDs = Symbol("takenIDs");
 
 export class IdentifierGenerator {
     constructor() {

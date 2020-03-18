@@ -5,7 +5,7 @@ import { assertParams } from "../../Validation/index";
 
 import * as Storage from "./Storage";
 
-const $PropertyChangeEvent = Symbol();
+const $PropertyChangeEvent = Symbol("PropertyChangeEvent");
 
 export class DependencyObject {
     constructor() {

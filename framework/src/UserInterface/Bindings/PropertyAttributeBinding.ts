@@ -10,18 +10,18 @@ import { BindingDirection } from "./Bindings";
 import { IValueConverter } from "../ValueConverters/index";
 
 //Keys for PropertyAttributeBinding
-const $source = Symbol();
-const $source_PropertyChangeEvent = Symbol();
-const $source_onPropertyChange = Symbol();
-const $sourceProperty = Symbol();
-const $targetElement = Symbol();
-const $targetElement_attributeMutationObserver = Symbol();
-const $targetElement_attributeChange_handler = Symbol();
-const $targetAttributeName = Symbol();
-const $targetAttributeNamespace = Symbol();
-const $doInitialUpdate = Symbol();
-const $updateSourceProperty = Symbol();
-const $updateTargetAttribute = Symbol();
+const $source = Symbol("source");
+const $source_PropertyChangeEvent = Symbol("source_PropertyChangeEvent");
+const $source_onPropertyChange = Symbol("source_onPropertyChange");
+const $sourceProperty = Symbol("sourceProperty");
+const $targetElement = Symbol("targetElement");
+const $targetElement_attributeMutationObserver = Symbol("targetElement_attributeMutationObserver");
+const $targetElement_attributeChange_handler = Symbol("targetElement_attributeChange_handler");
+const $targetAttributeName = Symbol("targetAttributeName");
+const $targetAttributeNamespace = Symbol("targetAttributeNamespace");
+const $doInitialUpdate = Symbol("doInitialUpdate");
+const $updateSourceProperty = Symbol("updateSourceProperty");
+const $updateTargetAttribute = Symbol("updateTargetAttribute");
 
 /**
  * PropertyAttributeBinding class

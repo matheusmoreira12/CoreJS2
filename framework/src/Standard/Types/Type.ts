@@ -4,17 +4,17 @@ import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, Memb
 import { MemberInfo } from "./MemberInfo";
 
 //Keys for Type
-const $checkInitializationStatus = Symbol();
-const $class = Symbol();
-const $getEffectiveValue = Symbol();
-const $getParentClass = Symbol();
-const $getParentInstance = Symbol();
-const $hasClass = Symbol();
-const $hasInstance = Symbol();
-const $isInitialized = Symbol();
-const $initializeWithClass = Symbol();
-const $initializeWithInstance = Symbol();
-const $instance = Symbol();
+const $checkInitializationStatus = Symbol("checkInitializationStatus");
+const $class = Symbol("class");
+const $getEffectiveValue = Symbol("getEffectiveValue");
+const $getParentClass = Symbol("getParentClass");
+const $getParentInstance = Symbol("getParentInstance");
+const $hasClass = Symbol("hasClass");
+const $hasInstance = Symbol("hasInstance");
+const $isInitialized = Symbol("isInitialized");
+const $initializeWithClass = Symbol("initializeWithClass");
+const $initializeWithInstance = Symbol("initializeWithInstance");
+const $instance = Symbol("instance");
 
 export class Type<T = any> {
     static get<T>(_class: Class<T>): Type<T> {

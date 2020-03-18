@@ -1,10 +1,19 @@
 import { InvalidOperationException, Destructible } from "../../Standard/index";
 import { assertParams } from "../../Validation/index";
-import { VisualTreeElement, $set_parent } from "./VisualTreeElement";
+import { VisualTreeElement } from "./VisualTreeElement";
 import { Blender } from "../../Standard/Blender/Blender";
 import { DependencyObject } from "../DependencyObjects/DependencyObject";
 import { FrameworkEvent } from "../../Standard/Events/index";
 import { PropertyChangeEventArgs } from "../DependencyObjects/index";
+
+//Public keys for VisualTreeNode
+export const $setParent = Symbol("setParent");
+export const $unsetParent = Symbol("unsetParent");
+
+//Keys for VisualTreeNode
+const $namespaceURI = Symbol("domElement");
+const $qualifiedName = Symbol("domElement");
+const $parent = Symbol("domElement");
 
 export abstract class VisualTreeNode extends Destructible {
     constructor(qualifiedName: string, namespaceURI: string | null = null) {
@@ -16,8 +25,8 @@ export abstract class VisualTreeNode extends Destructible {
         if (new.target === VisualTreeNode)
             throw new InvalidOperationException("Invalid constructor.");
 
-        this.__qualifiedName = qualifiedName;
-        this.__namespaceURI = namespaceURI;
+        this[$qualifiedName] = qualifiedName;
+        this[$namespaceURI] = namespaceURI;
 
         Blender.blend(DependencyObject, this);
         Blender.initialize(DependencyObject, this);
@@ -30,24 +39,24 @@ export abstract class VisualTreeNode extends Destructible {
 
     private PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.onPropertyChange);
 
-    [$set_parent](parent: VisualTreeElement) {
-        this.__parent = parent;
+    [$setParent](parent: VisualTreeElement) {
+        this[$parent] = parent;
     }
 
-    [$set_parent]() {
-        this.__parent = null;
+    [$unsetParent]() {
+        this[$parent] = null;
     }
 
-    get parent(): VisualTreeElement | null { return this.__parent; }
-    __parent: VisualTreeElement | null = null;
+    get parent(): VisualTreeElement | null { return this[$parent]; }
+    [$parent]: VisualTreeElement | null = null;
 
-    get namespaceURI(): string | null { return this.__namespaceURI; }
-    private __namespaceURI: string | null;
+    get namespaceURI(): string | null { return this[$namespaceURI]; }
+    private [$namespaceURI]: string | null;
 
-    get qualifiedName(): string { return this.__qualifiedName; }
-    private __qualifiedName: string;
+    get qualifiedName(): string { return this[$qualifiedName]; }
+    private [$qualifiedName]: string;
 
-    destructor() {
+    protected destructor() {
         Blender.deBlend(DependencyObject, this);
     }
 }

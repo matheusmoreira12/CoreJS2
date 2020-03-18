@@ -4,7 +4,7 @@ import { EventTrigger } from "../Triggers/index";
 import { $setTrigger, $unsetTrigger } from "./ActionCollection";
 
 //Keys for Action
-const $trigger = Symbol();
+const $trigger = Symbol("trigger");
 
 /**
  * FrameworkAction base class

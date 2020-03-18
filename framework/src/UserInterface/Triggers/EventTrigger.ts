@@ -5,11 +5,11 @@ import { Action, ActionCollection } from "../Actions/index";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index";
 
 //Keys for EventTrigger
-const $targetEvent = Symbol();
-const $actions = Symbol();
-const $removeAllActions = Symbol();
-const $executeAllActions = Symbol();
-const $targetEvent_handler = Symbol();
+const $targetEvent = Symbol("targetEvent");
+const $actions = Symbol("actions");
+const $removeAllActions = Symbol("removeAllActions");
+const $executeAllActions = Symbol("executeAllActions");
+const $targetEvent_handler = Symbol("targetEvent_handler");
 
 /**
  * EventTrigger class

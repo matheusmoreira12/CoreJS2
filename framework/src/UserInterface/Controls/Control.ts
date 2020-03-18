@@ -11,15 +11,17 @@ import { Blender } from "../../Standard/Blender/Blender";
 ///TODO: fix this mess
 
 export abstract class Control extends VisualTreeElement {
-    constructor(domElement: Element) {
-        super(domElement);
+    constructor(qualifiedName: string, namespaceURI: string | null = null) {
+        super(qualifiedName, namespaceURI);
 
         if (new.target === Control)
             throw new InvalidOperationException("Invalid constructor");
 
         //Create Bindings
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, <Element>this.__domNode, "core:draggable", "core", { valueConverter: new BooleanAttributeValueConverter() }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, <Element>this.domElement, "core:draggable", "core", { valueConverter: new BooleanAttributeValueConverter() }));
+    }
 
+    protected initialize() {
         //Attach Event Handlers
         //  Drag/Drop Handler Events
         this.__dragDropHandler.RequestDragStartEvent.attach(this.__dragDropHandler__onRequestDragStart, this);
@@ -33,8 +35,12 @@ export abstract class Control extends VisualTreeElement {
         this.__dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
     }
 
+    protected finalize() {
+
+    }
+
     //Helper Class Instances
-    private __dragDropHandler = new DragDropHandler(<Element>this.__domNode);
+    private __dragDropHandler = new DragDropHandler(<Element>this.domElement);
 
     //Drag/Drop Handler Event Listeners
     private __dragDropHandler__onRequestDragStart(args: FrameworkEventArgs) {
@@ -117,37 +123,37 @@ export abstract class Control extends VisualTreeElement {
     private __onMouseEnter() {
         this.isMouseOver = true;
     }
-    MouseEnterEvent = new NativeEvent(this.__domNode, "mouseenter", this.__onMouseEnter, this);
+    MouseEnterEvent = new NativeEvent(<Element>this.domElement, "mouseenter", this.__onMouseEnter, this);
 
     //Mouse Leave Event
     private __onMouseLeave() {
         this.isMouseOver = false;
     }
-    MouseLeaveEvent = new NativeEvent(this.__domNode, "mouseleave", this.__onMouseLeave, this);
+    MouseLeaveEvent = new NativeEvent(<Element>this.domElement, "mouseleave", this.__onMouseLeave, this);
 
     //Mouse Down Event
     private __onMouseDown() {
         this.isMouseDown = true;
     }
-    MouseDownEvent = new NativeEvent(this.__domNode, "mousedown", this.__onMouseDown, this);
+    MouseDownEvent = new NativeEvent(<Element>this.domElement, "mousedown", this.__onMouseDown, this);
 
     //Mouse Up Event
     private __onMouseUp() {
         this.isMouseDown = false;
     }
-    MouseUpEvent = new NativeEvent(this.__domNode, "mouseup", this.__onMouseUp, this);
+    MouseUpEvent = new NativeEvent(<Element>this.domElement, "mouseup", this.__onMouseUp, this);
 
     //Mouse Move Event
     private __onMouseMove() {
 
     }
-    MouseMoveEvent = new NativeEvent(this.__domNode, "mousemove", this.__onMouseMove, this);
+    MouseMoveEvent = new NativeEvent(<Element>this.domElement, "mousemove", this.__onMouseMove, this);
 
     //Click Event
     private __onClick() {
 
     }
-    ClickEvent = new NativeEvent(this.__domNode, "click", this.__onClick, this);
+    ClickEvent = new NativeEvent(<Element>this.domElement, "click", this.__onClick, this);
 
     //Framework Properties
     //State Properties

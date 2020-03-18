@@ -7,7 +7,7 @@ const DEFAULT_BINDING_OPTIONS: IBindingOptions = {
 };
 
 //Keys for Binding
-const $options = Symbol();
+const $options = Symbol("options");
 
 /**
  * Binding base class

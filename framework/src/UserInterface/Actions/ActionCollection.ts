@@ -4,8 +4,8 @@ import { EventTrigger } from "../Triggers/index";
 import { assertParams } from "../../Validation/index";
 import { Enumeration } from "../../Standard/index";
 
-export const $setTrigger = Symbol();
-export const $unsetTrigger = Symbol();
+export const $setTrigger = Symbol("setTrigger");
+export const $unsetTrigger = Symbol("unsetTrigger");
 
 export class ActionCollection extends ObservableCollection<Action> {
     constructor(parentTrigger: EventTrigger, ...items: Action[]) {
