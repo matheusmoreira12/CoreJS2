@@ -4,7 +4,8 @@ import { VisualTreeElement } from "./VisualTreeElement";
 import { Blender } from "../../Standard/Blender/Blender";
 import { DependencyObject } from "../DependencyObjects/DependencyObject";
 import { FrameworkEvent } from "../../Standard/Events/index";
-import { PropertyChangeEventArgs } from "../DependencyObjects/index";
+import { PropertyChangeEventArgs, DependencyProperty } from "../DependencyObjects/index";
+import { IDependencyObject } from "../DependencyObjects/IDependencyObject";
 
 //Public keys for VisualTreeNode
 export const $setParent = Symbol("setParent");
@@ -15,7 +16,7 @@ const $namespaceURI = Symbol("domElement");
 const $qualifiedName = Symbol("domElement");
 const $parent = Symbol("domElement");
 
-export abstract class VisualTreeNode extends Destructible {
+export abstract class VisualTreeNode extends Destructible implements IDependencyObject {
     constructor(qualifiedName: string, namespaceURI: string | null = null) {
         super();
 
@@ -32,10 +33,11 @@ export abstract class VisualTreeNode extends Destructible {
         Blender.initialize(DependencyObject, this);
 
         Blender.execute(this, DependencyObject, o => o.PropertyChangeEvent.attach(this.PropertyChangeEvent));
+        this.get = Blender.execute(this, DependencyObject, o => o.get.bind(o));
+        this.set = Blender.execute(this, DependencyObject, o => o.set.bind(o));
     }
 
-    protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-    }
+    protected onPropertyChange(_sender: any, _args: PropertyChangeEventArgs) {}
 
     private PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.onPropertyChange, this);
 
@@ -56,7 +58,11 @@ export abstract class VisualTreeNode extends Destructible {
     get qualifiedName(): string { return this[$qualifiedName]; }
     private [$qualifiedName]: string;
 
+    get: (property: DependencyProperty) => any;
+
+    set: (property: DependencyProperty, value: any) => void;
+
     protected destructor() {
-        Blender.deBlend(DependencyObject, this);
+        Blender.unBlend(DependencyObject, this);
     }
 }

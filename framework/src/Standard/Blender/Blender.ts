@@ -73,16 +73,16 @@ export namespace Blender {
             throw new InvalidOperationException("Cannot initialize an instance for the specified class on the specified object. The specified class may have not been blended with the specified object.");
     }
 
-    export function tryDeblend<TBlend, TSource extends DataType>(blendClass: Class<TBlend>, sourceObj: TSource): boolean {
+    export function tryUnBlend<TBlend, TSource extends DataType>(blendClass: Class<TBlend>, sourceObj: TSource): boolean {
         if (Storage.tryDiscard(blendClass, sourceObj))
             return true;
         else
             return false;
     }
 
-    export function deBlend<TBlend, TSource extends DataType>(blendClass: Class<TBlend>, sourceObj: TSource) {
-        if (!tryDeblend(blendClass, sourceObj))
-            throw new InvalidOperationException("Cannot de-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
+    export function unBlend<TBlend, TSource extends DataType>(blendClass: Class<TBlend>, sourceObj: TSource) {
+        if (!tryUnBlend(blendClass, sourceObj))
+            throw new InvalidOperationException("Cannot un-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
     }
 
     export function tryExecute<TBlend extends DataType, TResult>(sourceObj: object, blendClass: Class<TBlend>, predicate: ExecutePredicate<TBlend, TResult>, output: TryOutput<TResult>): TResult | undefined;
@@ -106,6 +106,6 @@ export namespace Blender {
         if (tryExecute(sourceObj, blendClass, predicate, <TThisArg>thisArg, tryExecuteOutput))
             return <TResult>tryExecuteOutput.result;
         else
-            throw new InvalidOperationException("Cannot de-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
+            throw new InvalidOperationException("Cannot execute the specified predicate with the specified class instance in the specified object. The specified class may have not been blended with the specified object.");
     }
 };

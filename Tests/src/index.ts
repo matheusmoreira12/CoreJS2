@@ -64,6 +64,8 @@ const stylesheetPath = URL.createObjectURL(stylesheetBlob);
 
 export class Grid extends Control {
     initialization() {
+        super.initialization();
+
         const style = VisualTreeElement.create("link", HTML_NS);
         style.attributes.setMany({
             rel: "stylesheet",
@@ -77,6 +79,8 @@ ControlManager.register(<any>Grid, "core:Grid", "core");
 
 export abstract class Shape extends Control {
     initialization() {
+        super.initialization();
+
         const style = VisualTreeElement.create("link", HTML_NS);
         style.attributes.setMany({
             rel: "stylesheet",
@@ -111,6 +115,8 @@ export abstract class Shape extends Control {
 
 export class Rectangle extends Shape {
     initialization() {
+        super.initialization();
+
         //Add an SVG Rect to the visual tree
         const PART_rect = VisualTreeElement.create("rect", SVG_NS);
         PART_rect.attributes.setMany({
@@ -146,13 +152,13 @@ ControlManager.register(<any>Rectangle, "core:Rectangle", "core");
 
 export abstract class ContainerControl extends Control {
     initialization() {
+        super.initialization();
+
         const PART_layoutGrid = ControlManager.instantiate(Grid);
         this.children.add(PART_layoutGrid);
         this.__PART_layoutGrid = PART_layoutGrid;
 
         this.__PART_child = null;
-
-        Blender.execute(this, DependencyObject, o => o.PropertyChangeEvent.attach(this.__onPropertyChange, this));
     }
 
     private __updateChild(child: VisualTreeElement) {
@@ -167,7 +173,9 @@ export abstract class ContainerControl extends Control {
     private __PART_child!: VisualTreeElement | null;
     protected __PART_layoutGrid!: Grid;
 
-    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+    protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+        super.onPropertyChange(sender, args);
+
         if (args.property === ContainerControl.childProperty)
             this.__updateChild(args.newValue);
     }
@@ -179,6 +187,8 @@ export abstract class ContainerControl extends Control {
 
 export class Border extends ContainerControl {
     initialization() {
+        super.initialization();
+
         const PART_background = ControlManager.instantiate(Rectangle);
         this.__PART_layoutGrid.children.add(PART_background);
         this.__PART_background = PART_background;
@@ -234,6 +244,8 @@ ControlManager.register(<any>Border, "core:Border", "core");
 
 export class Text extends Shape {
     initialization() {
+        super.initialization();
+
         const PART_text = Core.UserInterface.VisualTrees.VisualTreeElement.create("text", SVG_NS);
         this.__PART_text = PART_text;
         this.__PART_canvas.children.add(PART_text);
@@ -247,8 +259,6 @@ export class Text extends Shape {
 
         this.__updateViewbox();
         this.__updateText();
-
-        Blender.execute(this, DependencyObject, o => o.PropertyChangeEvent.attach(this.__onPropertyChange, this));
     }
 
     __updateViewbox() {
@@ -263,14 +273,16 @@ export class Text extends Shape {
     }
 
     //DependencyObject
-    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+    protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+        super.onPropertyChange(sender, args);
+
         if (args.property === Text.fontProperty)
             this.__updateViewbox();
         else if (args.property === Text.textProperty)
             this.__updateText();
     }
 
-    private __PART_text!: VisualTreeElement;
+    protected __PART_text!: VisualTreeElement;
 
     static fontProperty = DependencyProperty.register(<any>Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
     get font(): Font { return Blender.execute(this, DependencyObject, o => o.get(Text.fontProperty)); }
@@ -288,6 +300,8 @@ export class Button extends Control {
     }
 
     initialization() {
+        super.initialization();
+
         const PART_border = <Border>ControlManager.instantiate(Border);
         PART_border.borderRadiusX = new GraphicValue(4, GraphicUnit.Pixels);
         PART_border.borderRadiusY = new GraphicValue(4, GraphicUnit.Pixels);
@@ -310,9 +324,9 @@ export class Button extends Control {
         (<Text>this.__PART_text).text = "Click here!";
     }
 
-    private __PART_border!: Border;
-    private __PART_text!: VisualTreeElement;
-    private __PART_layoutGrid!: VisualTreeElement;
+    protected __PART_border!: Border;
+    protected __PART_text!: VisualTreeElement;
+    protected __PART_layoutGrid!: VisualTreeElement;
 }
 ControlManager.register(<any>Button, "core:Button", "core");
 
