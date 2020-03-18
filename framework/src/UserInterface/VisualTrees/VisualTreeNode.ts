@@ -37,7 +37,7 @@ export abstract class VisualTreeNode extends Destructible {
     protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
     }
 
-    private PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.onPropertyChange);
+    private PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.onPropertyChange, this);
 
     [$setParent](parent: VisualTreeElement) {
         this[$parent] = parent;

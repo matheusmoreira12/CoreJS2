@@ -15,8 +15,7 @@ export class VisualTreeAttribute extends VisualTreeNode {
         assertParams({ namespaceURI }, [String, null]);
         assertParams({ initialValue }, [String, undefined]);
 
-        if (initialValue !== undefined)
-            this.value = this.value;
+        this.value = String(initialValue) || "";
     }
 
     private [$updateValue](value: string) {

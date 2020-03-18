@@ -33,7 +33,7 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
             return attribute;
         }
         else {
-            const attribute = VisualTreeAttribute.create(qualifiedName, namespaceURI, value);
+            const attribute = new VisualTreeAttribute(qualifiedName, namespaceURI, value);
             this.add(attribute);
             return attribute;
         }
