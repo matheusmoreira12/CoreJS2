@@ -5,6 +5,7 @@ import { DependencyProperty, DependencyObject } from "../DependencyObjects/index
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 import { Blender } from "../../Standard/Blender/Blender";
+import { PropertyBinding, PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
 
 ///TODO: fix this mess
 
@@ -18,6 +19,8 @@ export abstract class Control extends VisualTreeElement {
 
     protected initialization() {
         super.initialization();
+
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, this.domElement, "core:isDraggable", "core", { direction: BindingDirection.ToTarget }));
 
         //Native events
         this.MouseEnterEvent = new NativeEvent(<Element>this.domElement, "mouseenter", this.__onMouseEnter, this);

@@ -140,8 +140,8 @@ export class VisualTreeElement extends VisualTreeNode {
     get attributes(): VisualTreeAttributeCollection { return this[$attributes]; }
     protected [$attributes]: VisualTreeAttributeCollection = new VisualTreeAttributeCollection();
 
-    get domElement(): Element | null { return this[$domElement]; }
-    protected [$domElement]: Element | null = null;
+    get domElement(): Element { return this[$domElement]; }
+    protected [$domElement]!: Element;
 
     protected destructor() {
         if (this.isInitialized)
