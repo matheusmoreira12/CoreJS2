@@ -16,14 +16,11 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
         assertParams({ qualifiedName }, [String]);
         assertParams({ namespaceURI }, [String, null]);
 
-        let result = this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI);
+        const result = this.find(a => a.qualifiedName === qualifiedName && a.namespaceURI === namespaceURI);
         if (result)
             return result;
-        else {
-            result = new VisualTreeAttribute(qualifiedName, namespaceURI);
-            this.add(result);
-            return result;
-        }
+        else
+            throw new KeyNotFoundException();
     }
 
     set(qualifiedName: string, namespaceURI: string | null = null, value: string = ObjectUtils.getDefault(String)): VisualTreeAttribute {

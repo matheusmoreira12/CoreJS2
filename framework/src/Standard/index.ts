@@ -6,6 +6,9 @@ export * from "./Exceptions";
 export * from "./MathX";
 export * from "./Tokens";
 
+import * as AccessContexts from "./AccessContexts/index";
+export { AccessContexts };
+
 import * as APIs from "./APIs/index";
 export { APIs };
 

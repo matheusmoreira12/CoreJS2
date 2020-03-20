@@ -5,7 +5,7 @@ import { DependencyProperty, DependencyObject } from "../DependencyObjects/index
 import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 import { Blender } from "../../Standard/Blender/Blender";
-import { PropertyBinding, PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
+import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
 
 ///TODO: fix this mess
 

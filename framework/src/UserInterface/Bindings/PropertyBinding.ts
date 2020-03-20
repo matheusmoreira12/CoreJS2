@@ -40,9 +40,7 @@ export class PropertyBinding extends Binding {
         this[$target] = target;
         this[$targetProperty] = targetProperty;
 
-        this[$source_PropertyChangeEvent] = new FrameworkEvent(this[$source_onPropertyChange], this);
         source.PropertyChangeEvent.attach(this[$source_PropertyChangeEvent]);
-        this[$target_PropertyChangeEvent] = new FrameworkEvent(this[$target_onPropertyChange], this);
         target.PropertyChangeEvent.attach(this[$target_PropertyChangeEvent]);
 
         this[$doInitialCrossingUpdate]();
@@ -70,7 +68,7 @@ export class PropertyBinding extends Binding {
         }
     }
 
-    private [$source_onPropertyChange](sender: any, args: PropertyChangeEventArgs) {
+    private [$source_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
         const isSourceProperty = args.property === this.sourceProperty;
         if (isSourceProperty) {
             const sourcePropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
@@ -78,7 +76,7 @@ export class PropertyBinding extends Binding {
         }
     }
 
-    private [$source_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs>;
+    private [$source_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this[$source_onPropertyChange], this);
 
     private [$updateSourceProperty](targetValue: any) {
         const canUpdateToSource = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
@@ -94,7 +92,7 @@ export class PropertyBinding extends Binding {
         }
     }
 
-    private [$target_onPropertyChange](sender: any, args: PropertyChangeEventArgs) {
+    private [$target_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
         const isTargetProperty = args.property === this.sourceProperty;
         if (isTargetProperty) {
             const targetPropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
@@ -102,7 +100,7 @@ export class PropertyBinding extends Binding {
         }
     }
 
-    private [$target_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs>;
+    private [$target_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this[$target_onPropertyChange], this);
 
     get source(): DependencyObject { return this[$source]; }
     private [$source]: DependencyObject;
