@@ -1,7 +1,9 @@
 import { InvalidOperationException, Destructible } from "../../Standard/index";
 import { Dictionary } from "../../Standard/Collections/index";
 import { EventTrigger } from "../Triggers/index";
-import { $setTrigger, $unsetTrigger } from "./ActionCollection";
+
+//Public keys for Action
+export const $setTrigger = Symbol("setTrigger");
 
 //Keys for Action
 const $trigger = Symbol("trigger");
@@ -22,12 +24,8 @@ export abstract class Action extends Destructible {
 
     abstract execute(data: Dictionary<string, any>): void;
 
-    [$setTrigger](trigger: EventTrigger) {
+    [$setTrigger](trigger: EventTrigger | null) {
         this[$trigger] = trigger;
-    }
-
-    [$unsetTrigger]() {
-        this[$trigger] = null;
     }
 
     get trigger(): EventTrigger | null { return this[$trigger]; }

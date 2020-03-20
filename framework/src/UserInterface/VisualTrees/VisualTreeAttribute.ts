@@ -5,6 +5,7 @@ import { Type } from "../../Standard/Types/Type";
 import { Blender } from "../../Standard/Blender/index";
 import { $updateAttribute } from "./index";
 
+//Public keys for VisualTreeAttribute
 const $updateValue = Symbol("updateValue");
 
 export class VisualTreeAttribute extends VisualTreeNode {
@@ -18,17 +19,17 @@ export class VisualTreeAttribute extends VisualTreeNode {
         this.value = String(initialValue) || "";
     }
 
-    private [$updateValue](value: string) {
+    private [$updateValue]() {
         if (this.parent)
-            this.parent[$updateAttribute](this, value);
+            this.parent[$updateAttribute](this);
     }
 
     protected onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         if (args.property === VisualTreeAttribute.valueProperty)
-            this[$updateValue](String(args.newValue));
+            this[$updateValue]();
     }
 
-    static valueProperty = DependencyProperty.register(<any>VisualTreeAttribute, "", { valueType: Type.get(String), defaultValue: "" });
+    static valueProperty = DependencyProperty.register(<any>VisualTreeAttribute, "value", { valueType: Type.get(String), defaultValue: "" });
     get value(): string { return Blender.execute(this, DependencyObject, o => o.get(VisualTreeAttribute.valueProperty)); }
     set value(value: string) { Blender.execute(this, DependencyObject, o => o.set(VisualTreeAttribute.valueProperty, value)); }
 

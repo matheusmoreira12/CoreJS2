@@ -9,7 +9,6 @@ const allSetters: Collection<Setter> = new Collection();
 
 //Public keys for Setter
 export const $setTrigger = Symbol("setTrigger");
-export const $unsetTrigger = Symbol("unsetTrigger");
 
 //Keys for Setter
 const $property = Symbol("property");
@@ -46,12 +45,8 @@ export class Setter extends Destructible {
     get value(): any { return this[$value]; }
     private [$value]: any;
 
-    [$setTrigger](trigger: PropertyTrigger) {
+    [$setTrigger](trigger: PropertyTrigger | null) {
         this[$trigger] = trigger;
-    }
-
-    [$unsetTrigger]() {
-        this[$trigger] = null;
     }
 
     get trigger(): PropertyTrigger | null { return this[$trigger]; }

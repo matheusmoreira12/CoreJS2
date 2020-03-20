@@ -1,4 +1,4 @@
-import { VisualTreeNode, $unsetParent, $setParent } from "./VisualTreeNode";
+import { VisualTreeNode, $setParent } from "./VisualTreeNode";
 import { InvalidOperationException, Enumeration } from "../../Standard/index";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index";
 import { DOMUtils } from "../index";
@@ -73,7 +73,7 @@ export class VisualTreeElement extends VisualTreeNode {
 
     private [$removeChild](element: VisualTreeElement) {
         (<Element>this[$domElement]).removeChild(<Element>element[$domElement]);
-        element[$unsetParent]();
+        element[$setParent](null);
     }
 
     private [$insertChild](element: VisualTreeElement, index: number) {
@@ -107,18 +107,18 @@ export class VisualTreeElement extends VisualTreeNode {
 
     private [$removeAttribute](attribute: VisualTreeAttribute) {
         (<Element>this.domElement).removeAttributeNS(attribute.namespaceURI, attribute.qualifiedName);
-        attribute[$unsetParent]();
+        attribute[$setParent](null);
     }
 
     private [$addAttribute](attribute: VisualTreeAttribute) {
         if (attribute.parent)
             throw new InvalidOperationException("Cannot add attribute. The provided attribute already has a parent.");
 
-        (<Element>this.domElement).setAttributeNS(attribute.namespaceURI, attribute.qualifiedName, attribute.value);
+        this[$updateAttribute](attribute);
     }
 
-    [$updateAttribute](attribute: VisualTreeAttribute, value: any) {
-        (<Element>this.domElement).setAttributeNS(attribute.namespaceURI, attribute.qualifiedName, value);
+    [$updateAttribute](attribute: VisualTreeAttribute) {
+        (<Element>this.domElement).setAttributeNS(attribute.namespaceURI, attribute.qualifiedName, attribute.value);
     }
 
     private [$attributes_onChange](sender: any, args: ObservableCollectionChangeArgs<VisualTreeAttribute>) {

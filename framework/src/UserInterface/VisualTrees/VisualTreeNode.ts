@@ -9,7 +9,6 @@ import { IDependencyObject } from "../DependencyObjects/IDependencyObject";
 
 //Public keys for VisualTreeNode
 export const $setParent = Symbol("setParent");
-export const $unsetParent = Symbol("unsetParent");
 
 //Keys for VisualTreeNode
 const $namespaceURI = Symbol("domElement");
@@ -39,18 +38,14 @@ export abstract class VisualTreeNode extends Destructible implements IDependency
 
     protected onPropertyChange(_sender: any, _args: PropertyChangeEventArgs) {}
 
-    private PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.onPropertyChange, this);
+    PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.onPropertyChange, this);
 
-    [$setParent](parent: VisualTreeElement) {
+    [$setParent](parent: VisualTreeElement | null) {
         this[$parent] = parent;
     }
 
-    [$unsetParent]() {
-        this[$parent] = null;
-    }
-
     get parent(): VisualTreeElement | null { return this[$parent]; }
-    [$parent]: VisualTreeElement | null = null;
+    private [$parent]: VisualTreeElement | null = null;
 
     get namespaceURI(): string | null { return this[$namespaceURI]; }
     private [$namespaceURI]: string | null;

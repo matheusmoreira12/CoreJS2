@@ -1,11 +1,8 @@
 import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "../../Standard/Collections/index";
-import { Action } from "./Action";
+import { Action, $setTrigger } from "./Action";
 import { EventTrigger } from "../Triggers/index";
 import { assertParams } from "../../Validation/index";
 import { Enumeration } from "../../Standard/index";
-
-export const $setTrigger = Symbol("setTrigger");
-export const $unsetTrigger = Symbol("unsetTrigger");
 
 export class ActionCollection extends ObservableCollection<Action> {
     constructor(parentTrigger: EventTrigger, ...items: Action[]) {
@@ -21,7 +18,7 @@ export class ActionCollection extends ObservableCollection<Action> {
     private __onChange(sender: any, args: ObservableCollectionChangeArgs<Action>) {
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action))
             for (let oldItem of args.oldItems)
-                oldItem[$unsetTrigger]();
+                oldItem[$setTrigger](null);
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action))
             for (let newItem of args.newItems)
                 newItem[$setTrigger](this.__parentTrigger);
