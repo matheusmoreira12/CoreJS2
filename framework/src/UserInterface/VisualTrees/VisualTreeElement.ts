@@ -113,7 +113,7 @@ export class VisualTreeElement extends VisualTreeNode {
     private [$addAttribute](attribute: VisualTreeAttribute) {
         if (attribute.parent)
             throw new InvalidOperationException("Cannot add attribute. The provided attribute already has a parent.");
-
+        attribute[$setParent](this);
         this[$updateAttribute](attribute);
     }
 

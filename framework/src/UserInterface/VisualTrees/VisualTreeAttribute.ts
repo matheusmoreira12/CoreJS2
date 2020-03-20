@@ -32,10 +32,4 @@ export class VisualTreeAttribute extends VisualTreeNode {
     static valueProperty = DependencyProperty.register(<any>VisualTreeAttribute, "value", { valueType: Type.get(String), defaultValue: "" });
     get value(): string { return Blender.execute(this, DependencyObject, o => o.get(VisualTreeAttribute.valueProperty)); }
     set value(value: string) { Blender.execute(this, DependencyObject, o => o.set(VisualTreeAttribute.valueProperty, value)); }
-
-    protected destructor() {
-        //Remove self from parent
-        if (this.parent)
-            this.parent.attributes.remove(this);
-    }
 }
