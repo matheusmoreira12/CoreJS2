@@ -1,14 +1,15 @@
 import { DependencyProperty } from "./DependencyProperty";
 import { DependencyObject } from "./DependencyObject";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
+import { Collection } from "../../Standard/Collections/index";
 
 import * as Registry from "./Registry";
 
-const setters: InternalSetter[] = [];
+const setters: Collection<InternalSetter> = new Collection();
 
 type InternalSetter = {
     source: object,
-    target: object,
+    target: DependencyObject,
     property: DependencyProperty,
     value: any
 };
@@ -30,37 +31,33 @@ function notifyValueChange(source: object, target: DependencyObject, property: D
 }
 
 export function internal_unsetValue(source: object, target: DependencyObject, property: DependencyProperty) {
-    let index = setters.findIndex(s => s.source === source && s.target === target && s.property === property);
-    if (index != -1)
-        setters.splice(index, 1);
+    let setter = setters.findLast(s => s.source === source && s.target === target && s.property === property);
+    if (setter)
+        setters.remove(setter);
 }
 
 export function internal_setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
-    if (value !== null) {
-        const newSetter = InternalSetter.create(source, target, property, value);
-        setters.push(newSetter);
-    }
+    const newSetter = InternalSetter.create(source, target, property, value);
+    setters.push(newSetter);
 }
 
 export function setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
-    const oldValue = getValue(target, property);
+    const oldRawValue = getRawValue(target, property);
     internal_unsetValue(source, target, property);
     if (value !== null)
         internal_setValue(source, target, property, value);
-    const newValue = getValue(target, property);
-    const hasValueChanged = oldValue !== newValue;
+    const newRawValue = getRawValue(target, property);
+    const hasValueChanged = oldRawValue !== newRawValue;
     if (hasValueChanged)
-        notifyValueChange(source, target, property, oldValue, newValue);
+        notifyValueChange(source, target, property, oldRawValue, newRawValue);
 }
 
 export function getRawValue(target: DependencyObject, property: DependencyProperty): any {
-    for (let setter of setters) {
-        if (setter.target === target &&
-            setter.property === property &&
-            setter.value !== null)
-            return setter.value;
-    }
-    return null;
+    const setter = setters.findLast(s => s.target === target && s.property === property && s.value !== null);
+    if (setter)
+        return setter.value
+    else
+        return null;
 }
 
 export function getValue(target: DependencyObject, property: DependencyProperty): any {

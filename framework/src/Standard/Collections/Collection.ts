@@ -12,9 +12,9 @@ export class Collection<T> extends Array<T> {
     }
 
     get first(): T { return this[0]; }
-    
+
     get last(): T { return this[this.length - 1]; }
-    
+
     *getRange(index: number, itemCount: number): Generator<T> {
         if (index < 0 || index >= this.length)
             throw new ArgumentOutOfRangeException("index");
@@ -81,5 +81,13 @@ export class Collection<T> extends Array<T> {
 
     clear(): T[] {
         return this.splice(0, this.length);
+    }
+
+    findLast(predicate: (this: typeof thisArg, value: T, index: number, obj: T[]) => unknown, thisArg?: any): T | undefined {
+        return this.reverse().find(predicate, thisArg);
+    }
+
+    findIndexOfLast(predicate: (this: typeof thisArg, value: T, index: number, obj: T[]) => unknown, thisArg?: any): number {
+        return this.reverse().findIndex(predicate, thisArg);
     }
 }
