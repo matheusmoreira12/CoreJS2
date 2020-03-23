@@ -40,10 +40,10 @@ export class PropertyBinding extends Binding {
         this[$target] = target;
         this[$targetProperty] = targetProperty;
 
+        this[$doInitialCrossingUpdate]();
+
         source.PropertyChangeEvent.attach(this[$source_PropertyChangeEvent]);
         target.PropertyChangeEvent.attach(this[$target_PropertyChangeEvent]);
-
-        this[$doInitialCrossingUpdate]();
     }
 
     private [$doInitialCrossingUpdate]() {
@@ -71,7 +71,7 @@ export class PropertyBinding extends Binding {
     private [$source_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
         const isSourceProperty = args.property === this.sourceProperty;
         if (isSourceProperty) {
-            const sourcePropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
+            const sourcePropertyRawValue = Storage.getRawValue(this.source, this.sourceProperty);
             this[$updateTargetProperty](sourcePropertyRawValue);
         }
     }
@@ -93,7 +93,7 @@ export class PropertyBinding extends Binding {
     }
 
     private [$target_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
-        const isTargetProperty = args.property === this.sourceProperty;
+        const isTargetProperty = args.property === this.targetProperty;
         if (isTargetProperty) {
             const targetPropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
             this[$updateSourceProperty](targetPropertyRawValue);
