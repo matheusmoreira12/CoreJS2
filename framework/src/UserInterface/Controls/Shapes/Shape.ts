@@ -14,7 +14,8 @@ export abstract class Shape extends Control {
         const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
         PART_canvas.attributes.setMany({
             width: "100%",
-            height: "100%"
+            height: "100%",
+            style: "flex: 1; align-self: center"
         });
         this.children.add(PART_canvas);
         this.__PART_canvas = PART_canvas;

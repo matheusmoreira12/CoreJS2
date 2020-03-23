@@ -25,19 +25,22 @@ export class Text extends Shape {
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget }));
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget }));
 
-        this.__updateViewbox();
+        this.__updateSize();
         this.__updateText();
     }
 
-    __updateViewbox() {
+    __updateSize() {
         const bbox = (<SVGTextElement>this.__PART_text.domElement).getBBox();
-        const viewBox = `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`;
-        this.__PART_canvas.attributes.set("viewBox", null, viewBox);
+        this.__PART_canvas.attributes.setMany({
+            "viewBox": `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`,
+            "width": String(bbox.width),
+            "height": String(bbox.height)
+        }, null);
     }
 
     __updateText() {
         (<SVGTextElement>this.__PART_text.domElement).textContent = this.text;
-        this.__updateViewbox();
+        this.__updateSize();
     }
 
     //DependencyObject
@@ -45,7 +48,7 @@ export class Text extends Shape {
         super.onPropertyChange(sender, args);
 
         if (args.property === Text.fontProperty)
-            this.__updateViewbox();
+            this.__updateSize();
         else if (args.property === Text.textProperty)
             this.__updateText();
     }
