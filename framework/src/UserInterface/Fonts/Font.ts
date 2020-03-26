@@ -2,7 +2,7 @@ import { FontWeight } from "./FontWeight";
 import { TextDecoration } from "./TextDecoration";
 import { FontStyle } from "./FontStyle";
 import { assertParams } from "../../Validation/index";
-import { GraphicValue, Unit } from "../GraphicValues/index";
+import { UnitValue, Unit } from "../GraphicValues/index";
 
 const $family = Symbol("family");
 const $size = Symbol("size");
@@ -13,9 +13,9 @@ const $textDecoration = Symbol("textDecoration");
 export class Font {
     static get default(): Font { return DEFAULT_FONT; }
 
-    constructor(family: string, size: GraphicValue, weight: number = FontWeight.Normal, style: number = FontStyle.Normal, textDecoration: number = TextDecoration.None) {
+    constructor(family: string, size: UnitValue, weight: number = FontWeight.Normal, style: number = FontStyle.Normal, textDecoration: number = TextDecoration.None) {
         assertParams({ family }, [String]);
-        assertParams({ size }, [GraphicValue]);
+        assertParams({ size }, [UnitValue]);
         assertParams({ weight, style, textDecoration }, [Number]);
 
         this[$family] = family;
@@ -28,8 +28,8 @@ export class Font {
     get family(): string { return this[$family]; }
     [$family]: string;
 
-    get size(): GraphicValue { return this[$size]; }
-    [$size]: GraphicValue;
+    get size(): UnitValue { return this[$size]; }
+    [$size]: UnitValue;
 
     get weight(): number { return this[$weight]; }
     [$weight]: number;

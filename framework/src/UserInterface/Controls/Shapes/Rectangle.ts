@@ -3,7 +3,7 @@ import { Type } from "../../../Standard/Types/index";
 import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index";
 import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index";
 import { GraphicValueSVGAttributeValueConverter } from "../../GraphicValues/ValueConverters/index";
-import { GraphicValue } from "../../GraphicValues/index";
+import { UnitValue } from "../../GraphicValues/index";
 import { VisualTreeElement } from "../../VisualTrees/index";
 import { Shape } from "./index";
 import { ControlManager } from "../index";
@@ -37,12 +37,12 @@ export class Rectangle extends Shape {
 
     protected __PART_rect!: VisualTreeElement;
 
-    static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get rx(): GraphicValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.rxProperty)); }
-    set rx(value: GraphicValue) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.rxProperty, value)); }
+    static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: UnitValue.Zero, valueType: Type.of(UnitValue) });
+    get rx(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.rxProperty)); }
+    set rx(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.rxProperty, value)); }
 
-    static ryProperty = DependencyProperty.register(<any>Rectangle, "ry", { defaultValue: GraphicValue.Zero, valueType: Type.of(GraphicValue) });
-    get ry(): GraphicValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.ryProperty)); }
-    set ry(value: GraphicValue) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.ryProperty, value)); }
+    static ryProperty = DependencyProperty.register(<any>Rectangle, "ry", { defaultValue: UnitValue.Zero, valueType: Type.of(UnitValue) });
+    get ry(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.ryProperty)); }
+    set ry(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.ryProperty, value)); }
 }
 ControlManager.register(<any>Rectangle, "core:Rectangle", "core");

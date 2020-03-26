@@ -1,10 +1,8 @@
 import { IValueConverter } from "../../ValueConverters/index";
-import { GraphicValue } from "../GraphicValue";
+import { UnitValue } from "../UnitValue";
 import { Unit } from "../Unit";
 import { StringReader } from "../../../Standard/Strings/StringReader";
 import { MapUtils } from "../../../CoreBase/Utils/index";
-import { UnitValue } from "../UnitValue";
-import { AutoValue } from "../AutoValue";
 
 const UNIT_SVG_UNIT_MAP = new Map([
     [Unit.Centimeters, "cm"],
@@ -26,22 +24,18 @@ const UNIT_SVG_UNIT_MAP = new Map([
 ]);
 
 export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
-    convert(value: GraphicValue | null): string | null {
-        if (value === null)
+    convert(value: UnitValue | null): string | null {
+        if (value === null || value.isInvalid)
             return null;
+        else if (value.isAuto)
+            return "auto";
         else {
-            if (value instanceof AutoValue)
-                return "auto";
-            else if (value instanceof UnitValue) {
-                const unitAttr = UNIT_SVG_UNIT_MAP.get(value.unit) || "";
-                return `${value.amount}${unitAttr}`;
-            }
-            else
-                return null;
+            const unitAttr = UNIT_SVG_UNIT_MAP.get(value.unit) || "";
+            return `${value.amount}${unitAttr}`;
         }
     }
 
-    convertBack(value: string | null): any {
+    convertBack(value: string | null): UnitValue | null {
         function readAmount(reader: StringReader): number {
             let s: string = "";
             while (reader.peek().match(/\d/))
@@ -62,8 +56,8 @@ export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
 
         if (value === null)
             return null;
-        if (value == "auto")
-            return GraphicValue.Auto;
+        else if (value == "auto")
+            return UnitValue.auto;
         else {
             const reader = new StringReader(value);
             const amount = readAmount(reader);
