@@ -17,7 +17,7 @@ import Control = Core.UserInterface.Controls.Control;
 import ControlManager = Core.UserInterface.Controls.ControlManager;
 //Scalars
 import GraphicValue = Core.UserInterface.GraphicValues.GraphicValue;
-import GraphicUnit = Core.UserInterface.GraphicValues.GraphicUnit;
+import GraphicUnit = Core.UserInterface.GraphicValues.Unit;
 
 
 import Shape  = Core.UserInterface.Controls.Shapes.Shape;
@@ -50,6 +50,7 @@ core|Grid>* {
     top: 0;
     right: 0;
     bottom: 0;
+    whitespace: nowrap;
 }
 `;
 

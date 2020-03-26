@@ -5,7 +5,7 @@ export type EnumerationDescriptor = { [key: string]: number | null };
 
 export type EnumerationInstance<TDesc extends EnumerationDescriptor> = Enumeration & {
     readonly [P in keyof TDesc]: number;
-}
+};
 
 const ENUMERATION_FLAG_NAME_PATTERN = /^[A-Z]\w*$/;
 
@@ -39,7 +39,7 @@ const $flags = Symbol("flags");
  * Represents an enumeration of options.
  */
 export class Enumeration {
-    static create<T extends EnumerationDescriptor>(descriptor: T): EnumerationInstance<T> {
+    static create<TDesc extends EnumerationDescriptor>(descriptor: TDesc): EnumerationInstance<TDesc> {
         const flags = new Map<string, number>();
         for (let { key, value } of getEnumerationFlags(descriptor)) {
             if (typeof key !== "string")
@@ -51,7 +51,7 @@ export class Enumeration {
 
             flags.set(key, value);
         }
-        return <EnumerationInstance<T>>new Enumeration(flags);
+        return <EnumerationInstance<TDesc>>new Enumeration(flags);
     }
 
     static contains(flag: number, value: number): boolean {

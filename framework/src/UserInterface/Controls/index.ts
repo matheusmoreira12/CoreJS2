@@ -1,6 +1,8 @@
 export * from "./ControlMetadata";
 export * from "./Control";
 
+export * from "./AutosizeMode";
+
 import * as ControlManager from "./ControlManager";
 export { ControlManager };
 

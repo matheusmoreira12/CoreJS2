@@ -1,4 +1,4 @@
-import { InvalidOperationException } from "../../Standard/index";
+import { InvalidOperationException, Enumeration } from "../../Standard/index";
 import { DragDropHandler } from "../index";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
 import { DependencyProperty, DependencyObject } from "../DependencyObjects/index";
@@ -6,6 +6,8 @@ import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 import { Blender } from "../../Standard/Blender/Blender";
 import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
+import { GraphicValue, Unit } from "../GraphicValues/index";
+import { AutosizeMode } from "./AutosizeMode";
 
 ///TODO: fix this mess
 
@@ -42,6 +44,8 @@ export abstract class Control extends VisualTreeElement {
         dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
+
+        this.invalidateSize();
     }
 
     protected finalization() {
@@ -89,7 +93,6 @@ export abstract class Control extends VisualTreeElement {
         this.DragDropEvent.invoke(this, args);
     }
 
-    //Native events
     //Native events
     MouseEnterEvent!: NativeEvent;
     MouseLeaveEvent!: NativeEvent;
@@ -159,12 +162,60 @@ export abstract class Control extends VisualTreeElement {
 
     //Mouse Move Event
     private __onMouseMove() {
-
     }
 
     //Click Event
     private __onClick() {
+    }
 
+    //Autosize Methods
+    protected __computeSize(): { width: number, height: number } {
+        let width = 1,
+            height = 1;
+        for (let child of this.children) {
+            if (child instanceof Control)
+                child.invalidateSize();
+
+            const childRect = child.domElement.getBoundingClientRect();
+            width = Math.max(width, childRect.x + childRect.width);
+            height = Math.max(height, childRect.y + childRect.height);
+        }
+        return { width, height };
+    }
+
+    protected __updateSize(size: { width: number, height: number }) {
+        if (this.width === GraphicValue.Auto) {
+            if (size.width > this.actualWidth) {
+                if (Enumeration.contains(AutosizeMode.Grow, this.autosizeMode))
+                    this.actualWidth = size.width;
+            }
+            else if (size.width < this.actualWidth) {
+                if (Enumeration.contains(AutosizeMode.Shrink, this.autosizeMode))
+                    this.actualWidth = size.width;
+            }
+        }
+        if (this.height === GraphicValue.Auto) {
+            if (size.height > this.actualHeight) {
+                if (Enumeration.contains(AutosizeMode.Grow, this.autosizeMode))
+                    this.actualWidth = size.height;
+            }
+            else if (size.height < this.actualHeight) {
+                if (Enumeration.contains(AutosizeMode.Shrink, this.autosizeMode))
+                    this.actualWidth = size.height;
+            }
+        }
+        this.invalidateVisual();
+    }
+
+    invalidateSize() {
+        const computedSize = this.__computeSize();
+        this.__updateSize(computedSize);
+    }
+
+    protected __updateVisual() { }
+
+    invalidateVisual() {
+        this.__updateVisual();
     }
 
     //Framework Properties
@@ -172,31 +223,56 @@ export abstract class Control extends VisualTreeElement {
     //Mouse State Properties
     //Is Mouse Over Property
     static isMouseOverProperty = DependencyProperty.register(<any>Control, "isMouseOver", { valueType: Type.get(Boolean), defaultValue: false });
-    get isMouseOver() { return Blender.execute(this, DependencyObject, o => o.get(Control.isMouseOverProperty)); }
-    set isMouseOver(value) { Blender.execute(this, DependencyObject, o => o.set(Control.isMouseOverProperty, value)); }
+    get isMouseOver(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isMouseOverProperty)); }
+    set isMouseOver(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isMouseOverProperty, value)); }
 
     //Is Mouse Down Property
     static isMouseDownProperty = DependencyProperty.register(<any>Control, "isMouseDown", { valueType: Type.get(Boolean), defaultValue: false });
-    get isMouseDown() { return Blender.execute(this, DependencyObject, o => o.get(Control.isMouseDownProperty)); }
-    set isMouseDown(value) { Blender.execute(this, DependencyObject, o => o.set(Control.isMouseDownProperty, value)); }
+    get isMouseDown(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isMouseDownProperty)); }
+    set isMouseDown(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isMouseDownProperty, value)); }
 
     //Drag State Properties
     //Is Dragging Property
     static isDraggingProperty = DependencyProperty.register(<any>Control, "isDragging", { valueType: Type.get(Boolean), defaultValue: false });
-    get isDragging() { return Blender.execute(this, DependencyObject, o => o.get(Control.isDraggingProperty)); }
-    set isDragging(value) { Blender.execute(this, DependencyObject, o => o.set(Control.isDraggingProperty, value)); }
+    get isDragging(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isDraggingProperty)); }
+    set isDragging(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isDraggingProperty, value)); }
 
     //Is Drag Over Property
     static isDragOverProperty = DependencyProperty.register(<any>Control, "isDragOver", { valueType: Type.get(Boolean), defaultValue: false });
-    get isDragOver() { return Blender.execute(this, DependencyObject, o => o.get(Control.isDragOverProperty)); }
-    set isDragOver(value) { Blender.execute(this, DependencyObject, o => o.set(Control.isDragOverProperty, value)); }
+    get isDragOver(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isDragOverProperty)); }
+    set isDragOver(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isDragOverProperty, value)); }
 
     //Drag Properties
     static isDraggableProperty = DependencyProperty.register(<any>Control, "isDraggable", { valueType: Type.get(Boolean), defaultValue: false });
-    get isDraggable() { return Blender.execute(this, DependencyObject, o => o.get(Control.isDraggableProperty)); }
-    set isDraggable(value) { Blender.execute(this, DependencyObject, o => o.set(Control.isDraggableProperty, value)); }
+    get isDraggable(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isDraggableProperty)); }
+    set isDraggable(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isDraggableProperty, value)); }
 
     //Visual Properties
+    //Width Property
+    static widthProperty = DependencyProperty.register(<any>Control, "width", { valueType: Type.get(GraphicValue), defaultValue: new UnitValue(200, Unit.Pixels) });
+    get width(): GraphicValue { return Blender.execute(this, DependencyObject, o => o.get(Control.widthProperty)); }
+    set width(value: GraphicValue) { Blender.execute(this, DependencyObject, o => o.set(Control.widthProperty, value)); }
+
+    //Height Property
+    static heightProperty = DependencyProperty.register(<any>Control, "height", { valueType: Type.get(GraphicValue), defaultValue: new UnitValue(200, Unit.Pixels) });
+    get height(): GraphicValue { return Blender.execute(this, DependencyObject, o => o.get(Control.heightProperty)); }
+    set height(value: GraphicValue) { Blender.execute(this, DependencyObject, o => o.set(Control.heightProperty, value)); }
+
+    //Width Property
+    static actualWidthProperty = DependencyProperty.register(<any>Control, "actualWidth", { valueType: Type.get(Number), defaultValue: 0 });
+    get actualWidth(): Number { return Blender.execute(this, DependencyObject, o => o.get(Control.actualWidthProperty)); }
+    set actualWidth(value: Number) { Blender.execute(this, DependencyObject, o => o.set(Control.actualWidthProperty, value)); }
+
+    //Height Property
+    static actualHeightProperty = DependencyProperty.register(<any>Control, "actualHeight", { valueType: Type.get(Number), defaultValue: 0 });
+    get actualHeight(): Number { return Blender.execute(this, DependencyObject, o => o.get(Control.actualHeightProperty)); }
+    set actualHeight(value: Number) { Blender.execute(this, DependencyObject, o => o.set(Control.actualHeightProperty, value)); }
+
+    //Autosize Mode Property
+    static autosizeModeProperty = DependencyProperty.register(<any>Control, "autosizeMode", { valueType: Type.get(Number), defaultValue: AutosizeMode.None });
+    get autosizeMode(): number { return Blender.execute(this, DependencyObject, o => o.get(Control.autosizeModeProperty)); }
+    set autosizeMode(value: number) { Blender.execute(this, DependencyObject, o => o.set(Control.autosizeModeProperty, value)); }
+
     //Background Property
     static backgroundProperty = DependencyProperty.register(<any>Control, "background", { valueType: Type.get(String), defaultValue: "#000" });
     get background() { return Blender.execute(this, DependencyObject, o => o.get(Control.backgroundProperty)); }

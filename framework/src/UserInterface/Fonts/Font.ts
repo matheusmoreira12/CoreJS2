@@ -2,7 +2,7 @@ import { FontWeight } from "./FontWeight";
 import { TextDecoration } from "./TextDecoration";
 import { FontStyle } from "./FontStyle";
 import { assertParams } from "../../Validation/index";
-import { GraphicValue, GraphicUnit } from "../GraphicValues/index";
+import { GraphicValue, Unit } from "../GraphicValues/index";
 
 const $family = Symbol("family");
 const $size = Symbol("size");
@@ -42,5 +42,5 @@ export class Font {
 }
 
 const DEFAULT_FONT_FAMILY = "Arial, Verdana, Sans-serif";
-const DEFAULT_FONT_SIZE = new GraphicValue(10, GraphicUnit.Points);
+const DEFAULT_FONT_SIZE = new UnitValue(10, Unit.Points);
 const DEFAULT_FONT = new Font(DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE);

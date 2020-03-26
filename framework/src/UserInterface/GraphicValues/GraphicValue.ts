@@ -1,23 +1,10 @@
-import { GraphicUnit } from "./GraphicUnit";
+import { UnitValue } from "./UnitValue";
+import { AutoValue } from "./AutoValue";
 
-const $unit = Symbol("unit");
-const $value = Symbol("value");
-
-export class GraphicValue {
-    static get Zero() { return GRAPHIC_VALUE_ZERO; }
-
-    constructor(value: number, unit: number = GraphicUnit.None) {
-        GraphicUnit.assertFlag(unit);
-
-        this[$value] = value;
-        this[$unit] = unit;
-    }
-
-    get amount(): number { return this[$value]; }
-    private [$value]: number;
-
-    get unit(): number { return this[$unit]; }
-    private [$unit]: number;
+export abstract class GraphicValue {
+    static get Zero(): UnitValue { return ZERO; }
+    static get Auto(): AutoValue { return AUTO; }
 }
 
-const GRAPHIC_VALUE_ZERO = new GraphicValue(0);
+const ZERO = new UnitValue(0);
+const AUTO = new AutoValue();
