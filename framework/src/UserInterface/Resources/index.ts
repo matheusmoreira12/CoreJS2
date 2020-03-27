@@ -1,1 +1,1 @@
-export * from "./ResourceContext";
+export * from "./ResourceDictionary";

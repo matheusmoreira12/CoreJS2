@@ -1,10 +1,21 @@
-import { DependencyProperty, DependencyObject, PropertyChangeEventArgs } from "../DependencyObjects/index";
+import { DependencyProperty, DependencyObject } from "../DependencyObjects/index";
+import { TryOutput } from "../../Standard/Types/Types";
+import { InvalidOperationException } from "../../Standard/index";
+import * as Storage from "./Storage";
 
 export class ResourceDictionary extends DependencyObject {
+    static get(key: string): ResourceDictionary {
+        const storageTryGetOutput: TryOutput<ResourceDictionary> = {};
+        if (Storage.tryGet(key, storageTryGetOutput))
+            return <ResourceDictionary>storageTryGetOutput.result;
+        else
+            throw new InvalidOperationException("Cannot get resource dictionary. No resource dictionary matches the specified key.");
+    }
+
     constructor() {
         super();
 
-        this.PropertyChangeEvent.attach(this.__onPropertyChange, this);
+        Storage.store(this);
     }
 
     static nestedDictionariesProperty = DependencyProperty.register(ResourceDictionary, "nestedDictionaries", { valueType: Array });
@@ -19,7 +30,5 @@ export class ResourceDictionary extends DependencyObject {
     get key(): string { return this.get(ResourceDictionary.keyProperty); }
     set key(value: string) { this.set(ResourceDictionary.keyProperty, value); }
 
-    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-
-    }
+    static resource_keyProperty = DependencyProperty.register(ResourceDictionary, "key", { valueType: String });
 }
