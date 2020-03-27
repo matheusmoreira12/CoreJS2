@@ -46,8 +46,11 @@ export { Fonts };
 import * as VisualTrees from "./VisualTrees/index";
 export { VisualTrees };
 
+import * as Resources from "./Resources/index";
+export { Resources };
+
 import * as Controls from "./Controls/index";
-export { Controls }
+export { Controls };
 
 import * as GraphicValues from "./GraphicValues/index";
 export { GraphicValues };

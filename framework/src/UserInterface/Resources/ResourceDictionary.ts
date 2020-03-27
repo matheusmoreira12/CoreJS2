@@ -2,6 +2,7 @@ import { DependencyProperty, DependencyObject } from "../DependencyObjects/index
 import { TryOutput } from "../../Standard/Types/Types";
 import { InvalidOperationException } from "../../Standard/index";
 import * as Storage from "./Storage";
+import { Type } from "../../Standard/Types/Type";
 
 export class ResourceDictionary extends DependencyObject {
     static get(key: string): ResourceDictionary {
@@ -18,17 +19,17 @@ export class ResourceDictionary extends DependencyObject {
         Storage.store(this);
     }
 
-    static nestedDictionariesProperty = DependencyProperty.register(ResourceDictionary, "nestedDictionaries", { valueType: Array });
+    static nestedDictionariesProperty = DependencyProperty.register(ResourceDictionary, "nestedDictionaries", { valueType: Type.get(Array) });
     get nestedDictionaries(): ResourceDictionary[] { return this.get(ResourceDictionary.nestedDictionariesProperty); };
     set nestedDictionaries(value: ResourceDictionary[]) { this.set(ResourceDictionary.nestedDictionariesProperty, value); }
 
-    static resourcesProperty = DependencyProperty.register(ResourceDictionary, "resources", { valueType: Array });
+    static resourcesProperty = DependencyProperty.register(ResourceDictionary, "resources", { valueType: Type.get(Array) });
     get resources(): any[] { return this.get(ResourceDictionary.resourcesProperty); }
     set resources(value: any[]) { this.set(ResourceDictionary.resourcesProperty, value); }
 
-    static keyProperty = DependencyProperty.register(ResourceDictionary, "key", { valueType: String });
+    static keyProperty = DependencyProperty.register(ResourceDictionary, "key", { valueType: Type.get(String) });
     get key(): string { return this.get(ResourceDictionary.keyProperty); }
     set key(value: string) { this.set(ResourceDictionary.keyProperty, value); }
 
-    static resource_keyProperty = DependencyProperty.register(ResourceDictionary, "key", { valueType: String });
+    static resource_keyProperty = DependencyProperty.register(ResourceDictionary, "key", { valueType: Type.get(String) });
 }
