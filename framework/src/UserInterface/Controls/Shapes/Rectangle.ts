@@ -37,11 +37,11 @@ export class Rectangle extends Shape {
 
     protected __PART_rect!: VisualTreeElement;
 
-    static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: UnitValue.Zero, valueType: Type.of(UnitValue) });
+    static rxProperty = DependencyProperty.register(<any>Rectangle, "rx", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
     get rx(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.rxProperty)); }
     set rx(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.rxProperty, value)); }
 
-    static ryProperty = DependencyProperty.register(<any>Rectangle, "ry", { defaultValue: UnitValue.Zero, valueType: Type.of(UnitValue) });
+    static ryProperty = DependencyProperty.register(<any>Rectangle, "ry", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
     get ry(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.ryProperty)); }
     set ry(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.ryProperty, value)); }
 }

@@ -25,10 +25,12 @@ const UNIT_SVG_UNIT_MAP = new Map([
 
 export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
     convert(value: UnitValue | null): string | null {
-        if (value === null || value.isInvalid)
+        if (value === null)
             return null;
-        else if (value.isAuto)
+        else if (value.equals(UnitValue.auto))
             return "auto";
+        else if (value.equals(UnitValue.invalid))
+            return null;
         else {
             const unitAttr = UNIT_SVG_UNIT_MAP.get(value.unit) || "";
             return `${value.amount}${unitAttr}`;

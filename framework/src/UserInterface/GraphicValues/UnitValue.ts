@@ -7,8 +7,8 @@ const $isAuto = Symbol("isAuto");
 const $isInvalid = Symbol("isInvalid");
 
 export class UnitValue {
-    static get zero() { return new UnitValue(0); }
-    static get auto() { return new UnitValue(0, Unit.None, true); }
+    static get zero() { return ZERO; }
+    static get auto() { return AUTO; }
     static get invalid() { return new UnitValue(0, Unit.None, false, true); }
     static centimeters(value: number): UnitValue { return new UnitValue(value, Unit.Centimeters); }
     static millimeters(value: number): UnitValue { return new UnitValue(value, Unit.Millimeters); }
@@ -38,6 +38,15 @@ export class UnitValue {
         this[$isInvalid] = isInvalid;
     }
 
+    equals(other: UnitValue): boolean {
+        if (this.isInvalid)
+            return other.isInvalid;
+        else if (this.isAuto)
+            return other.isAuto;
+        else
+            return this.amount == other.amount && this.unit == other.unit;
+    }
+
     get amount(): number { return this[$value]; }
     private [$value]: number;
 
@@ -50,3 +59,6 @@ export class UnitValue {
     get isInvalid(): boolean { return this[$isInvalid]; }
     private [$isInvalid]: boolean;
 }
+
+const ZERO = new UnitValue(0);
+const AUTO = new UnitValue(0, Unit.None, true);

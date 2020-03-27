@@ -184,7 +184,7 @@ export abstract class Control extends VisualTreeElement {
     }
 
     protected __updateSize(size: { width: number, height: number }) {
-        if (this.width === UnitValue.Auto) {
+        if (this.width.equals(UnitValue.auto)) {
             if (size.width > this.actualWidth) {
                 if (Enumeration.contains(AutosizeMode.Grow, this.autosizeMode))
                     this.actualWidth = size.width;
@@ -194,7 +194,7 @@ export abstract class Control extends VisualTreeElement {
                     this.actualWidth = size.width;
             }
         }
-        if (this.height === UnitValue.Auto) {
+        if (this.height.equals(UnitValue.auto)) {
             if (size.height > this.actualHeight) {
                 if (Enumeration.contains(AutosizeMode.Grow, this.autosizeMode))
                     this.actualWidth = size.height;
@@ -249,12 +249,12 @@ export abstract class Control extends VisualTreeElement {
 
     //Visual Properties
     //Width Property
-    static widthProperty = DependencyProperty.register(<any>Control, "width", { valueType: Type.get(UnitValue), defaultValue: new UnitValue(200, Unit.Pixels) });
+    static widthProperty = DependencyProperty.register(<any>Control, "width", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
     get width(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Control.widthProperty)); }
     set width(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Control.widthProperty, value)); }
 
     //Height Property
-    static heightProperty = DependencyProperty.register(<any>Control, "height", { valueType: Type.get(UnitValue), defaultValue: new UnitValue(200, Unit.Pixels) });
+    static heightProperty = DependencyProperty.register(<any>Control, "height", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
     get height(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Control.heightProperty)); }
     set height(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Control.heightProperty, value)); }
 

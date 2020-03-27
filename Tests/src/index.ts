@@ -127,15 +127,15 @@ export class Border extends ContainerControl {
     get border(): string { return Blender.execute(this, DependencyObject, o => o.get(Border.borderProperty)); }
     set border(value: string) { Blender.execute(this, DependencyObject, o => o.set(Border.borderProperty, value)); }
 
-    static borderThicknessProperty = DependencyProperty.register(<any>Border, "borderThickness", { valueType: Type.get(UnitValue), defaultValue: UnitValue.Zero });
+    static borderThicknessProperty = DependencyProperty.register(<any>Border, "borderThickness", { valueType: Type.get(UnitValue), defaultValue: UnitValue.zero });
     get borderThickness(): string { return Blender.execute(this, DependencyObject, o => o.get(Border.borderThicknessProperty)); }
     set borderThickness(value: string) { Blender.execute(this, DependencyObject, o => o.set(Border.borderThicknessProperty, value)); }
 
-    static borderRadiusXProperty = DependencyProperty.register(<any>Border, "borderRadiusX", { defaultValue: UnitValue.Zero, valueType: Type.of(UnitValue) });
+    static borderRadiusXProperty = DependencyProperty.register(<any>Border, "borderRadiusX", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
     get borderRadiusX(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusXProperty)); }
     set borderRadiusX(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusXProperty, value)); }
 
-    static borderRadiusYProperty = DependencyProperty.register(<any>Border, "borderRadiusY", { defaultValue: UnitValue.Zero, valueType: Type.of(UnitValue) });
+    static borderRadiusYProperty = DependencyProperty.register(<any>Border, "borderRadiusY", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
     get borderRadiusY(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusYProperty)); }
     set borderRadiusY(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusYProperty, value)); }
 
