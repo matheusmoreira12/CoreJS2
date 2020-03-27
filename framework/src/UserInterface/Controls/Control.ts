@@ -6,7 +6,7 @@ import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 import { Blender } from "../../Standard/Blender/Blender";
 import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
-import { UnitValue, Unit } from "../GraphicValues/index";
+import { UnitValue } from "../GraphicValues/index";
 import { AutosizeMode } from "./AutosizeMode";
 
 ///TODO: fix this mess
@@ -44,8 +44,6 @@ export abstract class Control extends VisualTreeElement {
         dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
-
-        this.invalidateSize();
     }
 
     protected finalization() {
@@ -170,17 +168,7 @@ export abstract class Control extends VisualTreeElement {
 
     //Autosize Methods
     protected __computeSize(): { width: number, height: number } {
-        let width = 1,
-            height = 1;
-        for (let child of this.children) {
-            if (child instanceof Control)
-                child.invalidateSize();
-
-            const childRect = child.domElement.getBoundingClientRect();
-            width = Math.max(width, childRect.x + childRect.width);
-            height = Math.max(height, childRect.y + childRect.height);
-        }
-        return { width, height };
+        return { width: 1, height: 1 };
     }
 
     protected __updateSize(size: { width: number, height: number }) {
@@ -204,7 +192,6 @@ export abstract class Control extends VisualTreeElement {
                     this.actualWidth = size.height;
             }
         }
-        this.invalidateVisual();
     }
 
     invalidateSize() {
@@ -216,6 +203,11 @@ export abstract class Control extends VisualTreeElement {
 
     invalidateVisual() {
         this.__updateVisual();
+    }
+
+    invalidateAll() {
+        this.invalidateVisual();
+        this.invalidateSize();
     }
 
     //Framework Properties

@@ -18,11 +18,13 @@ import ControlManager = Core.UserInterface.Controls.ControlManager;
 //Scalars
 import UnitValue = Core.UserInterface.GraphicValues.UnitValue;
 import GraphicUnit = Core.UserInterface.GraphicValues.Unit;
+//Fonts
+import Font = Core.UserInterface.Fonts.Font;
 
 
-import Shape  = Core.UserInterface.Controls.Shapes.Shape;
-import Rectangle  = Core.UserInterface.Controls.Shapes.Rectangle;
-import Text  = Core.UserInterface.Controls.Shapes.Text;
+import Shape = Core.UserInterface.Controls.Shapes.Shape;
+import Rectangle = Core.UserInterface.Controls.Shapes.Rectangle;
+import Text = Core.UserInterface.Controls.Shapes.Text;
 
 const HTML_NS = "http://www.w3.org/1999/xhtml";
 
@@ -128,8 +130,8 @@ export class Border extends ContainerControl {
     set border(value: string) { Blender.execute(this, DependencyObject, o => o.set(Border.borderProperty, value)); }
 
     static borderThicknessProperty = DependencyProperty.register(<any>Border, "borderThickness", { valueType: Type.get(UnitValue), defaultValue: UnitValue.zero });
-    get borderThickness(): string { return Blender.execute(this, DependencyObject, o => o.get(Border.borderThicknessProperty)); }
-    set borderThickness(value: string) { Blender.execute(this, DependencyObject, o => o.set(Border.borderThicknessProperty, value)); }
+    get borderThickness(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderThicknessProperty)); }
+    set borderThickness(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderThicknessProperty, value)); }
 
     static borderRadiusXProperty = DependencyProperty.register(<any>Border, "borderRadiusX", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
     get borderRadiusX(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusXProperty)); }
@@ -142,6 +144,48 @@ export class Border extends ContainerControl {
     private __PART_background: VisualTreeElement | undefined;
 }
 ControlManager.register(<any>Border, "core:Border", "core");
+
+export class TextBlock extends Control {
+    protected initialization() {
+        super.initialization();
+
+        const PART_layoutGrid = ControlManager.instantiate(Grid);
+        this.children.add(PART_layoutGrid);
+        this.__PART_layoutGrid = PART_layoutGrid;
+
+        const PART_background = ControlManager.instantiate(Rectangle);
+        this.__PART_layoutGrid.children.add(PART_background);
+        this.__PART_background = PART_background;
+
+        const PART_text = ControlManager.instantiate(Text);
+        this.__PART_layoutGrid.children.add(PART_text);
+        this.__PART_text = PART_text;
+
+        //Bind properties to PART_background
+        //Bind "background" to "fill"
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.backgroundProperty, Blender.get(DependencyObject, PART_background), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
+        //Bind properties to PART_text
+        //Bind "foreground" to "fill"
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.foregroundProperty, Blender.get(DependencyObject, PART_text), Shape.fillProperty, { direction: BindingDirection.ToTarget }));        
+        //Bind "font"
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.fontProperty, Blender.get(DependencyObject, PART_text), Text.fontProperty, { direction: BindingDirection.ToTarget }));
+        //Bind "text"
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.textProperty, Blender.get(DependencyObject, PART_text), Text.textProperty, { direction: BindingDirection.ToTarget }));
+    }
+
+    protected __PART_layoutGrid!: Grid;
+    protected __PART_background!: Rectangle;
+    protected __PART_text!: Text;
+
+    static fontProperty = DependencyProperty.register(<any>Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
+    get font(): Font { return Blender.execute(this, DependencyObject, o => o.get(TextBlock.fontProperty)); }
+    set font(value: Font) { Blender.execute(this, DependencyObject, o => o.set(TextBlock.fontProperty, value)); }
+
+    static textProperty = DependencyProperty.register(<any>Text, "text", { valueType: Type.get(String), defaultValue: "" });
+    get text(): string { return Blender.execute(this, DependencyObject, o => o.get(TextBlock.textProperty)); }
+    set text(value: string) { Blender.execute(this, DependencyObject, o => o.set(TextBlock.textProperty, value)); }
+}
+ControlManager.register(TextBlock, "core:TextBlock", "core");
 
 export class Button extends Control {
     constructor(qualifiedName: string, namespaceURI: string | null) {
@@ -161,20 +205,24 @@ export class Button extends Control {
         PART_border.child = PART_layoutGrid;
         this.__PART_layoutGrid = PART_layoutGrid;
 
-        const PART_text = ControlManager.instantiate(Text);
+        const PART_text = ControlManager.instantiate(TextBlock);
         PART_layoutGrid.children.add(PART_text);
         this.__PART_text = PART_text;
 
+        //Bind properties to PART_Border
+        //Bind "background"
         Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.backgroundProperty, <DependencyObject>Blender.get(DependencyObject, PART_border), Control.backgroundProperty, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.foregroundProperty, <DependencyObject>Blender.get(DependencyObject, PART_text), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
+        //Bind properties to PART_Border
+        //Bind "foreground"
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Control.foregroundProperty, <DependencyObject>Blender.get(DependencyObject, PART_text), Control.foregroundProperty, { direction: BindingDirection.ToTarget }));
 
         this.foreground = "dimgray";
         this.background = "white";
-        (<Text>this.__PART_text).text = "Click here!";
+        this.__PART_text.text = "Click here!";
     }
 
     protected __PART_border!: Border;
-    protected __PART_text!: VisualTreeElement;
-    protected __PART_layoutGrid!: VisualTreeElement;
+    protected __PART_text!: TextBlock;
+    protected __PART_layoutGrid!: Grid;
 }
 ControlManager.register(<any>Button, "core:Button", "core");

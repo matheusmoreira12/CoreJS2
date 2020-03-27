@@ -25,32 +25,32 @@ export class Text extends Shape {
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget }));
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget }));
 
-        this.__updateSize();
-        this.__updateText();
+        this.invalidateAll();
     }
 
-    __updateSize() {
+    protected __updateVisual() {
+        super.__updateVisual();
+
+        (<SVGTextElement>this.__PART_text.domElement).textContent = this.text;
         const bbox = (<SVGTextElement>this.__PART_text.domElement).getBBox();
         this.__PART_canvas.attributes.setMany({
-            "viewBox": `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`,
-            "width": String(bbox.width),
-            "height": String(bbox.height)
+            "viewBox": `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`
         }, null);
     }
 
-    __updateText() {
-        (<SVGTextElement>this.__PART_text.domElement).textContent = this.text;
-        this.__updateSize();
+    protected __computeSize(): { width: number, height: number } {
+        super.__computeSize();
+
+        const bbox = (<SVGTextElement>this.__PART_text.domElement).getBBox();
+        return { width: bbox.width, height: bbox.height };
     }
 
     //DependencyObject
     protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         super.onPropertyChange(sender, args);
 
-        if (args.property === Text.fontProperty)
-            this.__updateSize();
-        else if (args.property === Text.textProperty)
-            this.__updateText();
+        if (args.property === Text.fontProperty || args.property === Text.textProperty)
+            this.invalidateAll();
     }
 
     protected __PART_text!: VisualTreeElement;

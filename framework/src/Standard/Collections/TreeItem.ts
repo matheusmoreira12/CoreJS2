@@ -77,8 +77,7 @@ export class TreeItem<T extends TreeItem<T>> {
     }
 
     /**
-     * Gets the parents (in ascending order) of this TreeItem.
-     * Note: this operation is recursive.
+     * Recursively gets the parents (in ascending order) of this TreeItem.
      */
     getParents(): TreeItem<T>[] {
         if (this.parent === null)
@@ -88,7 +87,7 @@ export class TreeItem<T extends TreeItem<T>> {
     }
 
     /**
-     * Gets the whole tree of this TreeItem.
+     * Recursively gets the whole tree of this TreeItem.
      */
     getTree(): TreeItem<T>[] {
         return [this, ...this.getParents()]

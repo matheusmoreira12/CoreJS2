@@ -27,8 +27,8 @@ export class Rectangle extends Shape {
 
         //Bind properties from Shape to SVG Rect attributes
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domElement, "fill", null, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domElement, "stroke", null, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domElement, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.strokeProperty, <Element>this.__PART_rect.domElement, "stroke", null, { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.strokeThicknessProperty, <Element>this.__PART_rect.domElement, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() }));
 
         //Bind properties from Rectangle to SVG Rect attributes
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.rxProperty, <Element>this.__PART_rect.domElement, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));

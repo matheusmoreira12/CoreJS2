@@ -63,7 +63,6 @@ export class PropertyBinding extends Binding {
                 targetValue = (<IValueConverter>this.options.valueConverter).convert(sourceValue);
             else
                 targetValue = sourceValue;
-
             Storage.setValue(this, this.target, this.targetProperty, targetValue);
         }
     }
@@ -87,7 +86,6 @@ export class PropertyBinding extends Binding {
                 sourceValue = (<IValueConverter>this.options.valueConverter).convert(targetValue);
             else
                 sourceValue = targetValue;
-
             Storage.setValue(this, this.target, this.targetProperty, sourceValue);
         }
     }

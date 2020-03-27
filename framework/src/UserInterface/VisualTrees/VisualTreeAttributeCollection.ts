@@ -48,7 +48,7 @@ export class VisualTreeAttributeCollection extends ObservableCollection<VisualTr
         return attribute;
     }
 
-    setMany(map: { [qualifiedName: string]: string }, namespaceURI: string | null = null) {
+    setMany(map: { [qualifiedName: string]: string }, namespaceURI: string | null = ObjectUtils.getDefault(String)) {
         assertParams({ map }, [Object]);
 
         for (let qualifiedName in map) {

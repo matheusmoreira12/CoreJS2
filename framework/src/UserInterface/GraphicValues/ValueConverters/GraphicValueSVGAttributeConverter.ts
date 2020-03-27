@@ -5,13 +5,13 @@ import { StringReader } from "../../../Standard/Strings/StringReader";
 import { MapUtils } from "../../../CoreBase/Utils/index";
 
 const UNIT_SVG_UNIT_MAP = new Map([
+    [Unit.None, ""],
     [Unit.Centimeters, "cm"],
     [Unit.Ch, "ch"],
     [Unit.Em, "em"],
     [Unit.Ex, "ex"],
     [Unit.Inches, "in"],
     [Unit.Millimeters, "mm"],
-    [Unit.None, ""],
     [Unit.Percent, "%"],
     [Unit.Picas, "pc"],
     [Unit.Pixels, "px"],
@@ -27,10 +27,10 @@ export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
     convert(value: UnitValue | null): string | null {
         if (value === null)
             return null;
-        else if (value.equals(UnitValue.auto))
-            return "auto";
         else if (value.equals(UnitValue.invalid))
             return null;
+        else if (value.equals(UnitValue.auto))
+            return "auto";
         else {
             const unitAttr = UNIT_SVG_UNIT_MAP.get(value.unit) || "";
             return `${value.amount}${unitAttr}`;
@@ -45,13 +45,13 @@ export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
             return Number(s);
         }
 
-        function readUnit(reader: StringReader): number {
+        function readUnit(reader: StringReader): number | null {
             let s: string = "";
             while (reader.peek().match(/[A-Za-z%]/))
                 s += reader.read();
             const unit = MapUtils.invert(UNIT_SVG_UNIT_MAP).get(s);
             if (unit === undefined)
-                return Unit.Invalid;
+                return null;
             else
                 return unit;
         }
@@ -64,7 +64,10 @@ export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
             const reader = new StringReader(value);
             const amount = readAmount(reader);
             const unit = readUnit(reader);
-            return new UnitValue(amount, unit);
+            if (unit === null)
+                return UnitValue.invalid;
+            else
+                return new UnitValue(amount, unit);
         }
     }
 }
