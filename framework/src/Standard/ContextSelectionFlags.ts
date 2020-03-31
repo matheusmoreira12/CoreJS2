@@ -26,7 +26,7 @@ export class ContextSelectionFlags {
         if (!matches)
             return null;
 
-        let { include: includeFlagsStr, require: requireFlagsStr, exclude: excludeFlagsStr } = <any>matches.groups;
+        let { include: includeFlagsStr, require: requireFlagsStr, exclude: excludeFlagsStr } = <{ [key: string]: string }>matches.groups;
         let includeFlags = includeFlagsStr ? includeFlagsStr.split(SEPARATOR_REGEX) : [];
         let requireFlags = requireFlagsStr ? requireFlagsStr.split(SEPARATOR_REGEX) : [];
         let excludeFlags = excludeFlagsStr ? excludeFlagsStr.split(SEPARATOR_REGEX) : [];

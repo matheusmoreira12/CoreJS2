@@ -26,4 +26,4 @@ export class Ellipse extends Shape {
 
    protected __PART_ellipse!: VisualTreeElement;
 }
-ControlManager.register(<any>Ellipse, "core:Ellipse", "core");
+ControlManager.register(Ellipse, "core:Ellipse", "core");

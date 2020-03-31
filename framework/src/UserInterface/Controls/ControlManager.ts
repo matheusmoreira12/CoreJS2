@@ -23,7 +23,7 @@ function registerControl(metadata: ControlMetadata) {
 //@ignore
 function initializeControlInstance<TControl extends Control>(metadata: ControlMetadata, element: Element): TControl {
     const controlClass: Class<Control> = metadata.controlClass;
-    const controlInstance = new (<any>controlClass)(metadata.qualifiedName, metadata.namespaceURI);
+    const controlInstance = new (<new (qualifiedName: string, namespaceURI: string | null) => TControl>controlClass)(metadata.qualifiedName, metadata.namespaceURI);
     controlInstance.initialize(element);
     metadata.activeInstances.add(controlInstance);
     return controlInstance;
@@ -100,7 +100,7 @@ export function getByName(qualifiedName: string, namespaceURI: string | null = n
 }
 
 function assertControlConstructor(controlConstructor: Class<Control>) {
-    if (!Type.get(controlConstructor).extends(Type.get(<any>Control)))
+    if (!Type.get(controlConstructor).extends(Type.get(Control)))
         throw new ArgumentTypeException("controlConstructor", controlConstructor, Control);
 }
 

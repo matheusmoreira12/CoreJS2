@@ -1,5 +1,6 @@
 import { DependencyProperty } from "./DependencyProperty";
 import { IPropertyOptions } from "./IPropertyOptions";
+import { Class } from "../../Standard/Types/Types";
 
 type RegistryEntry = {
     target: typeof Object,
@@ -9,7 +10,7 @@ type RegistryEntry = {
 
 const registryEntries: RegistryEntry[] = [];
 
-export function register(target: typeof Object, property: DependencyProperty, options: IPropertyOptions) {
+export function register(target: Class<any>, property: DependencyProperty, options: IPropertyOptions) {
     registryEntries.push({
         target,
         property,

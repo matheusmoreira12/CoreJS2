@@ -2,6 +2,7 @@ import { IPropertyOptions } from "./IPropertyOptions";
 import { assertParams } from "../../Validation/index";
 
 import * as Registry from "./Registry";
+import { Class } from "../../Standard/Types/Types";
 
 const DEFAULT_PROPERTY_OPTIONS: IPropertyOptions = {
     defaultValue: null
@@ -14,7 +15,7 @@ const $name = Symbol("name");
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    static register(target: typeof Object, name: string, options: IPropertyOptions = {}): DependencyProperty {
+    static register(target: Class<any>, name: string, options: IPropertyOptions = {}): DependencyProperty {
         assertParams({ target }, [Function]);
         assertParams({ options }, [IPropertyOptions]);
 

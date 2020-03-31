@@ -55,11 +55,11 @@ export class Text extends Shape {
 
     protected __PART_text!: VisualTreeElement;
 
-    static fontProperty = DependencyProperty.register(<any>Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
+    static fontProperty = DependencyProperty.register(Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
     get font(): Font { return Blender.execute(this, DependencyObject, o => o.get(Text.fontProperty)); }
     set font(value: Font) { Blender.execute(this, DependencyObject, o => o.set(Text.fontProperty, value)); }
 
-    static textProperty = DependencyProperty.register(<any>Text, "text", { valueType: Type.get(String), defaultValue: "" });
+    static textProperty = DependencyProperty.register(Text, "text", { valueType: Type.get(String), defaultValue: "" });
     get text(): string { return Blender.execute(this, DependencyObject, o => o.get(Text.textProperty)); }
     set text(value: string) { Blender.execute(this, DependencyObject, o => o.set(Text.textProperty, value)); }
 }

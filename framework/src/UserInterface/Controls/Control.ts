@@ -214,64 +214,64 @@ export abstract class Control extends VisualTreeElement {
     //State Properties
     //Mouse State Properties
     //Is Mouse Over Property
-    static isMouseOverProperty = DependencyProperty.register(<any>Control, "isMouseOver", { valueType: Type.get(Boolean), defaultValue: false });
+    static isMouseOverProperty = DependencyProperty.register(Control, "isMouseOver", { valueType: Type.get(Boolean), defaultValue: false });
     get isMouseOver(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isMouseOverProperty)); }
     set isMouseOver(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isMouseOverProperty, value)); }
 
     //Is Mouse Down Property
-    static isMouseDownProperty = DependencyProperty.register(<any>Control, "isMouseDown", { valueType: Type.get(Boolean), defaultValue: false });
+    static isMouseDownProperty = DependencyProperty.register(Control, "isMouseDown", { valueType: Type.get(Boolean), defaultValue: false });
     get isMouseDown(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isMouseDownProperty)); }
     set isMouseDown(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isMouseDownProperty, value)); }
 
     //Drag State Properties
     //Is Dragging Property
-    static isDraggingProperty = DependencyProperty.register(<any>Control, "isDragging", { valueType: Type.get(Boolean), defaultValue: false });
+    static isDraggingProperty = DependencyProperty.register(Control, "isDragging", { valueType: Type.get(Boolean), defaultValue: false });
     get isDragging(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isDraggingProperty)); }
     set isDragging(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isDraggingProperty, value)); }
 
     //Is Drag Over Property
-    static isDragOverProperty = DependencyProperty.register(<any>Control, "isDragOver", { valueType: Type.get(Boolean), defaultValue: false });
+    static isDragOverProperty = DependencyProperty.register(Control, "isDragOver", { valueType: Type.get(Boolean), defaultValue: false });
     get isDragOver(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isDragOverProperty)); }
     set isDragOver(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isDragOverProperty, value)); }
 
     //Drag Properties
-    static isDraggableProperty = DependencyProperty.register(<any>Control, "isDraggable", { valueType: Type.get(Boolean), defaultValue: false });
+    static isDraggableProperty = DependencyProperty.register(Control, "isDraggable", { valueType: Type.get(Boolean), defaultValue: false });
     get isDraggable(): boolean { return Blender.execute(this, DependencyObject, o => o.get(Control.isDraggableProperty)); }
     set isDraggable(value: boolean) { Blender.execute(this, DependencyObject, o => o.set(Control.isDraggableProperty, value)); }
 
     //Visual Properties
     //Width Property
-    static widthProperty = DependencyProperty.register(<any>Control, "width", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
+    static widthProperty = DependencyProperty.register(Control, "width", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
     get width(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Control.widthProperty)); }
     set width(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Control.widthProperty, value)); }
 
     //Height Property
-    static heightProperty = DependencyProperty.register(<any>Control, "height", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
+    static heightProperty = DependencyProperty.register(Control, "height", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
     get height(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Control.heightProperty)); }
     set height(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Control.heightProperty, value)); }
 
     //Width Property
-    static actualWidthProperty = DependencyProperty.register(<any>Control, "actualWidth", { valueType: Type.get(Number), defaultValue: 0 });
+    static actualWidthProperty = DependencyProperty.register(Control, "actualWidth", { valueType: Type.get(Number), defaultValue: 0 });
     get actualWidth(): Number { return Blender.execute(this, DependencyObject, o => o.get(Control.actualWidthProperty)); }
     set actualWidth(value: Number) { Blender.execute(this, DependencyObject, o => o.set(Control.actualWidthProperty, value)); }
 
     //Height Property
-    static actualHeightProperty = DependencyProperty.register(<any>Control, "actualHeight", { valueType: Type.get(Number), defaultValue: 0 });
+    static actualHeightProperty = DependencyProperty.register(Control, "actualHeight", { valueType: Type.get(Number), defaultValue: AutosizeMode.Both });
     get actualHeight(): Number { return Blender.execute(this, DependencyObject, o => o.get(Control.actualHeightProperty)); }
     set actualHeight(value: Number) { Blender.execute(this, DependencyObject, o => o.set(Control.actualHeightProperty, value)); }
 
     //Autosize Mode Property
-    static autosizeModeProperty = DependencyProperty.register(<any>Control, "autosizeMode", { valueType: Type.get(Number), defaultValue: AutosizeMode.None });
+    static autosizeModeProperty = DependencyProperty.register(Control, "autosizeMode", { valueType: Type.get(Number), defaultValue: AutosizeMode.Both });
     get autosizeMode(): number { return Blender.execute(this, DependencyObject, o => o.get(Control.autosizeModeProperty)); }
     set autosizeMode(value: number) { Blender.execute(this, DependencyObject, o => o.set(Control.autosizeModeProperty, value)); }
 
     //Background Property
-    static backgroundProperty = DependencyProperty.register(<any>Control, "background", { valueType: Type.get(String), defaultValue: "#000" });
+    static backgroundProperty = DependencyProperty.register(Control, "background", { valueType: Type.get(String), defaultValue: "#000" });
     get background() { return Blender.execute(this, DependencyObject, o => o.get(Control.backgroundProperty)); }
     set background(value) { Blender.execute(this, DependencyObject, o => o.set(Control.backgroundProperty, value)); }
 
     //Foreground Property
-    static foregroundProperty = DependencyProperty.register(<any>Control, "foreground", { valueType: Type.get(String), defaultValue: "#000" });
+    static foregroundProperty = DependencyProperty.register(Control, "foreground", { valueType: Type.get(String), defaultValue: "#000" });
     get foreground() { return Blender.execute(this, DependencyObject, o => o.get(Control.foregroundProperty)); }
     set foreground(value) { Blender.execute(this, DependencyObject, o => o.set(Control.foregroundProperty, value)); }
 }

@@ -29,7 +29,7 @@ export class VisualTreeAttribute extends VisualTreeNode {
             this[$updateValue]();
     }
 
-    static valueProperty = DependencyProperty.register(<any>VisualTreeAttribute, "value", { valueType: Type.get(String), defaultValue: "" });
+    static valueProperty = DependencyProperty.register(VisualTreeAttribute, "value", { valueType: Type.get(String), defaultValue: "" });
     get value(): string { return Blender.execute(this, DependencyObject, o => o.get(VisualTreeAttribute.valueProperty)); }
     set value(value: string) { Blender.execute(this, DependencyObject, o => o.set(VisualTreeAttribute.valueProperty, value)); }
 }

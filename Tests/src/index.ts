@@ -72,7 +72,7 @@ export class Grid extends Control {
         this.children.add(style);
     }
 }
-ControlManager.register(<any>Grid, "core:Grid", "core");
+ControlManager.register(Grid, "core:Grid", "core");
 
 export abstract class ContainerControl extends Control {
     initialization() {
@@ -104,7 +104,7 @@ export abstract class ContainerControl extends Control {
             this.__updateChild(args.newValue);
     }
 
-    static childProperty = DependencyProperty.register(<any>ContainerControl, "child", { valueType: Type.of(VisualTreeElement) });
+    static childProperty = DependencyProperty.register(ContainerControl, "child", { valueType: Type.of(VisualTreeElement) });
     get child(): VisualTreeElement { return Blender.execute(this, DependencyObject, o => o.get(ContainerControl.childProperty)); }
     set child(value: VisualTreeElement) { Blender.execute(this, DependencyObject, o => o.set(ContainerControl.childProperty, value)); }
 }
@@ -125,25 +125,25 @@ export class Border extends ContainerControl {
         Blender.execute(this, DependencyObject, o => new PropertyBinding(o, Border.borderRadiusYProperty, <DependencyObject>Blender.get(DependencyObject, this.__PART_background), Rectangle.ryProperty, { direction: BindingDirection.ToTarget }));
     }
 
-    static borderProperty = DependencyProperty.register(<any>Border, "border", { valueType: Type.get(String), defaultValue: "transparent" });
+    static borderProperty = DependencyProperty.register(Border, "border", { valueType: Type.get(String), defaultValue: "transparent" });
     get border(): string { return Blender.execute(this, DependencyObject, o => o.get(Border.borderProperty)); }
     set border(value: string) { Blender.execute(this, DependencyObject, o => o.set(Border.borderProperty, value)); }
 
-    static borderThicknessProperty = DependencyProperty.register(<any>Border, "borderThickness", { valueType: Type.get(UnitValue), defaultValue: UnitValue.zero });
+    static borderThicknessProperty = DependencyProperty.register(Border, "borderThickness", { valueType: Type.get(UnitValue), defaultValue: UnitValue.zero });
     get borderThickness(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderThicknessProperty)); }
     set borderThickness(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderThicknessProperty, value)); }
 
-    static borderRadiusXProperty = DependencyProperty.register(<any>Border, "borderRadiusX", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
+    static borderRadiusXProperty = DependencyProperty.register(Border, "borderRadiusX", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
     get borderRadiusX(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusXProperty)); }
     set borderRadiusX(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusXProperty, value)); }
 
-    static borderRadiusYProperty = DependencyProperty.register(<any>Border, "borderRadiusY", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
+    static borderRadiusYProperty = DependencyProperty.register(Border, "borderRadiusY", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
     get borderRadiusY(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusYProperty)); }
     set borderRadiusY(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusYProperty, value)); }
 
     private __PART_background: VisualTreeElement | undefined;
 }
-ControlManager.register(<any>Border, "core:Border", "core");
+ControlManager.register(Border, "core:Border", "core");
 
 export class TextBlock extends Control {
     protected initialization() {
@@ -177,11 +177,11 @@ export class TextBlock extends Control {
     protected __PART_background!: Rectangle;
     protected __PART_text!: Text;
 
-    static fontProperty = DependencyProperty.register(<any>Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
+    static fontProperty = DependencyProperty.register(Text, "font", { valueType: Type.get(Font), defaultValue: Font.default });
     get font(): Font { return Blender.execute(this, DependencyObject, o => o.get(TextBlock.fontProperty)); }
     set font(value: Font) { Blender.execute(this, DependencyObject, o => o.set(TextBlock.fontProperty, value)); }
 
-    static textProperty = DependencyProperty.register(<any>Text, "text", { valueType: Type.get(String), defaultValue: "" });
+    static textProperty = DependencyProperty.register(Text, "text", { valueType: Type.get(String), defaultValue: "" });
     get text(): string { return Blender.execute(this, DependencyObject, o => o.get(TextBlock.textProperty)); }
     set text(value: string) { Blender.execute(this, DependencyObject, o => o.set(TextBlock.textProperty, value)); }
 }
@@ -225,4 +225,4 @@ export class Button extends Control {
     protected __PART_text!: TextBlock;
     protected __PART_layoutGrid!: Grid;
 }
-ControlManager.register(<any>Button, "core:Button", "core");
+ControlManager.register(Button, "core:Button", "core");
