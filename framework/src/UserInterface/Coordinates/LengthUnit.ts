@@ -1,6 +1,6 @@
 import { Enumeration } from "../../Standard/index";
 
-export const Unit = Enumeration.create({
+export const LengthUnit = Enumeration.create({
     None: 0,
     //Absolute Lengths
     Centimeters: null,

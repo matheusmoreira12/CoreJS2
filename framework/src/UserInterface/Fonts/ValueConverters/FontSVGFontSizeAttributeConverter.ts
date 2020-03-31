@@ -1,4 +1,4 @@
-import { GraphicValueSVGAttributeValueConverter } from "../../GraphicValues/ValueConverters/index";
+import { GraphicValueSVGAttributeValueConverter } from "../../Coordinates/ValueConverters/index";
 import { IValueConverter } from "../../ValueConverters/index";
 import { Font } from "../Font";
 import { InvalidOperationException } from "../../../Standard/index";

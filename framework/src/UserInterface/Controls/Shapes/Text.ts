@@ -7,6 +7,7 @@ import { Font } from "../../Fonts/index";
 import { VisualTreeElement } from "../../VisualTrees/index";
 import { ControlManager } from "../index";
 import { Shape } from "./index";
+import { Size } from "../../Coordinates/Size";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -45,6 +46,10 @@ export class Text extends Shape {
         return { width: bbox.width, height: bbox.height };
     }
 
+    protected __updateSize(size: { width: number, height: number }) {
+        this.renderedSize = Size.pixels(size.width, size.height);
+    }
+
     //DependencyObject
     protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         super.onPropertyChange(sender, args);
@@ -62,5 +67,9 @@ export class Text extends Shape {
     static textProperty = DependencyProperty.register(Text, "text", { valueType: Type.get(String), defaultValue: "" });
     get text(): string { return Blender.execute(this, DependencyObject, o => o.get(Text.textProperty)); }
     set text(value: string) { Blender.execute(this, DependencyObject, o => o.set(Text.textProperty, value)); }
+
+    static renderedSizeProperty = DependencyProperty.register(Text, "renderedSize", { valueType: Type.get(Size) });
+    get renderedSize(): Size { return this.get(Text.renderedSizeProperty); }
+    set renderedSize(value: Size) { this.set(Text.renderedSizeProperty, value); }
 }
 ControlManager.register(Text, "core:Text", "core");

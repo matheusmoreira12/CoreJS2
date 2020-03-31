@@ -52,8 +52,8 @@ export { Resources };
 import * as Controls from "./Controls/index";
 export { Controls };
 
-import * as GraphicValues from "./GraphicValues/index";
-export { GraphicValues };
+import * as Coordinates from "./Coordinates/index";
+export { Coordinates };
 
 import * as Xaml from "./Xaml/index";
 export { Xaml };

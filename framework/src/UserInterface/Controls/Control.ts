@@ -6,7 +6,7 @@ import { Type } from "../../Standard/Types/Type";
 import { VisualTreeElement } from "../VisualTrees/index";
 import { Blender } from "../../Standard/Blender/Blender";
 import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
-import { UnitValue } from "../GraphicValues/index";
+import { Length, Size } from "../Coordinates/index";
 import { AutosizeMode } from "./AutosizeMode";
 
 ///TODO: fix this mess
@@ -167,30 +167,28 @@ export abstract class Control extends VisualTreeElement {
     }
 
     //Autosize Methods
-    protected __computeSize(): { width: number, height: number } {
-        return { width: 1, height: 1 };
+    protected __computeSize(): Size {
+        return Size.pixels(1, 1);
     }
 
-    protected __updateSize(size: { width: number, height: number }) {
-        if (this.width.equals(UnitValue.auto)) {
-            if (size.width > this.actualWidth) {
-                if (Enumeration.contains(AutosizeMode.Grow, this.autosizeMode))
-                    this.actualWidth = size.width;
-            }
-            else if (size.width < this.actualWidth) {
-                if (Enumeration.contains(AutosizeMode.Shrink, this.autosizeMode))
-                    this.actualWidth = size.width;
-            }
+    protected __updateSize(size: Size) {
+        if (this.width.equals(Length.auto)) {
+            const widthPixels = size.width.toPixels(),
+                actualWidthPixels = this.actualWidth.toPixels();
+            const canGrowWidth = Enumeration.contains(AutosizeMode.Grow, this.autosizeMode),
+                canShrinkWidth = Enumeration.contains(AutosizeMode.Shrink, this.autosizeMode);
+            if (widthPixels > actualWidthPixels && canGrowWidth ||
+                widthPixels < actualWidthPixels && canShrinkWidth)
+                this.actualWidth = Length.pixels(widthPixels);
         }
-        if (this.height.equals(UnitValue.auto)) {
-            if (size.height > this.actualHeight) {
-                if (Enumeration.contains(AutosizeMode.Grow, this.autosizeMode))
-                    this.actualWidth = size.height;
-            }
-            else if (size.height < this.actualHeight) {
-                if (Enumeration.contains(AutosizeMode.Shrink, this.autosizeMode))
-                    this.actualWidth = size.height;
-            }
+        if (this.height.equals(Length.auto)) {
+            const heightPixels = size.height.toPixels(),
+                actualHeightPixels = this.actualHeight.toPixels();
+            const canGrowHeight = Enumeration.contains(AutosizeMode.Grow, this.autosizeMode),
+                canShrinkHeight = Enumeration.contains(AutosizeMode.Shrink, this.autosizeMode);
+            if (heightPixels > actualHeightPixels && canGrowHeight ||
+                heightPixels < actualHeightPixels && canShrinkHeight)
+                this.actualHeight = Length.pixels(heightPixels);
         }
     }
 
@@ -241,24 +239,24 @@ export abstract class Control extends VisualTreeElement {
 
     //Visual Properties
     //Width Property
-    static widthProperty = DependencyProperty.register(Control, "width", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
-    get width(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Control.widthProperty)); }
-    set width(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Control.widthProperty, value)); }
+    static widthProperty = DependencyProperty.register(Control, "width", { valueType: Type.get(Length), defaultValue: Length.pixels(200) });
+    get width(): Length { return Blender.execute(this, DependencyObject, o => o.get(Control.widthProperty)); }
+    set width(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Control.widthProperty, value)); }
 
     //Height Property
-    static heightProperty = DependencyProperty.register(Control, "height", { valueType: Type.get(UnitValue), defaultValue: UnitValue.pixels(200) });
-    get height(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Control.heightProperty)); }
-    set height(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Control.heightProperty, value)); }
+    static heightProperty = DependencyProperty.register(Control, "height", { valueType: Type.get(Length), defaultValue: Length.pixels(200) });
+    get height(): Length { return Blender.execute(this, DependencyObject, o => o.get(Control.heightProperty)); }
+    set height(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Control.heightProperty, value)); }
 
     //Width Property
-    static actualWidthProperty = DependencyProperty.register(Control, "actualWidth", { valueType: Type.get(Number), defaultValue: 0 });
-    get actualWidth(): Number { return Blender.execute(this, DependencyObject, o => o.get(Control.actualWidthProperty)); }
-    set actualWidth(value: Number) { Blender.execute(this, DependencyObject, o => o.set(Control.actualWidthProperty, value)); }
+    static actualWidthProperty = DependencyProperty.register(Control, "actualWidth", { valueType: Type.get(Length), defaultValue: 0 });
+    get actualWidth(): Length { return Blender.execute(this, DependencyObject, o => o.get(Control.actualWidthProperty)); }
+    set actualWidth(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Control.actualWidthProperty, value)); }
 
     //Height Property
-    static actualHeightProperty = DependencyProperty.register(Control, "actualHeight", { valueType: Type.get(Number), defaultValue: AutosizeMode.Both });
-    get actualHeight(): Number { return Blender.execute(this, DependencyObject, o => o.get(Control.actualHeightProperty)); }
-    set actualHeight(value: Number) { Blender.execute(this, DependencyObject, o => o.set(Control.actualHeightProperty, value)); }
+    static actualHeightProperty = DependencyProperty.register(Control, "actualHeight", { valueType: Type.get(Length), defaultValue: AutosizeMode.Both });
+    get actualHeight(): Length { return Blender.execute(this, DependencyObject, o => o.get(Control.actualHeightProperty)); }
+    set actualHeight(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Control.actualHeightProperty, value)); }
 
     //Autosize Mode Property
     static autosizeModeProperty = DependencyProperty.register(Control, "autosizeMode", { valueType: Type.get(Number), defaultValue: AutosizeMode.Both });

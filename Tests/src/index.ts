@@ -16,8 +16,9 @@ import BindingDirection = Core.UserInterface.Bindings.BindingDirection;
 import Control = Core.UserInterface.Controls.Control;
 import ControlManager = Core.UserInterface.Controls.ControlManager;
 //Scalars
-import UnitValue = Core.UserInterface.GraphicValues.UnitValue;
-import GraphicUnit = Core.UserInterface.GraphicValues.Unit;
+import Length = Core.UserInterface.Coordinates.Length;
+import LengthUnit = Core.UserInterface.Coordinates.LengthUnit;
+import Size = Core.UserInterface.Coordinates.Size;
 //Fonts
 import Font = Core.UserInterface.Fonts.Font;
 
@@ -52,7 +53,11 @@ core|Grid>* {
     top: 0;
     right: 0;
     bottom: 0;
-    whitespace: nowrap;
+    white-space: nowrap;
+}
+
+core|*>svg {
+    flex: 1;
 }
 `;
 
@@ -129,17 +134,17 @@ export class Border extends ContainerControl {
     get border(): string { return Blender.execute(this, DependencyObject, o => o.get(Border.borderProperty)); }
     set border(value: string) { Blender.execute(this, DependencyObject, o => o.set(Border.borderProperty, value)); }
 
-    static borderThicknessProperty = DependencyProperty.register(Border, "borderThickness", { valueType: Type.get(UnitValue), defaultValue: UnitValue.zero });
-    get borderThickness(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderThicknessProperty)); }
-    set borderThickness(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderThicknessProperty, value)); }
+    static borderThicknessProperty = DependencyProperty.register(Border, "borderThickness", { valueType: Type.get(Length), defaultValue: Length.zero });
+    get borderThickness(): Length { return Blender.execute(this, DependencyObject, o => o.get(Border.borderThicknessProperty)); }
+    set borderThickness(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Border.borderThicknessProperty, value)); }
 
-    static borderRadiusXProperty = DependencyProperty.register(Border, "borderRadiusX", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
-    get borderRadiusX(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusXProperty)); }
-    set borderRadiusX(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusXProperty, value)); }
+    static borderRadiusXProperty = DependencyProperty.register(Border, "borderRadiusX", { defaultValue: Length.zero, valueType: Type.of(Length) });
+    get borderRadiusX(): Length { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusXProperty)); }
+    set borderRadiusX(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusXProperty, value)); }
 
-    static borderRadiusYProperty = DependencyProperty.register(Border, "borderRadiusY", { defaultValue: UnitValue.zero, valueType: Type.of(UnitValue) });
-    get borderRadiusY(): UnitValue { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusYProperty)); }
-    set borderRadiusY(value: UnitValue) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusYProperty, value)); }
+    static borderRadiusYProperty = DependencyProperty.register(Border, "borderRadiusY", { defaultValue: Length.zero, valueType: Type.of(Length) });
+    get borderRadiusY(): Length { return Blender.execute(this, DependencyObject, o => o.get(Border.borderRadiusYProperty)); }
+    set borderRadiusY(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Border.borderRadiusYProperty, value)); }
 
     private __PART_background: VisualTreeElement | undefined;
 }
@@ -166,11 +171,22 @@ export class TextBlock extends Control {
         Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.backgroundProperty, Blender.get(DependencyObject, PART_background), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
         //Bind properties to PART_text
         //Bind "foreground" to "fill"
-        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.foregroundProperty, Blender.get(DependencyObject, PART_text), Shape.fillProperty, { direction: BindingDirection.ToTarget }));        
+        Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.foregroundProperty, Blender.get(DependencyObject, PART_text), Shape.fillProperty, { direction: BindingDirection.ToTarget }));
         //Bind "font"
         Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.fontProperty, Blender.get(DependencyObject, PART_text), Text.fontProperty, { direction: BindingDirection.ToTarget }));
         //Bind "text"
         Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.textProperty, Blender.get(DependencyObject, PART_text), Text.textProperty, { direction: BindingDirection.ToTarget }));
+
+        Blender.get(DependencyObject, PART_text).PropertyChangeEvent.attach(this.__PART_text_onPropertyChange, this);
+    }
+
+    protected __PART_text_onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
+        if (args.property === Text.renderedSizeProperty)
+            this.invalidateSize();
+    }
+
+    protected __computeSize(): Size {
+        return this.__PART_text.renderedSize;
     }
 
     protected __PART_layoutGrid!: Grid;
@@ -196,8 +212,8 @@ export class Button extends Control {
         super.initialization();
 
         const PART_border = <Border>ControlManager.instantiate(Border);
-        PART_border.borderRadiusX = new UnitValue(4, GraphicUnit.Pixels);
-        PART_border.borderRadiusY = new UnitValue(4, GraphicUnit.Pixels);
+        PART_border.borderRadiusX = new Length(4, LengthUnit.Pixels);
+        PART_border.borderRadiusY = new Length(4, LengthUnit.Pixels);
         this.children.add(PART_border);
         this.__PART_border = PART_border;
 

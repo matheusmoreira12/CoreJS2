@@ -1,35 +1,35 @@
 import { IValueConverter } from "../../ValueConverters/index";
-import { UnitValue } from "../UnitValue";
-import { Unit } from "../Unit";
+import { Length } from "../Length";
+import { LengthUnit } from "../LengthUnit";
 import { StringReader } from "../../../Standard/Strings/StringReader";
 import { MapUtils } from "../../../CoreBase/Utils/index";
 
 const UNIT_SVG_UNIT_MAP = new Map([
-    [Unit.None, ""],
-    [Unit.Centimeters, "cm"],
-    [Unit.Ch, "ch"],
-    [Unit.Em, "em"],
-    [Unit.Ex, "ex"],
-    [Unit.Inches, "in"],
-    [Unit.Millimeters, "mm"],
-    [Unit.Percent, "%"],
-    [Unit.Picas, "pc"],
-    [Unit.Pixels, "px"],
-    [Unit.Points, "pt"],
-    [Unit.Rem, "rem"],
-    [Unit.Vh, "vh"],
-    [Unit.Vmax, "vmax"],
-    [Unit.Vmin, "vmin"],
-    [Unit.Vw, "vw"]
+    [LengthUnit.None, ""],
+    [LengthUnit.Centimeters, "cm"],
+    [LengthUnit.Ch, "ch"],
+    [LengthUnit.Em, "em"],
+    [LengthUnit.Ex, "ex"],
+    [LengthUnit.Inches, "in"],
+    [LengthUnit.Millimeters, "mm"],
+    [LengthUnit.Percent, "%"],
+    [LengthUnit.Picas, "pc"],
+    [LengthUnit.Pixels, "px"],
+    [LengthUnit.Points, "pt"],
+    [LengthUnit.Rem, "rem"],
+    [LengthUnit.Vh, "vh"],
+    [LengthUnit.Vmax, "vmax"],
+    [LengthUnit.Vmin, "vmin"],
+    [LengthUnit.Vw, "vw"]
 ]);
 
 export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
-    convert(value: UnitValue | null): string | null {
+    convert(value: Length | null): string | null {
         if (value === null)
             return null;
-        else if (value.equals(UnitValue.invalid))
+        else if (value.equals(Length.invalid))
             return null;
-        else if (value.equals(UnitValue.auto))
+        else if (value.equals(Length.auto))
             return "auto";
         else {
             const unitAttr = UNIT_SVG_UNIT_MAP.get(value.unit) || "";
@@ -37,7 +37,7 @@ export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
         }
     }
 
-    convertBack(value: string | null): UnitValue | null {
+    convertBack(value: string | null): Length | null {
         function readAmount(reader: StringReader): number {
             let s: string = "";
             while (reader.peek().match(/\d/))
@@ -59,15 +59,15 @@ export class GraphicValueSVGAttributeValueConverter implements IValueConverter {
         if (value === null)
             return null;
         else if (value == "auto")
-            return UnitValue.auto;
+            return Length.auto;
         else {
             const reader = new StringReader(value);
             const amount = readAmount(reader);
             const unit = readUnit(reader);
             if (unit === null)
-                return UnitValue.invalid;
+                return Length.invalid;
             else
-                return new UnitValue(amount, unit);
+                return new Length(amount, unit);
         }
     }
 }
