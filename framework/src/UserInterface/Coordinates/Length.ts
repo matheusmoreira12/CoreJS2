@@ -100,37 +100,37 @@ export class Length {
         this[$isInvalid] = isInvalid;
     }
 
-    toCentimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Centimeters); }
-    toMillimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Millimeters); }
-    toInches(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Inches); }
-    toPixels(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Pixels); }
-    toPoints(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Points); }
-    toPicas(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Picas); }
+    toCentimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Centimeters)!; }
+    toMillimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Millimeters)!; }
+    toInches(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Inches)!; }
+    toPixels(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Pixels)!; }
+    toPoints(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Points)!; }
+    toPicas(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Picas)!; }
     toEm(element: Element): number {
         assertParams({ element }, [Element]);
 
-        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Em, element);
+        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Em, element)!;
     }
     toEx(element: Element): number {
         assertParams({ element }, [Element]);
 
-        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Ex, element);
+        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Ex, element)!;
     }
     toCh(element: Element): number {
         assertParams({ element }, [Element]);
 
-        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Ch, element);
+        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Ch, element)!;
     }
-    toRem(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Rem); }
-    toVw(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vw); }
-    toVh(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vh); }
-    toVmin(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmin); }
-    toVmax(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmax); }
+    toRem(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Rem)!; }
+    toVw(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vw)!; }
+    toVh(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vh)!; }
+    toVmin(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmin)!; }
+    toVmax(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmax)!; }
     toPercent(element: Element, orientation: number): number {
         assertParams({ element }, [Element]);
         Orientation.assertFlag(orientation);
 
-        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Percent, element, orientation);
+        return UnitConversion.convert(this.amount, this.unit, LengthUnit.Percent, element, orientation)!;
     }
 
     equals(other: Length): boolean {
