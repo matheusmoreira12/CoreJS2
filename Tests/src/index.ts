@@ -65,8 +65,8 @@ const stylesheetBlob = new Blob([controlStyle], { type: "text/css" });
 const stylesheetPath = URL.createObjectURL(stylesheetBlob);
 
 export class Grid extends Control {
-    initialization() {
-        super.initialization();
+    __initialization() {
+        super.__initialization();
 
         const style = VisualTreeElement.create("link", HTML_NS);
         style.attributes.setMany({
@@ -80,8 +80,8 @@ export class Grid extends Control {
 ControlManager.register(Grid, "core:Grid", "core");
 
 export abstract class ContainerControl extends Control {
-    initialization() {
-        super.initialization();
+    __initialization() {
+        super.__initialization();
 
         const PART_layoutGrid = ControlManager.instantiate(Grid);
         this.children.add(PART_layoutGrid);
@@ -115,8 +115,8 @@ export abstract class ContainerControl extends Control {
 }
 
 export class Border extends ContainerControl {
-    initialization() {
-        super.initialization();
+    __initialization() {
+        super.__initialization();
 
         const PART_background = ControlManager.instantiate(Rectangle);
         this.__PART_layoutGrid.children.add(PART_background);
@@ -151,8 +151,8 @@ export class Border extends ContainerControl {
 ControlManager.register(Border, "core:Border", "core");
 
 export class TextBlock extends Control {
-    protected initialization() {
-        super.initialization();
+    protected __initialization() {
+        super.__initialization();
 
         const PART_layoutGrid = ControlManager.instantiate(Grid);
         this.children.add(PART_layoutGrid);
@@ -208,8 +208,8 @@ export class Button extends Control {
         super(qualifiedName, namespaceURI)
     }
 
-    initialization() {
-        super.initialization();
+    __initialization() {
+        super.__initialization();
 
         const PART_border = <Border>ControlManager.instantiate(Border);
         PART_border.borderRadiusX = new Length(4, LengthUnit.Pixels);

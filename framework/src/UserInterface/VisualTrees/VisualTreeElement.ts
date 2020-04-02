@@ -35,9 +35,9 @@ export class VisualTreeElement extends VisualTreeNode {
         this[$attributes].ChangeEvent.attach(this[$attributes_onChange], this);
     }
 
-    protected initialization(): void {}
+    protected __initialization(): void {}
 
-    protected finalization(): void { 
+    protected __finalization(): void { 
         //Remove all elements
         const childrenCopy = [...this.children];
         for (let child of childrenCopy)
@@ -54,7 +54,7 @@ export class VisualTreeElement extends VisualTreeNode {
             throw new InvalidOperationException("Cannot initialize VisualTreeElement instance. This VisualTreeElement instance has already been initialized.");
         else {
             this[$domElement] = domElement;
-            this.initialization();
+            this.__initialization();
             this[$isInitialized] = true;
         }
     }
@@ -63,7 +63,7 @@ export class VisualTreeElement extends VisualTreeNode {
         if (!this[$isInitialized])
             throw new InvalidOperationException("Cannot finalize VisualTreeElement instance. This VisualTreeElement instance has not been initialized.");
         else {
-            this.initialization();
+            this.__initialization();
             this[$isInitialized] = true;
         }
     }

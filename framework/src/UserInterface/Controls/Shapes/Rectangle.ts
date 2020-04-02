@@ -11,8 +11,8 @@ import { ControlManager } from "../index";
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 export class Rectangle extends Shape {
-    initialization() {
-        super.initialization();
+    __initialization() {
+        super.__initialization();
 
         //Add an SVG Rect to the visual tree
         const PART_rect = VisualTreeElement.create("rect", SVG_NS);

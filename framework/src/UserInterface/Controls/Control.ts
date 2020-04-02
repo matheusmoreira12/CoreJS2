@@ -8,6 +8,7 @@ import { Blender } from "../../Standard/Blender/Blender";
 import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
 import { Length, Size } from "../Coordinates/index";
 import { AutosizeMode } from "./AutosizeMode";
+import { ControlTemplate } from "./Templating/index";
 
 ///TODO: fix this mess
 
@@ -19,8 +20,8 @@ export abstract class Control extends VisualTreeElement {
             throw new InvalidOperationException("Invalid constructor");
     }
 
-    protected initialization() {
-        super.initialization();
+    protected __initialization() {
+        super.__initialization();
 
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, this.domElement, "core:isDraggable", "core", { direction: BindingDirection.ToTarget }));
 
@@ -46,8 +47,8 @@ export abstract class Control extends VisualTreeElement {
         dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
     }
 
-    protected finalization() {
-        super.finalization();
+    protected __finalization() {
+        super.__finalization();
     }
 
     //Helper Class Instances

@@ -8,8 +8,8 @@ import { Length } from "../../Coordinates/index";
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 export abstract class Shape extends Control {
-    initialization() {
-        super.initialization();
+    __initialization() {
+        super.__initialization();
 
         const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
         this.children.add(PART_canvas);

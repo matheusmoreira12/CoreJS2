@@ -4,13 +4,13 @@ import { Orientation } from "./Orientation";
 function getScreenDPI(): number {
     const div = document.createElement("div");
     div.setAttribute("style", `
+position: absolute;
+top: 0;
+left: 0;
 width: 1in;
-height: 1in;
-top: -100%;
-left: -100%;
-position: absolute`);
+height: 1in;`);
     document.body.appendChild(div);
-    const dpi = div.offsetHeight;
+    const dpi = div.clientHeight;
     document.body.removeChild(div);
     return dpi;
 }
@@ -20,15 +20,15 @@ const SCREEN_PPI = getScreenDPI();
 function measureText(text: string, element: Element): { width: number, height: number } {
     const div = document.createElement("div");
     div.setAttribute("style", `
+position: absolute;
+top: 0;
+left: 0;
 width: auto;
 height: auto;
-top: -100%;
-left: -100%;
-font: inherit;
-position: absolute`);
+font: inherit;`);
     div.textContent = text;
     element.appendChild(div);
-    const result = { width: div.offsetWidth, height: div.offsetHeight };
+    const result = { width: div.clientWidth, height: div.clientHeight };
     element.removeChild(div);
     return result;
 }
@@ -124,7 +124,7 @@ export function convert(amount: number, srcUnit: number, destUnit: number, elem?
             }
         }
         else if (destUnit == LengthUnit.Pixels) {
-            switch (destUnit) {
+            switch (srcUnit) {
                 case LengthUnit.Centimeters:
                     return amount * SCREEN_PPI / 2.54;
                 case LengthUnit.Millimeters:

@@ -12,8 +12,8 @@ import { Size } from "../../Coordinates/Size";
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 export class Text extends Shape {
-    initialization() {
-        super.initialization();
+    __initialization() {
+        super.__initialization();
 
         const PART_text = VisualTreeElement.create("text", SVG_NS);
         this.__PART_text = PART_text;
@@ -37,17 +37,7 @@ export class Text extends Shape {
         this.__PART_canvas.attributes.setMany({
             "viewBox": `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`
         }, null);
-    }
-
-    protected __computeSize(): { width: number, height: number } {
-        super.__computeSize();
-
-        const bbox = (<SVGTextElement>this.__PART_text.domElement).getBBox();
-        return { width: bbox.width, height: bbox.height };
-    }
-
-    protected __updateSize(size: { width: number, height: number }) {
-        this.renderedSize = Size.pixels(size.width, size.height);
+        this.renderedSize = Size.pixels(bbox.width, bbox.height);
     }
 
     //DependencyObject
