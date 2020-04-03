@@ -1,5 +1,5 @@
 function normalizeCase(value: string) {
-    return value.replace(/\w[A-Z]/g, m => m[0] + " " + m[1]).toLowerCase().replace("_", " ").replace("-", " ");
+    return value.replace(/\w[A-Z]/g, m => m[0] + " " + m[1]).toLowerCase().replace(/_/g, " ").replace(/-/g, " ");
 }
 
 export namespace StringUtils {
@@ -51,7 +51,7 @@ export namespace StringUtils {
 
     export function toHyphenCase(value: string) {
         const normalized = normalizeCase(value);
-        return normalized.replace(" ", "-");
+        return normalized.replace(/ /g, "-");
     }
 
     export function toUpperHyphenCase(value: string) {
@@ -60,7 +60,7 @@ export namespace StringUtils {
 
     export function toUnderscoreCase(value: string) {
         const normalized = normalizeCase(value);
-        return normalized.replace(" ", "_")
+        return normalized.replace(/ /g, "_")
     }
 
     export function toUpperUnderscoreCase(value: string) {

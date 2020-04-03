@@ -49,7 +49,8 @@ export abstract class Control extends VisualTreeElement {
 
         this.__style = new ControlStyle(this);
 
-        this.style.display = "inline-block";
+        this.style.display = "flex";
+        this.style.flex = "1";
    }
 
     protected __finalization() {
