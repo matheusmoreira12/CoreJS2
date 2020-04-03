@@ -8,7 +8,7 @@ import { Blender } from "../../Standard/Blender/Blender";
 import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
 import { Length, Size } from "../Coordinates/index";
 import { AutosizeMode } from "./AutosizeMode";
-import { ControlTemplate } from "./Templating/index";
+import { ControlStyle } from "./Styling/ControlStyle";
 
 ///TODO: fix this mess
 
@@ -24,6 +24,7 @@ export abstract class Control extends VisualTreeElement {
         super.__initialization();
 
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, this.domElement, "core:isDraggable", "core", { direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.idProperty, this.domElement, "core:id", "core", { direction: BindingDirection.ToTarget }));
 
         //Native events
         this.MouseEnterEvent = new NativeEvent(<Element>this.domElement, "mouseenter", this.__onMouseEnter, this);
@@ -45,7 +46,11 @@ export abstract class Control extends VisualTreeElement {
         dragDropHandler.DragOverEvent.attach(this.__dragDropHandler__onDragOver, this);
         dragDropHandler.DragLeaveEvent.attach(this.__dragDropHandler__onDragLeave, this);
         dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
-    }
+
+        this.__style = new ControlStyle(this);
+
+        this.style.display = "inline-block";
+   }
 
     protected __finalization() {
         super.__finalization();
@@ -210,6 +215,11 @@ export abstract class Control extends VisualTreeElement {
     }
 
     //Framework Properties
+    //Generic properties
+    static idProperty = DependencyProperty.register(Control, "id", { valueType: Type.of(String) });
+    get id(): string { return this.get(Control.idProperty); }
+    set id(value: string) { this.set(Control.idProperty, value); }
+
     //State Properties
     //Mouse State Properties
     //Is Mouse Over Property
@@ -273,4 +283,15 @@ export abstract class Control extends VisualTreeElement {
     static foregroundProperty = DependencyProperty.register(Control, "foreground", { valueType: Type.get(String), defaultValue: "#000" });
     get foreground() { return Blender.execute(this, DependencyObject, o => o.get(Control.foregroundProperty)); }
     set foreground(value) { Blender.execute(this, DependencyObject, o => o.set(Control.foregroundProperty, value)); }
+
+    //Style Property
+    get style(): ControlStyle { return this.__style; }
+    private __style!: ControlStyle;
+
+    destructor() {
+        //Destruct style
+        this.style.destruct();
+
+        super.destructor();
+    }
 }
