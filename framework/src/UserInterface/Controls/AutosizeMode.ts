@@ -1,4 +1,4 @@
-import { Enumeration } from "../../Standard/index";
+import { Enumeration } from "../../Standard/index.js";
 
 export const AutosizeMode = Enumeration.create({
     Shrink: 0,

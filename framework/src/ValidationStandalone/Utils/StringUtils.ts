@@ -1,5 +1,5 @@
-import { TypeDesignator } from "../Types";
-import { resolveValueCtor, resolveCtors } from "./CtorUtils";
+import { TypeDesignator } from "../Types.js";
+import { resolveValueCtor, resolveCtors } from "./CtorUtils.js";
 
 function treatValueString(valueStr: string){
     valueStr = valueStr.replace(/[\n\t]/, " ");

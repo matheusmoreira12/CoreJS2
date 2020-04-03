@@ -1,8 +1,8 @@
-import { IValueConverter } from "../../ValueConverters/index";
-import { Length } from "../Length";
-import { LengthUnit } from "../LengthUnit";
-import { StringReader } from "../../../Standard/Strings/StringReader";
-import { MapUtils } from "../../../CoreBase/Utils/index";
+import { IValueConverter } from "../../ValueConverters/index.js";
+import { Length } from "../Length.js";
+import { LengthUnit } from "../LengthUnit.js";
+import { StringReader } from "../../../Standard/Strings/StringReader.js";
+import { MapUtils } from "../../../CoreBase/Utils/index.js";
 
 const UNIT_SVG_UNIT_MAP = new Map([
     [LengthUnit.None, ""],

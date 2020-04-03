@@ -1,11 +1,11 @@
-﻿import { ColorConversion } from "./index";
-import { InvalidOperationException } from "../../Standard/Exceptions";
-import { ColorRGBA } from "./index";
-import { ColorRGB } from "./index";
-import { ColorHSL } from "./index";
-import { ColorHSLA } from "./index";
+﻿import { ColorConversion } from "./index.js";
+import { InvalidOperationException } from "../../Standard/Exceptions.js";
+import { ColorRGBA } from "./index.js";
+import { ColorRGB } from "./index.js";
+import { ColorHSL } from "./index.js";
+import { ColorHSLA } from "./index.js";
 
-import { Blending } from "./index";
+import { Blending } from "./index.js";
 
 export abstract class Color extends Number {
     static fromRGBAHex(value: number): ColorRGBA {

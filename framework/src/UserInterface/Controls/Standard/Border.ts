@@ -1,12 +1,12 @@
-import { ContainerControl } from "./index";
-import { ControlManager, Control } from "../index";
-import { Rectangle, Shape } from "../Shapes/index";
-import { Blender } from "../../../Standard/Blender/index";
-import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index";
-import { PropertyBinding, BindingDirection } from "../../Bindings/index";
-import { Type } from "../../../Standard/Types/index";
-import { Length } from "../../Coordinates/index";
-import { VisualTreeElement } from "../../VisualTrees/index";
+import { ContainerControl } from "./index.js";
+import { ControlManager, Control } from "../index.js";
+import { Rectangle, Shape } from "../Shapes/index.js";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index.js";
+import { PropertyBinding, BindingDirection } from "../../Bindings/index.js";
+import { Type } from "../../../Standard/Types/index.js";
+import { Length } from "../../Coordinates/index.js";
+import { VisualTreeElement } from "../../VisualTrees/index.js";
 
 export class Border extends ContainerControl {
     __initialization() {

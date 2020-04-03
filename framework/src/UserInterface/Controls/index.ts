@@ -1,19 +1,19 @@
-export * from "./ControlMetadata";
-export * from "./Control";
+export * from "./ControlMetadata.js";
+export * from "./Control.js";
 
-export * from "./AutosizeMode";
+export * from "./AutosizeMode.js";
 
-import * as ControlManager from "./ControlManager";
+import * as ControlManager from "./ControlManager.js";
 export { ControlManager };
 
-import * as Templating from "./Templating/index";
+import * as Templating from "./Templating/index.js";
 export { Templating };
 
-import * as Styling from "./Styling/index";
+import * as Styling from "./Styling/index.js";
 export { Styling };
 
-import * as Shapes from "./Shapes/index";
+import * as Shapes from "./Shapes/index.js";
 export { Shapes };
 
-import * as Standard from "./Standard/index";
+import * as Standard from "./Standard/index.js";
 export { Standard };

@@ -1,6 +1,6 @@
-import { Type } from "../../Types/index";
-import { Interface } from "../index";
-import { InterfaceDifference } from "./index";
+import { Type } from "../../Types/index.js";
+import { Interface } from "../index.js";
+import { InterfaceDifference } from "./index.js";
 
 export class InterfaceImplementationAnalysis {
     constructor(analizedType: Type, analizedInterface: Interface, ...differences: InterfaceDifference[]) {

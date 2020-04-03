@@ -1,12 +1,12 @@
-import { Control, ControlManager } from "../index";
-import { Grid } from "./index";
-import { Rectangle, Text, Shape } from "../Shapes/index";
-import { Blender } from "../../../Standard/Blender/index";
-import { DependencyObject, PropertyChangeEventArgs, DependencyProperty } from "../../DependencyObjects/index";
-import { PropertyBinding, BindingDirection } from "../../Bindings/index";
-import { Size } from "../../Coordinates/index";
-import { Type } from "../../../Standard/Types/index";
-import { Font } from "../../Fonts/index";
+import { Control, ControlManager } from "../index.js";
+import { Grid } from "./index.js";
+import { Rectangle, Text, Shape } from "../Shapes/index.js";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { DependencyObject, PropertyChangeEventArgs, DependencyProperty } from "../../DependencyObjects/index.js";
+import { PropertyBinding, BindingDirection } from "../../Bindings/index.js";
+import { Size } from "../../Coordinates/index.js";
+import { Type } from "../../../Standard/Types/index.js";
+import { Font } from "../../Fonts/index.js";
 
 export class TextBlock extends Control {
     protected __initialization() {

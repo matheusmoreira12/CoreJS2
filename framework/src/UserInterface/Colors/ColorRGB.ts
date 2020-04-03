@@ -1,5 +1,5 @@
-﻿import { ColorConversion } from "./index";
-import { Color } from "./index";
+﻿import { ColorConversion } from "./index.js";
+import { Color } from "./index.js";
 
 export class ColorRGB extends Color {
     constructor(r: number, g: number, b: number) {

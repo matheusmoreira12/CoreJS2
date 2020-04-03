@@ -1,6 +1,6 @@
-import { InvalidOperationException, Destructible } from "../../Standard/index";
-import { Dictionary } from "../../Standard/Collections/index";
-import { EventTrigger } from "../Triggers/index";
+import { InvalidOperationException, Destructible } from "../../Standard/index.js";
+import { Dictionary } from "../../Standard/Collections/index.js";
+import { EventTrigger } from "../Triggers/index.js";
 
 //Public keys for Action
 export const $setTrigger = Symbol("setTrigger");

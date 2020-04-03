@@ -1,9 +1,9 @@
-import { VisualTreeNode } from "./VisualTreeNode";
-import { assertParams } from "../../Validation/index";
-import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../DependencyObjects/index";
-import { Type } from "../../Standard/Types/Type";
-import { Blender } from "../../Standard/Blender/index";
-import { $updateAttribute } from "./index";
+import { VisualTreeNode } from "./VisualTreeNode.js";
+import { assertParams } from "../../Validation/index.js";
+import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../DependencyObjects/index.js";
+import { Type } from "../../Standard/Types/Type.js";
+import { Blender } from "../../Standard/Blender/index.js";
+import { $updateAttribute } from "./index.js";
 
 //Public keys for VisualTreeAttribute
 const $updateValue = Symbol("updateValue");

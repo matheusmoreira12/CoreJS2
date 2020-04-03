@@ -1,6 +1,6 @@
-﻿import { Control } from "./Control";
-import { Class } from "../../Standard/Types/Types";
-import { Collection } from "../../Standard/Collections/Collection";
+﻿import { Control } from "./Control.js";
+import { Class } from "../../Standard/Types/Types.js";
+import { Collection } from "../../Standard/Collections/Collection.js";
 
 export class ControlMetadata<TControl extends Control = any> {
     constructor(controlClass: Class<TControl>, qualifiedName: string, namespaceURI?: string | null) {

@@ -1,9 +1,9 @@
-import { VisualTreeNode, $setParent } from "./VisualTreeNode";
-import { InvalidOperationException, Enumeration } from "../../Standard/index";
-import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index";
-import { DOMUtils } from "../index";
-import { VisualTreeAttribute } from "./VisualTreeAttribute";
-import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection";
+import { VisualTreeNode, $setParent } from "./VisualTreeNode.js";
+import { InvalidOperationException, Enumeration } from "../../Standard/index.js";
+import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index.js";
+import { DOMUtils } from "../index.js";
+import { VisualTreeAttribute } from "./VisualTreeAttribute.js";
+import { VisualTreeAttributeCollection } from "./VisualTreeAttributeCollection.js";
 
 //Public keys for VisualTreeElement
 export const $updateAttribute = Symbol("updateAttribute");

@@ -1,13 +1,13 @@
-import { Blender } from "../../../Standard/Blender/index";
-import { Type } from "../../../Standard/Types/index";
-import { DependencyObject, PropertyChangeEventArgs, DependencyProperty } from "../../DependencyObjects/index";
-import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index";
-import { FontSVGFontFamilyAttributeConverter, FontSVGFontSizeAttributeConverter, FontSVGFontWeightAttributeConverter, FontSVGFontStyleAttributeConverter, FontSVGTextDecorationAttributeConverter } from "../../Fonts/ValueConverters/index";
-import { Font } from "../../Fonts/index";
-import { VisualTreeElement } from "../../VisualTrees/index";
-import { ControlManager } from "../index";
-import { Shape } from "./index";
-import { Size } from "../../Coordinates/Size";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { Type } from "../../../Standard/Types/index.js";
+import { DependencyObject, PropertyChangeEventArgs, DependencyProperty } from "../../DependencyObjects/index.js";
+import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
+import { FontSVGFontFamilyAttributeConverter, FontSVGFontSizeAttributeConverter, FontSVGFontWeightAttributeConverter, FontSVGFontStyleAttributeConverter, FontSVGTextDecorationAttributeConverter } from "../../Fonts/ValueConverters/index.js";
+import { Font } from "../../Fonts/index.js";
+import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { ControlManager } from "../index.js";
+import { Shape } from "./index.js";
+import { Size } from "../../Coordinates/Size.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 

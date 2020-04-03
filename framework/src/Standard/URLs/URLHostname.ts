@@ -1,4 +1,4 @@
-﻿import { URLToken } from "./index";
+﻿import { URLToken } from "./index.js";
 
 export class URLHostname {
     static fromToken(token: URLToken) {

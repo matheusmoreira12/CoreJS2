@@ -1,5 +1,5 @@
-﻿import { Collection, KeyValuePair } from "./index";
-import { ArgumentOutOfRangeException, KeyNotFoundException } from "../index";
+﻿import { Collection, KeyValuePair } from "./index.js";
+import { ArgumentOutOfRangeException, KeyNotFoundException } from "../index.js";
 
 export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TValue>> {
     static fromMap<TKey, TValue>(map: Map<TKey, TValue>): Dictionary<TKey, TValue> {

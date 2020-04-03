@@ -1,4 +1,4 @@
-import { Class } from "../Standard/Types/Types";
+import { Class } from "../Standard/Types/Types.js";
 
 export type TypeDesignator = undefined | null | Function;
 

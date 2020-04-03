@@ -1,4 +1,4 @@
-import { Enumeration } from "../index";
+import { Enumeration } from "../index.js";
 
 export const InterfaceDifferenceKind = Enumeration.create({
     None: null,

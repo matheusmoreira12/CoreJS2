@@ -1,7 +1,7 @@
-import { DependencyProperty } from "../../DependencyObjects/index";
-import { Type } from "../../../Standard/Types/index";
-import { Control } from "../index";
-import { Template } from "./Template";
+import { DependencyProperty } from "../../DependencyObjects/index.js";
+import { Type } from "../../../Standard/Types/index.js";
+import { Control } from "../index.js";
+import { Template } from "./Template.js";
 
 export class ControlTemplate extends Template {
     static controlClassProperty = DependencyProperty.register(ControlTemplate, "controlClass", { valueType: Type.get(Control) });

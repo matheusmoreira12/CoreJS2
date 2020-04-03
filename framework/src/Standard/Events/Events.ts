@@ -1,5 +1,5 @@
-import { FrameworkEvent } from "./FrameworkEvent";
-import { InvalidTypeException, InvalidOperationException } from "../Exceptions";
+import { FrameworkEvent } from "./FrameworkEvent.js";
+import { InvalidTypeException, InvalidOperationException } from "../Exceptions.js";
 
 export type FrameworkEventListener<TArgs extends object> = (sender: any, args: TArgs) => void;
 

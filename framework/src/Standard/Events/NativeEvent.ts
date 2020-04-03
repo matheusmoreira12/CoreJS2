@@ -1,6 +1,5 @@
-import { FrameworkEventListener, FrameworkEventArgs } from "./Events";
-import { FrameworkEvent } from "./FrameworkEvent";
-import { applyMixin } from "../../CoreBase/Utils/ObjectUtils";
+import { FrameworkEventListener, FrameworkEventArgs } from "./Events.js";
+import { FrameworkEvent } from "./FrameworkEvent.js";
 
 const $target = Symbol("target");
 const $event = Symbol("event");

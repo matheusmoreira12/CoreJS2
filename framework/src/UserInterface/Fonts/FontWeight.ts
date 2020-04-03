@@ -1,4 +1,4 @@
-import { Enumeration } from "../../Standard/index";
+import { Enumeration } from "../../Standard/index.js";
 
 export const FontWeight = Enumeration.create({
     Normal: null,

@@ -1,9 +1,9 @@
-import { DependencyProperty } from "../DependencyObjects/index"
-import { assertParams } from "../../Validation/index";
-import { PropertyTrigger } from "../Triggers/index";
-import { Destructible } from "../../Standard/index";
-import { Collection } from "../../Standard/Collections/index";
-import { DependencyObject } from "../DependencyObjects/DependencyObject";
+import { DependencyProperty } from "../DependencyObjects/index.js"
+import { assertParams } from "../../Validation/index.js";
+import { PropertyTrigger } from "../Triggers/index.js";
+import { Destructible } from "../../Standard/index.js";
+import { Collection } from "../../Standard/Collections/index.js";
+import { DependencyObject } from "../DependencyObjects/DependencyObject.js";
 
 const allSetters: Collection<Setter> = new Collection();
 

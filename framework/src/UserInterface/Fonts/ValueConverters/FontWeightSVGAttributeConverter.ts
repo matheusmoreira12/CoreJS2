@@ -1,6 +1,6 @@
-import { FontWeight } from "../index";
-import { MapUtils } from "../../../CoreBase/Utils/index";
-import { IValueConverter } from "../../ValueConverters/index";
+import { FontWeight } from "../index.js";
+import { MapUtils } from "../../../CoreBase/Utils/index.js";
+import { IValueConverter } from "../../ValueConverters/index.js";
 
 const FONT_WEIGHT_SVG_ATTRIBUTE_MAP = new Map([
     [FontWeight.Normal, "normal"],

@@ -1,8 +1,8 @@
-import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "../../Standard/Collections/index";
-import { Action, $setTrigger } from "./Action";
-import { EventTrigger } from "../Triggers/index";
-import { assertParams } from "../../Validation/index";
-import { Enumeration } from "../../Standard/index";
+import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "../../Standard/Collections/index.js";
+import { Action, $setTrigger } from "./Action.js";
+import { EventTrigger } from "../Triggers/index.js";
+import { assertParams } from "../../Validation/index.js";
+import { Enumeration } from "../../Standard/index.js";
 
 export class ActionCollection extends ObservableCollection<Action> {
     constructor(parentTrigger: EventTrigger, ...items: Action[]) {

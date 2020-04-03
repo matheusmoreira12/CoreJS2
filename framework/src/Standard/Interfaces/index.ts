@@ -1,3 +1,3 @@
-export * from "./Interfaces";
-export * from "./Interface";
-export * from "./InterfaceMember";
+export * from "./Interfaces.js";
+export * from "./Interface.js";
+export * from "./InterfaceMember.js";

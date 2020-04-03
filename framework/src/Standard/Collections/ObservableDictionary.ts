@@ -1,7 +1,7 @@
-import { Dictionary } from "./Dictionary";
-import { Enumeration } from "../Enumeration";
-import { FrameworkEvent } from "../Events/FrameworkEvent";
-import { FrameworkEventArgs } from "../Events/index";
+import { Dictionary } from "./Dictionary.js";
+import { Enumeration } from "../Enumeration.js";
+import { FrameworkEvent } from "../Events/FrameworkEvent.js";
+import { FrameworkEventArgs } from "../Events/index.js";
 
 const $action = Symbol("action");
 const $key = Symbol("key");

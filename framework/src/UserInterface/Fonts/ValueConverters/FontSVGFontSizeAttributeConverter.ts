@@ -1,7 +1,7 @@
-import { GraphicValueSVGAttributeValueConverter } from "../../Coordinates/ValueConverters/index";
-import { IValueConverter } from "../../ValueConverters/index";
-import { Font } from "../Font";
-import { InvalidOperationException } from "../../../Standard/index";
+import { GraphicValueSVGAttributeValueConverter } from "../../Coordinates/ValueConverters/index.js";
+import { IValueConverter } from "../../ValueConverters/index.js";
+import { Font } from "../Font.js";
+import { InvalidOperationException } from "../../../Standard/index.js";
 
 export class FontSVGFontSizeAttributeConverter implements IValueConverter {
     convert(value: Font): string | null {

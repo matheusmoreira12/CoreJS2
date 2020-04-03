@@ -1,2 +1,2 @@
-export * from "./InterfaceDifference";
-export * from "./InterfaceImplementationAnalysis";
+export * from "./InterfaceDifference.js";
+export * from "./InterfaceImplementationAnalysis.js";

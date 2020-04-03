@@ -1,4 +1,4 @@
-import { Enumeration } from "../../Standard/index";
+import { Enumeration } from "../../Standard/index.js";
 
 export const FontStyle = Enumeration.create({
     Normal: null,

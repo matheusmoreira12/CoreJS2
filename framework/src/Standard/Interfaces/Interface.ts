@@ -1,9 +1,9 @@
-﻿import { Type } from "../Types/Type";
-import { InterfaceMember } from "./InterfaceMember";
-import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Types/index";
-import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces";
-import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index";
-import { Enumeration } from "../index";
+﻿import { Type } from "../Types/Type.js";
+import { InterfaceMember } from "./InterfaceMember.js";
+import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Types/index.js";
+import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces.js";
+import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index.js";
+import { Enumeration } from "../index.js";
 
 function convertMemberTypeToInterfaceMemberType(memberType: number) {
     if (Enumeration.contains(MemberType.Function, memberType))

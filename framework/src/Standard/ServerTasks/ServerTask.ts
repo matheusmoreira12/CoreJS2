@@ -1,6 +1,6 @@
-﻿import { ArgumentTypeException } from "../Exceptions";
-import { Enumeration } from "../Enumeration";
-import { BroadcastFrameworkEvent } from "../Events/index";
+﻿import { ArgumentTypeException } from "../Exceptions.js";
+import { Enumeration } from "../Enumeration.js";
+import { BroadcastFrameworkEvent } from "../Events/index.js";
 
 export const ServerTaskStatus = Enumeration.create({
     Pending: null,

@@ -1,11 +1,11 @@
-import { BlendedInstanceInfo } from "./BlendedInstanceInfo";
-import { Class, TryOutput, DataType } from "../../Standard/Types/Types";
-import { Destructible } from "../Destructible";
+import { BlendedInstanceInfo } from "./BlendedInstanceInfo.js";
+import { Class, TryOutput } from "../../Standard/Types/Types.js";
+import { Destructible } from "../Destructible.js";
 
 export namespace Storage {
-    const allBlendedInstances: BlendedInstanceInfo<DataType, any>[] = [];
+    const allBlendedInstances: BlendedInstanceInfo<any, any>[] = [];
 
-    export function tryStore<TBlend, TTarget extends DataType>(blendClass: Class<TBlend>, targetObj: TTarget): boolean {
+    export function tryStore<TBlend, TTarget>(blendClass: Class<TBlend>, targetObj: TTarget): boolean {
         if (tryGet(<Class<any>>targetObj, blendClass))
             return false;
         else {
@@ -15,11 +15,11 @@ export namespace Storage {
         }
     }
 
-    function removeInstance(instance: BlendedInstanceInfo<DataType, any>) {
+    function removeInstance(instance: BlendedInstanceInfo<any, any>) {
         allBlendedInstances.splice(allBlendedInstances.indexOf(instance), 1);
     }
 
-    export function tryDiscard<TBlend, TTarget extends DataType>(baseClass: Class<TBlend>, targetObj: TTarget): boolean {
+    export function tryDiscard<TBlend, TTarget>(baseClass: Class<TBlend>, targetObj: TTarget): boolean {
         const tryGetOutput: TryOutput<BlendedInstanceInfo<TTarget, TBlend>> = {};
         if (tryGet(baseClass, targetObj, {})) {
             const info = <BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.result;
@@ -41,11 +41,11 @@ export namespace Storage {
             return false;
     }
 
-    function getInstance(blendClass: Class<any>, sourceObj: any): BlendedInstanceInfo<DataType, any> | null {
+    function getInstance(blendClass: Class<any>, sourceObj: any): BlendedInstanceInfo<any, any> | null {
         return allBlendedInstances.find(bi => bi.targetObj === sourceObj && bi.blendClass === blendClass) || null
     }
 
-    export function tryGet<TBlend, TSource extends DataType>(blendClass: Class<TBlend>, sourceObj: TSource, output?: TryOutput<BlendedInstanceInfo<TSource, TBlend>>): boolean {
+    export function tryGet<TBlend, TSource>(blendClass: Class<TBlend>, sourceObj: TSource, output?: TryOutput<BlendedInstanceInfo<TSource, TBlend>>): boolean {
         output = output || {};
 
         const instance = <BlendedInstanceInfo<TSource, TBlend>>getInstance(blendClass, sourceObj);

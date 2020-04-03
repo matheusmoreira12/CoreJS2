@@ -1,8 +1,8 @@
-import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index";
-import { Trigger } from "./index";
-import { Dictionary } from "../../Standard/Collections/index";
-import { Action, ActionCollection } from "../Actions/index";
-import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index";
+import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
+import { Trigger } from "./index.js";
+import { Dictionary } from "../../Standard/Collections/index.js";
+import { Action, ActionCollection, $setTrigger } from "../Actions/index.js";
+import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
 
 //Keys for EventTrigger
 const $targetEvent = Symbol("targetEvent");
@@ -31,7 +31,7 @@ export class EventTrigger extends Trigger {
     private [$removeAllActions]() {
         const actionsCopy = [...this.actions];
         for (let action of actionsCopy)
-            action.unsetTrigger();
+            action[$setTrigger](null);
     }
 
     private [$executeAllActions](data: Dictionary<string, any>) {

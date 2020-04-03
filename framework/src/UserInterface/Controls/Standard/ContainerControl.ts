@@ -1,9 +1,9 @@
-import { Control, ControlManager } from "../index";
-import { Grid } from "./index";
-import { VisualTreeElement } from "../../VisualTrees/index";
-import { PropertyChangeEventArgs, DependencyProperty, DependencyObject } from "../../DependencyObjects/index";
-import { Type } from "../../../Standard/Types/index";
-import { Blender } from "../../../Standard/Blender/index";
+import { Control, ControlManager } from "../index.js";
+import { Grid } from "./index.js";
+import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { PropertyChangeEventArgs, DependencyProperty, DependencyObject } from "../../DependencyObjects/index.js";
+import { Type } from "../../../Standard/Types/index.js";
+import { Blender } from "../../../Standard/Blender/index.js";
 
 export abstract class ContainerControl extends Control {
     __initialization() {

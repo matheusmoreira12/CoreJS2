@@ -1,8 +1,8 @@
-import { FontWeight } from "./FontWeight";
-import { TextDecoration } from "./TextDecoration";
-import { FontStyle } from "./FontStyle";
-import { assertParams } from "../../Validation/index";
-import { Length, LengthUnit } from "../Coordinates/index";
+import { FontWeight } from "./FontWeight.js";
+import { TextDecoration } from "./TextDecoration.js";
+import { FontStyle } from "./FontStyle.js";
+import { assertParams } from "../../Validation/index.js";
+import { Length, LengthUnit } from "../Coordinates/index.js";
 
 const $family = Symbol("family");
 const $size = Symbol("size");

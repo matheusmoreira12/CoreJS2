@@ -1,14 +1,14 @@
-export * from "./Color";
-export * from "./ColorHSL";
-export * from "./ColorHSLA";
-export * from "./ColorRGB";
-export * from "./ColorRGBA";
+export * from "./Color.js";
+export * from "./ColorHSL.js";
+export * from "./ColorHSLA.js";
+export * from "./ColorRGB.js";
+export * from "./ColorRGBA.js";
 
-import ColorConversion from "./ColorConversion";
+import ColorConversion from "./ColorConversion.js";
 export { ColorConversion };
 
-import WebColors from "./WebColors";
+import WebColors from "./WebColors.js";
 export { WebColors };
 
-import * as Blending from "./Blending/index";
+import * as Blending from "./Blending/index.js";
 export { Blending };

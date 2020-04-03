@@ -1,4 +1,4 @@
-import { TypeDesignator, Constructor } from "../Types";
+import { TypeDesignator, Constructor } from "../Types.js";
 
 export function* resolveCtors(types: Iterable<TypeDesignator>): Iterable<Constructor> {
     for (let type of types) {

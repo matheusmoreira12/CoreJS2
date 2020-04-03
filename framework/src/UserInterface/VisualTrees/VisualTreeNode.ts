@@ -1,11 +1,11 @@
-import { InvalidOperationException, Destructible } from "../../Standard/index";
-import { assertParams } from "../../Validation/index";
-import { VisualTreeElement } from "./VisualTreeElement";
-import { Blender } from "../../Standard/Blender/Blender";
-import { DependencyObject } from "../DependencyObjects/DependencyObject";
-import { FrameworkEvent } from "../../Standard/Events/index";
-import { PropertyChangeEventArgs, DependencyProperty } from "../DependencyObjects/index";
-import { IDependencyObject } from "../DependencyObjects/IDependencyObject";
+import { InvalidOperationException, Destructible } from "../../Standard/index.js";
+import { assertParams } from "../../Validation/index.js";
+import { VisualTreeElement } from "./VisualTreeElement.js";
+import { Blender } from "../../Standard/Blender/Blender.js";
+import { DependencyObject } from "../DependencyObjects/DependencyObject.js";
+import { FrameworkEvent } from "../../Standard/Events/index.js";
+import { PropertyChangeEventArgs, DependencyProperty } from "../DependencyObjects/index.js";
+import { IDependencyObject } from "../DependencyObjects/IDependencyObject.js";
 
 //Public keys for VisualTreeNode
 export const $setParent = Symbol("setParent");

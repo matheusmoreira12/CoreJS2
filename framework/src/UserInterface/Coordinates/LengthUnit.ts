@@ -1,4 +1,4 @@
-import { Enumeration } from "../../Standard/index";
+import { Enumeration } from "../../Standard/index.js";
 
 export const LengthUnit = Enumeration.create({
     None: 0,

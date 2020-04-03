@@ -1,5 +1,5 @@
-import { Type } from "../../Types/index";
-import { Interface } from "../index";
+import { Type } from "../../Types/index.js";
+import { Interface } from "../index.js";
 
 export class InterfaceDifference {
     constructor(analizedType: Type, analizedInterface: Interface, propertyKey: string | number | symbol, differenceType: number) {

@@ -1,9 +1,9 @@
-export * from "./Types";
+export * from "./Types.js";
 
-export * from "./ArrayUtils";
+export * from "./ArrayUtils.js";
 
-export * from "./MapUtils";
+export * from "./MapUtils.js";
 
-export * from "./ObjectUtils";
+export * from "./ObjectUtils.js";
 
-export * from "./StringUtils";
+export * from "./StringUtils.js";

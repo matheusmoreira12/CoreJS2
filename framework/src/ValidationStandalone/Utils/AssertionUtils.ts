@@ -1,6 +1,6 @@
-import { resolveValueCtor, resolveCtors, ctorMatchesAny, ctorMatchesAll, ctorMatchesNone } from "./CtorUtils";
-import { TypeDesignator, AssertionMode } from "../Types";
-import { getTypeDesigatorArrayString, getValueString } from "./StringUtils";
+import { resolveValueCtor, resolveCtors, ctorMatchesAny, ctorMatchesAll, ctorMatchesNone } from "./CtorUtils.js";
+import { TypeDesignator, AssertionMode } from "../Types.js";
+import { getTypeDesigatorArrayString, getValueString } from "./StringUtils.js";
 
 export function tryAssert(value: any, types: Iterable<TypeDesignator>, mode: AssertionMode = "any"): boolean {
     const ctor = resolveValueCtor(value);

@@ -1,2 +1,2 @@
-export * from "./Setter";
-export * from "./SetterCollection";
+export * from "./Setter.js";
+export * from "./SetterCollection.js";

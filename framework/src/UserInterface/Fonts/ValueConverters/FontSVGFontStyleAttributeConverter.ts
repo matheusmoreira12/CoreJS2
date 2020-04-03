@@ -1,6 +1,6 @@
-import { Font } from "../Font";
-import { InvalidOperationException } from "../../../Standard/index";
-import { FontStyleSVGAttributeConverter } from "./FontStyleSVGAttributeConverter";
+import { Font } from "../Font.js";
+import { InvalidOperationException } from "../../../Standard/index.js";
+import { FontStyleSVGAttributeConverter } from "./FontStyleSVGAttributeConverter.js";
 
 export class FontSVGFontStyleAttributeConverter {
     convert(value: Font | null): string | null {

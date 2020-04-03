@@ -1,9 +1,9 @@
-import { Blender } from "../../../Standard/Blender/index";
-import { DependencyObject } from "../../DependencyObjects/index";
-import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index";
-import { VisualTreeElement } from "../../VisualTrees/index";
-import { Control, ControlManager } from "../index";
-import { Shape } from "./index";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { DependencyObject } from "../../DependencyObjects/index.js";
+import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
+import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { Control, ControlManager } from "../index.js";
+import { Shape } from "./index.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 

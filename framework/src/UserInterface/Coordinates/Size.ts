@@ -1,5 +1,5 @@
-import { Length } from "./Length";
-import { assertParams } from "../../Validation/index";
+import { Length } from "./Length.js";
+import { assertParams } from "../../Validation/index.js";
 
 const $width = Symbol("width");
 const $height = Symbol("height");

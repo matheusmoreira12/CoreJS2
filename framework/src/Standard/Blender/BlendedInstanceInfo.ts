@@ -1,13 +1,13 @@
-﻿import { Class, DataType } from "../Types/Types";
+﻿import { Class } from "../Types/Types.js";
 
-export type BlendedInstanceInfo<TTarget extends DataType, TBlend> = {
+export type BlendedInstanceInfo<TTarget, TBlend> = {
     blendClass: Class<any>;
     blend: TBlend | null;
     targetObj: TTarget;
 };
 
 export namespace BlendedInstanceInfo {
-    export function create<TTarget extends DataType, TBlend>(blendClass: Class<TBlend>, targetObj: TTarget): BlendedInstanceInfo<TTarget, TBlend> {
+    export function create<TTarget, TBlend>(blendClass: Class<TBlend>, targetObj: TTarget): BlendedInstanceInfo<TTarget, TBlend> {
         return {
             blendClass,
             blend: null,

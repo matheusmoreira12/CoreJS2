@@ -1,10 +1,10 @@
-﻿import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index";
-import { Type, Class, Instance } from "../../Standard/Types/index";
-import { Collection } from "../../Standard/Collections/index";
-import { DOMUtils } from "../index";
-import { ControlMetadata } from "./ControlMetadata";
-import { Control } from "./Control";
-import { assertParams } from "../../Validation/index";
+﻿import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index.js";
+import { Type, Class, Instance } from "../../Standard/Types/index.js";
+import { Collection } from "../../Standard/Collections/index.js";
+import { DOMUtils } from "../index.js";
+import { ControlMetadata } from "./ControlMetadata.js";
+import { Control } from "./Control.js";
+import { assertParams } from "../../Validation/index.js";
 
 const registeredControls: Collection<ControlMetadata> = new Collection();
 

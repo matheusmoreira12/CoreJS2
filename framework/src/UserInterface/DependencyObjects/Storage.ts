@@ -1,9 +1,9 @@
-import { DependencyProperty } from "./DependencyProperty";
-import { DependencyObject } from "./DependencyObject";
-import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
-import { Collection } from "../../Standard/Collections/index";
+import { DependencyProperty } from "./DependencyProperty.js";
+import { DependencyObject } from "./DependencyObject.js";
+import { PropertyChangeEventArgs } from "./PropertyChangeEvent.js";
+import { Collection } from "../../Standard/Collections/index.js";
 
-import * as Registry from "./Registry";
+import * as Registry from "./Registry.js";
 
 const setters: Collection<InternalSetter> = new Collection();
 

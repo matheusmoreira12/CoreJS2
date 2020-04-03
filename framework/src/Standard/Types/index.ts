@@ -1,4 +1,4 @@
-export * from "./Types";
+export * from "./Types.js";
 
-export * from "./MemberInfo";
-export * from "./Type";
+export * from "./MemberInfo.js";
+export * from "./Type.js";

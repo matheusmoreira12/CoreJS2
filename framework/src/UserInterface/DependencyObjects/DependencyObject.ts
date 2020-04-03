@@ -1,9 +1,9 @@
-import { DependencyProperty } from "./DependencyProperty";
-import { FrameworkEvent } from "../../Standard/Events/index";
-import { PropertyChangeEventArgs } from "./PropertyChangeEvent";
-import { assertParams } from "../../Validation/index";
+import { DependencyProperty } from "./DependencyProperty.js";
+import { FrameworkEvent } from "../../Standard/Events/index.js";
+import { PropertyChangeEventArgs } from "./PropertyChangeEvent.js";
+import { assertParams } from "../../Validation/index.js";
 
-import * as Storage from "./Storage";
+import * as Storage from "./Storage.js";
 
 const $PropertyChangeEvent = Symbol("PropertyChangeEvent");
 

@@ -1,9 +1,9 @@
-import { Blender } from "../../../Standard/Blender/index";
-import { Type } from "../../../Standard/Types/Type";
-import { DependencyProperty, DependencyObject } from "../../DependencyObjects/index";
-import { VisualTreeElement } from "../../VisualTrees/index";
-import { Control } from "../index";
-import { Length } from "../../Coordinates/index";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { Type } from "../../../Standard/Types/Type.js";
+import { DependencyProperty, DependencyObject } from "../../DependencyObjects/index.js";
+import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { Control } from "../index.js";
+import { Length } from "../../Coordinates/index.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 

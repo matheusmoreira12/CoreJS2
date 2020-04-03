@@ -1,13 +1,13 @@
-import { Binding, IBindingOptions } from "./index";
-import { DependencyProperty, PropertyChangeEventArgs } from "../DependencyObjects/index";
-import { assertParams } from "../../Validation/index";
-import { DependencyObject } from "../DependencyObjects/DependencyObject";
-import { FrameworkEvent } from "../../Standard/Events/index";
-import { Enumeration } from "../../Standard/index";
-import { BindingDirection } from "./Bindings";
-import { IValueConverter } from "../ValueConverters/index";
+import { Binding, IBindingOptions } from "./index.js";
+import { DependencyProperty, PropertyChangeEventArgs } from "../DependencyObjects/index.js";
+import { assertParams } from "../../Validation/index.js";
+import { DependencyObject } from "../DependencyObjects/DependencyObject.js";
+import { FrameworkEvent } from "../../Standard/Events/index.js";
+import { Enumeration } from "../../Standard/index.js";
+import { BindingDirection } from "./Bindings.js";
+import { IValueConverter } from "../ValueConverters/index.js";
 
-import * as Storage from "../DependencyObjects/Storage";
+import * as Storage from "../DependencyObjects/Storage.js";
 
 //Keys for PropertyBinding
 const $source = Symbol("source");

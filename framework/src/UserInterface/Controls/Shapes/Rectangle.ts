@@ -1,12 +1,12 @@
-import { Blender } from "../../../Standard/Blender/index";
-import { Type } from "../../../Standard/Types/index";
-import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index";
-import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index";
-import { GraphicValueSVGAttributeValueConverter } from "../../Coordinates/ValueConverters/index";
-import { Length } from "../../Coordinates/index";
-import { VisualTreeElement } from "../../VisualTrees/index";
-import { Shape } from "./index";
-import { ControlManager } from "../index";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { Type } from "../../../Standard/Types/index.js";
+import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index.js";
+import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
+import { GraphicValueSVGAttributeValueConverter } from "../../Coordinates/ValueConverters/index.js";
+import { Length } from "../../Coordinates/index.js";
+import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { Shape } from "./index.js";
+import { ControlManager } from "../index.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 

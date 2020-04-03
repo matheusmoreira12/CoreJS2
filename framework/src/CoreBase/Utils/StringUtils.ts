@@ -1,3 +1,7 @@
+function normalizeCase(value: string) {
+    return value.replace(/\w[A-Z]/g, m => m[0] + " " + m[1]).toLowerCase().replace("_", " ").replace("-", " ");
+}
+
 export namespace StringUtils {
     export function* getCharRange(start: string[1], end: string[1]) {
         const j = start.charCodeAt(0),
@@ -28,8 +32,8 @@ export namespace StringUtils {
 
     export function format(format: string, ...values: any[]) {
         const ARGUMENT_PATTERN = /\\$(\d+?\\)/g;
-        const formattedString = format.replace(ARGUMENT_PATTERN, (sub: string, index: string) => 
-        String(values[Number(index)]));
+        const formattedString = format.replace(ARGUMENT_PATTERN, (sub: string, index: string) =>
+            String(values[Number(index)]));
         return formattedString;
     }
 
@@ -40,9 +44,32 @@ export namespace StringUtils {
 
     export function formatMap(format: string, map: Map<any, any> | WeakMap<any, any>) {
         const ARGUMENT_PATTERN = /\\${"(\w+?\\)"}/g;
-        const formattedString = format.replace(ARGUMENT_PATTERN, (_sub, name: string) => 
-        String(map.get(name)));
+        const formattedString = format.replace(ARGUMENT_PATTERN, (_sub, name: string) =>
+            String(map.get(name)));
         return formattedString;
+    }
+
+    export function toHyphenCase(value: string) {
+        const normalized = normalizeCase(value);
+        return normalized.replace(" ", "-");
+    }
+
+    export function toUpperHyphenCase(value: string) {
+        return toHyphenCase(value).toUpperCase();
+    }
+
+    export function toUnderscoreCase(value: string) {
+        const normalized = normalizeCase(value);
+        return normalized.replace(" ", "_")
+    }
+
+    export function toUpperUnderscoreCase(value: string) {
+        return toUnderscoreCase(value).toUpperCase();
+    }
+
+    export function toCammelCase(value: string) {
+        const normalized = normalizeCase(value);
+        return normalized.replace(/ \w/g, m => m[1].toUpperCase());
     }
 
     export const NUMERIC_CHARS = [...getCharRange("0", "9")];

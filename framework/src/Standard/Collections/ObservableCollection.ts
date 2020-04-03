@@ -1,7 +1,7 @@
-﻿import { Collection } from "./Collection";
-import { Enumeration } from "../Enumeration";
-import { FrameworkEvent } from "../Events/FrameworkEvent";
-import { FrameworkEventArgs } from "../Events/index";
+﻿import { Collection } from "./Collection.js";
+import { Enumeration } from "../Enumeration.js";
+import { FrameworkEvent } from "../Events/FrameworkEvent.js";
+import { FrameworkEventArgs } from "../Events/index.js";
 
 const $action = Symbol("action");
 const $oldItems = Symbol("oldItems");

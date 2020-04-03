@@ -1,1 +1,1 @@
-export * from "./IValueValidator";
+export * from "./IValueValidator.js";

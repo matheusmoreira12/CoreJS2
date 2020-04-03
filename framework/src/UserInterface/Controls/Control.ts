@@ -1,14 +1,14 @@
-import { InvalidOperationException, Enumeration } from "../../Standard/index";
-import { DragDropHandler } from "../index";
-import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index";
-import { DependencyProperty, DependencyObject } from "../DependencyObjects/index";
-import { Type } from "../../Standard/Types/Type";
-import { VisualTreeElement } from "../VisualTrees/index";
-import { Blender } from "../../Standard/Blender/Blender";
-import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index";
-import { Length, Size } from "../Coordinates/index";
-import { AutosizeMode } from "./AutosizeMode";
-import { ControlStyle } from "./Styling/ControlStyle";
+import { InvalidOperationException, Enumeration } from "../../Standard/index.js";
+import { DragDropHandler } from "../index.js";
+import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
+import { DependencyProperty, DependencyObject } from "../DependencyObjects/index.js";
+import { Type } from "../../Standard/Types/Type.js";
+import { VisualTreeElement } from "../VisualTrees/index.js";
+import { Blender } from "../../Standard/Blender/Blender.js";
+import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index.js";
+import { Length, Size } from "../Coordinates/index.js";
+import { AutosizeMode } from "./AutosizeMode.js";
+import { ControlStyle } from "./Styling/ControlStyle.js";
 
 ///TODO: fix this mess
 

@@ -1,1 +1,1 @@
-export * from "./GraphicValueSVGAttributeConverter";
+export * from "./GraphicValueSVGAttributeConverter.js";

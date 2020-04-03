@@ -1,9 +1,9 @@
-import { Control, ControlManager } from "../index";
-import { Border, Grid, TextBlock } from "./index";
-import { Length, LengthUnit } from "../../Coordinates/index";
-import { Blender } from "../../../Standard/Blender/index";
-import { DependencyObject } from "../../DependencyObjects/index";
-import { PropertyBinding, BindingDirection } from "../../Bindings/index";
+import { Control, ControlManager } from "../index.js";
+import { Border, Grid, TextBlock } from "./index.js";
+import { Length, LengthUnit } from "../../Coordinates/index.js";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { DependencyObject } from "../../DependencyObjects/index.js";
+import { PropertyBinding, BindingDirection } from "../../Bindings/index.js";
 
 export class Button extends Control {
     constructor(qualifiedName: string, namespaceURI: string | null) {

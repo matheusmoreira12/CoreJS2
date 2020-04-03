@@ -1,5 +1,5 @@
-﻿import { URLQuery, URLHostname, URLToken, URLPath, URLTokenifier } from "./index";
-import { assertParams } from "../..\/ValidationStandalone/index";
+﻿import { URLQuery, URLHostname, URLToken, URLPath, URLTokenifier } from "./index.js";
+import { assertParams } from "../..\/ValidationStandalone/index.js";
 
 export class URL {
     static fromToken(token: URLToken): URL | null {
@@ -51,12 +51,12 @@ export class URL {
     }
 
     constructor(hostname: URLHostname, path: URLPath, protocol: string | null = null, port: number | null = null, query: URLQuery | null = null, fragment: string | null = null) {
-        assertParams({ hostname }, String);
-        assertParams({ path }, URLPath);
-        assertParams({ protocol }, String, null);
-        assertParams({ port }, Number, null);
-        assertParams({ query }, URLQuery, null);
-        assertParams({ fragment }, String, null);
+        assertParams({ hostname }, [String]);
+        assertParams({ path }, [URLPath]);
+        assertParams({ protocol }, [String, null]);
+        assertParams({ port }, [Number, null]);
+        assertParams({ query }, [URLQuery, null]);
+        assertParams({ fragment }, [String, null]);
 
         this.protocol = protocol;
         this.hostname = hostname;

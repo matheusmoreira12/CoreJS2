@@ -1,59 +1,59 @@
-export * from "./Animations";
-export * from "./AutoScroller";
-export * from "./DragDropHandler";
-export * from "./DragEmulator";
-export * from "./Timer";
-export * from "./Animations";
-export * from "./AutoScroller";
-export * from "./DragDropHandler";
-export * from "./DragEmulator";
-export * from "./Timer";
-export * from "./VisualTrees/VisualTreeNode";
+export * from "./Animations.js";
+export * from "./AutoScroller.js";
+export * from "./DragDropHandler.js";
+export * from "./DragEmulator.js";
+export * from "./Timer.js";
+export * from "./Animations.js";
+export * from "./AutoScroller.js";
+export * from "./DragDropHandler.js";
+export * from "./DragEmulator.js";
+export * from "./Timer.js";
+export * from "./VisualTrees/VisualTreeNode.js";
 
-import * as DOMUtils from "./DOMUtils";
+import * as DOMUtils from "./DOMUtils.js";
 export { DOMUtils };
 
-import * as DataContexts from "./Xaml/Contexts/index";
+import * as DataContexts from "./Xaml/Contexts/index.js";
 export { DataContexts };
 
-import * as Actions from "./Actions/index";
+import * as Actions from "./Actions/index.js";
 export { Actions }
 
-import * as Bindings from "./Bindings/index";
+import * as Bindings from "./Bindings/index.js";
 export { Bindings }
 
-import * as Colors from "./Colors/index";
+import * as Colors from "./Colors/index.js";
 export { Colors }
 
-import * as DependencyObjects from "./DependencyObjects/index";
+import * as DependencyObjects from "./DependencyObjects/index.js";
 export { DependencyObjects }
 
-import * as Setters from "./Setters/index";
+import * as Setters from "./Setters/index.js";
 export { Setters }
 
-import * as Triggers from "./Triggers/index";
+import * as Triggers from "./Triggers/index.js";
 export { Triggers }
 
-import * as Validation from "./Validation/index";
+import * as Validation from "./Validation/index.js";
 export { Validation }
 
-import * as ValueConverters from "./ValueConverters/index";
+import * as ValueConverters from "./ValueConverters/index.js";
 export { ValueConverters }
 
-import * as Fonts from "./Fonts/index";
+import * as Fonts from "./Fonts/index.js";
 export { Fonts };
 
-import * as VisualTrees from "./VisualTrees/index";
+import * as VisualTrees from "./VisualTrees/index.js";
 export { VisualTrees };
 
-import * as Resources from "./Resources/index";
+import * as Resources from "./Resources/index.js";
 export { Resources };
 
-import * as Controls from "./Controls/index";
+import * as Controls from "./Controls/index.js";
 export { Controls };
 
-import * as Coordinates from "./Coordinates/index";
+import * as Coordinates from "./Coordinates/index.js";
 export { Coordinates };
 
-import * as Xaml from "./Xaml/index";
+import * as Xaml from "./Xaml/index.js";
 export { Xaml };

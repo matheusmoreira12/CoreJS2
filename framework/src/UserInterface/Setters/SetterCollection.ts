@@ -1,8 +1,8 @@
-import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "../../Standard/Collections/index"
-import { Setter, $setTrigger } from "./Setter"
-import { Enumeration } from "../../Standard/index"
-import { PropertyTrigger } from "../Triggers/index";
-import { assertParams } from "../../Validation/index";
+import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "../../Standard/Collections/index.js"
+import { Setter, $setTrigger } from "./Setter.js"
+import { Enumeration } from "../../Standard/index.js"
+import { PropertyTrigger } from "../Triggers/index.js";
+import { assertParams } from "../../Validation/index.js";
 
 export class SetterCollection extends ObservableCollection<Setter> {
     constructor(parentTrigger: PropertyTrigger, ...items: Setter[]) {

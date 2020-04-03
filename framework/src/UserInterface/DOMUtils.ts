@@ -1,4 +1,4 @@
-import { ArgumentTypeException } from "../Standard/index";
+import { ArgumentTypeException } from "../Standard/index.js";
 
 export function insertElementAt(parent: Element, position: number, child: Element) {
     if (parent.children.length === 0 || position >= parent.children.length - 1)

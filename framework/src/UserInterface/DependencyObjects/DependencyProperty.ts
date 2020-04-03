@@ -1,8 +1,8 @@
-import { IPropertyOptions } from "./IPropertyOptions";
-import { assertParams } from "../../Validation/index";
+import { IPropertyOptions } from "./IPropertyOptions.js";
+import { assertParams } from "../../Validation/index.js";
 
-import * as Registry from "./Registry";
-import { Class } from "../../Standard/Types/Types";
+import * as Registry from "./Registry.js";
+import { Class } from "../../Standard/Types/Types.js";
 
 const DEFAULT_PROPERTY_OPTIONS: IPropertyOptions = {
     defaultValue: null

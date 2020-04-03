@@ -1,5 +1,5 @@
-import { Color } from "./index";
-import { ColorConversion } from "./index";
+import { Color } from "./index.js";
+import { ColorConversion } from "./index.js";
 
 export class ColorHSLA extends Color {
     constructor(h: number, s: number, l: number, a: number) {

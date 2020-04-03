@@ -1,14 +1,14 @@
-import * as CoreBase from "./CoreBase/index";
+import * as CoreBase from "./CoreBase/index.js";
 export { CoreBase }
 
-import * as Standard from "./Standard/index";
+import * as Standard from "./Standard/index.js";
 export { Standard }
 
-import * as ValidationStandalone from "./ValidationStandalone/index";
+import * as ValidationStandalone from "./ValidationStandalone/index.js";
 export { ValidationStandalone };
 
-import * as Validation from "./Validation/index";
+import * as Validation from "./Validation/index.js";
 export { Validation };
 
-import * as UserInterface from "./UserInterface/index";
+import * as UserInterface from "./UserInterface/index.js";
 export { UserInterface }

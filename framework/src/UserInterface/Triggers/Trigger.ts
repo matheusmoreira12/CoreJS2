@@ -1,5 +1,5 @@
-import { InvalidOperationException, Destructible } from "../../Standard/index";
-import { Collection } from "../../Standard/Collections/index";
+import { InvalidOperationException, Destructible } from "../../Standard/index.js";
+import { Collection } from "../../Standard/Collections/index.js";
 
 /**
  * Trigger base class

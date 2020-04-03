@@ -1,8 +1,8 @@
-import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index";
-import { InvalidOperationException } from "../../../Standard/index";
-import { Type } from "../../../Standard/Types/index";
-import { Control } from "../Control";
-import { ControlTemplate } from "./ControlTemplate";
+import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index.js";
+import { InvalidOperationException } from "../../../Standard/index.js";
+import { Type } from "../../../Standard/Types/index.js";
+import { Control } from "../Control.js";
+import { ControlTemplate } from "./ControlTemplate.js";
 
 export abstract class Template extends DependencyObject {
     constructor() {

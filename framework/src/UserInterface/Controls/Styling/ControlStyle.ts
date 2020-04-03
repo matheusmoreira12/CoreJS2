@@ -1,10 +1,11 @@
-import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../DependencyObjects/index";
-import { VisualTreeElement } from "../../VisualTrees/index";
-import { IdentifierGenerator } from "../../../CoreBase/index";
-import { Destructible } from "../../../Standard/index";
-import { IDependencyObject } from "../../DependencyObjects/IDependencyObject";
-import { Blender } from "../../../Standard/Blender/index";
-import { FrameworkEvent } from "../../../Standard/Events/index";
+import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../DependencyObjects/index.js";
+import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { IdentifierGenerator } from "../../../CoreBase/index.js";
+import { Destructible } from "../../../Standard/index.js";
+import { IDependencyObject } from "../../DependencyObjects/IDependencyObject.js";
+import { Blender } from "../../../Standard/Blender/index.js";
+import { FrameworkEvent } from "../../../Standard/Events/index.js";
+import { StringUtils } from "../../../CoreBase/Utils/index.js";
 
 const gen = new IdentifierGenerator();
 
@@ -47,7 +48,8 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
     }
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
-        this.__styleDeclaration.setProperty(args.property.name, args.newValue);
+        const propName = StringUtils.toHyphenCase(args.property.name);
+        this.__styleDeclaration.setProperty(propName, args.newValue);
     }
 
     protected __targetElement: VisualTreeElement;

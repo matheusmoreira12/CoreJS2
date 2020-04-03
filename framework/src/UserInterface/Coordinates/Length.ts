@@ -1,7 +1,7 @@
-import { LengthUnit } from "./LengthUnit";
-import { assertParams } from "../../Validation/index";
-import { Orientation } from "./Orientation";
-import * as UnitConversion from "./UnitConversion";
+import { LengthUnit } from "./LengthUnit.js";
+import { assertParams } from "../../Validation/index.js";
+import { Orientation } from "./Orientation.js";
+import * as UnitConversion from "./UnitConversion.js";
 
 const $unit = Symbol("unit");
 const $value = Symbol("value");

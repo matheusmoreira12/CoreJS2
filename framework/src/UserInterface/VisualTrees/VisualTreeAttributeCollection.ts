@@ -1,8 +1,8 @@
-import { ObservableCollection } from "../../Standard/Collections/index";
-import { assertParams, assert } from "../../Validation/index";
-import { VisualTreeAttribute } from "./VisualTreeAttribute";
-import { KeyNotFoundException } from "../../Standard/index";
-import { ObjectUtils } from "../../CoreBase/Utils/index";
+import { ObservableCollection } from "../../Standard/Collections/index.js";
+import { assertParams, assert } from "../../Validation/index.js";
+import { VisualTreeAttribute } from "./VisualTreeAttribute.js";
+import { KeyNotFoundException } from "../../Standard/index.js";
+import { ObjectUtils } from "../../CoreBase/Utils/index.js";
 
 export class VisualTreeAttributeCollection extends ObservableCollection<VisualTreeAttribute> {
     has(qualifiedName: string, namespaceURI: string | null = null): boolean {

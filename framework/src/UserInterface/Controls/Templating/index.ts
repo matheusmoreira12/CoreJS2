@@ -1,3 +1,3 @@
-export * from "./Template";
-export * from "./DataTemplate";
-export * from "./ControlTemplate";
+export * from "./Template.js";
+export * from "./DataTemplate.js";
+export * from "./ControlTemplate.js";

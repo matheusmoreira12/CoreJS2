@@ -1,4 +1,4 @@
-import { Enumeration } from "../Enumeration";
+import { Enumeration } from "../Enumeration.js";
 
 export type Constructor<T extends Object> = Function & T["constructor"];
 

@@ -1,5 +1,5 @@
-import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "./ObservableCollection";
-import { Enumeration } from "../index";
+import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "./ObservableCollection.js";
+import { Enumeration } from "../index.js";
 
 //Keys for TreeItem
 const $children = Symbol("children");

@@ -1,4 +1,4 @@
-import { ArgumentTypeException, FrameworkException } from "./index";
+import { ArgumentTypeException, FrameworkException } from "./index.js";
 
 export class TokenReaderContext<T> {
     constructor(tokens: T[], startIndex?: number);
