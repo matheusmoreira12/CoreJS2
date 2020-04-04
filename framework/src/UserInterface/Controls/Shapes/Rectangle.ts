@@ -2,7 +2,7 @@ import { Blender } from "../../../Standard/Blender/index.js";
 import { Type } from "../../../Standard/Types/index.js";
 import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index.js";
 import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
-import { GraphicValueSVGAttributeValueConverter } from "../../Coordinates/ValueConverters/index.js";
+import { LengthCSSAttributeValueConverter } from "../../Coordinates/ValueConverters/index.js";
 import { Length } from "../../Coordinates/index.js";
 import { VisualTreeElement } from "../../VisualTrees/index.js";
 import { Shape } from "./index.js";
@@ -28,11 +28,11 @@ export class Rectangle extends Shape {
         //Bind properties from Shape to SVG Rect attributes
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.fillProperty, <Element>this.__PART_rect.domElement, "fill", null, { direction: BindingDirection.ToTarget }));
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.strokeProperty, <Element>this.__PART_rect.domElement, "stroke", null, { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.strokeThicknessProperty, <Element>this.__PART_rect.domElement, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new GraphicValueSVGAttributeValueConverter() }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Shape.strokeThicknessProperty, <Element>this.__PART_rect.domElement, "strokeThickness", null, { direction: BindingDirection.ToTarget, valueConverter: new LengthCSSAttributeValueConverter() }));
 
         //Bind properties from Rectangle to SVG Rect attributes
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.rxProperty, <Element>this.__PART_rect.domElement, "rx", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.ryProperty, <Element>this.__PART_rect.domElement, "ry", null, { valueConverter: new GraphicValueSVGAttributeValueConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.rxProperty, <Element>this.__PART_rect.domElement, "rx", null, { valueConverter: new LengthCSSAttributeValueConverter(), direction: BindingDirection.ToTarget }));
+        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.ryProperty, <Element>this.__PART_rect.domElement, "ry", null, { valueConverter: new LengthCSSAttributeValueConverter(), direction: BindingDirection.ToTarget }));
     }
 
     protected __PART_rect!: VisualTreeElement;

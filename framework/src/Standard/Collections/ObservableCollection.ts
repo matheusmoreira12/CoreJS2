@@ -26,7 +26,7 @@ export class ObservableCollectionChangeArgs<T> extends FrameworkEventArgs {
     get oldItems(): T[] { return this[$oldItems]; }
     private [$oldItems]: T[];
 
-    get oldIndex(): number { return this[$action]; }
+    get oldIndex(): number { return this[$oldIndex]; }
     private [$oldIndex]: number;
 
     get newItems(): T[] { return this[$newItems]; }
@@ -46,34 +46,49 @@ export const ObservableCollectionChangeAction = Enumeration.create({
  * Creates a collection observable via the "change" event.
  */
 export class ObservableCollection<T> extends Collection<T> {
-    __notifySplice(start: number, deleteCount: number, ...items: T[]) {
-        let action = (items.length > 0 ? ObservableCollectionChangeAction.Add : 0) |
-            (deleteCount > 0 ? ObservableCollectionChangeAction.Remove : 0);
-        if (action === 0)
-            return;
-        const oldItems = Array.from(this.getRange(start, deleteCount));
-        this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(action, oldItems, start, items, start));
+    __notifySplice(start: number, deleteCount: number, oldItems: T[], newItems: T[]) {
+        const itemsWereRemoved = deleteCount > 0,
+            itemsWereAdded = newItems.length > 0;
+        if (itemsWereRemoved || itemsWereAdded) {
+            const action = (itemsWereAdded ? ObservableCollectionChangeAction.Add : 0) |
+                (itemsWereRemoved ? ObservableCollectionChangeAction.Remove : 0);
+            this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(action, oldItems, start, newItems, start));
+        }
     }
-    __notifyPush(...items: T[]) {
-        const newIndex = this.length - 1;
-        this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(ObservableCollectionChangeAction.Add, [], -1, items, newIndex));
+    __notifyPush(newIndex: number, newItems: T[]) {
+        this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(ObservableCollectionChangeAction.Add, [], -1, newItems, newIndex));
     }
-    __notifyPop() {
-        const oldIndex = this.length - 1, 
-            oldItems = [this.last];
+    __notifyPop(oldIndex: number, oldItem: T | undefined) {
+        const oldItems = oldItem === undefined ? [] : [oldItem];
         this.ChangeEvent.invoke(this, new ObservableCollectionChangeArgs(ObservableCollectionChangeAction.Remove, oldItems, oldIndex, [], -1));
     }
     splice(start: number, deleteCount: number, ...items: T[]) {
-        this.__notifySplice(start, deleteCount, ...items);
-        return super.splice(start, deleteCount, ...items);
+        //Make "splice"
+        const oldItems = super.splice(start, deleteCount, ...items);
+        //Notify "splice"
+        this.__notifySplice(start, deleteCount, oldItems, items);
+        //Forward "result"
+        return oldItems;
     }
     push(...items: T[]): number {
-        this.__notifyPush(...items);
-        return super.push(...items);
+        //Get old index
+        const oldIndex = this.length - 1;
+        //Make "push"
+        const newLength = super.push(...items);
+        //Notify "push"
+        this.__notifyPush(oldIndex, items);
+        //Forward result
+        return newLength;
     }
     pop(): T | undefined {
-        this.__notifyPop();
-        return super.pop();
+        //Get old index
+        const oldIndex = this.length - 1;
+        //Make "pop"
+        const oldItem = super.pop();
+        //Notify "pop"
+        this.__notifyPop(oldIndex, oldItem);
+        //Forward result
+        return oldItem;
     }
     get ChangeEvent(): FrameworkEvent<ObservableCollectionChangeArgs<T>> { return this.__ChangeEvent; }
     __ChangeEvent = new FrameworkEvent<ObservableCollectionChangeArgs<T>>();
