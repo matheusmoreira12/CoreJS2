@@ -2,11 +2,12 @@ import { Control, ControlManager } from "../index.js";
 import { Grid } from "./index.js";
 import { Rectangle, Text, Shape } from "../Shapes/index.js";
 import { Blender } from "../../../Standard/Blender/index.js";
-import { DependencyObject, PropertyChangeEventArgs, DependencyProperty } from "../../DependencyObjects/index.js";
+import { DependencyObject, DependencyProperty } from "../../DependencyObjects/index.js";
 import { PropertyBinding, BindingDirection } from "../../Bindings/index.js";
-import { Size } from "../../Coordinates/index.js";
 import { Type } from "../../../Standard/Types/index.js";
 import { Font } from "../../Fonts/index.js";
+import { ControlStyle } from "../Styling/index.js";
+import { LengthCSSPropertyConverter } from "../../Coordinates/ValueConverters/index.js";
 
 export class TextBlock extends Control {
     protected __initialization() {
@@ -35,16 +36,13 @@ export class TextBlock extends Control {
         //Bind "text"
         Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.textProperty, Blender.get(DependencyObject, PART_text), Text.textProperty, { direction: BindingDirection.ToTarget }));
 
-        Blender.get(DependencyObject, PART_text).PropertyChangeEvent.attach(this.__PART_text_onPropertyChange, this);
-    }
+        this.style.flex = "auto";
 
-    protected __PART_text_onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
-        if (args.property === Text.renderedSizeProperty)
-            this.invalidateSize();
-    }
+        new PropertyBinding(Blender.get(DependencyObject, PART_text), Text.textWidthProperty, Blender.get(DependencyObject, this.style), ControlStyle.widthProperty, { direction: BindingDirection.ToTarget, valueConverter: new LengthCSSPropertyConverter() });
 
-    protected __computeSize(): Size {
-        return this.__PART_text.renderedSize;
+        new PropertyBinding(Blender.get(DependencyObject, PART_text), Text.textHeightProperty, Blender.get(DependencyObject, this.style), ControlStyle.heightProperty, { direction: BindingDirection.ToTarget, valueConverter: new LengthCSSPropertyConverter() });
+
+        this.__updateVisual();
     }
 
     protected __PART_layoutGrid!: Grid;

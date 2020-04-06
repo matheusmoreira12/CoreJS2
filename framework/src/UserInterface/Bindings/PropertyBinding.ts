@@ -47,15 +47,15 @@ export class PropertyBinding extends Binding {
     }
 
     private [$doInitialCrossingUpdate]() {
-        const sourcePropertyRawValue = Storage.getRawValue(this.source, this.sourceProperty);
+        const sourcePropertyRawValue = Storage.getValue(this.source, this.sourceProperty);
         this[$updateTargetProperty](sourcePropertyRawValue);
 
-        const targetPropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
+        const targetPropertyRawValue = Storage.getValue(this.target, this.targetProperty);
         this[$updateSourceProperty](targetPropertyRawValue);
     }
 
     private [$updateTargetProperty](sourceValue: any) {
-        const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
+        const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction!);
         if (canUpdateToTarget) {
             const hasValueConverter = !!this.options.valueConverter;
             let targetValue: any;
@@ -69,16 +69,14 @@ export class PropertyBinding extends Binding {
 
     private [$source_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
         const isSourceProperty = args.property === this.sourceProperty;
-        if (isSourceProperty) {
-            const sourcePropertyRawValue = Storage.getRawValue(this.source, this.sourceProperty);
-            this[$updateTargetProperty](sourcePropertyRawValue);
-        }
+        if (isSourceProperty)
+            this[$updateTargetProperty](args.newValue);
     }
 
     private [$source_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this[$source_onPropertyChange], this);
 
     private [$updateSourceProperty](targetValue: any) {
-        const canUpdateToSource = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
+        const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.options.direction!);
         if (canUpdateToSource) {
             const hasValueConverter = !!this.options.valueConverter;
             let sourceValue: any;
@@ -92,10 +90,8 @@ export class PropertyBinding extends Binding {
 
     private [$target_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
         const isTargetProperty = args.property === this.targetProperty;
-        if (isTargetProperty) {
-            const targetPropertyRawValue = Storage.getRawValue(this.target, this.targetProperty);
-            this[$updateSourceProperty](targetPropertyRawValue);
-        }
+        if (isTargetProperty)
+            this[$updateSourceProperty](args.newValue);
     }
 
     private [$target_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this[$target_onPropertyChange], this);

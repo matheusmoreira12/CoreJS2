@@ -23,7 +23,7 @@ const UNIT_SVG_UNIT_MAP = new Map([
     [LengthUnit.Vw, "vw"]
 ]);
 
-export class LengthCSSAttributeValueConverter implements IValueConverter {
+export class LengthCSSPropertyConverter implements IValueConverter {
     convert(value: Length | null): string | null {
         if (value === null)
             return null;

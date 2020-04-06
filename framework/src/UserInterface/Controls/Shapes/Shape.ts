@@ -12,6 +12,11 @@ export abstract class Shape extends Control {
         super.__initialization();
 
         const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
+        PART_canvas.attributes.set("style", null, `
+        flex: 1;
+        max-width: 100%;
+        max-height: 100%;
+        `);
         this.children.add(PART_canvas);
         this.__PART_canvas = PART_canvas;
     }

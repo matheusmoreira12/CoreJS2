@@ -8,6 +8,7 @@ import { VisualTreeElement } from "../../VisualTrees/index.js";
 import { ControlManager } from "../index.js";
 import { Shape } from "./index.js";
 import { Size } from "../../Coordinates/Size.js";
+import { Length } from "../../Coordinates/index.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -26,7 +27,7 @@ export class Text extends Shape {
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "font-style", null, { valueConverter: new FontSVGFontStyleAttributeConverter(), direction: BindingDirection.ToTarget }));
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Text.fontProperty, <Element>PART_text.domElement, "text-decoration", null, { valueConverter: new FontSVGTextDecorationAttributeConverter(), direction: BindingDirection.ToTarget }));
 
-        this.invalidateAll();
+        this.invalidateVisual();
     }
 
     protected __updateVisual() {
@@ -37,7 +38,8 @@ export class Text extends Shape {
         this.__PART_canvas.attributes.setMany({
             "viewBox": `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`
         }, null);
-        this.renderedSize = Size.pixels(bbox.width, bbox.height);
+        this.textWidth = Length.pixels(bbox.width);
+        this.textHeight = Length.pixels(bbox.height);
     }
 
     //DependencyObject
@@ -45,7 +47,7 @@ export class Text extends Shape {
         super.onPropertyChange(sender, args);
 
         if (args.property === Text.fontProperty || args.property === Text.textProperty)
-            this.invalidateAll();
+            this.invalidateVisual();
     }
 
     protected __PART_text!: VisualTreeElement;
@@ -58,8 +60,12 @@ export class Text extends Shape {
     get text(): string { return Blender.execute(this, DependencyObject, o => o.get(Text.textProperty)); }
     set text(value: string) { Blender.execute(this, DependencyObject, o => o.set(Text.textProperty, value)); }
 
-    static renderedSizeProperty = DependencyProperty.register(Text, "renderedSize", { valueType: Type.get(Size) });
-    get renderedSize(): Size { return this.get(Text.renderedSizeProperty); }
-    set renderedSize(value: Size) { this.set(Text.renderedSizeProperty, value); }
+    static textWidthProperty = DependencyProperty.register(Text, "textWidth", { valueType: Type.get(Length) });
+    get textWidth(): Length { return this.get(Text.textWidthProperty); }
+    set textWidth(value: Length) { this.set(Text.textWidthProperty, value); }
+
+    static textHeightProperty = DependencyProperty.register(Text, "textHeight", { valueType: Type.get(Length) });
+    get textHeight(): Length { return this.get(Text.textHeightProperty); }
+    set textHeight(value: Length) { this.set(Text.textHeightProperty, value); }
 }
 ControlManager.register(Text, "core:Text", "core");
