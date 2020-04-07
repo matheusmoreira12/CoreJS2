@@ -157,3 +157,16 @@ export function createAttribute(qualifiedName: string, namespaceURI: string | nu
     else
         return document.createAttributeNS(namespaceURI, qualifiedName);
 }
+
+let forceRepaintImmediate = -1;
+
+export function forceRepaint() {
+    if (forceRepaintImmediate != -1)
+        clearTimeout(forceRepaintImmediate);
+    forceRepaintImmediate = setTimeout(() => {
+        const display = document.body.style.display;
+        document.body.style.display = "none";
+        document.body.offsetHeight;
+        document.body.style.display = display;
+    });
+}

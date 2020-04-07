@@ -35,3 +35,6 @@ export { Types };
 
 import * as URLs from "./URLs/index.js";
 export { URLs };
+
+import * as Timing from "./Timing/index.js";
+export { Timing };

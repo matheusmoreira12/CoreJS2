@@ -2,12 +2,12 @@ export * from "./Animations.js";
 export * from "./AutoScroller.js";
 export * from "./DragDropHandler.js";
 export * from "./DragEmulator.js";
-export * from "./Timer.js";
+export * from "../Standard/Timing/Timer.js";
 export * from "./Animations.js";
 export * from "./AutoScroller.js";
 export * from "./DragDropHandler.js";
 export * from "./DragEmulator.js";
-export * from "./Timer.js";
+export * from "../Standard/Timing/Timer.js";
 export * from "./VisualTrees/VisualTreeNode.js";
 
 import * as DOMUtils from "./DOMUtils.js";

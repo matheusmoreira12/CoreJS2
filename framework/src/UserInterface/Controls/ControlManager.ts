@@ -6,6 +6,8 @@ import { ControlMetadata } from "./ControlMetadata.js";
 import { Control } from "./Control.js";
 import { assertParams } from "../../Validation/index.js";
 
+type ControlConstructor<TControl extends Control> = new (qualifiedName: string, namespaceURI: string | null) => TControl;
+
 const registeredControls: Collection<ControlMetadata> = new Collection();
 
 function getRegisteredControlByName(qualifiedName: string, namespaceURI?: string | null): ControlMetadata | null {
@@ -18,12 +20,12 @@ function getRegisteredControlByConstructor<TControl extends Control>(controlCons
 
 function registerControl(metadata: ControlMetadata) {
     registeredControls.add(metadata);
+    fullUpdate();
 }
 
-//@ignore
 function initializeControlInstance<TControl extends Control>(metadata: ControlMetadata, element: Element): TControl {
     const controlClass: Class<Control> = metadata.controlClass;
-    const controlInstance = new (<new (qualifiedName: string, namespaceURI: string | null) => TControl>controlClass)(metadata.qualifiedName, metadata.namespaceURI);
+    const controlInstance = new (<ControlConstructor<TControl>>controlClass)(metadata.qualifiedName, metadata.namespaceURI);
     controlInstance.initialize(element);
     metadata.activeInstances.add(controlInstance);
     return controlInstance;
@@ -31,10 +33,8 @@ function initializeControlInstance<TControl extends Control>(metadata: ControlMe
 
 function initializeControlInstanceByElement(element: Element) {
     const metadata = getRegisteredControlByName(element.nodeName, <string>element.namespaceURI);
-    const isControlRegistered = !!metadata;
-    if (isControlRegistered) {
-        const isInstanceActive = !!getControlInstanceByElement(<ControlMetadata>metadata, element);
-        if (isInstanceActive)
+    if (metadata) {
+        if (getControlInstanceByElement(<ControlMetadata>metadata, element))
             return false;
         else {
             initializeControlInstance(<ControlMetadata>metadata, element);
@@ -58,11 +58,9 @@ function getControlInstanceByElement(metadata: ControlMetadata, element: Element
 
 function finalizeControlInstanceByElement(element: Element) {
     const metadata = getRegisteredControlByName(element.nodeName, <string>element.namespaceURI);
-    const isControlRegistered = !!metadata;
-    if (isControlRegistered) {
+    if (metadata) {
         const instance = getControlInstanceByElement(<ControlMetadata>metadata, element);
-        const isInstanceActive = !!instance;
-        if (isInstanceActive) {
+        if (instance) {
             finalizeControlInstance(<ControlMetadata>metadata, <Control>instance);
             return true;
         }
@@ -74,8 +72,7 @@ function finalizeControlInstanceByElement(element: Element) {
 }
 
 function deregisterControl(metadata: ControlMetadata, forceFinalization: boolean = false) {
-    const hasActiveInstances = metadata.activeInstances.length > 0;
-    if (hasActiveInstances) {
+    if (metadata.activeInstances.length > 0) {
         if (forceFinalization) {
             for (let instance of metadata.activeInstances)
                 finalizeControlInstance(metadata, instance);
@@ -86,10 +83,6 @@ function deregisterControl(metadata: ControlMetadata, forceFinalization: boolean
 
     registeredControls.remove(metadata);
     return true;
-}
-
-export function getRegisteredControls(): ControlMetadata[] {
-    return [...registeredControls];
 }
 
 export function getByName(qualifiedName: string, namespaceURI: string | null = null) {
@@ -117,12 +110,10 @@ export function register(controlConstructor: Class<Control>, qualifiedName: stri
     assertParams({ namespaceURI }, [String, null]);
     assertControlConstructor(controlConstructor);
 
-    const isControlAlreadyRegistered = !!getRegisteredControlByConstructor(controlConstructor);
-    if (isControlAlreadyRegistered)
+    if (getRegisteredControlByConstructor(controlConstructor))
         throw new InvalidOperationException("Cannot register control. The specified control constructor is already in use.");
     else {
-        const isControlNameAlreadyInUse = !!getRegisteredControlByName(qualifiedName, namespaceURI);
-        if (isControlNameAlreadyInUse)
+        if (getRegisteredControlByName(qualifiedName, namespaceURI))
             throw new InvalidOperationException("Cannot register control. The specified control name and namespace URI are already in use.");
         else {
             const metadata: ControlMetadata = new ControlMetadata(controlConstructor, qualifiedName, namespaceURI);
@@ -135,9 +126,8 @@ export function deregister(controlConstructor: Class<Control>): void {
     assertParams({ controlConstructor }, [Function]);
     assertControlConstructor(controlConstructor);
 
-    const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlConstructor);
-    const isControlRegistered = !!metadata;
-    if (isControlRegistered)
+    const metadata = getRegisteredControlByConstructor(controlConstructor);
+    if (metadata)
         deregisterControl(<ControlMetadata>metadata);
     else
         throw new InvalidOperationException("Cannot deregister control. No registered control matches the specified control constructor.");
@@ -147,14 +137,22 @@ export function instantiate<TControl extends Control>(controlClass: Class<TContr
     assertParams({ controlClass }, [Function]);
     assertControlConstructor(controlClass);
 
-    const metadata: ControlMetadata | null = getRegisteredControlByConstructor(controlClass);
-    const isControlRegistered = !!metadata;
-    if (isControlRegistered) {
+    const metadata = getRegisteredControlByConstructor(controlClass);
+    if (metadata) {
         const element = DOMUtils.createElement((<ControlMetadata>metadata).qualifiedName, (<ControlMetadata>metadata).namespaceURI);
         return <TControl>initializeControlInstance(<ControlMetadata>metadata, element);
     }
     else
         throw new InvalidOperationException("Cannot instantiate control. No registered control matches the specified control constructor.");
+}
+
+function fullUpdate(startElem?: Element) {
+    startElem = startElem || document.body;
+    for (let child of startElem.children) {
+        initializeControlInstanceByElement(child);
+
+        fullUpdate(child);
+    }
 }
 
 function domMutated_handler(mutations: MutationRecord[]) {
@@ -180,6 +178,7 @@ function deobserveDOM() {
 }
 
 function window_load_handler() {
+    fullUpdate();
     observeDOM();
 }
 window.addEventListener("load", window_load_handler);

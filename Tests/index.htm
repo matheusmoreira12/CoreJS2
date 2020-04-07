@@ -1,7 +1,14 @@
 <html>
 
 <head>
-    <script defer type="module" src="../framework/dist/index.js"></script>
+    <script type="module" src="../framework/dist/index.js"></script>
+
+    <script defer>
+        window.addEventListener("load", function () {
+            for (let i = 0; i < 10; i++)
+                document.body.appendChild(document.createElementNS("core", "core:Button"));
+        });
+    </script>
 
     <style type="text/css">
         body {

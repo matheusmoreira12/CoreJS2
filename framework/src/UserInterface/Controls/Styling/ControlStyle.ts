@@ -6,6 +6,7 @@ import { IDependencyObject } from "../../DependencyObjects/IDependencyObject.js"
 import { Blender } from "../../../Standard/Blender/index.js";
 import { FrameworkEvent } from "../../../Standard/Events/index.js";
 import { StringUtils } from "../../../CoreBase/Utils/index.js";
+import { DOMUtils } from "../../index.js";
 
 const gen = new IdentifierGenerator();
 
@@ -50,6 +51,8 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         const propName = StringUtils.toHyphenCase(args.property.name);
         this.__styleDeclaration.setProperty(propName, args.newValue);
+        //Temporary fix for rendenring issues in Safary/V8-based browsers
+        DOMUtils.forceRepaint();
     }
 
     protected __targetElement: VisualTreeElement;

@@ -1,5 +1,5 @@
 ﻿import { Enumeration } from "../Standard/Enumeration.js";
-import { Timer } from "./Timer.js";
+import { Timer } from "../Standard/Timing/index.js";
 import { BroadcastFrameworkEvent, FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
 import DragEmulator from "./DragEmulator.js";
 import { Destructible } from "../Standard/index.js";

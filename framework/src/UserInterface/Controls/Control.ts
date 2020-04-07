@@ -51,6 +51,8 @@ export abstract class Control extends VisualTreeElement {
 
         this.style.display = "flex";
         this.style.flex = "1";
+        this.style.maxWidth = "100%";
+        this.style.maxHeight = "100%";
     }
 
     protected __finalization() {
