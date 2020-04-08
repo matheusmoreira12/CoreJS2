@@ -40,13 +40,21 @@ export class VisualTreeElement extends VisualTreeNode {
     protected __finalization(): void {
         //Remove all elements
         const childrenCopy = [...this.children];
-        for (let child of childrenCopy)
-            !child.isDestructed && child.destruct();
+        for (let child of childrenCopy) {
+            if (!child.isDestructed)
+                child.destruct();
+        }
 
         //Remove all attributes
         const attributesCopy = [...this.attributes];
-        for (let attribute of attributesCopy)
-            !attribute.isDestructed && attribute.destruct();
+        for (let attribute of attributesCopy) {
+            if (!attribute.isDestructed)
+                attribute.destruct();
+        }
+
+        //Remove self from parent
+        if (this.parent)
+            this.parent.children.remove(this);
     }
 
     initialize(domElement: Element) {
@@ -64,7 +72,7 @@ export class VisualTreeElement extends VisualTreeNode {
             throw new InvalidOperationException("Cannot finalize VisualTreeElement instance. This VisualTreeElement instance has not been initialized.");
         else {
             this.__initialization();
-            this[$isInitialized] = true;
+            this[$isInitialized] = false;
         }
     }
 
@@ -146,9 +154,5 @@ export class VisualTreeElement extends VisualTreeNode {
     protected destructor() {
         if (this.isInitialized)
             this.finalize();
-
-        //Remove self from parent
-        if (this.parent)
-            this.parent.children.remove(this);
     }
 }

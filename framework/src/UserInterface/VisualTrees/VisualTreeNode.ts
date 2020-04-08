@@ -36,7 +36,7 @@ export abstract class VisualTreeNode extends Destructible implements IDependency
         this.set = Blender.execute(this, DependencyObject, o => o.set.bind(o));
     }
 
-    protected onPropertyChange(_sender: any, _args: PropertyChangeEventArgs) {}
+    protected onPropertyChange(_sender: any, _args: PropertyChangeEventArgs) { }
 
     PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.onPropertyChange, this);
 

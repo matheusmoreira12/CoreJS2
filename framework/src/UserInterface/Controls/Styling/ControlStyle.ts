@@ -20,7 +20,7 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
         Blender.blend(DependencyObject, this);
         Blender.initialize(DependencyObject, this);
 
-        //Assign IDependencyObject
+        //Assign interface IDependencyObject
         this.get = Blender.execute(this, DependencyObject, o => o.get.bind(o));
         this.set = Blender.execute(this, DependencyObject, o => o.set.bind(o));
         this.PropertyChangeEvent = Blender.get(DependencyObject, this).PropertyChangeEvent;
@@ -51,7 +51,8 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         const propName = StringUtils.toHyphenCase(args.property.name);
         this.__styleDeclaration.setProperty(propName, args.newValue);
-        //Temporary fix for rendenring issues in Safary/V8-based browsers
+
+        //Temporary fix for rendenring issues in Safary/Webkit browsers
         DOMUtils.forceRepaint();
     }
 
@@ -1913,8 +1914,8 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
     [Symbol.iterator]!: () => IterableIterator<string>;
 
     destructor() {
-        gen.delete(this.__id);
-
         this.__styleElement.remove();
+
+        gen.delete(this.__id);
     }
 }

@@ -6,7 +6,7 @@ import { Type } from "../../Standard/Types/Type.js";
 import { VisualTreeElement } from "../VisualTrees/index.js";
 import { Blender } from "../../Standard/Blender/Blender.js";
 import { PropertyAttributeBinding, BindingDirection, PropertyBinding } from "../Bindings/index.js";
-import { Length, Size } from "../Coordinates/index.js";
+import { Size } from "../Coordinates/index.js";
 import { AutosizeMode } from "./AutosizeMode.js";
 import { ControlStyle } from "./Styling/ControlStyle.js";
 
@@ -56,6 +56,9 @@ export abstract class Control extends VisualTreeElement {
     }
 
     protected __finalization() {
+        //Destruct style
+        this.style.destruct();
+
         super.__finalization();
     }
 
@@ -238,11 +241,4 @@ export abstract class Control extends VisualTreeElement {
     //Style Property
     get style(): ControlStyle { return this.__style; }
     private __style!: ControlStyle;
-
-    destructor() {
-        //Destruct style
-        this.style.destruct();
-
-        super.destructor();
-    }
 }
