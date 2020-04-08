@@ -59,11 +59,20 @@ export namespace ObjectUtils {
         return factory();
     }
 
+    export function makeNamedClass(name: string): Function {
+        const factory = new Function(`return class ${name} {};`);
+        return factory();
+    }
+
     export function getBlank(obj: any) {
         let result: Function | Object | null = null;
 
-        if (typeof obj == "function")
-            result = makeNamedFunction(obj.name);
+        if (typeof obj == "function") {
+            if (obj.toString().startsWith("class"))
+                result = makeNamedClass(obj.name);
+            else
+                result = makeNamedFunction(obj.name);
+        }
         else if (typeof obj == "object")
             result = {};
         else
@@ -105,19 +114,15 @@ export namespace ObjectUtils {
         return <T>getClone(obj);
     }
 
-    export function getBoundClone<T>(obj: T): DeepClone<T> {
-        function getBoundClone<U>(obj: U): DeepClone<U> {
-            if (obj === null || typeof obj !== "object")
-                return obj;
+    export function getBoundClone<T>(obj: T): T {
+        if (obj === null || typeof obj !== "object")
+            return obj;
 
-            let boundCloneObj = getBlank(obj);
-            for (let key of getOwnPropertyKeys(obj))
-                copyProperty(obj, boundCloneObj, <keyof U>key, true, true);
+        let boundCloneObj = getBlank(obj);
+        for (let key of getOwnPropertyKeys(obj))
+            copyProperty(obj, boundCloneObj, <keyof T>key, true, true);
 
-            return boundCloneObj;
-        }
-
-        return <T>getBoundClone(obj);
+        return boundCloneObj;
     }
 
     export function getDefault(constructor: typeof String): string;

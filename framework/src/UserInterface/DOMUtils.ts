@@ -158,12 +158,12 @@ export function createAttribute(qualifiedName: string, namespaceURI: string | nu
         return document.createAttributeNS(namespaceURI, qualifiedName);
 }
 
-let forceRepaintImmediate = -1;
+let forceRepaintAnimFrame = -1;
 
 export function forceRepaint() {
-    if (forceRepaintImmediate != -1)
-        clearTimeout(forceRepaintImmediate);
-    forceRepaintImmediate = setTimeout(() => {
+    if (forceRepaintAnimFrame != -1)
+        cancelAnimationFrame(forceRepaintAnimFrame);
+    forceRepaintAnimFrame = requestAnimationFrame(() => {
         const display = document.body.style.display;
         document.body.style.display = "none";
         document.body.offsetHeight;

@@ -1,17 +1,25 @@
 const $takenIDs = Symbol("takenIDs");
 
-function randomizeId(id: number) {
-    const id0 = id & 0xFF,
-        id1 = id >> 8 & 0xFF;
-    const rdm = new Uint8Array(2);
-    crypto.getRandomValues(rdm);
-    return Math.abs(id0 | rdm[0] << 8 | id1 << 16 | rdm[1] << 24);
+function randomizeId(id: number): BigInt {
+    const rdm = crypto.getRandomValues(new Uint16Array(1))[0];
+    const rdmBig = BigInt(rdm);
+    const idBig = BigInt(id);
+    let result = 0n;
+    for (let i = 0n; i < 32n; i++) {
+        const idBit = (idBig >> i) & 1n,
+            rdmBit = (rdmBig >> i) & 1n;
+        result = result | idBit << (i * 2n) | rdmBit << (i * 2n + 1n);
+    }
+    return result;
 }
 
-function derandomizeId(id: number) {
-    const id0 = id & 0xFF,
-        id2 = id >> 16 & 0xFF;
-    return Math.abs(id0 | id2 << 8);
+function derandomizeId(id: bigint) {
+    let resultBig = 0n;
+    for (let i = 0n; i < 32n; i++) {
+        const idBit = id >> (i * 2n) & 1n;
+        resultBig = resultBig | (idBit << i);
+    }
+    return Number(resultBig);
 }
 
 export class IdentifierGenerator {

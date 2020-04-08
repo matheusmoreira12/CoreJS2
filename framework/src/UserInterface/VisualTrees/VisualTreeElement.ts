@@ -35,9 +35,9 @@ export class VisualTreeElement extends VisualTreeNode {
         this[$attributes].ChangeEvent.attach(this[$attributes_onChange], this);
     }
 
-    protected __initialization(): void {}
+    protected __initialization(): void { }
 
-    protected __finalization(): void { 
+    protected __finalization(): void {
         //Remove all elements
         const childrenCopy = [...this.children];
         for (let child of childrenCopy)

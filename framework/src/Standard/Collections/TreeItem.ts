@@ -99,7 +99,7 @@ export class TreeItem<T extends TreeItem<T>> {
     get parent(): TreeItem<T> | null { return this[$parent]; }
     private [$parent]: TreeItem<T> | null;
 
-    private [$children_onChange](sender: any, args: ObservableCollectionChangeArgs<T>) {
+    private [$children_onChange](_sender: any, args: ObservableCollectionChangeArgs<T>) {
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems)
                 item[$parent] = null;

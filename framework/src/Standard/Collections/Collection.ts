@@ -28,7 +28,7 @@ export class Collection<T> extends Array<T> {
         this.push(item);
     }
 
-    addMultiple(items: Iterable<T>): void {
+    addRange(items: Iterable<T>): void {
         this.push(...items);
     }
 
