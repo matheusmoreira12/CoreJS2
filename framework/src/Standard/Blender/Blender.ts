@@ -1,4 +1,4 @@
-import { Class } from "../../CoreBase/Utils/Types.js";
+import { Class } from "../../Standard/Types/Types.js";
 import { ExecutePredicate } from "./Types.js";
 import { Storage } from "./Storage.js";
 import { InvalidOperationException } from "../Exceptions.js";

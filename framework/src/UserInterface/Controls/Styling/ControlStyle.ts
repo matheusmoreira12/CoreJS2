@@ -10,7 +10,7 @@ import { DOMUtils } from "../../index.js";
 
 const gen = new IdentifierGenerator();
 
-export class ControlStyle extends Destructible implements CSSStyleDeclaration, IDependencyObject {
+export class ControlStyle extends Destructible implements IDependencyObject {
     constructor(targetElement: VisualTreeElement) {
         super();
 
@@ -38,14 +38,6 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
         this.__styleDeclaration = styleElement.sheet!.rules[1].style;
 
         this.__targetElement.domElement.setAttributeNS("core", "core:styleId", `style${id}`);
-
-        //Assign Interface CSSStyleDeclaration
-        this.getPropertyPriority = this.__styleDeclaration.getPropertyPriority.bind(this.__styleDeclaration);
-        this.getPropertyValue = this.__styleDeclaration.getPropertyValue.bind(this.__styleDeclaration);
-        this.item = this.__styleDeclaration.item.bind(this.__styleDeclaration);
-        this.removeProperty = this.__styleDeclaration.removeProperty.bind(this.__styleDeclaration);
-        this.setProperty = this.__styleDeclaration.setProperty.bind(this.__styleDeclaration);
-        this[Symbol.iterator] = this.__styleDeclaration[Symbol.iterator].bind(this.__styleDeclaration);
     }
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
@@ -57,7 +49,7 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
     }
 
     protected __targetElement: VisualTreeElement;
-    protected __id: number;
+    protected __id: bigint;
     protected __styleElement: HTMLStyleElement;
     protected __styleDeclaration: CSSStyleDeclaration;
 
@@ -67,8 +59,6 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
     PropertyChangeEvent!: FrameworkEvent<PropertyChangeEventArgs>;
 
     //StyleSheetDeclaration Properties
-    [index: number]: string;
-
     static alignContentProperty = DependencyProperty.register(ControlStyle, "alignContent");
     get alignContent(): string { return this.get(ControlStyle.alignContentProperty); }
     set alignContent(value: string) { this.set(ControlStyle.alignContentProperty, value); }
@@ -1900,16 +1890,6 @@ export class ControlStyle extends Destructible implements CSSStyleDeclaration, I
     static zoomProperty = DependencyProperty.register(ControlStyle, "zoom");
     get zoom(): string | null { return this.get(ControlStyle.zoomProperty); }
     set zoom(value: string | null) { this.set(ControlStyle.zoomProperty, value); }
-
-    getPropertyPriority!: (propertyName: string) => string;
-
-    getPropertyValue!: (propertyName: string) => string;
-
-    item!: (index: number) => string;
-
-    removeProperty!: (propertyName: string) => string;
-
-    setProperty!: (propertyName: string, value: string | null, priority?: string | null | undefined) => void;
 
     [Symbol.iterator]!: () => IterableIterator<string>;
 

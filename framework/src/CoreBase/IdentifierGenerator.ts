@@ -1,6 +1,6 @@
 const $takenIDs = Symbol("takenIDs");
 
-function randomizeId(id: number): BigInt {
+function randomizeId(id: number): bigint {
     const rdm = crypto.getRandomValues(new Uint16Array(1))[0];
     const rdmBig = BigInt(rdm);
     const idBig = BigInt(id);
@@ -27,18 +27,18 @@ export class IdentifierGenerator {
         this[$takenIDs] = new Set();
     }
 
-    generate() {
+    generate(): bigint {
         let id = 0;
         while (this[$takenIDs].has(id))
             id++;
         this[$takenIDs].add(id);
-        id = randomizeId(id);
-        return id;
+        const bigId = randomizeId(id);
+        return bigId;
     }
 
-    delete(id: number) {
-        id = derandomizeId(id);
-        this[$takenIDs].delete(id);
+    delete(id: bigint) {
+        const idNum = derandomizeId(id);
+        this[$takenIDs].delete(idNum);
     }
 
     private [$takenIDs]: Set<number>;

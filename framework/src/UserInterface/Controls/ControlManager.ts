@@ -5,13 +5,14 @@ import { DOMUtils } from "../index.js";
 import { ControlMetadata } from "./ControlMetadata.js";
 import { Control } from "./Control.js";
 import { assertParams } from "../../Validation/index.js";
+import { DeferredTask } from "../../Standard/Timing/index.js";
 
 type ControlConstructor<TControl extends Control> = new (qualifiedName: string, namespaceURI: string | null) => TControl;
 
 const registeredControls: Collection<ControlMetadata> = new Collection();
 
 function getRegisteredControlByName(qualifiedName: string, namespaceURI?: string | null): ControlMetadata | null {
-    return registeredControls.find(m => m.namespaceURI === namespaceURI && m.qualifiedName === qualifiedName) || null;
+    return registeredControls.find(m => m.namespaceURI === namespaceURI && m.qualifiedName.toLowerCase() === qualifiedName.toLowerCase()) || null;
 }
 
 function getRegisteredControlByConstructor<TControl extends Control>(controlConstructor: Class<Control>): ControlMetadata<TControl> | null {
@@ -20,7 +21,7 @@ function getRegisteredControlByConstructor<TControl extends Control>(controlCons
 
 function registerControl(metadata: ControlMetadata) {
     registeredControls.add(metadata);
-    fullUpdate();
+    fullUpdate.trigger();
 }
 
 function initializeControlInstance<TControl extends Control>(metadata: ControlMetadata, element: Element): TControl {
@@ -146,14 +147,17 @@ export function instantiate<TControl extends Control>(controlClass: Class<TContr
         throw new InvalidOperationException("Cannot instantiate control. No registered control matches the specified control constructor.");
 }
 
-function fullUpdate(startElem?: Element) {
-    startElem = startElem || document.body;
-    for (let child of startElem.children) {
-        initializeControlInstanceByElement(child);
+const fullUpdate = new DeferredTask(() => {
+    function recursive(elem: Element) {
+        for (let child of elem.children) {
+            initializeControlInstanceByElement(child);
 
-        fullUpdate(child);
+            recursive(child);
+        }
     }
-}
+
+    recursive(document.body);
+});
 
 function domMutated_handler(mutations: MutationRecord[]) {
     for (let mutation of mutations) {
@@ -178,7 +182,7 @@ function deobserveDOM() {
 }
 
 function window_load_handler() {
-    fullUpdate();
+    fullUpdate.trigger();
     observeDOM();
 }
 window.addEventListener("load", window_load_handler);

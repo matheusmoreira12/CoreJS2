@@ -12,6 +12,4 @@ export type MixinBase = {
     baseInstances: any[];
 };
 
-export type Class<T> = new(...args: any) => T;
-
 export type CompareSelectPredicate<T, U, TResult> = (a: T, b: U, quit: () => void, skip: () => void) => TResult;
