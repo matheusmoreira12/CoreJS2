@@ -3,21 +3,17 @@ import { Class } from "../../Standard/Types/Types.js";
 import { Collection } from "../../Standard/Collections/Collection.js";
 
 export class ControlMetadata<TControl extends Control = any> {
-    constructor(controlClass: Class<TControl>, qualifiedName: string, namespaceURI?: string | null) {
+    constructor(controlClass: Class<TControl>, name: string) {
         this.__controlClass = controlClass;
-        this.__namespaceURI = namespaceURI || null;
-        this.__qualifiedName = qualifiedName;
+        this.__name = name;
         this.__activeInstances = new Collection();
     }
 
     get controlClass(): Class<TControl> { return this.__controlClass; }
     private __controlClass: Class<TControl>;
 
-    get namespaceURI(): string | null { return this.__namespaceURI; }
-    private __namespaceURI: string | null;
-
-    get qualifiedName(): string { return this.__qualifiedName; }
-    private __qualifiedName: string;
+    get name(): string { return this.__name; }
+    private __name: string;
 
     get activeInstances(): Collection<TControl> { return this.__activeInstances; }
     private __activeInstances: Collection<TControl>;

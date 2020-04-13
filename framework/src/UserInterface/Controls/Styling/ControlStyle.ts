@@ -1,5 +1,5 @@
 import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../DependencyObjects/index.js";
-import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { MarkupElement } from "../../Markup/index.js";
 import { IdentifierGenerator } from "../../../CoreBase/index.js";
 import { Destructible } from "../../../Standard/index.js";
 import { IDependencyObject } from "../../DependencyObjects/IDependencyObject.js";
@@ -11,7 +11,7 @@ import { DOMUtils } from "../../index.js";
 const gen = new IdentifierGenerator();
 
 export class ControlStyle extends Destructible implements IDependencyObject {
-    constructor(targetElement: VisualTreeElement) {
+    constructor(targetElement: MarkupElement) {
         super();
 
         this.__targetElement = targetElement;
@@ -25,33 +25,17 @@ export class ControlStyle extends Destructible implements IDependencyObject {
         this.set = Blender.execute(this, DependencyObject, o => o.set.bind(o));
         this.PropertyChangeEvent = Blender.get(DependencyObject, this).PropertyChangeEvent;
         this.PropertyChangeEvent.attach(this.__onPropertyChange, this);
-
-        //Generate ID
-        const id = gen.generate();
-        this.__id = id;
-
-        //Create Style Element
-        const styleElement = document.createElement("style");
-        styleElement.innerHTML = `@namespace core "core"; core|*[core|styleId=style${id}] {}`;
-        document.head.appendChild(styleElement);
-        this.__styleElement = styleElement;
-        this.__styleDeclaration = styleElement.sheet!.rules[1].style;
-
-        this.__targetElement.domElement.setAttributeNS("core", "core:styleId", `style${id}`);
     }
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         const propName = StringUtils.toHyphenCase(args.property.name);
-        this.__styleDeclaration.setProperty(propName, args.newValue);
+        this.__targetElement.domElement.style.setProperty(propName, args.newValue);
 
         //Temporary fix for rendenring issues in Safary/Webkit browsers
         DOMUtils.forceRepaint();
     }
 
-    protected __targetElement: VisualTreeElement;
-    protected __id: bigint;
-    protected __styleElement: HTMLStyleElement;
-    protected __styleDeclaration: CSSStyleDeclaration;
+    protected __targetElement: MarkupElement;
 
     //IDependencyObject Properties
     get!: (property: DependencyProperty) => any;

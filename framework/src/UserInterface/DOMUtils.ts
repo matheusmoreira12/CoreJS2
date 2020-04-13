@@ -1,4 +1,5 @@
 import { ArgumentTypeException } from "../Standard/index.js";
+import { DeferredTask } from "../Standard/Timing/index.js";
 
 export function insertElementAt(parent: Element, position: number, child: Element) {
     if (parent.children.length === 0 || position >= parent.children.length - 1)
@@ -158,15 +159,13 @@ export function createAttribute(qualifiedName: string, namespaceURI: string | nu
         return document.createAttributeNS(namespaceURI, qualifiedName);
 }
 
-let forceRepaintAnimFrame = -1;
+const forceRepaintTask = new DeferredTask(() => {
+    const display = document.body.style.display;
+    document.body.style.display = "none";
+    document.body.offsetHeight;
+    document.body.style.display = display;
+});
 
 export function forceRepaint() {
-    if (forceRepaintAnimFrame != -1)
-        cancelAnimationFrame(forceRepaintAnimFrame);
-    forceRepaintAnimFrame = requestAnimationFrame(() => {
-        const display = document.body.style.display;
-        document.body.style.display = "none";
-        document.body.offsetHeight;
-        document.body.style.display = display;
-    });
+    forceRepaintTask.trigger();
 }

@@ -7,12 +7,12 @@ import { Control } from "./Control.js";
 import { assertParams } from "../../Validation/index.js";
 import { DeferredTask } from "../../Standard/Timing/index.js";
 
-type ControlConstructor<TControl extends Control> = new (qualifiedName: string, namespaceURI: string | null) => TControl;
+type ControlConstructor<TControl extends Control> = new (name: string) => TControl;
 
 const registeredControls: Collection<ControlMetadata> = new Collection();
 
-function getRegisteredControlByName(qualifiedName: string, namespaceURI?: string | null): ControlMetadata | null {
-    return registeredControls.find(m => m.namespaceURI === namespaceURI && m.qualifiedName.toLowerCase() === qualifiedName.toLowerCase()) || null;
+function getRegisteredControlByName(name: string): ControlMetadata | null {
+    return registeredControls.find(m => m.name.toLowerCase() === name.toLowerCase()) || null;
 }
 
 function getRegisteredControlByConstructor<TControl extends Control>(controlConstructor: Class<Control>): ControlMetadata<TControl> | null {
@@ -26,14 +26,14 @@ function registerControl(metadata: ControlMetadata) {
 
 function initializeControlInstance<TControl extends Control>(metadata: ControlMetadata, element: Element): TControl {
     const controlClass: Class<Control> = metadata.controlClass;
-    const controlInstance = new (<ControlConstructor<TControl>>controlClass)(metadata.qualifiedName, metadata.namespaceURI);
+    const controlInstance = new (<ControlConstructor<TControl>>controlClass)(metadata.name);
     controlInstance.initialize(element);
     metadata.activeInstances.add(controlInstance);
     return controlInstance;
 }
 
 function initializeControlInstanceByElement(element: Element) {
-    const metadata = getRegisteredControlByName(element.nodeName, <string>element.namespaceURI);
+    const metadata = getRegisteredControlByName(element.nodeName);
     if (metadata) {
         if (getControlInstanceByElement(<ControlMetadata>metadata, element))
             return false;
@@ -58,7 +58,7 @@ function getControlInstanceByElement(metadata: ControlMetadata, element: Element
 }
 
 function finalizeControlInstanceByElement(element: Element) {
-    const metadata = getRegisteredControlByName(element.nodeName, <string>element.namespaceURI);
+    const metadata = getRegisteredControlByName(element.nodeName);
     if (metadata) {
         const instance = getControlInstanceByElement(<ControlMetadata>metadata, element);
         if (instance) {
@@ -86,11 +86,10 @@ function deregisterControl(metadata: ControlMetadata, forceFinalization: boolean
     return true;
 }
 
-export function getByName(qualifiedName: string, namespaceURI: string | null = null) {
-    assertParams({ qualifiedName }, [String]);
-    assertParams({ namespaceURI }, [String, null]);
+export function getByName(name: string) {
+    assertParams({ name }, [String]);
 
-    return getRegisteredControlByName(qualifiedName, namespaceURI);
+    return getRegisteredControlByName(name);
 }
 
 function assertControlConstructor(controlConstructor: Class<Control>) {
@@ -105,19 +104,18 @@ export function getByConstructor(controlConstructor: Class<Control>) {
     return getRegisteredControlByConstructor(controlConstructor);
 }
 
-export function register(controlConstructor: Class<Control>, qualifiedName: string, namespaceURI: string | null = null): void {
+export function register(controlConstructor: Class<Control>, name: string): void {
     assertParams({ controlConstructor }, [Function]);
-    assertParams({ qualifiedName }, [String]);
-    assertParams({ namespaceURI }, [String, null]);
+    assertParams({ name }, [String]);
     assertControlConstructor(controlConstructor);
 
     if (getRegisteredControlByConstructor(controlConstructor))
         throw new InvalidOperationException("Cannot register control. The specified control constructor is already in use.");
     else {
-        if (getRegisteredControlByName(qualifiedName, namespaceURI))
+        if (getRegisteredControlByName(name))
             throw new InvalidOperationException("Cannot register control. The specified control name and namespace URI are already in use.");
         else {
-            const metadata: ControlMetadata = new ControlMetadata(controlConstructor, qualifiedName, namespaceURI);
+            const metadata: ControlMetadata = new ControlMetadata(controlConstructor, name);
             registerControl(metadata);
         }
     }
@@ -140,7 +138,7 @@ export function instantiate<TControl extends Control>(controlClass: Class<TContr
 
     const metadata = getRegisteredControlByConstructor(controlClass);
     if (metadata) {
-        const element = DOMUtils.createElement((<ControlMetadata>metadata).qualifiedName, (<ControlMetadata>metadata).namespaceURI);
+        const element = DOMUtils.createElement((<ControlMetadata>metadata).name);
         return <TControl>initializeControlInstance(<ControlMetadata>metadata, element);
     }
     else

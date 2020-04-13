@@ -1,7 +1,7 @@
 import { Blender } from "../../../Standard/Blender/index.js";
 import { Type } from "../../../Standard/Types/Type.js";
 import { DependencyProperty, DependencyObject } from "../../DependencyObjects/index.js";
-import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { MarkupElement } from "../../Markup/index.js";
 import { Control } from "../index.js";
 import { Length } from "../../Coordinates/index.js";
 
@@ -11,8 +11,8 @@ export abstract class Shape extends Control {
     __initialization() {
         super.__initialization();
 
-        const PART_canvas = VisualTreeElement.create("svg", SVG_NS);
-        PART_canvas.attributes.set("style", null, `
+        const PART_canvas = MarkupElement.fromDomElement(document.createElementNS(SVG_NS, "rect"));
+        PART_canvas.attributes.set("style", `
         flex: 1;
         max-width: 100%;
         max-height: 100%;

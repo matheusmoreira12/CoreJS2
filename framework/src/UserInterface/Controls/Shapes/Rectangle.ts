@@ -4,7 +4,7 @@ import { DependencyObject, DependencyProperty } from "../../DependencyObjects/in
 import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
 import { LengthCSSPropertyConverter } from "../../Coordinates/ValueConverters/index.js";
 import { Length } from "../../Coordinates/index.js";
-import { VisualTreeElement } from "../../VisualTrees/index.js";
+import { MarkupElement } from "../../Markup/index.js";
 import { Shape } from "./index.js";
 import { ControlManager } from "../index.js";
 
@@ -15,7 +15,7 @@ export class Rectangle extends Shape {
         super.__initialization();
 
         //Add an SVG Rect to the visual tree
-        const PART_rect = VisualTreeElement.create("rect", SVG_NS);
+        const PART_rect = MarkupElement.fromDomElement(document.createElementNS(SVG_NS, "rect"));
         PART_rect.attributes.setMany({
             x: "0",
             y: "0",
@@ -35,7 +35,7 @@ export class Rectangle extends Shape {
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.ryProperty, <Element>this.__PART_rect.domElement, "ry", null, { valueConverter: new LengthCSSPropertyConverter(), direction: BindingDirection.ToTarget }));
     }
 
-    protected __PART_rect!: VisualTreeElement;
+    protected __PART_rect!: MarkupElement;
 
     static rxProperty = DependencyProperty.register(Rectangle, "rx", { defaultValue: Length.zero, valueType: Type.of(Length) });
     get rx(): Length { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.rxProperty)); }
@@ -45,4 +45,4 @@ export class Rectangle extends Shape {
     get ry(): Length { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.ryProperty)); }
     set ry(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.ryProperty, value)); }
 }
-ControlManager.register(Rectangle, "core:Rectangle", "core");
+ControlManager.register(Rectangle, "core:Rectangle");

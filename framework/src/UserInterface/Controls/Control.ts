@@ -3,7 +3,7 @@ import { DragDropHandler } from "../index.js";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
 import { DependencyProperty, DependencyObject } from "../DependencyObjects/index.js";
 import { Type } from "../../Standard/Types/Type.js";
-import { VisualTreeElement } from "../VisualTrees/index.js";
+import { MarkupElement } from "../Markup/index.js";
 import { Blender } from "../../Standard/Blender/Blender.js";
 import { PropertyAttributeBinding, BindingDirection, PropertyBinding } from "../Bindings/index.js";
 import { Size } from "../Coordinates/index.js";
@@ -12,9 +12,9 @@ import { ControlStyle } from "./Styling/ControlStyle.js";
 
 ///TODO: fix this mess
 
-export abstract class Control extends VisualTreeElement {
-    constructor(qualifiedName: string, namespaceURI: string | null = null) {
-        super(qualifiedName, namespaceURI);
+export abstract class Control extends MarkupElement {
+    constructor(name: string) {
+        super(name);
 
         if (new.target === Control)
             throw new InvalidOperationException("Invalid constructor");
