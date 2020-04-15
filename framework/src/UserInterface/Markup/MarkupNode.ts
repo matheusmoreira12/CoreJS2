@@ -31,7 +31,7 @@ export abstract class MarkupNode extends Destructible implements IDependencyObje
     PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.__onPropertyChange, this);
 
     get parent(): MarkupElement | null { return this.__parent; }
-    protected __parent: MarkupElement | null = null;
+    __parent: MarkupElement | null = null;
 
     get name(): string { return this.__name; }
     private __name: string;

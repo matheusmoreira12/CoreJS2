@@ -35,7 +35,7 @@ export class MarkupElement extends MarkupNode {
             childrenChangeAction |= ChildrenChangeAction.Add;
         }
 
-        this.ChildrenChangeEvent.invoke(this, new ChildrenChangeEventArgs(childrenChangeAction, args.oldItems, args.newItems));
+        this.ChildrenChangeEvent.invoke(this, new ChildrenChangeEventArgs(childrenChangeAction, args.oldIndex, args.oldItems, args.newIndex, args.newItems));
     }
 
     static childrenProperty = DependencyProperty.register(MarkupElement, "children", { valueType: Type.get(ObservableCollection) });

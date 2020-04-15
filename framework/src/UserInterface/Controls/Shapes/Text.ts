@@ -43,8 +43,8 @@ export class Text extends Shape {
     }
 
     //DependencyObject
-    protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-        super.onPropertyChange(sender, args);
+    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+        super.__onPropertyChange(sender, args);
 
         if (args.property === Text.fontProperty || args.property === Text.textProperty)
             this.invalidateVisual();

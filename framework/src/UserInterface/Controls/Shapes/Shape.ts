@@ -33,5 +33,5 @@ export abstract class Shape extends Control {
     get strokeThickness(): string { return Blender.execute(this, DependencyObject, o => o.get(Shape.strokeThicknessProperty)); }
     set strokeThickness(value: string) { Blender.execute(this, DependencyObject, o => o.set(Shape.strokeThicknessProperty, value)); }
 
-    protected __PART_canvas!: VisualTreeElement;
+    protected __PART_canvas!: MarkupElement;
 }

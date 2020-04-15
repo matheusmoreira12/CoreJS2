@@ -1,18 +1,20 @@
 import { FrameworkEventArgs } from "../../Standard/Events/index"
 import { MarkupElement } from "./MarkupElement";
 import { ChildrenChangeAction } from "./ChildrenChangeAction";
-import { assertEachParams } from "../../Validation/index";
+import { assertEachParams, assertParams } from "../../Validation/index";
 
 const $action = Symbol("action")
 const $oldChildren = Symbol("oldChildren")
 const $newChildren = Symbol("newChildren")
 
 export class ChildrenChangeEventArgs extends FrameworkEventArgs {
-    constructor(action: number, oldChildren: MarkupElement[], newChildren: MarkupElement[]) {
+    constructor(action: number, oldIndex: number, oldChildren: MarkupElement[], newIndex: number, newChildren: MarkupElement[]) {
         super();
 
         ChildrenChangeAction.assertFlag(action);
+        assertParams({ oldIndex }, [Number]);
         assertEachParams({ oldChildren }, [MarkupElement]);
+        assertParams({ newIndex }, [Number]);
         assertEachParams({ newChildren }, [MarkupElement]);
 
         this[$action] = action;

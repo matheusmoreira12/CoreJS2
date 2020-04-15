@@ -80,7 +80,7 @@ export namespace Blender {
             return false;
     }
 
-    export function unBlend<TBlend, TSource>(blendClass: Class<TBlend>, sourceObj: TSource) {
+    export function deBlend<TBlend, TSource>(blendClass: Class<TBlend>, sourceObj: TSource) {
         if (!tryUnBlend(blendClass, sourceObj))
             throw new InvalidOperationException("Cannot un-blend from the specified class from the specified object. The specified class may have not been blended with the specified object.");
     }

@@ -28,8 +28,8 @@ export abstract class ContainerControl extends Control {
     private __PART_child!: VisualTreeElement | null;
     protected __PART_layoutGrid!: Grid;
 
-    protected onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
-        super.onPropertyChange(sender, args);
+    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
+        super.__onPropertyChange(sender, args);
 
         if (args.property === ContainerControl.childProperty)
             this.__updateChild(args.newValue);
