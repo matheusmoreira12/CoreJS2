@@ -1,4 +1,4 @@
-import { MarkupNode, $setParent } from "./MarkupNode.js";
+import { MarkupNode } from "./MarkupNode.js";
 import { Enumeration } from "../../Standard/index.js";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index.js";
 import { MarkupAttribute } from "./MarkupAttribute.js";
@@ -23,14 +23,14 @@ export class MarkupElement extends MarkupNode {
 
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems)
-                item[$setParent](null);
+                item.__parent = null;
 
             childrenChangeAction |= ChildrenChangeAction.Remove;
         }
 
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
             for (let item of args.newItems)
-                item[$setParent](this);
+                item.__parent = this;
 
             childrenChangeAction |= ChildrenChangeAction.Add;
         }
@@ -47,14 +47,14 @@ export class MarkupElement extends MarkupNode {
 
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems)
-                item[$setParent](null);
+                item.__parent = null;
 
             attributesChangeAction |= AttributesChangeAction.Remove;
         }
 
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
             for (let item of args.newItems)
-                item[$setParent](this);
+                item.__parent = this;
 
             attributesChangeAction |= AttributesChangeAction.Add;
         }

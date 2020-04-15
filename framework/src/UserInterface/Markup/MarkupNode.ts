@@ -7,13 +7,6 @@ import { FrameworkEvent } from "../../Standard/Events/index.js";
 import { PropertyChangeEventArgs, DependencyProperty } from "../DependencyObjects/index.js";
 import { IDependencyObject } from "../DependencyObjects/IDependencyObject.js";
 
-//Public keys for VisualTreeNode
-export const $setParent = Symbol("setParent");
-
-//Keys for VisualTreeNode
-const $name = Symbol("domElement");
-const $parent = Symbol("domElement");
-
 export abstract class MarkupNode extends Destructible implements IDependencyObject {
     constructor(name: string) {
         super();
@@ -23,7 +16,7 @@ export abstract class MarkupNode extends Destructible implements IDependencyObje
         if (new.target === MarkupNode)
             throw new InvalidOperationException("Invalid constructor.");
 
-        this[$name] = name;
+        this.__name = name;
 
         Blender.blend(DependencyObject, this);
         Blender.initialize(DependencyObject, this);
@@ -37,15 +30,11 @@ export abstract class MarkupNode extends Destructible implements IDependencyObje
 
     PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.__onPropertyChange, this);
 
-    [$setParent](parent: MarkupElement | null) {
-        this[$parent] = parent;
-    }
+    get parent(): MarkupElement | null { return this.__parent; }
+    protected __parent: MarkupElement | null = null;
 
-    get parent(): MarkupElement | null { return this[$parent]; }
-    private [$parent]: MarkupElement | null = null;
-
-    get name(): string { return this[$name]; }
-    private [$name]: string;
+    get name(): string { return this.__name; }
+    private __name: string;
 
     get: (property: DependencyProperty) => any;
 
