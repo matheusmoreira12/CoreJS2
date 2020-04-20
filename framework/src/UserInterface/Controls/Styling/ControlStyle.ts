@@ -1,20 +1,13 @@
 import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../DependencyObjects/index.js";
-import { MarkupElement } from "../../Markup/index.js";
-import { IdentifierGenerator } from "../../../CoreBase/index.js";
-import { Destructible } from "../../../Standard/index.js";
-import { IDependencyObject } from "../../DependencyObjects/IDependencyObject.js";
+import { MarkupElement as Control } from "../../Markup/index.js";
 import { Blender } from "../../../Standard/Blender/index.js";
-import { FrameworkEvent } from "../../../Standard/Events/index.js";
 import { StringUtils } from "../../../CoreBase/Utils/index.js";
-import { DOMUtils } from "../../index.js";
 
-const gen = new IdentifierGenerator();
-
-export class ControlStyle extends Destructible implements IDependencyObject {
-    constructor(targetElement: MarkupElement) {
+export class ControlStyle extends DependencyObject {
+    constructor(targetControl: Control) {
         super();
 
-        this.__targetElement = targetElement;
+        this.__targetControl = targetControl;
 
         //Blend with DependencyObject
         Blender.blend(DependencyObject, this);
@@ -23,24 +16,15 @@ export class ControlStyle extends Destructible implements IDependencyObject {
         //Assign interface IDependencyObject
         this.get = Blender.execute(this, DependencyObject, o => o.get.bind(o));
         this.set = Blender.execute(this, DependencyObject, o => o.set.bind(o));
-        this.PropertyChangeEvent = Blender.get(DependencyObject, this).PropertyChangeEvent;
         this.PropertyChangeEvent.attach(this.__onPropertyChange, this);
     }
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         const propName = StringUtils.toHyphenCase(args.property.name);
-        this.__targetElement.domElement.style.setProperty(propName, args.newValue);
-
-        //Temporary fix for rendenring issues in Safary/Webkit browsers
-        DOMUtils.forceRepaint();
+        this.__targetControl.domElement!.style.setProperty(propName, args.newValue);
     }
 
-    protected __targetElement: MarkupElement;
-
-    //IDependencyObject Properties
-    get!: (property: DependencyProperty) => any;
-    set!: (property: DependencyProperty, value: any) => void;
-    PropertyChangeEvent!: FrameworkEvent<PropertyChangeEventArgs>;
+    protected __targetControl: Control;
 
     //StyleSheetDeclaration Properties
     static alignContentProperty = DependencyProperty.register(ControlStyle, "alignContent");
@@ -1876,10 +1860,4 @@ export class ControlStyle extends Destructible implements IDependencyObject {
     set zoom(value: string | null) { this.set(ControlStyle.zoomProperty, value); }
 
     [Symbol.iterator]!: () => IterableIterator<string>;
-
-    destructor() {
-        this.__styleElement.remove();
-
-        gen.delete(this.__id);
-    }
 }

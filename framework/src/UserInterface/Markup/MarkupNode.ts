@@ -6,6 +6,7 @@ import { DependencyObject } from "../DependencyObjects/DependencyObject.js";
 import { FrameworkEvent } from "../../Standard/Events/index.js";
 import { PropertyChangeEventArgs, DependencyProperty } from "../DependencyObjects/index.js";
 import { IDependencyObject } from "../DependencyObjects/IDependencyObject.js";
+import { NodeName } from "./NodeName.js";
 
 export abstract class MarkupNode extends Destructible implements IDependencyObject {
     constructor(name: string) {
@@ -16,7 +17,7 @@ export abstract class MarkupNode extends Destructible implements IDependencyObje
         if (new.target === MarkupNode)
             throw new InvalidOperationException("Invalid constructor.");
 
-        this.__name = name;
+        this.__name = new NodeName(name);
 
         Blender.blend(DependencyObject, this);
         Blender.initialize(DependencyObject, this);
@@ -33,8 +34,8 @@ export abstract class MarkupNode extends Destructible implements IDependencyObje
     get parent(): MarkupElement | null { return this.__parent; }
     __parent: MarkupElement | null = null;
 
-    get name(): string { return this.__name; }
-    private __name: string;
+    get name(): NodeName { return this.__name; }
+    private __name: NodeName;
 
     get: (property: DependencyProperty) => any;
 

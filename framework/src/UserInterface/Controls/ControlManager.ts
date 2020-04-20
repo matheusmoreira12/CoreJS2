@@ -1,18 +1,28 @@
 ﻿import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index.js";
-import { Type, Class, Instance } from "../../Standard/Types/index.js";
+import { Type, Class } from "../../Standard/Types/index.js";
 import { Collection } from "../../Standard/Collections/index.js";
 import { DOMUtils } from "../index.js";
 import { ControlMetadata } from "./ControlMetadata.js";
 import { Control } from "./Control.js";
 import { assertParams } from "../../Validation/index.js";
 import { DeferredTask } from "../../Standard/Timing/index.js";
+import { StringUtils } from "../../CoreBase/Utils/index.js";
+import { NodeName } from "../Markup/NodeName.js";
 
 type ControlConstructor<TControl extends Control> = new (name: string) => TControl;
 
 const registeredControls: Collection<ControlMetadata> = new Collection();
 
+function convertNodeNameToDOMNodeName(name: NodeName) {
+    return `${name.prefix}${StringUtils.toHyphenCase(name.name)}`;
+}
+
 function getRegisteredControlByName(name: string): ControlMetadata | null {
-    return registeredControls.find(m => m.name.toLowerCase() === name.toLowerCase()) || null;
+    return registeredControls.find(m => String(m.name) == name) || null;
+}
+
+function getRegisteredControlByDOMName(domName: string): ControlMetadata | null {
+    return registeredControls.find(m => convertNodeNameToDOMNodeName(m.name) == name) || null;
 }
 
 function getRegisteredControlByConstructor<TControl extends Control>(controlConstructor: Class<Control>): ControlMetadata<TControl> | null {
@@ -26,14 +36,15 @@ function registerControl(metadata: ControlMetadata) {
 
 function initializeControlInstance<TControl extends Control>(metadata: ControlMetadata, element: Element): TControl {
     const controlClass: Class<Control> = metadata.controlClass;
-    const controlInstance = new (<ControlConstructor<TControl>>controlClass)(metadata.name);
+    const domName = convertNodeNameToDOMNodeName(metadata.name);
+    const controlInstance = new (<ControlConstructor<TControl>>controlClass)(domName);
     controlInstance.initialize(element);
     metadata.activeInstances.add(controlInstance);
     return controlInstance;
 }
 
 function initializeControlInstanceByElement(element: Element) {
-    const metadata = getRegisteredControlByName(element.nodeName);
+    const metadata = getRegisteredControlByDOMName(element.nodeName);
     if (metadata) {
         if (getControlInstanceByElement(<ControlMetadata>metadata, element))
             return false;
@@ -92,19 +103,19 @@ export function getByName(name: string) {
     return getRegisteredControlByName(name);
 }
 
-function assertControlConstructor(controlConstructor: Class<Control>) {
+function assertControlConstructor<TControl extends Control>(controlConstructor: Class<TControl>) {
     if (!Type.get(controlConstructor).extends(Type.get(Control)))
         throw new ArgumentTypeException("controlConstructor", controlConstructor, Control);
 }
 
-export function getByConstructor(controlConstructor: Class<Control>) {
+export function getByConstructor<TControl extends Control>(controlConstructor: Class<TControl>) {
     assertParams({ controlConstructor }, [Function]);
     assertControlConstructor(controlConstructor);
 
     return getRegisteredControlByConstructor(controlConstructor);
 }
 
-export function register(controlConstructor: Class<Control>, name: string): void {
+export function register<TControl extends Control>(controlConstructor: Class<TControl>, name: string): void {
     assertParams({ controlConstructor }, [Function]);
     assertParams({ name }, [String]);
     assertControlConstructor(controlConstructor);
@@ -121,7 +132,7 @@ export function register(controlConstructor: Class<Control>, name: string): void
     }
 }
 
-export function deregister(controlConstructor: Class<Control>): void {
+export function deregister<TControl extends Control>(controlConstructor: Class<TControl>): void {
     assertParams({ controlConstructor }, [Function]);
     assertControlConstructor(controlConstructor);
 
@@ -138,8 +149,9 @@ export function instantiate<TControl extends Control>(controlClass: Class<TContr
 
     const metadata = getRegisteredControlByConstructor(controlClass);
     if (metadata) {
-        const element = DOMUtils.createElement((<ControlMetadata>metadata).name);
-        return <TControl>initializeControlInstance(<ControlMetadata>metadata, element);
+        const domName = convertNodeNameToDOMNodeName(metadata.name);
+        const element = document.createElement(domName);
+        return <TControl>initializeControlInstance(metadata, element);
     }
     else
         throw new InvalidOperationException("Cannot instantiate control. No registered control matches the specified control constructor.");

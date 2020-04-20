@@ -55,7 +55,7 @@ export namespace Blender {
             if (isBlendIntitialized)
                 return false;
             else {
-                const blend = new blendClass(...constructorArgs);
+                const blend = new (<(new() => TBlend)><unknown>blendClass)(...constructorArgs);
                 info.blend = blend;
                 output.result = blend;
                 return true;

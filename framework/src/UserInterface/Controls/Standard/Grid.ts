@@ -19,7 +19,7 @@ export class Grid extends Control {
 
         this.children.ChangeEvent.attach(this.__children_onChange, this);
 
-        this.style.display = "grid";
+        this.style!.display = "grid";
 
         new PropertyBinding(Blender.get(DependencyObject, this), Grid.rowsProperty, Blender.get(DependencyObject, this.style), ControlStyle.gridTemplateRowsProperty, { direction: BindingDirection.ToTarget, valueConverter: new RowDefinitionCollectionCSSGridRowTemplateConverter() });
         new PropertyBinding(Blender.get(DependencyObject, this), Grid.columnsProperty, Blender.get(DependencyObject, this.style), ControlStyle.gridTemplateColumnsProperty, { direction: BindingDirection.ToTarget, valueConverter: new ColumnDefinitionCollectionCSSGridColumnTemplateConverter() });
@@ -38,12 +38,6 @@ export class Grid extends Control {
         }
     }
 
-    protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
-        if (args.property === Grid.rowsProperty ||
-            args.property === Grid.columnsProperty)
-            this.__updateVisual();
-    }
-
     static rowsProperty = DependencyProperty.register(Grid, "rows", { valueType: Type.get(Array), defaultValue: [new RowDefinition()] });
     get rows(): RowDefinition[] { return this.get(Grid.rowsProperty); }
     set rows(value: RowDefinition[]) { this.set(Grid.rowsProperty, value); }
@@ -60,4 +54,4 @@ export class Grid extends Control {
 
     static columnSpanProperty = DependencyProperty.register(Grid, "columnSpan", { valueType: Type.get(Number), defaultValue: 1 });
 }
-ControlManager.register(Grid, "core:Grid", "core");
+ControlManager.register(Grid, "core:Grid");

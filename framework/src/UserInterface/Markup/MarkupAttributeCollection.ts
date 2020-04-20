@@ -8,13 +8,13 @@ export class MarkupAttributeCollection extends ObservableCollection<MarkupAttrib
     has(name: string): boolean {
         assertParams({ name }, [String]);
 
-        return this.findIndex(a => a.name === name) != -1;
+        return this.findIndex(a => String(a.name) === name) != -1;
     }
 
     get(name: string): MarkupAttribute {
         assertParams({ name }, [String]);
 
-        const result = this.find(a => a.name === name);
+        const result = this.find(a => String(a.name) === name);
         if (result)
             return result;
         else

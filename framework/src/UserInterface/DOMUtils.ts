@@ -135,30 +135,6 @@ export function getElementVisibleRect(elem: Element): DOMRect | null {
     return result;
 }
 
-export function createElement(qualifiedName: string, namespaceURI: string | null = null): Element {
-    if (typeof qualifiedName !== "string")
-        throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-    if (namespaceURI !== null && typeof namespaceURI !== "string")
-        throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
-
-    if (namespaceURI === null)
-        return document.createElement(qualifiedName);
-    else
-        return document.createElementNS(namespaceURI, qualifiedName);
-}
-
-export function createAttribute(qualifiedName: string, namespaceURI: string | null = null): Attr {
-    if (typeof qualifiedName !== "string")
-        throw new ArgumentTypeException("qualifiedName", qualifiedName, String);
-    if (namespaceURI !== null && typeof namespaceURI !== "string")
-        throw new ArgumentTypeException("namespaceURI", namespaceURI, [String, null]);
-
-    if (namespaceURI === null)
-        return document.createAttribute(qualifiedName);
-    else
-        return document.createAttributeNS(namespaceURI, qualifiedName);
-}
-
 const forceRepaintTask = new DeferredTask(() => {
     const display = document.body.style.display;
     document.body.style.display = "none";

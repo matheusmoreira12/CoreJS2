@@ -1,14 +1,14 @@
 import { InvalidOperationException, Enumeration } from "../../Standard/index.js";
-import { DragDropHandler } from "../index.js";
+import { DragDropHandler, DOMUtils } from "../index.js";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
 import { DependencyProperty, DependencyObject } from "../DependencyObjects/index.js";
 import { Type } from "../../Standard/Types/Type.js";
-import { MarkupElement } from "../Markup/index.js";
+import { MarkupElement, ChildrenChangeEventArgs, AttributesChangeEventArgs, ChildrenChangeAction, AttributesChangeAction } from "../Markup/index.js";
 import { Blender } from "../../Standard/Blender/Blender.js";
-import { PropertyAttributeBinding, BindingDirection, PropertyBinding } from "../Bindings/index.js";
-import { Size } from "../Coordinates/index.js";
+import { PropertyAttributeBinding, BindingDirection } from "../Bindings/index.js";
 import { AutosizeMode } from "./AutosizeMode.js";
 import { ControlStyle } from "./Styling/ControlStyle.js";
+import { assertParams } from "../../ValidationStandalone/index.js";
 
 ///TODO: fix this mess
 
@@ -18,13 +18,45 @@ export abstract class Control extends MarkupElement {
 
         if (new.target === Control)
             throw new InvalidOperationException("Invalid constructor");
+
+        this.ChildrenChangeEvent.attach(this.__onChildrenChange, this);
+        this.AttributesChangeEvent.attach(this.__onAttributesChange, this);
+    }
+
+    protected __onChildrenChange(_sender: any, args: ChildrenChangeEventArgs) {
+        if (this.isInitialized) {
+            if (Enumeration.contains(ChildrenChangeAction.Remove, args.action)) {
+                for (let child of args.oldChildren) {
+                    if (child instanceof Control && child.isInitialized)
+                        this.domElement!.removeChild(child.domElement!)
+                }
+            }
+
+            if (Enumeration.contains(ChildrenChangeAction.Add, args.action)) {
+                for (let child of args.newChildren) {
+                    if (child instanceof Control && child.isInitialized)
+                        DOMUtils.insertElementAt(this.domElement!, args.newIndex, child.domElement!)
+                }
+            }
+        }
+    }
+
+    protected __onAttributesChange(_sender: any, args: AttributesChangeEventArgs) {
+        if (this.isInitialized) {
+            if (Enumeration.contains(AttributesChangeAction.Remove, args.action)) {
+                for (let attribute of args.oldAttributes)
+                    this.domElement!.removeAttribute(attribute.name.name);
+            }
+
+            if (Enumeration.contains(AttributesChangeAction.Add, args.action)) {
+                for (let attribute of args.newAttributes)
+                    this.domElement!.setAttribute(attribute.name.name, attribute.value);
+            }
+        }
     }
 
     protected __initialization() {
-        super.__initialization();
-
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.isDraggableProperty, this.domElement, "core:isDraggable", "core", { direction: BindingDirection.ToTarget }));
-        Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Control.idProperty, this.domElement, "core:id", "core", { direction: BindingDirection.ToTarget }));
+        new PropertyAttributeBinding(Blender.get(DependencyObject, this), Control.isDraggableProperty, this.domElement!, "core-is-draggable", null, { direction: BindingDirection.ToTarget });
 
         //Native events
         this.MouseEnterEvent = new NativeEvent(<Element>this.domElement, "mouseenter", this.__onMouseEnter, this);
@@ -48,19 +80,41 @@ export abstract class Control extends MarkupElement {
         dragDropHandler.DragDropEvent.attach(this.__dragDropHandler__onDragDrop, this);
 
         this.__style = new ControlStyle(this);
-
-        this.style.display = "flex";
-        this.style.flex = "1";
-        this.style.maxWidth = "100%";
-        this.style.maxHeight = "100%";
+        this.style!.display = "flex";
+        this.style!.flex = "1";
+        this.style!.maxWidth = "100%";
+        this.style!.maxHeight = "100%";
     }
 
     protected __finalization() {
         //Destruct style
-        this.style.destruct();
-
-        super.__finalization();
+        this.domElement!.remove();
     }
+
+    public initialize(domElement: Element) {
+        assertParams({ domElement }, [Element]);
+
+        if (this.isInitialized)
+            throw new InvalidOperationException("Cannot initialize control. Control has already been initialized.");
+        else {
+            this.__domElement = domElement;
+            this.__initialization();
+            this.__isInitialized = true;
+        }
+    }
+
+    public finalize() {
+        if (this.isInitialized) {
+            this.__finalization();
+            this.__domElement = null;
+            this.__isInitialized = false;
+        }
+        else
+            throw new InvalidOperationException("Cannot finalize control. Control has not been initialized.");
+    }
+
+    get isInitialized(): boolean { return this.__isInitialized; }
+    private __isInitialized: boolean = false;
 
     //Helper Class Instances
     protected __dragDropHandler!: DragDropHandler;
@@ -178,23 +232,7 @@ export abstract class Control extends MarkupElement {
     private __onClick() {
     }
 
-    //Autosize Methods
-    protected __computeSize(): Size {
-        return Size.pixels(1, 1);
-    }
-
-    protected __updateVisual() { }
-
-    invalidateVisual() {
-        this.__updateVisual();
-    }
-
     //Framework Properties
-    //Generic properties
-    static idProperty = DependencyProperty.register(Control, "id", { valueType: Type.of(String) });
-    get id(): string { return this.get(Control.idProperty); }
-    set id(value: string) { this.set(Control.idProperty, value); }
-
     //State Properties
     //Mouse State Properties
     //Is Mouse Over Property
@@ -228,17 +266,17 @@ export abstract class Control extends MarkupElement {
     get autosizeMode(): number { return Blender.execute(this, DependencyObject, o => o.get(Control.autosizeModeProperty)); }
     set autosizeMode(value: number) { Blender.execute(this, DependencyObject, o => o.set(Control.autosizeModeProperty, value)); }
 
-    //Background Property
-    static backgroundProperty = DependencyProperty.register(Control, "background", { valueType: Type.get(String), defaultValue: "transparent" });
-    get background() { return Blender.execute(this, DependencyObject, o => o.get(Control.backgroundProperty)); }
-    set background(value) { Blender.execute(this, DependencyObject, o => o.set(Control.backgroundProperty, value)); }
-
-    //Foreground Property
-    static foregroundProperty = DependencyProperty.register(Control, "foreground", { valueType: Type.get(String), defaultValue: "transparent" });
-    get foreground() { return Blender.execute(this, DependencyObject, o => o.get(Control.foregroundProperty)); }
-    set foreground(value) { Blender.execute(this, DependencyObject, o => o.set(Control.foregroundProperty, value)); }
-
     //Style Property
-    get style(): ControlStyle { return this.__style; }
-    private __style!: ControlStyle;
+    get style(): ControlStyle | null { return this.__style; }
+    private __style: ControlStyle | null = null;
+
+    get domElement(): Element | null { return this.__domElement; }
+    private __domElement: Element | null = null;
+
+    protected destructor() {
+        if (this.isInitialized)
+            this.finalize();
+
+        super.destructor();
+    }
 }

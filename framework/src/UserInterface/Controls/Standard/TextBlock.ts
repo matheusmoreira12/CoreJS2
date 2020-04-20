@@ -36,7 +36,7 @@ export class TextBlock extends Control {
         //Bind "text"
         Blender.execute(this, DependencyObject, o => new PropertyBinding(o, TextBlock.textProperty, Blender.get(DependencyObject, PART_text), Text.textProperty, { direction: BindingDirection.ToTarget }));
 
-        this.style.flex = "none";
+        this.style!.flex = "none";
 
         new PropertyBinding(Blender.get(DependencyObject, PART_text), Text.textWidthProperty, Blender.get(DependencyObject, this.style), ControlStyle.widthProperty, { direction: BindingDirection.ToTarget, valueConverter: new LengthCSSPropertyConverter() });
 
