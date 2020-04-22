@@ -1,10 +1,10 @@
-import { MarkupNode } from "./MarkupNode.js";
+import { MarkupNodeName } from "./MarkupNodeName.js";
 import { assertParams } from "../../Validation/index.js";
 import { DependencyProperty, DependencyObject } from "../DependencyObjects/index.js";
 import { Type } from "../../Standard/Types/Type.js";
 import { Blender } from "../../Standard/Blender/index.js";
 
-export class MarkupAttribute extends MarkupNode {
+export class MarkupAttribute extends MarkupNodeName {
     constructor(name: string, initialValue?: string) {
         super(name);
 

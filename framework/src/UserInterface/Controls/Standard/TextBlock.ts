@@ -41,8 +41,6 @@ export class TextBlock extends Control {
         new PropertyBinding(Blender.get(DependencyObject, PART_text), Text.textWidthProperty, Blender.get(DependencyObject, this.style), ControlStyle.widthProperty, { direction: BindingDirection.ToTarget, valueConverter: new LengthCSSPropertyConverter() });
 
         new PropertyBinding(Blender.get(DependencyObject, PART_text), Text.textHeightProperty, Blender.get(DependencyObject, this.style), ControlStyle.heightProperty, { direction: BindingDirection.ToTarget, valueConverter: new LengthCSSPropertyConverter() });
-
-        this.__updateVisual();
     }
 
     protected __PART_layoutGrid!: Grid;
@@ -57,4 +55,4 @@ export class TextBlock extends Control {
     get text(): string { return Blender.execute(this, DependencyObject, o => o.get(TextBlock.textProperty)); }
     set text(value: string) { Blender.execute(this, DependencyObject, o => o.set(TextBlock.textProperty, value)); }
 }
-ControlManager.register(TextBlock, "core:TextBlock", "core");
+ControlManager.register(TextBlock, "core:TextBlock");

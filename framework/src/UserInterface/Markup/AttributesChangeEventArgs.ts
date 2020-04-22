@@ -1,19 +1,21 @@
-import { FrameworkEventArgs } from "../../Standard/Events/index"
-import { MarkupAttribute } from "./MarkupAttribute";
-import { AttributesChangeAction } from "./AttributesChangeAction";
-import { assertEachParams } from "../../Validation/index";
+import { FrameworkEventArgs } from "../../Standard/Events/index.js"
+import { MarkupAttribute } from "./MarkupAttribute.js";
+import { AttributesChangeAction } from "./AttributesChangeAction.js";
+import { assertEachParams } from "../../Validation/index.js";
+import { assertParams } from "../../ValidationStandalone/index.js";
 
-const $action = Symbol("action")
-const $oldAttributes = Symbol("oldAttributes")
-const $newAttributes = Symbol("newAttributes")
+const $action = Symbol("action");
+const $oldAttributes = Symbol("oldAttributes");
+const $newAttributes = Symbol("newAttributes");
 
 export class AttributesChangeEventArgs extends FrameworkEventArgs {
     constructor(action: number, oldAttributes: MarkupAttribute[], newAttributes: MarkupAttribute[]) {
         super();
 
-        AttributesChangeAction.assertFlag(action);
+        assertParams({ action }, [Number]);
         assertEachParams({ oldAttributes }, [MarkupAttribute]);
         assertEachParams({ newAttributes }, [MarkupAttribute]);
+        AttributesChangeAction.assertFlag(action);
 
         this[$action] = action;
         this[$oldAttributes] = oldAttributes;

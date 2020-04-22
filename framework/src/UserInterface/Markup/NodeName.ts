@@ -1,5 +1,5 @@
-import { assertParams } from "../../ValidationStandalone/index";
-import { FormatException } from "../../Standard/index";
+import { assertParams } from "../../ValidationStandalone/index.js";
+import { FormatException } from "../../Standard/index.js";
 
 //Keys for NodeName
 const $name = Symbol("name");

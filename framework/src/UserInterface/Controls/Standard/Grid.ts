@@ -2,22 +2,17 @@ import { Control, ControlManager } from "../index.js";
 import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../../DependencyObjects/index.js";
 import { Type } from "../../../Standard/Types/Type.js";
 import { ColumnDefinition, RowDefinition } from "../Grids/index.js";
-import { ObservableCollectionChangeArgs } from "../../../../dist/Standard/Collections/index.js";
-import { VisualTreeElement } from "../../VisualTrees/index.js";
 import { PropertyBinding, BindingDirection } from "../../Bindings/index.js";
 import { Blender } from "../../../Standard/Blender/index.js";
 import { ControlStyle } from "../Styling/index.js";
 import { Enumeration } from "../../../Standard/index.js";
-import { ObservableCollectionChangeAction } from "../../../Standard/Collections/index.js";
+import { ObservableCollectionChangeAction, ObservableCollectionChangeArgs } from "../../../Standard/Collections/index.js";
 import { RowDefinitionCollectionCSSGridRowTemplateConverter, ColumnDefinitionCollectionCSSGridColumnTemplateConverter, GridSpanCSSGridEndConverter, GridPositionCSSGridStartConverter } from "../Grids/ValueConverters/index.js";
+import { MarkupElement, ChildrenChangeEventArgs } from "../../Markup/index.js";
 
 export class Grid extends Control {
     __initialization() {
         super.__initialization();
-
-        this.PropertyChangeEvent.attach(this.__onPropertyChange, this);
-
-        this.children.ChangeEvent.attach(this.__children_onChange, this);
 
         this.style!.display = "grid";
 
@@ -25,9 +20,11 @@ export class Grid extends Control {
         new PropertyBinding(Blender.get(DependencyObject, this), Grid.columnsProperty, Blender.get(DependencyObject, this.style), ControlStyle.gridTemplateColumnsProperty, { direction: BindingDirection.ToTarget, valueConverter: new ColumnDefinitionCollectionCSSGridColumnTemplateConverter() });
     }
 
-    protected __children_onChange(sender: any, args: ObservableCollectionChangeArgs<VisualTreeElement>) {
+    protected __onChildrenChange(sender: any, args: ChildrenChangeEventArgs) {
+        super.__onChildrenChange(sender, args);
+
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
-            for (let child of args.newItems) {
+            for (let child of args.newChildren) {
                 if (child instanceof Control) {
                     new PropertyBinding(Blender.get(DependencyObject, child), Grid.rowProperty, Blender.get(DependencyObject, child.style), ControlStyle.gridRowStartProperty, { direction: BindingDirection.ToTarget, valueConverter: new GridPositionCSSGridStartConverter() });
                     new PropertyBinding(Blender.get(DependencyObject, child), Grid.columnProperty, Blender.get(DependencyObject, child.style), ControlStyle.gridColumnStartProperty, { direction: BindingDirection.ToTarget, valueConverter: new GridPositionCSSGridStartConverter() });

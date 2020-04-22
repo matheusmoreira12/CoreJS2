@@ -1,4 +1,4 @@
-import { TokenModel } from "./Token";
+import { TokenModel } from "./Token.js";
 
 export type Constructor<T> = (...args: any) => T;
 export type Class<T> = { constructor: Constructor<T>, prototype: Object };

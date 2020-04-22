@@ -1,5 +1,6 @@
 export * from "./ControlMetadata.js";
 export * from "./Control.js";
+export * from "./DOMControl.js";
 
 export * from "./AutosizeMode.js";
 

@@ -6,7 +6,7 @@ import { LengthCSSPropertyConverter } from "../../Coordinates/ValueConverters/in
 import { Length } from "../../Coordinates/index.js";
 import { MarkupElement } from "../../Markup/index.js";
 import { Shape } from "./index.js";
-import { ControlManager } from "../index.js";
+import { ControlManager, DOMControl } from "../index.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -15,7 +15,7 @@ export class Rectangle extends Shape {
         super.__initialization();
 
         //Add an SVG Rect to the visual tree
-        const PART_rect = MarkupElement.fromDomElement(document.createElementNS(SVG_NS, "rect"));
+        const PART_rect = new DOMControl("rect", SVG_NS);
         PART_rect.attributes.setMany({
             x: "0",
             y: "0",
@@ -35,7 +35,7 @@ export class Rectangle extends Shape {
         Blender.execute(this, DependencyObject, o => new PropertyAttributeBinding(o, Rectangle.ryProperty, <Element>this.__PART_rect.domElement, "ry", null, { valueConverter: new LengthCSSPropertyConverter(), direction: BindingDirection.ToTarget }));
     }
 
-    protected __PART_rect!: MarkupElement;
+    protected __PART_rect!: DOMControl;
 
     static rxProperty = DependencyProperty.register(Rectangle, "rx", { defaultValue: Length.zero, valueType: Type.of(Length) });
     get rx(): Length { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.rxProperty)); }

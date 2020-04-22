@@ -1,6 +1,6 @@
 ﻿import { ArgumentTypeException } from "../Exceptions.js";
 import { Enumeration } from "../Enumeration.js";
-import { BroadcastFrameworkEvent } from "../Events/index.js";
+import { BroadcastFrameworkEvent, FrameworkEventArgs } from "../Events/index.js";
 
 export const ServerTaskStatus = Enumeration.create({
     Pending: null,
@@ -38,7 +38,7 @@ export class ServerTask<TResult> {
         function notifySuccess(this: ServerTask<TResult>) {
             notifyStatus.call(this, ServerTaskStatus.Success);
 
-            this.succeededEvent.broadcast(this, {});
+            this.succeededEvent.broadcast(this, new FrameworkEventArgs());
             this.finishedEvent.broadcast(this, { error: null });
         }
 
@@ -48,7 +48,7 @@ export class ServerTask<TResult> {
             this.__error = error;
 
             this.failedEvent.broadcast(this, { error: error });
-            this.finishedEvent.broadcast(this, {});
+            this.finishedEvent.broadcast(this, new FrameworkEventArgs());
         }
 
         function failed(this: ServerTask<TResult>, error: any) {

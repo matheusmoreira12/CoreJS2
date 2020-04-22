@@ -1,7 +1,6 @@
 ﻿import { InvalidOperationException, ArgumentTypeException } from "../../Standard/index.js";
 import { Type, Class } from "../../Standard/Types/index.js";
 import { Collection } from "../../Standard/Collections/index.js";
-import { DOMUtils } from "../index.js";
 import { ControlMetadata } from "./ControlMetadata.js";
 import { Control } from "./Control.js";
 import { assertParams } from "../../Validation/index.js";
@@ -14,7 +13,7 @@ type ControlConstructor<TControl extends Control> = new (name: string) => TContr
 const registeredControls: Collection<ControlMetadata> = new Collection();
 
 function convertNodeNameToDOMNodeName(name: NodeName) {
-    return `${name.prefix}${StringUtils.toHyphenCase(name.name)}`;
+    return `${name.prefix}-${StringUtils.toHyphenCase(name.name)}`;
 }
 
 function getRegisteredControlByName(name: string): ControlMetadata | null {
@@ -22,7 +21,7 @@ function getRegisteredControlByName(name: string): ControlMetadata | null {
 }
 
 function getRegisteredControlByDOMName(domName: string): ControlMetadata | null {
-    return registeredControls.find(m => convertNodeNameToDOMNodeName(m.name) == name) || null;
+    return registeredControls.find(m => convertNodeNameToDOMNodeName(m.name).toLowerCase() == domName.toLowerCase()) || null;
 }
 
 function getRegisteredControlByConstructor<TControl extends Control>(controlConstructor: Class<Control>): ControlMetadata<TControl> | null {

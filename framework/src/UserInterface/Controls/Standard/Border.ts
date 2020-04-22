@@ -1,4 +1,3 @@
-import { ContainerControl } from "./index.js";
 import { ControlManager, Control } from "../index.js";
 import { Rectangle, Shape } from "../Shapes/index.js";
 import { Blender } from "../../../Standard/Blender/index.js";
@@ -6,9 +5,8 @@ import { DependencyObject, DependencyProperty } from "../../DependencyObjects/in
 import { PropertyBinding, BindingDirection } from "../../Bindings/index.js";
 import { Type } from "../../../Standard/Types/index.js";
 import { Length } from "../../Coordinates/index.js";
-import { VisualTreeElement } from "../../VisualTrees/index.js";
 
-export class Border extends ContainerControl {
+export class Border extends Control {
     __initialization() {
         super.__initialization();
 

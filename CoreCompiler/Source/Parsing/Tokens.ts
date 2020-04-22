@@ -1,5 +1,5 @@
-import Token, { TokenModel } from "../Tokens/Token";
-import Tokenizer from "../Tokens/Tokenizer";
+import Token, { TokenModel } from "../Tokens/Token.js";
+import Tokenizer from "../Tokens/Tokenizer.js";
 
 export namespace Tokens {
     //Tokens

@@ -8,20 +8,19 @@ import { PropertyChangeEventArgs, DependencyProperty } from "../DependencyObject
 import { IDependencyObject } from "../DependencyObjects/IDependencyObject.js";
 import { NodeName } from "./NodeName.js";
 
-export abstract class MarkupNode extends Destructible implements IDependencyObject {
+export abstract class MarkupNodeName extends Destructible implements IDependencyObject {
     constructor(name: string) {
         super();
 
         assertParams({ name: name }, [String]);
 
-        if (new.target === MarkupNode)
+        if (new.target === MarkupNodeName)
             throw new InvalidOperationException("Invalid constructor.");
 
         this.__name = new NodeName(name);
 
         Blender.blend(DependencyObject, this);
         Blender.initialize(DependencyObject, this);
-
         Blender.get(DependencyObject, this).PropertyChangeEvent.attach(this.PropertyChangeEvent);
         this.get = Blender.execute(this, DependencyObject, o => o.get.bind(o));
         this.set = Blender.execute(this, DependencyObject, o => o.set.bind(o));

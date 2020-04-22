@@ -8,7 +8,6 @@ export * from "./AutoScroller.js";
 export * from "./DragDropHandler.js";
 export * from "./DragEmulator.js";
 export * from "../Standard/Timing/Timer.js";
-export * from "./VisualTrees/VisualTreeNode.js";
 
 import * as DOMUtils from "./DOMUtils.js";
 export { DOMUtils };
@@ -43,8 +42,8 @@ export { ValueConverters }
 import * as Fonts from "./Fonts/index.js";
 export { Fonts };
 
-import * as VisualTrees from "./VisualTrees/index.js";
-export { VisualTrees };
+import * as Markup from "./Markup/index.js";
+export { Markup };
 
 import * as Resources from "./Resources/index.js";
 export { Resources };

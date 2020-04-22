@@ -1,4 +1,4 @@
-import { MarkupNode } from "./MarkupNode.js";
+import { MarkupNodeName } from "./MarkupNodeName.js";
 import { Enumeration } from "../../Standard/index.js";
 import { ObservableCollectionChangeArgs, ObservableCollectionChangeAction, ObservableCollection } from "../../Standard/Collections/index.js";
 import { MarkupAttribute } from "./MarkupAttribute.js";
@@ -10,7 +10,7 @@ import { ChildrenChangeEventArgs, AttributesChangeEventArgs } from "./index.js";
 import { ChildrenChangeAction } from "./ChildrenChangeAction.js";
 import { AttributesChangeAction } from "./AttributesChangeAction.js";
 
-export class MarkupElement extends MarkupNode {
+export class MarkupElement extends MarkupNodeName {
     constructor(name: string) {
         super(name);
 
