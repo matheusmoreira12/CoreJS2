@@ -1,85 +1,10 @@
-import { ObjectUtils, MapUtils } from "../CoreBase/Utils/index.js";
-import { AjaxReadyState } from "./AjaxReadyState";
-import { AjaxMethod } from "./AjaxMethod";
-import { IAjaxOptions } from "./IAjaxOptions";
-import { IAjaxCallbacks } from "./IAjaxCallbacks";
+import { AjaxMethod } from "./AjaxMethod.js";
+import { IAjaxOptions } from "./IAjaxOptions.js";
+import { IAjaxCallbacks } from "./IAjaxCallbacks.js";
 import { assertParams } from "../Validation/index.js";
-
-export const STATUS = ObjectUtils.getDeepReadonly({
-    INFORMATIONAL: {
-        CONTINUE: 100,
-        SWITCHING_PROTOCOL: 101,
-        PROCESSING: 102,
-        EARLY_HINTS: 103
-    },
-    SUCCESSFUL: {
-        OK: 200,
-        CREATED: 201,
-        ACCEPTED: 202,
-        NON_AUTHORITATIVE_INFORMATION: 203,
-        NO_CONTENT: 204,
-        RESET_CONTENT: 205,
-        PARTIAL_CONTENT: 206,
-        MULTI_STATUS: 207,
-        ALREADY_REPORTED: 208,
-        IM_USED: 226
-    },
-    REDIRECTION: {
-        MULTIPLE_CHOICE: 300,
-        MOVED_PERMANENTLY: 301,
-        FOUND: 302,
-        SEE_OTHER: 303,
-        NOT_MODIFIED: 304,
-        USE_PROXY: 305,
-        UNUSED: 306,
-        TEMPORARY_REDIRECT: 307,
-        PERMANENT_REDIRECT: 308
-    },
-    CLIENT_ERROR: {
-        BAD_REQUEST: 400,
-        UNAUTHORIZED: 401,
-        PAYMENT_REQUIRED: 402,
-        FORBIDDEN: 403,
-        NOT_FOUND: 404,
-        METHOD_NOT_ALLOWED: 405,
-        NOT_ACCEPTABLE: 406,
-        PROXY_AUTHENTICATION_REQUIRED: 407,
-        REQUEST_TIMEOUT: 408,
-        CONFLICT: 409,
-        GONE: 410,
-        LENGTH_REQUIRED: 411,
-        PRECONDITION_FAILED: 412,
-        PAYLOAD_TOO_LARGE: 413,
-        URI_TOO_LONG: 414,
-        UNSUPPORTED_MEDIA_TYPE: 415,
-        REQUESTED_RANGE_NOT_SATISFIABLE: 416,
-        EXPECTATION_FAILED: 417,
-        IM_A_TEAPOT: 418,
-        MISDIRECTED_REQUEST: 421,
-        UNPROCESSABLE_ENTITY: 422,
-        LOCKED: 423,
-        FAILED_DEPENDENCY: 424,
-        TOO_EARLY: 425,
-        UPGRADE_REQUIRED: 426,
-        PRECONDITION_REQUIRED: 428,
-        TOO_MANY_REQUESTS: 429,
-        REQUEST_HEADER_FIELDS_TOO_LARGE: 431,
-        UNAVAILABLE_FOR_LEGAL_REASONS: 451,
-    },
-    SERVER_ERROR: {
-        INTERNAL_SERVER_ERROR: 500,
-        NOT_IMPLEMENTED: 501,
-        BAD_GATEWAY: 502,
-        SERVICE_UNAVAILABLE: 503,
-        GATEWAY_TIMEOUT: 504,
-        HTTP_VERSION_NOT_SUPPORTED: 505,
-        VARIANT_ALSO_NEGOTIATES: 506,
-        INSUFFICIENT_STORAGE: 507,
-        LOOP_DETECTED: 508,
-        NOT_EXTENDED: 510,
-        NETWORK_AUTHENTICATION_REQUIRED: 511
-    },
-});
+import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
+import { Destructible } from "../Standard/index.js";
+import { AjaxEventArgs } from "./AjaxEventArgs.js";
 
 const AJAX_METHOD_MAP = new Map([
     [AjaxMethod.Get, "GET"],
@@ -104,28 +29,46 @@ const AJAX_RESPONSE_TYPE_MAP = new Map([
     [AjaxResponseType.Text, "text"],
 ]);
 
-export type AjaxAbortEventHandler = (this: Ajax) => void;
-export type AjaxErrorEventHandler = (this: Ajax, status?: number, statusText?: string) => void;
-export type AjaxLoadEventHandler = (this: Ajax, response?: any, responseType?: AjaxResponseType) => void;
-export type AjaxLoadEndEventHandler = (this: Ajax) => void;
-export type AjaxLoadStartEventHandler = (this: Ajax) => void;
-export type AjaxProgressEventHandler = (this: Ajax, loaded?: number, total?: number) => void;
-export type AjaxReadyStateChangeEventHandler = (this: Ajax, readyState?: number) => void;
-export type AjaxTimeoutEventHandler = (this: Ajax) => void;
+/**
+ * A wrapper class for XMLHTTPRequest for making inline Ajax requests.
+ */
+export class Ajax extends Destructible {
+    static send(method: number, url: string, callbacks: IAjaxCallbacks = {}, options: IAjaxOptions = {}): Promise<Response> {
+        assertParams({ callbacks }, [IAjaxCallbacks]);
+        assertParams({ options }, [IAjaxOptions]);
 
-export class Ajax {
-    static send(method: number, url: string, callbacks?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
-        return new Promise((resolve, reject) => {
-            let ajax = new Ajax(method, url, callbacks, options);
+        //Create ajax wrapper
+        const ajax = new Ajax(method, url);
 
-            ajax.__onload = (response: any) => {
-                resolve(response);
-            };
+        //Attach callbacks
+        const { onAbort, onError, onLoad, onLoadEnd, onLoadStart, onProgress, onReadyStateChange, onTimeout } = callbacks;
+        if (onAbort !== undefined)
+            ajax.AbortEvent.attach(onAbort);
+        if (onError !== undefined)
+            ajax.ErrorEvent.attach(onError);
+        if (onLoad !== undefined)
+            ajax.LoadEvent.attach(onLoad);
+        if (onLoadEnd !== undefined)
+            ajax.LoadEndEvent.attach(onLoadEnd);
+        if (onLoadStart !== undefined)
+            ajax.LoadStartEvent.attach(onLoadStart);
+        if (onProgress !== undefined)
+            ajax.ProgressEvent.attach(onProgress);
+        if (onReadyStateChange !== undefined)
+            ajax.ReadyStateChangeEvent.attach(onReadyStateChange);
+        if (onTimeout !== undefined)
+            ajax.TimeoutEvent.attach(onTimeout);
 
-            ajax.__onerror = (status: number | undefined, statusText: string | undefined) => {
-                reject(`Server responded with status ${status} (${statusText}).`);
-            };
-        });
+        //Set options
+        const { responseType, mimeType, body } = options;
+        if (responseType !== undefined)
+            ajax.responseType = responseType;
+        if (mimeType !== undefined)
+            ajax.mimeType = mimeType;
+        if (body !== undefined)
+            ajax.body = body;
+
+        return ajax.loaded;
     }
 
     static get(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
@@ -164,105 +107,62 @@ export class Ajax {
         return this.send(AjaxMethod.Patch, url, events, options);
     }
 
-    constructor(method: number, url: string, callbacks: IAjaxCallbacks = {}, options: IAjaxOptions = {}) {
+    constructor(method: number, url: string) {
+        super();
+
         assertParams({ method }, [Number]);
         assertParams({ url }, [String]);
-        assertParams({ callbacks }, [IAjaxCallbacks]);
-        assertParams({ options }, [IAjaxOptions]);
 
         AjaxMethod.assertFlag(method);
 
         this.__method = method;
         this.__url = url;
-        this.__callbacks = callbacks;
-        this.__options = options;
 
-        const { onabort, onerror, onload, onloadend, onloadstart, onprogress, onreadystatechange, ontimeout } = callbacks;
-        const { body, mimeType, responseType } = options;
-
-        let request = new XMLHttpRequest();
-        this.__xhr = request;
-
-        if (onabort !== undefined)
-            this.__onabort = onabort;
-        if (onerror !== undefined)
-            this.__onerror = onerror;
-        if (onload !== undefined)
-            this.__onload = onload;
-        if (onloadend !== undefined)
-            this.__onloadend = onloadend;
-        if (onloadstart !== undefined)
-            this.__onloadstart = onloadstart;
-        if (onprogress !== undefined)
-            this.__onprogress = onprogress;
-        if (onreadystatechange !== undefined)
-            this.__onreadystatechange = onreadystatechange;
-        if (ontimeout !== undefined)
-            this.__ontimeout = ontimeout;
+        let xhr = new XMLHttpRequest();
+        this.__xhr = xhr;
 
         let ajaxMethodStr = AJAX_METHOD_MAP.get(method)!;
-        request.open(ajaxMethodStr, url);
+        xhr.open(ajaxMethodStr, url);
 
-        if (responseType !== undefined)
-            request.responseType = <XMLHttpRequestResponseType>(AJAX_RESPONSE_TYPE_MAP.get(responseType)!);
         if (mimeType !== undefined)
-            request.overrideMimeType(mimeType);
-
-        request.onabort = this.__request_onabort_handler.bind(this);
-        request.onerror = this.__request_onerror_handler.bind(this);
-        request.onload = this.__request_onload_handler.bind(this);
-        request.onloadend = this.__request_onloadend_handler.bind(this);
-        request.onloadstart = this.__request_onloadstart_handler.bind(this);
-        request.onprogress = this.__request_onprogress_handler.bind(this);
-        request.ontimeout = this.__request_ontimeout_handler.bind(this);
-        request.onreadystatechange = this.__request_onreadystatechange_handler.bind(this);
-
-        request.send(body);
+            xhr.overrideMimeType(mimeType);
+        xhr.send(body);
     }
 
-    __request_onabort_handler(this: Ajax, evt: ProgressEvent) {
-        if (this.__onabort)
-            this.__onabort.call(this);
-    }
-    __request_onerror_handler(this: Ajax, evt: ProgressEvent) {
-        if (this.__onerror)
-            this.__onerror.call(this, this.__xhr.status, this.__xhr.statusText);
-    }
-    __request_onload_handler(this: Ajax, evt: ProgressEvent) {
-        const responseType = MapUtils.invert(AJAX_RESPONSE_TYPE_MAP).get(this.__xhr.responseType)!;
+    AbortEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    ErrorEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    LoadEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    LoadEndEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    LoadStartEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    ProgressEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    ReadyStateChangeEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    TimeoutEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
 
-        if (this.__onload)
-            this.__onload.call(this, this.__xhr.response, responseType);
+    __request_onAbort_handler(this: Ajax) {
+        this.AbortEvent.invoke(this, new FrameworkEventArgs());
     }
-    __request_onloadend_handler(this: Ajax, evt: ProgressEvent) {
-        if (this.__onloadend)
-            this.__onloadend.call(this);
+    __request_onError_handler(this: Ajax) {
+        this.ErrorEvent.invoke(this, args);
     }
-    __request_onloadstart_handler(this: Ajax, evt: ProgressEvent) {
-        if (this.__onloadstart)
-            this.__onloadstart.call(this);
+    __request_onLoad_handler(this: Ajax) {
+        this.LoadEvent.invoke(this, args);
     }
-    __request_onprogress_handler(this: Ajax, evt: ProgressEvent) {
-        if (this.__onprogress)
-            this.__onprogress.call(this, evt.loaded, evt.total);
+    __request_onLoadEnd_handler(this: Ajax) {
+        this.LoadEndEvent.invoke(this, args);
     }
-    __request_ontimeout_handler(this: Ajax, evt: ProgressEvent) {
-        if (this.__ontimeout)
-            this.__ontimeout.call(this);
+    __request_onLoadStart_handler(this: Ajax) {
+        this.LoadStartEvent.invoke(this, args);
     }
-    __request_onreadystatechange_handler(this: Ajax, evt: Event) {
-        if (this.__onreadystatechange)
-            this.__onreadystatechange.call(this, this.__xhr.readyState);
+    __request_onProgress_handler(this: Ajax, evt: ProgressEvent) {
+        this.ProgressEvent.invoke(this, args);
+    }
+    __request_ontimeout_handler(this: Ajax) {
+        this.TimeoutEvent.invoke(this, args);
+    }
+    __request_onReadyStateChange_handler(this: Ajax) {
+        this.ReadyStateChangeEvent.invoke(this, args);
     }
 
-    private __onabort: AjaxAbortEventHandler | null = null;
-    private __onerror: AjaxErrorEventHandler | null = null;
-    private __onload: AjaxLoadEventHandler | null = null;
-    private __onloadend: AjaxLoadEndEventHandler | null = null;
-    private __onloadstart: AjaxLoadStartEventHandler | null = null;
-    private __onprogress: AjaxProgressEventHandler | null = null;
-    private __onreadystatechange: AjaxReadyStateChangeEventHandler | null = null;
-    private __ontimeout: AjaxTimeoutEventHandler | null = null;
     private __xhr: XMLHttpRequest;
 
     get method(): number { return this.__method; }
@@ -271,9 +171,36 @@ export class Ajax {
     get url(): string { return this.__url; }
     private __url: string;
 
-    get events(): IAjaxCallbacks { return this.__callbacks; };
-    private __callbacks: IAjaxCallbacks;
+    get loaded(): Promise<Response> { return this.__loaded; }
+    private __loaded: Promise<Response>;
 
-    get options(): IAjaxOptions { return this.__options; };
-    private __options: IAjaxOptions;
+    set responseType(value: AjaxResponseType) {
+        const responseTypeNative = <XMLHttpRequestResponseType>(AJAX_RESPONSE_TYPE_MAP.get(value));
+        this.__xhr.responseType = responseTypeNative;
+        this.__responseType = value;
+    }
+    get responseType(): AjaxResponseType { return this.__responseType; }
+    private __responseType: AjaxResponseType = AjaxResponseType.Default;
+
+    protected destructor() {
+        if (this.__xhr.status == 0)
+            this.__xhr.abort();
+
+        if (!this.AbortEvent.isDestructed)
+            this.AbortEvent.destruct();
+        if (!this.ErrorEvent.isDestructed)
+            this.ErrorEvent.destruct();
+        if (!this.LoadEvent.isDestructed)
+            this.LoadEvent.destruct();
+        if (!this.LoadEndEvent.isDestructed)
+            this.LoadEndEvent.destruct();
+        if (!this.LoadStartEvent.isDestructed)
+            this.LoadStartEvent.destruct();
+        if (!this.ProgressEvent.isDestructed)
+            this.ProgressEvent.destruct();
+        if (!this.ReadyStateChangeEvent.isDestructed)
+            this.ReadyStateChangeEvent.destruct();
+        if (!this.TimeoutEvent.isDestructed)
+            this.TimeoutEvent.destruct();
+    }
 };

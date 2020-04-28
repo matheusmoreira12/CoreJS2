@@ -1,6 +1,7 @@
-import { AjaxAbortEventHandler, AjaxErrorEventHandler, AjaxLoadEventHandler, AjaxLoadEndEventHandler, AjaxLoadStartEventHandler, AjaxProgressEventHandler, AjaxReadyStateChangeEventHandler, AjaxTimeoutEventHandler } from "./Ajax.js";
 import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/index.js";
 import { MemberAttributes } from "../Standard/Types/Types.js";
+import { FrameworkEventListener } from "../Standard/Events/index.js";
+import { AjaxEventArgs } from "./AjaxEventArgs.js";
 
 export const IAjaxCallbacks = new Interface(
     new InterfaceMember("onabort", InterfaceMemberType.Function, null, MemberAttributes.Enumerable, true),
@@ -14,12 +15,12 @@ export const IAjaxCallbacks = new Interface(
 );
 
 export interface IAjaxCallbacks {
-    onabort?: AjaxAbortEventHandler;
-    onerror?: AjaxErrorEventHandler;
-    onload?: AjaxLoadEventHandler;
-    onloadend?: AjaxLoadEndEventHandler;
-    onloadstart?: AjaxLoadStartEventHandler;
-    onprogress?: AjaxProgressEventHandler;
-    onreadystatechange?: AjaxReadyStateChangeEventHandler;
-    ontimeout?: AjaxTimeoutEventHandler;
+    onAbort?: FrameworkEventListener<AjaxEventArgs>;
+    onError?: FrameworkEventListener<AjaxEventArgs>;
+    onLoad?: FrameworkEventListener<AjaxEventArgs>;
+    onLoadEnd?: FrameworkEventListener<AjaxEventArgs>;
+    onLoadStart?: FrameworkEventListener<AjaxEventArgs>;
+    onProgress?: FrameworkEventListener<AjaxEventArgs>;
+    onReadyStateChange?: FrameworkEventListener<AjaxEventArgs>;
+    onTimeout?: FrameworkEventListener<AjaxEventArgs>;
 };
