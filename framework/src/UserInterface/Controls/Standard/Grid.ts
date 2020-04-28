@@ -1,14 +1,13 @@
-import { Control, ControlManager } from "../index.js";
-import { DependencyProperty, PropertyChangeEventArgs, DependencyObject } from "../../DependencyObjects/index.js";
+import { Control } from "../index.js";
+import { DependencyProperty, DependencyObject } from "../../DependencyObjects/index.js";
 import { Type } from "../../../Standard/Types/Type.js";
 import { ColumnDefinition, RowDefinition } from "../Grids/index.js";
 import { PropertyBinding, BindingDirection } from "../../Bindings/index.js";
 import { Blender } from "../../../Standard/Blender/index.js";
 import { ControlStyle } from "../Styling/index.js";
 import { Enumeration } from "../../../Standard/index.js";
-import { ObservableCollectionChangeAction, ObservableCollectionChangeArgs } from "../../../Standard/Collections/index.js";
 import { RowDefinitionCollectionCSSGridRowTemplateConverter, ColumnDefinitionCollectionCSSGridColumnTemplateConverter, GridSpanCSSGridEndConverter, GridPositionCSSGridStartConverter } from "../Grids/ValueConverters/index.js";
-import { MarkupElement, ChildrenChangeEventArgs } from "../../Markup/index.js";
+import { ChildrenChangeEventArgs, ChildrenChangeAction } from "../../Markup/index.js";
 
 export class Grid extends Control {
     __initialization() {
@@ -23,7 +22,7 @@ export class Grid extends Control {
     protected __onChildrenChange(sender: any, args: ChildrenChangeEventArgs) {
         super.__onChildrenChange(sender, args);
 
-        if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
+        if (Enumeration.contains(ChildrenChangeAction.Add, args.action)) {
             for (let child of args.newChildren) {
                 if (child instanceof Control) {
                     new PropertyBinding(Blender.get(DependencyObject, child), Grid.rowProperty, Blender.get(DependencyObject, child.style), ControlStyle.gridRowStartProperty, { direction: BindingDirection.ToTarget, valueConverter: new GridPositionCSSGridStartConverter() });
@@ -51,4 +50,3 @@ export class Grid extends Control {
 
     static columnSpanProperty = DependencyProperty.register(Grid, "columnSpan", { valueType: Type.get(Number), defaultValue: 1 });
 }
-ControlManager.register(Grid, "core:Grid");

@@ -1,5 +1,5 @@
 ﻿import { URLToken } from "./URLTokenifier.js";
-import { assertParams } from "../..\/ValidationStandalone/index.js";
+import { assertParams } from "../../ValidationStandalone/index.js";
 
 export class URLQueryParameter {
     static fromToken(token: URLToken): URLQueryParameter | null {

@@ -4,7 +4,7 @@ import { DependencyObject, PropertyChangeEventArgs, DependencyProperty } from ".
 import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
 import { FontSVGFontFamilyAttributeConverter, FontSVGFontSizeAttributeConverter, FontSVGFontWeightAttributeConverter, FontSVGFontStyleAttributeConverter, FontSVGTextDecorationAttributeConverter } from "../../Fonts/ValueConverters/index.js";
 import { Font } from "../../Fonts/index.js";
-import { ControlManager, DOMControl } from "../index.js";
+import { DOMControl } from "../index.js";
 import { Shape } from "./index.js";
 import { Length } from "../../Coordinates/index.js";
 
@@ -62,4 +62,3 @@ export class Text extends Shape {
     get textHeight(): Length { return this.get(Text.textHeightProperty); }
     set textHeight(value: Length) { this.set(Text.textHeightProperty, value); }
 }
-ControlManager.register(Text, "core:Text");

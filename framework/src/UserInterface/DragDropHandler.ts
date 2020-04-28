@@ -1,6 +1,6 @@
 ﻿import { Enumeration } from "../Standard/Enumeration.js";
 import { Timer } from "../Standard/Timing/index.js";
-import { BroadcastFrameworkEvent, FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
+import { BroadcastEvent, FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
 import DragEmulator from "./DragEmulator.js";
 import { Destructible } from "../Standard/index.js";
 import { DOMUtils } from "./index.js";
@@ -326,10 +326,10 @@ export class DragDropHandler extends Destructible {
         }
     }
 
-    private __NotifyDragStartEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragStart");
-    private __NotifyDragMoveEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragMove", this.__onNotifyDragMove.bind(this));
-    private __NotifyDragEndEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragEnd", this.__onNotifyDragEnd.bind(this));
-    private __NotifyDragCancelEvent = new BroadcastFrameworkEvent("DragDropHandler_NotifyDragCancel");
+    private __NotifyDragStartEvent = new BroadcastEvent("DragDropHandler_NotifyDragStart");
+    private __NotifyDragMoveEvent = new BroadcastEvent("DragDropHandler_NotifyDragMove", this.__onNotifyDragMove.bind(this));
+    private __NotifyDragEndEvent = new BroadcastEvent("DragDropHandler_NotifyDragEnd", this.__onNotifyDragEnd.bind(this));
+    private __NotifyDragCancelEvent = new BroadcastEvent("DragDropHandler_NotifyDragCancel");
 
     private __data = null;
     private __context = null;

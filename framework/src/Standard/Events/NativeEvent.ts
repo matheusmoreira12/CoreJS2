@@ -1,29 +1,7 @@
-import { FrameworkEventListener, FrameworkEventArgs } from "./Events.js";
-import { FrameworkEvent } from "./FrameworkEvent.js";
-
-const $target = Symbol("target");
-const $event = Symbol("event");
+import { FrameworkEvent, FrameworkEventListener } from "./FrameworkEvent.js";
+import { NativeEventArgs } from "./NativeEventArgs.js";
 
 type NativeEventListener = FrameworkEventListener<NativeEventArgs>;
-
-export class NativeEventArgs extends FrameworkEventArgs {
-    constructor(target: any, event: Event) {
-        super();
-
-        this[$target] = target;
-        this[$event] = event;
-
-        Object.assign(this, event);
-    }
-
-    get target(): any { return this[$target]; }
-    private [$target]: any;
-
-    get event(): Event { return this[$event]; }
-    private [$event]: Event;
-}
-
-export interface NativeEventArgs extends FrameworkEventArgs, Event {}
 
 /**
  * NativeEvent class

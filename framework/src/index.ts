@@ -11,4 +11,7 @@ import * as Validation from "./Validation/index.js";
 export { Validation };
 
 import * as UserInterface from "./UserInterface/index.js";
-export { UserInterface }
+export { UserInterface };
+
+import * as Web from "./Web/index.js";
+export { Web };

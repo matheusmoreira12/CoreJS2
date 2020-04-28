@@ -1,12 +1,11 @@
-import { FrameworkEvent, FrameworkEventListener } from "./index.js";
+import { FrameworkEvent, FrameworkEventListener, FrameworkEventArgs } from "./index.js";
 import { ArgumentTypeException } from "../index.js";
 import { Collection } from "../Collections/index.js";
-import { FrameworkEventArgs } from "./Events.js";
 
 /**
  * BroadcastFrameworkEvent Class
  * Enables the broadcasting of framework events.*/
-export class BroadcastFrameworkEvent<TArgs extends FrameworkEventArgs> extends FrameworkEvent<TArgs> {
+export class BroadcastEvent<TArgs extends FrameworkEventArgs> extends FrameworkEvent<TArgs> {
     private static __EventBroadcastEvent: FrameworkEvent<any> = new FrameworkEvent();
 
     constructor(name: string, defaultListener?: FrameworkEventListener<TArgs>, defaultListenerThisArg?: any) {
@@ -14,7 +13,7 @@ export class BroadcastFrameworkEvent<TArgs extends FrameworkEventArgs> extends F
 
         this.__name = name;
 
-        BroadcastFrameworkEvent.__EventBroadcastEvent.attach(this.__onEventBroadcast, this);
+        BroadcastEvent.__EventBroadcastEvent.attach(this.__onEventBroadcast, this);
     }
 
     __onEventBroadcast(sender: any, args: any) {
@@ -29,7 +28,7 @@ export class BroadcastFrameworkEvent<TArgs extends FrameworkEventArgs> extends F
     broadcast(sender: any, args: TArgs) {
         super.invoke(sender, args);
 
-        BroadcastFrameworkEvent.__EventBroadcastEvent.invoke(sender, {
+        BroadcastEvent.__EventBroadcastEvent.invoke(sender, {
             originalArgs: args,
             senderEventName: this.__name
         });
@@ -70,7 +69,7 @@ export class BroadcastFrameworkEvent<TArgs extends FrameworkEventArgs> extends F
     private __name: string;
 
     destrutor() {
-        BroadcastFrameworkEvent.__EventBroadcastEvent.detach(this.__onEventBroadcast);
+        BroadcastEvent.__EventBroadcastEvent.detach(this.__onEventBroadcast);
 
         super.destructor();
     }

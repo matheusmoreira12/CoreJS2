@@ -1,4 +1,4 @@
-﻿import { TokenModel } from "../Tokens/Token";
+﻿import { TokenModel } from "../Tokens/Token.js";
 export declare namespace Tokens {
     const abstractToken: TokenModel;
     const breakToken: TokenModel;

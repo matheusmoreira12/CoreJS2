@@ -1,4 +1,4 @@
-﻿import Tokenizer from "./Tokenizer";
+﻿import Tokenizer from "./Tokenizer.js";
 export default class Token {
     constructor(model: TokenModel, source: Tokenizer, start: number, end: number, parent?: Token, children?: (Token)[]);
     model: TokenModel;

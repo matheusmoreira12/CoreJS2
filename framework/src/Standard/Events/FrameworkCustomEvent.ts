@@ -1,5 +1,4 @@
-import { FrameworkEvent, FrameworkEventListener } from "./index.js";
-import { FrameworkEventArgs } from "./Events.js";
+import { FrameworkEvent, FrameworkEventListener, FrameworkEventArgs } from "./index.js";
 
 /**
  * FrameworkCustomEvent class

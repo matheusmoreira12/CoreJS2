@@ -1,11 +1,7 @@
-export * from "./ControlMetadata.js";
 export * from "./Control.js";
 export * from "./DOMControl.js";
 
 export * from "./AutosizeMode.js";
-
-import * as ControlManager from "./ControlManager.js";
-export { ControlManager };
 
 import * as Templating from "./Templating/index.js";
 export { Templating };

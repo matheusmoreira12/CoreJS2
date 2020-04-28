@@ -1,7 +1,6 @@
 import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../DependencyObjects/index.js";
 import { MarkupElement as Control } from "../../Markup/index.js";
 import { Blender } from "../../../Standard/Blender/index.js";
-import { StringUtils } from "../../../CoreBase/Utils/index.js";
 
 export class ControlStyle extends DependencyObject {
     constructor(targetControl: Control) {
@@ -20,8 +19,7 @@ export class ControlStyle extends DependencyObject {
     }
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
-        const propName = StringUtils.toHyphenCase(args.property.name);
-        this.__targetControl.domElement!.style.setProperty(propName, args.newValue);
+        this.__targetControl.domElement!.style[<keyof CSSStyleDeclaration>args.property.name] = args.newValue;
     }
 
     protected __targetControl: Control;
@@ -1858,6 +1856,4 @@ export class ControlStyle extends DependencyObject {
     static zoomProperty = DependencyProperty.register(ControlStyle, "zoom");
     get zoom(): string | null { return this.get(ControlStyle.zoomProperty); }
     set zoom(value: string | null) { this.set(ControlStyle.zoomProperty, value); }
-
-    [Symbol.iterator]!: () => IterableIterator<string>;
 }

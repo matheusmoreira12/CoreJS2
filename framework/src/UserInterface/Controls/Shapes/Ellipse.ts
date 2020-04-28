@@ -1,7 +1,6 @@
 import { Blender } from "../../../Standard/Blender/index.js";
 import { DependencyObject } from "../../DependencyObjects/index.js";
 import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
-import { Control, ControlManager } from "../index.js";
 import { Shape } from "./index.js";
 import { DOMControl } from "../DOMControl.js";
 
@@ -26,4 +25,3 @@ export class Ellipse extends Shape {
 
    protected __PART_ellipse!: DOMControl;
 }
-ControlManager.register(Ellipse, "core:Ellipse");

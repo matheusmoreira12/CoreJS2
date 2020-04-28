@@ -4,9 +4,8 @@ import { DependencyObject, DependencyProperty } from "../../DependencyObjects/in
 import { PropertyAttributeBinding, BindingDirection } from "../../Bindings/index.js";
 import { LengthCSSPropertyConverter } from "../../Coordinates/ValueConverters/index.js";
 import { Length } from "../../Coordinates/index.js";
-import { MarkupElement } from "../../Markup/index.js";
 import { Shape } from "./index.js";
-import { ControlManager, DOMControl } from "../index.js";
+import { DOMControl } from "../index.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -45,4 +44,3 @@ export class Rectangle extends Shape {
     get ry(): Length { return Blender.execute(this, DependencyObject, o => o.get(Rectangle.ryProperty)); }
     set ry(value: Length) { Blender.execute(this, DependencyObject, o => o.set(Rectangle.ryProperty, value)); }
 }
-ControlManager.register(Rectangle, "core:Rectangle");

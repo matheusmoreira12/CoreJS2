@@ -42,23 +42,20 @@ export class MarkupElement extends MarkupNodeName {
     get children(): ObservableCollection<MarkupElement> { return this.get(MarkupElement.childrenProperty); }
     set children(value: ObservableCollection<MarkupElement>) { this.set(MarkupElement.childrenProperty, value); }
 
-    private __attributes_onChange(args: ObservableCollectionChangeArgs<MarkupAttribute>) {
+    private __attributes_onChange(_sender: any, args: ObservableCollectionChangeArgs<MarkupAttribute>) {
         let attributesChangeAction = 0;
-
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems)
                 item.__parent = null;
 
             attributesChangeAction |= AttributesChangeAction.Remove;
         }
-
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
             for (let item of args.newItems)
                 item.__parent = this;
 
             attributesChangeAction |= AttributesChangeAction.Add;
         }
-
         this.AttributesChangeEvent.invoke(this, new AttributesChangeEventArgs(attributesChangeAction, args.oldItems, args.newItems));
     }
 

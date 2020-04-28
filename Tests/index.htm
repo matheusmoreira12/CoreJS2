@@ -3,13 +3,6 @@
 <head>
     <script type="module" src="../framework/dist/index.js"></script>
 
-    <script defer>
-        window.addEventListener("load", function () {
-            for (let i = 0; i < 10; i++)
-                document.body.appendChild(document.createElement("core-button"));
-        });
-    </script>
-
     <style type="text/css">
         body {
             background: #333;
@@ -19,9 +12,14 @@
 </head>
 
 <body>
-    <core:Grid xmlns:core="core">
+    <script>
+        for (let i = 0; i < 10; i++)
+            document.body.appendChild(document.createElement("core-grid"));
+    </script>
 
-    </core:Grid>
+    <xml>
+        
+    </xml>
 </body>
 
 </html>

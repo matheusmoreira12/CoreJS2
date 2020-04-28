@@ -1,4 +1,9 @@
-import { ObjectUtils } from "./Utils/index.js";
+import { ObjectUtils, MapUtils } from "../CoreBase/Utils/index.js";
+import { AjaxReadyState } from "./AjaxReadyState";
+import { AjaxMethod } from "./AjaxMethod";
+import { IAjaxOptions } from "./IAjaxOptions";
+import { IAjaxCallbacks } from "./IAjaxCallbacks";
+import { assertParams } from "../Validation/index.js";
 
 export const STATUS = ObjectUtils.getDeepReadonly({
     INFORMATIONAL: {
@@ -76,55 +81,28 @@ export const STATUS = ObjectUtils.getDeepReadonly({
     },
 });
 
-export enum AjaxReadyState {
-    Unsent = 0,
-    Opened = 1,
-    HeadersReceived = 2,
-    Loading = 3,
-    Done = 4
-};
-
-export enum AjaxMethod { Get, Head, Post, Put, Delete, Connect, Options, Trace, Patch }
-
-const AJAX_METHOD_MAP = [
-    { key: AjaxMethod.Get, value: "GET" },
-    { key: AjaxMethod.Head, value: "HEAD" },
-    { key: AjaxMethod.Post, value: "POST" },
-    { key: AjaxMethod.Put, value: "PUT" },
-    { key: AjaxMethod.Delete, value: "DELETE" },
-    { key: AjaxMethod.Connect, value: "CONNECT" },
-    { key: AjaxMethod.Options, value: "OPTIONS" },
-    { key: AjaxMethod.Trace, value: "TRACE" },
-    { key: AjaxMethod.Patch, value: "PATCH" },
-];
+const AJAX_METHOD_MAP = new Map([
+    [AjaxMethod.Get, "GET"],
+    [AjaxMethod.Head, "HEAD"],
+    [AjaxMethod.Post, "POST"],
+    [AjaxMethod.Put, "PUT"],
+    [AjaxMethod.Delete, "DELETE"],
+    [AjaxMethod.Connect, "CONNECT"],
+    [AjaxMethod.Options, "OPTIONS"],
+    [AjaxMethod.Trace, "TRACE"],
+    [AjaxMethod.Patch, "PATCH"],
+]);
 
 export enum AjaxResponseType { Other, Default, ArrayBuffer, Blob, Document, JSON, Text }
 
-const AJAX_RESPONSE_TYPE_MAP = [
-    { key: AjaxResponseType.Default, value: "" },
-    { key: AjaxResponseType.ArrayBuffer, value: "arraybuffer" },
-    { key: AjaxResponseType.Blob, value: "blob" },
-    { key: AjaxResponseType.Document, value: "document" },
-    { key: AjaxResponseType.JSON, value: "json" },
-    { key: AjaxResponseType.Text, value: "text" },
-];
-
-export type AjaxOptions = {
-    mimeType?: string,
-    responseType?: AjaxResponseType,
-    body?: Document | BodyInit,
-};
-
-export type AjaxCallbacks = {
-    onabort?: AjaxAbortEventHandler,
-    onerror?: AjaxErrorEventHandler,
-    onload?: AjaxLoadEventHandler,
-    onloadend?: AjaxLoadEndEventHandler,
-    onloadstart?: AjaxLoadStartEventHandler,
-    onprogress?: AjaxProgressEventHandler,
-    onreadystatechange?: AjaxReadyStateChangeEventHandler,
-    ontimeout?: AjaxTimeoutEventHandler
-}
+const AJAX_RESPONSE_TYPE_MAP = new Map([
+    [AjaxResponseType.Default, ""],
+    [AjaxResponseType.ArrayBuffer, "arraybuffer"],
+    [AjaxResponseType.Blob, "blob"],
+    [AjaxResponseType.Document, "document"],
+    [AjaxResponseType.JSON, "json"],
+    [AjaxResponseType.Text, "text"],
+]);
 
 export type AjaxAbortEventHandler = (this: Ajax) => void;
 export type AjaxErrorEventHandler = (this: Ajax, status?: number, statusText?: string) => void;
@@ -132,67 +110,74 @@ export type AjaxLoadEventHandler = (this: Ajax, response?: any, responseType?: A
 export type AjaxLoadEndEventHandler = (this: Ajax) => void;
 export type AjaxLoadStartEventHandler = (this: Ajax) => void;
 export type AjaxProgressEventHandler = (this: Ajax, loaded?: number, total?: number) => void;
-export type AjaxReadyStateChangeEventHandler = (this: Ajax, readyState?: AjaxReadyState) => void;
+export type AjaxReadyStateChangeEventHandler = (this: Ajax, readyState?: number) => void;
 export type AjaxTimeoutEventHandler = (this: Ajax) => void;
 
 export class Ajax {
-    static send(method: AjaxMethod, url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static send(method: number, url: string, callbacks?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return new Promise((resolve, reject) => {
-            let ajax = new Ajax(method, url, events, options);
+            let ajax = new Ajax(method, url, callbacks, options);
 
             ajax.__onload = (response: any) => {
                 resolve(response);
             };
 
             ajax.__onerror = (status: number | undefined, statusText: string | undefined) => {
-                reject(`Server responded with status ${status} (${statusText})`);
+                reject(`Server responded with status ${status} (${statusText}).`);
             };
         });
     }
 
-    static get(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static get(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Get, url, events, options);
     }
 
-    static head(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static head(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Head, url, events, options);
     }
 
-    static post(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static post(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Post, url, events, options);
     }
 
-    static put(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static put(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Put, url, events, options);
     }
 
-    static delete(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static delete(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Delete, url, events, options);
     }
 
-    static connect(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static connect(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Connect, url, events, options);
     }
 
-    static options(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static options(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Options, url, events, options);
     }
 
-    static trace(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static trace(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Trace, url, events, options);
     }
 
-    static patch(url: string, events?: AjaxCallbacks, options?: AjaxOptions) {
+    static patch(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Patch, url, events, options);
     }
 
-    constructor(method: AjaxMethod, url: string, events: AjaxCallbacks = {}, options: AjaxOptions = {}) {
+    constructor(method: number, url: string, callbacks: IAjaxCallbacks = {}, options: IAjaxOptions = {}) {
+        assertParams({ method }, [Number]);
+        assertParams({ url }, [String]);
+        assertParams({ callbacks }, [IAjaxCallbacks]);
+        assertParams({ options }, [IAjaxOptions]);
+
+        AjaxMethod.assertFlag(method);
+
         this.__method = method;
         this.__url = url;
-        this.__events = events;
+        this.__callbacks = callbacks;
         this.__options = options;
 
-        const { onabort, onerror, onload, onloadend, onloadstart, onprogress, onreadystatechange, ontimeout } = events;
+        const { onabort, onerror, onload, onloadend, onloadstart, onprogress, onreadystatechange, ontimeout } = callbacks;
         const { body, mimeType, responseType } = options;
 
         let request = new XMLHttpRequest();
@@ -215,10 +200,11 @@ export class Ajax {
         if (ontimeout !== undefined)
             this.__ontimeout = ontimeout;
 
-        request.open(AjaxMethod[method], url);
+        let ajaxMethodStr = AJAX_METHOD_MAP.get(method)!;
+        request.open(ajaxMethodStr, url);
 
         if (responseType !== undefined)
-            request.responseType = <XMLHttpRequestResponseType>((AJAX_RESPONSE_TYPE_MAP.find(i => i.key == responseType) || {}).value || "");
+            request.responseType = <XMLHttpRequestResponseType>(AJAX_RESPONSE_TYPE_MAP.get(responseType)!);
         if (mimeType !== undefined)
             request.overrideMimeType(mimeType);
 
@@ -243,7 +229,7 @@ export class Ajax {
             this.__onerror.call(this, this.__xhr.status, this.__xhr.statusText);
     }
     __request_onload_handler(this: Ajax, evt: ProgressEvent) {
-        const responseType: AjaxResponseType = (AJAX_RESPONSE_TYPE_MAP.find(i => i.value == this.__xhr.responseType) || {}).key || AjaxResponseType.Other;
+        const responseType = MapUtils.invert(AJAX_RESPONSE_TYPE_MAP).get(this.__xhr.responseType)!;
 
         if (this.__onload)
             this.__onload.call(this, this.__xhr.response, responseType);
@@ -279,15 +265,15 @@ export class Ajax {
     private __ontimeout: AjaxTimeoutEventHandler | null = null;
     private __xhr: XMLHttpRequest;
 
-    get method(): AjaxMethod { return this.__method; }
-    private __method: AjaxMethod;
+    get method(): number { return this.__method; }
+    private __method: number;
 
     get url(): string { return this.__url; }
     private __url: string;
 
-    get events(): AjaxCallbacks { return this.__events; };
-    private __events: AjaxCallbacks;
+    get events(): IAjaxCallbacks { return this.__callbacks; };
+    private __callbacks: IAjaxCallbacks;
 
-    get options(): AjaxOptions { return this.__options; };
-    private __options: AjaxOptions;
+    get options(): IAjaxOptions { return this.__options; };
+    private __options: IAjaxOptions;
 };

@@ -1,8 +1,9 @@
 import { Destructible } from "../Destructible.js";
 import { FrameworkEventArgs } from "./index.js";
-import { FrameworkEventListener } from "./index.js";
 import { Dictionary } from "../Collections/Dictionary.js";
-import { assertParams } from "../..\/ValidationStandalone/index.js";
+import { assertParams } from "../../ValidationStandalone/index.js";
+
+export type FrameworkEventListener<TArgs extends object> = (sender: any, args: TArgs) => void;
 
 type FrameworkEventListenerData = { thisArg: any };
 

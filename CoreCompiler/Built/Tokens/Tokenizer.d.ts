@@ -1,4 +1,4 @@
-﻿import { TokenModel } from "./Token";
+﻿import { TokenModel } from "./Token.js";
 export declare type Constructor<T> = (...args: any) => T;
 export declare type Class<T> = {
     constructor: Constructor<T>;

@@ -60,14 +60,14 @@ function assertCollection(collectionName: string, collection: any[], itemTypes: 
     }
 }
 
-export function assertEach(map: { [collectionName: string]: any[] }, itemTypes: Iterable<TypeDesignator>, itemValidationMode: number, collectionTypes: Iterable<TypeDesignator>, collectionValidationMode: number) {
+export function assertEach(map: { [collectionName: string]: any[] }, itemTypes: Iterable<TypeDesignator>, itemValidationMode: number, collectionTypes: Iterable<TypeDesignator> = [Array], collectionValidationMode: number = TypeValidationMode.MatchAny) {
     for (let name in map) {
         const collection = map[name];
         assertCollection(name, collection, itemTypes, itemValidationMode, collectionTypes, collectionValidationMode, InvalidTypeException, InvalidTypeException);
     }
 }
 
-export function assertEachParams(parametersMap: { [collectionName: string]: any[] }, parameterItemTypes: Iterable<TypeDesignator>, parameterItemValidationMode: number = TypeValidationMode.MatchAny, parameterTypes: Iterable<TypeDesignator> = [], parameterValidationMode: number = TypeValidationMode.MatchAny) {
+export function assertEachParams(parametersMap: { [collectionName: string]: any[] }, parameterItemTypes: Iterable<TypeDesignator>, parameterItemValidationMode: number = TypeValidationMode.MatchAny, parameterTypes: Iterable<TypeDesignator> = [Array], parameterValidationMode: number = TypeValidationMode.MatchAny) {
     for (let name in parametersMap) {
         const collection = parametersMap[name];
         assertCollection(name, collection, parameterItemTypes, parameterItemValidationMode, parameterTypes, parameterValidationMode, ArgumentTypeException, ArgumentTypeException);
