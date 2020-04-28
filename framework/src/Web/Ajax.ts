@@ -1,10 +1,7 @@
-import { AjaxMethod } from "./AjaxMethod.js";
-import { IAjaxOptions } from "./IAjaxOptions.js";
-import { IAjaxCallbacks } from "./IAjaxCallbacks.js";
+import { AjaxMethod, AjaxResponseType, IAjaxCallbacks, IAjaxOptions, AjaxEventArgs } from "./index.js";
+import { Destructible } from "../Standard/index.js";
 import { assertParams } from "../Validation/index.js";
 import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
-import { Destructible } from "../Standard/index.js";
-import { AjaxEventArgs } from "./AjaxEventArgs.js";
 
 const AJAX_METHOD_MAP = new Map([
     [AjaxMethod.Get, "GET"],
@@ -18,7 +15,7 @@ const AJAX_METHOD_MAP = new Map([
     [AjaxMethod.Patch, "PATCH"],
 ]);
 
-export enum AjaxResponseType { Other, Default, ArrayBuffer, Blob, Document, JSON, Text }
+const toNativeMethod = (method: number) => AJAX_METHOD_MAP.get(method)!;
 
 const AJAX_RESPONSE_TYPE_MAP = new Map([
     [AjaxResponseType.Default, ""],
@@ -29,6 +26,11 @@ const AJAX_RESPONSE_TYPE_MAP = new Map([
     [AjaxResponseType.Text, "text"],
 ]);
 
+const toNativeResponseType = (responseType: number) => <XMLHttpRequestResponseType>AJAX_RESPONSE_TYPE_MAP.get(responseType)!;
+
+const DEFAULT_MIME = "application/octet-stream";
+const DEFAULT_RESPONSE_TYPE = AjaxResponseType.Default;
+
 /**
  * A wrapper class for XMLHTTPRequest for making inline Ajax requests.
  */
@@ -38,7 +40,7 @@ export class Ajax extends Destructible {
         assertParams({ options }, [IAjaxOptions]);
 
         //Create ajax wrapper
-        const ajax = new Ajax(method, url);
+        const ajax = new Ajax(method, url, options);
 
         //Attach callbacks
         const { onAbort, onError, onLoad, onLoadEnd, onLoadStart, onProgress, onReadyStateChange, onTimeout } = callbacks;
@@ -58,15 +60,6 @@ export class Ajax extends Destructible {
             ajax.ReadyStateChangeEvent.attach(onReadyStateChange);
         if (onTimeout !== undefined)
             ajax.TimeoutEvent.attach(onTimeout);
-
-        //Set options
-        const { responseType, mimeType, body } = options;
-        if (responseType !== undefined)
-            ajax.responseType = responseType;
-        if (mimeType !== undefined)
-            ajax.mimeType = mimeType;
-        if (body !== undefined)
-            ajax.body = body;
 
         return ajax.loaded;
     }
@@ -107,7 +100,7 @@ export class Ajax extends Destructible {
         return this.send(AjaxMethod.Patch, url, events, options);
     }
 
-    constructor(method: number, url: string) {
+    constructor(method: number, url: string, options: IAjaxOptions = {}) {
         super();
 
         assertParams({ method }, [Number]);
@@ -115,18 +108,32 @@ export class Ajax extends Destructible {
 
         AjaxMethod.assertFlag(method);
 
-        this.__method = method;
-        this.__url = url;
+        const xhr = new XMLHttpRequest();
 
-        let xhr = new XMLHttpRequest();
-        this.__xhr = xhr;
+        const ajaxMethodNative = AJAX_METHOD_MAP.get(method)!;
+        xhr.open(ajaxMethodNative, url);
 
-        let ajaxMethodStr = AJAX_METHOD_MAP.get(method)!;
-        xhr.open(ajaxMethodStr, url);
-
+        const { responseType = DEFAULT_RESPONSE_TYPE, mimeType = DEFAULT_MIME, body = null } = options;
+        if (responseType !== undefined)
+            xhr.responseType = toNativeResponseType(responseType);
         if (mimeType !== undefined)
             xhr.overrideMimeType(mimeType);
+
         xhr.send(body);
+
+        const loaded = new Promise<Response>((resolve, reject) => {
+            xhr.addEventListener("load", (ev) => {
+                resolve(xhr.response);
+            });
+            xhr.addEventListener("error", (ev) => {
+                reject();
+            })
+        });
+        this.__loaded = loaded;
+
+        this.__xhr = xhr;
+        this.__method = method;
+        this.__url = url;
     }
 
     AbortEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
@@ -142,27 +149,28 @@ export class Ajax extends Destructible {
         this.AbortEvent.invoke(this, new FrameworkEventArgs());
     }
     __request_onError_handler(this: Ajax) {
-        this.ErrorEvent.invoke(this, args);
+        this.ErrorEvent.invoke(this, new FrameworkEventArgs());
     }
     __request_onLoad_handler(this: Ajax) {
-        this.LoadEvent.invoke(this, args);
+        this.LoadEvent.invoke(this, new FrameworkEventArgs());
     }
     __request_onLoadEnd_handler(this: Ajax) {
-        this.LoadEndEvent.invoke(this, args);
+        this.LoadEndEvent.invoke(this, new FrameworkEventArgs());
     }
     __request_onLoadStart_handler(this: Ajax) {
-        this.LoadStartEvent.invoke(this, args);
+        this.LoadStartEvent.invoke(this, new FrameworkEventArgs());
     }
     __request_onProgress_handler(this: Ajax, evt: ProgressEvent) {
-        this.ProgressEvent.invoke(this, args);
+        this.ProgressEvent.invoke(this, new FrameworkEventArgs());
     }
     __request_ontimeout_handler(this: Ajax) {
-        this.TimeoutEvent.invoke(this, args);
+        this.TimeoutEvent.invoke(this, new FrameworkEventArgs());
     }
     __request_onReadyStateChange_handler(this: Ajax) {
-        this.ReadyStateChangeEvent.invoke(this, args);
+        this.ReadyStateChangeEvent.invoke(this, new FrameworkEventArgs());
     }
 
+    get xhr(): XMLHttpRequest { return this.__xhr; }
     private __xhr: XMLHttpRequest;
 
     get method(): number { return this.__method; }
@@ -173,14 +181,6 @@ export class Ajax extends Destructible {
 
     get loaded(): Promise<Response> { return this.__loaded; }
     private __loaded: Promise<Response>;
-
-    set responseType(value: AjaxResponseType) {
-        const responseTypeNative = <XMLHttpRequestResponseType>(AJAX_RESPONSE_TYPE_MAP.get(value));
-        this.__xhr.responseType = responseTypeNative;
-        this.__responseType = value;
-    }
-    get responseType(): AjaxResponseType { return this.__responseType; }
-    private __responseType: AjaxResponseType = AjaxResponseType.Default;
 
     protected destructor() {
         if (this.__xhr.status == 0)

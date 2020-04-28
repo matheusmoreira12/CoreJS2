@@ -1,4 +1,3 @@
-import { AjaxResponseType } from "./Ajax.js";
 import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/index.js";
 import { MemberAttributes, Type } from "../Standard/Types/index.js";
 
@@ -10,6 +9,6 @@ export const IAjaxOptions = new Interface(
 
 export interface IAjaxOptions {
     mimeType?: string;
-    responseType?: AjaxResponseType;
-    body?: Document | BodyInit;
+    responseType?: number;
+    body?: BodyInit;
 };

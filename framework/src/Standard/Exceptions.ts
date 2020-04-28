@@ -1,20 +1,4 @@
 export class FrameworkException extends Error {
-    toString(): string {
-        let result = "";
-
-        result += `Failed with message: "${this.message}" \nData:`;
-
-        for (let field of this.data) {
-            let [fieldName, fieldValue] = field;
-
-            result += `\n\t${fieldName.padEnd(20)} : ${fieldValue}`;
-        }
-
-        result += `\nStack trace: ${this.stack}`;
-
-        return result;
-    }
-
     constructor(message?: string, innerException?: any) {
         super();
 

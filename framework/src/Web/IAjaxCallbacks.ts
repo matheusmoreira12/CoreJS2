@@ -1,7 +1,7 @@
 import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/index.js";
-import { MemberAttributes } from "../Standard/Types/Types.js";
+import { MemberAttributes } from "../Standard/Types/index.js";
 import { FrameworkEventListener } from "../Standard/Events/index.js";
-import { AjaxEventArgs } from "./AjaxEventArgs.js";
+import { AjaxEventArgs } from "./index.js";
 
 export const IAjaxCallbacks = new Interface(
     new InterfaceMember("onabort", InterfaceMemberType.Function, null, MemberAttributes.Enumerable, true),
