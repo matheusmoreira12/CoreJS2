@@ -1,7 +1,5 @@
-export class FrameworkException extends Error {
+export class FrameworkException {
     constructor(message?: string, innerException?: any) {
-        super();
-
         message = message || "An exception has ocurred.";
 
         this.__message = message;
@@ -9,10 +7,10 @@ export class FrameworkException extends Error {
     }
 
     get message() { return this.__message; }
-    __message: string;
+    protected __message: string;
 
     get data() { return new Map(this.__data); }
-    __data = new Map();
+    protected __data = new Map();
 }
 
 export class FormatException extends FrameworkException {
