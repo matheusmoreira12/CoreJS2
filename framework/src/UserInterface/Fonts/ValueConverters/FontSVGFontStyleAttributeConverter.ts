@@ -1,5 +1,5 @@
 import { Font } from "../Font.js";
-import { InvalidOperationException } from "../../../Standard/index.js";
+import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
 import { FontStyleSVGAttributeConverter } from "./FontStyleSVGAttributeConverter.js";
 
 export class FontSVGFontStyleAttributeConverter {

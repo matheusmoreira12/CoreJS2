@@ -1,4 +1,4 @@
-import { ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions.js";
+import { ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions/index.js";
 import { TypeDesignator, AssertionMode } from "./Types.js";
 import { tryAssert, rejectAssert } from "./Utils/AssertionUtils.js";
 

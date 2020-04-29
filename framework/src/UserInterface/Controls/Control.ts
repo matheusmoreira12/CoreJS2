@@ -1,4 +1,5 @@
-import { InvalidOperationException, Enumeration } from "../../Standard/index.js";
+import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
+import { Enumeration } from "../../Standard/index.js";
 import { DragDropHandler, DOMUtils } from "../index.js";
 import { FrameworkEvent, NativeEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
 import { DependencyProperty, DependencyObject } from "../DependencyObjects/index.js";

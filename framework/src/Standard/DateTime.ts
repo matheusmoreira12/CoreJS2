@@ -1,5 +1,5 @@
 import { RegExpXContext } from "./Strings/RegExpXContext.js";
-import { ArgumentTypeException, ArgumentOutOfRangeException } from "./index.js";
+import { ArgumentTypeException, ArgumentOutOfRangeException } from "./Exceptions/index.js"
 import { Enumeration } from "./Enumeration.js";
 
 const REGEXPX_CONTEXT = new RegExpXContext();

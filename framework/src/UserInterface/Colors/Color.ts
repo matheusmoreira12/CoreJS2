@@ -1,5 +1,5 @@
 ﻿import { ColorConversion } from "./index.js";
-import { InvalidOperationException } from "../../Standard/Exceptions.js";
+import { InvalidOperationException } from "../../Standard/Exceptions/index.js";
 import { ColorRGBA } from "./index.js";
 import { ColorRGB } from "./index.js";
 import { ColorHSL } from "./index.js";

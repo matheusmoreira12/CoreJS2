@@ -1,4 +1,4 @@
-import { NotSupportedException } from "../../Standard/index.js";
+import { NotSupportedException } from "../../Standard/Exceptions/index.js"
 import { DeepReadonly, DeepClone } from "./Types.js";
 
 export namespace ObjectUtils {

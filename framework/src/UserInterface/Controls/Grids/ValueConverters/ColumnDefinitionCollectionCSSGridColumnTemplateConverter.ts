@@ -1,7 +1,7 @@
 import { IValueConverter } from "../../../ValueConverters/index.js";
 import { ColumnDefinition } from "../index.js";
 import { LengthCSSPropertyConverter } from "../../../Coordinates/ValueConverters/index.js";
-import { NotSupportedException } from "../../../../Standard/index.js";
+import { NotSupportedException } from "../../../../Standard/Exceptions/index.js"
 
 export class ColumnDefinitionCollectionCSSGridColumnTemplateConverter implements IValueConverter {
     convert(value: ColumnDefinition[] | null): string | null {

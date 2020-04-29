@@ -1,4 +1,4 @@
-﻿import { ArgumentOutOfRangeException, KeyNotFoundException } from "../index.js";
+﻿import { ArgumentOutOfRangeException, KeyNotFoundException } from "../Exceptions/index.js"
 
 /**
  * Collection Class

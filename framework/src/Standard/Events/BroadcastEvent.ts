@@ -1,5 +1,5 @@
 import { FrameworkEvent, FrameworkEventListener, FrameworkEventArgs } from "./index.js";
-import { ArgumentTypeException } from "../index.js";
+import { ArgumentTypeException } from "../Exceptions/index.js"
 import { Collection } from "../Collections/index.js";
 
 /**

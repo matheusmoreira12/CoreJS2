@@ -1,7 +1,7 @@
 import { Class } from "../../Standard/Types/Types.js";
 import { ExecutePredicate } from "./Types.js";
 import { Storage } from "./Storage.js";
-import { InvalidOperationException } from "../Exceptions.js";
+import { InvalidOperationException } from "../Exceptions/index.js";
 import { TryOutput } from "../Types/Types.js";
 import { BlendedInstanceInfo } from "./BlendedInstanceInfo.js";
 

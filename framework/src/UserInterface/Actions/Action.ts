@@ -1,4 +1,5 @@
-import { InvalidOperationException, Destructible } from "../../Standard/index.js";
+import { Destructible } from "../../Standard/index.js";
+import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
 import { Dictionary } from "../../Standard/Collections/index.js";
 import { EventTrigger } from "../Triggers/index.js";
 

@@ -1,4 +1,5 @@
-import { InvalidOperationException, Destructible } from "../../Standard/index.js";
+import { Destructible } from "../../Standard/index.js";
+import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
 import { assertParams } from "../../Validation/index.js";
 import { MarkupElement } from "./MarkupElement.js";
 import { Blender } from "../../Standard/Blender/Blender.js";

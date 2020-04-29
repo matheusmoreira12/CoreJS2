@@ -1,6 +1,6 @@
 import { Type } from "../Types/index.js";
 import { Interface, InterfaceMemberKey } from "./index.js";
-import { ArgumentTypeException } from "../index.js";
+import { ArgumentTypeException } from "../Exceptions/index.js"
 import { MemberAttributes } from "../Types/index.js";
 
 export class InterfaceMember {

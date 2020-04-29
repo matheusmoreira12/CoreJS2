@@ -1,5 +1,6 @@
+import { Destructible } from "../../Standard/index.js";
 import { IBindingOptions, BindingDirection } from "./index.js";
-import { Destructible, InvalidOperationException } from "../../Standard/index.js";
+import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
 import { assertParams } from "../../Validation/index.js";
 
 const DEFAULT_BINDING_OPTIONS: IBindingOptions = {

@@ -1,4 +1,4 @@
-import { IndexOutOfRangeException, ArgumentTypeException } from "../Exceptions.js";
+import { IndexOutOfRangeException, ArgumentTypeException } from "../Exceptions/index.js";
 import { KeyValuePair, Dictionary } from "../Collections/index.js";
 
 export class RegExpXContext {

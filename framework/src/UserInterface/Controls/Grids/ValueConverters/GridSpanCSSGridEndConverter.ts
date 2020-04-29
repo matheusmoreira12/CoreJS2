@@ -1,5 +1,5 @@
 import { IValueConverter } from "../../../ValueConverters/index.js";
-import { NotSupportedException } from "../../../../Standard/index.js";
+import { NotSupportedException } from "../../../../Standard/Exceptions/index.js"
 
 export class GridSpanCSSGridEndConverter implements IValueConverter {
     convert(value: number | number): string | null {

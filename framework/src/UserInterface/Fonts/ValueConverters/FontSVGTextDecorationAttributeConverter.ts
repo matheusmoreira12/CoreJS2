@@ -1,4 +1,4 @@
-import { InvalidOperationException } from "../../../Standard/index.js";
+import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
 import { Font } from "../Font.js";
 import { TextDecorationSVGAttributeConverter } from "./TextDecorationSVGAttributeConverter.js";
 

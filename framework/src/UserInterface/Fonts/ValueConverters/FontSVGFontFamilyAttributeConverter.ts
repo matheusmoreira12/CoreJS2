@@ -1,6 +1,6 @@
 import { IValueConverter } from "../../ValueConverters/index.js";
 import { Font } from "../Font.js";
-import { InvalidOperationException } from "../../../Standard/index.js";
+import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
 
 export class FontSVGFontFamilyAttributeConverter implements IValueConverter {
     convert(value: Font | null): string | null {

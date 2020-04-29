@@ -1,7 +1,8 @@
-import { ArgumentTypeException, InvalidOperationException, InvalidTypeException, Enumeration } from "../index.js";
+import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../Exceptions/index.js"
 import { Interface } from "../Interfaces/index.js";
 import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types.js";
 import { MemberInfo } from "./MemberInfo.js";
+import { Enumeration } from "../index.js";
 
 //Keys for Type
 const $checkInitializationStatus = Symbol("checkInitializationStatus");

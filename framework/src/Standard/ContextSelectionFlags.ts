@@ -1,4 +1,4 @@
-﻿import { ArgumentTypeException } from "./Exceptions.js";
+﻿import { ArgumentTypeException } from "./Exceptions/index.js";
 import { RegExpXContext, RegExpX } from "./Strings/RegExpXContext.js";
 
 const REGEXPX_CONTEXT = new RegExpXContext();

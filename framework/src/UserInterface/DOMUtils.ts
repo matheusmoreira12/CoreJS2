@@ -1,4 +1,4 @@
-import { ArgumentTypeException } from "../Standard/index.js";
+import { ArgumentTypeException } from "../Standard/Exceptions/index.js"
 import { DeferredTask } from "../Standard/Timing/index.js";
 
 export function insertElementAt(parent: Element, position: number, child: Element) {

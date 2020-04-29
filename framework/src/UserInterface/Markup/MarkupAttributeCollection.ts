@@ -1,7 +1,7 @@
 import { ObservableCollection } from "../../Standard/Collections/index.js";
 import { assertParams, assert } from "../../Validation/index.js";
 import { MarkupAttribute } from "./MarkupAttribute.js";
-import { KeyNotFoundException } from "../../Standard/index.js";
+import { KeyNotFoundException } from "../../Standard/Exceptions/index.js"
 import { ObjectUtils } from "../../CoreBase/Utils/index.js";
 
 export class MarkupAttributeCollection extends ObservableCollection<MarkupAttribute> {
