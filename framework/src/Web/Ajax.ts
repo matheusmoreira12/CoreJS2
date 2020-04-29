@@ -2,6 +2,7 @@ import { AjaxMethod, AjaxResponseType, IAjaxCallbacks, IAjaxOptions, AjaxEventAr
 import { Destructible } from "../Standard/index.js";
 import { assertParams } from "../Validation/index.js";
 import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
+import { AjaxRequestFailedException } from "./AjaxRequestFailedException.js";
 
 const AJAX_METHOD_MAP = new Map([
     [AjaxMethod.Get, "GET"],
@@ -109,16 +110,14 @@ export class Ajax extends Destructible {
         AjaxMethod.assertFlag(method);
 
         const xhr = new XMLHttpRequest();
-
-        const ajaxMethodNative = AJAX_METHOD_MAP.get(method)!;
-        xhr.open(ajaxMethodNative, url);
+        this.__xhr = xhr;
+        xhr.open(toNativeMethod(method), url);
 
         const { responseType = DEFAULT_RESPONSE_TYPE, mimeType = DEFAULT_MIME, body = null } = options;
         if (responseType !== undefined)
             xhr.responseType = toNativeResponseType(responseType);
         if (mimeType !== undefined)
             xhr.overrideMimeType(mimeType);
-
         xhr.send(body);
 
         const loaded = new Promise<Response>((resolve, reject) => {
@@ -126,12 +125,11 @@ export class Ajax extends Destructible {
                 resolve(xhr.response);
             });
             xhr.addEventListener("error", (ev) => {
-                reject();
-            })
+                reject(new AjaxRequestFailedException(method, url, xhr.status, xhr.statusText));
+            });
         });
         this.__loaded = loaded;
 
-        this.__xhr = xhr;
         this.__method = method;
         this.__url = url;
     }

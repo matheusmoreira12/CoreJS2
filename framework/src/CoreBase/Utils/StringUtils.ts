@@ -31,8 +31,8 @@ export namespace StringUtils {
     }
 
     export function format(format: string, ...values: any[]) {
-        const ARGUMENT_PATTERN = /\\$(\d+?\\)/g;
-        const formattedString = format.replace(ARGUMENT_PATTERN, (sub: string, index: string) =>
+        const ARGUMENT_PATTERN = /\{(\d+?)\}/g;
+        const formattedString = format.replace(ARGUMENT_PATTERN, (_sub, index) =>
             String(values[Number(index)]));
         return formattedString;
     }
@@ -43,9 +43,16 @@ export namespace StringUtils {
     }
 
     export function formatMap(format: string, map: Map<any, any> | WeakMap<any, any>) {
-        const ARGUMENT_PATTERN = /\\${"(\w+?\\)"}/g;
-        const formattedString = format.replace(ARGUMENT_PATTERN, (_sub, name: string) =>
+        const ARGUMENT_PATTERN = /\{"(\w+?)"\}/g;
+        const formattedString = format.replace(ARGUMENT_PATTERN, (_sub, name) =>
             String(map.get(name)));
+        return formattedString;
+    }
+
+    export function formatObject(format: string, obj: Map<any, any> | WeakMap<any, any>) {
+        const ARGUMENT_PATTERN = /\{"(\w+?)"\}/g;
+        const formattedString = format.replace(ARGUMENT_PATTERN, (_sub, name) =>
+            String(obj[<keyof typeof obj>name]));
         return formattedString;
     }
 

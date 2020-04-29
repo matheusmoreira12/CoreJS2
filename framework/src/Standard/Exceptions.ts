@@ -2,15 +2,17 @@ export class FrameworkException extends Error {
     constructor(message?: string, innerException?: any) {
         super();
 
-        message = message || "A non-specified exception has been encountered.";
+        message = message || "An exception has ocurred.";
 
-        this.message = message;
-        this._data.set("innerException", innerException);
+        this.__message = message;
+        this.__data.set("innerException", innerException);
     }
 
-    _data = new Map();
+    get message() { return this.__message; }
+    __message: string;
 
-    get data() { return new Map(this._data); }
+    get data() { return new Map(this.__data); }
+    __data = new Map();
 }
 
 export class FormatException extends FrameworkException {
@@ -19,8 +21,8 @@ export class FormatException extends FrameworkException {
 
         super(message, innerException);
 
-        this._data.set("expectedFormat", expectedFormat);
-        this._data.set("receivedString", receivedString);
+        this.__data.set("expectedFormat", expectedFormat);
+        this.__data.set("receivedString", receivedString);
     }
 }
 
@@ -54,9 +56,9 @@ export class InvalidTypeException extends FrameworkException {
 
         super(message, innerException);
 
-        this._data.set("name", name);
-        this._data.set("type", type);
-        this._data.set("expectedType", expectedType);
+        this.__data.set("name", name);
+        this.__data.set("type", type);
+        this.__data.set("expectedType", expectedType);
     }
 }
 
@@ -82,7 +84,7 @@ export class ArgumentException extends FrameworkException {
 
         super(message, innerException);
 
-        this._data.set("argumentName", argumentName);
+        this.__data.set("argumentName", argumentName);
     }
 }
 
@@ -92,7 +94,7 @@ export class ArgumentMissingException extends ArgumentException {
 
         super(message, innerException);
 
-        this._data.set("argumentName", argumentName);
+        this.__data.set("argumentName", argumentName);
     }
 }
 
@@ -103,9 +105,9 @@ export class ArgumentTypeException extends ArgumentException {
 
         super(argumentName, message, innerException);
 
-        this._data.set("argumentName", argumentName);
-        this._data.set("_type", _type);
-        this._data.set("expectedType", expectedType);
+        this.__data.set("argumentName", argumentName);
+        this.__data.set("_type", _type);
+        this.__data.set("expectedType", expectedType);
     }
 }
 
