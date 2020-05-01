@@ -3,6 +3,7 @@ import { Destructible } from "../Standard/index.js";
 import { assertParams } from "../Validation/index.js";
 import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
 import { AjaxRequestFailedException } from "./AjaxRequestFailedException.js";
+import { AjaxProgressEventArgs } from "./AjaxProgressEventArgs.js";
 
 const AJAX_METHOD_MAP = new Map([
     [AjaxMethod.Get, "GET"],
@@ -118,17 +119,27 @@ export class Ajax extends Destructible {
             xhr.responseType = toNativeResponseType(responseType);
         if (mimeType !== undefined)
             xhr.overrideMimeType(mimeType);
-        xhr.send(body);
 
         const loaded = new Promise<Response>((resolve, reject) => {
-            xhr.addEventListener("load", (ev) => {
+            xhr.addEventListener("load", () => {
                 resolve(xhr.response);
             });
-            xhr.addEventListener("error", (ev) => {
-                reject(new AjaxRequestFailedException(method, url, xhr.status, xhr.statusText));
+            xhr.addEventListener("error", () => {
+                reject(new AjaxRequestFailedException(AjaxMethod.getLabel(method)!, url, xhr.status, xhr.statusText));
             });
         });
         this.__loaded = loaded;
+
+        xhr.addEventListener("load", this.__request_onload_handler);
+        xhr.addEventListener("loadend", this.__request_onloadend_handler);
+        xhr.addEventListener("loadstart", this.__request_onloadstart_handler);
+        xhr.addEventListener("abort", this.__request_onabort_handler);
+        xhr.addEventListener("error", this.__request_onerror_handler);
+        xhr.addEventListener("progress", this.__request_onprogress_handler);
+        xhr.addEventListener("readystatechange", this.__request_onReadyStateChange_handler);
+        xhr.addEventListener("timeout", this.__request_ontimeout_handler);
+
+        xhr.send(body);
 
         this.__method = method;
         this.__url = url;
@@ -139,36 +150,42 @@ export class Ajax extends Destructible {
     LoadEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
     LoadEndEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
     LoadStartEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
-    ProgressEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
+    ProgressEvent: FrameworkEvent<AjaxProgressEventArgs> = new FrameworkEvent();
     ReadyStateChangeEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
     TimeoutEvent: FrameworkEvent<AjaxEventArgs> = new FrameworkEvent();
 
-    __request_onAbort_handler(this: Ajax) {
-        this.AbortEvent.invoke(this, new FrameworkEventArgs());
-    }
-    __request_onError_handler(this: Ajax) {
-        this.ErrorEvent.invoke(this, new FrameworkEventArgs());
-    }
-    __request_onLoad_handler(this: Ajax) {
-        this.LoadEvent.invoke(this, new FrameworkEventArgs());
-    }
-    __request_onLoadEnd_handler(this: Ajax) {
-        this.LoadEndEvent.invoke(this, new FrameworkEventArgs());
-    }
-    __request_onLoadStart_handler(this: Ajax) {
-        this.LoadStartEvent.invoke(this, new FrameworkEventArgs());
-    }
-    __request_onProgress_handler(this: Ajax, evt: ProgressEvent) {
-        this.ProgressEvent.invoke(this, new FrameworkEventArgs());
-    }
-    __request_ontimeout_handler(this: Ajax) {
-        this.TimeoutEvent.invoke(this, new FrameworkEventArgs());
-    }
-    __request_onReadyStateChange_handler(this: Ajax) {
-        this.ReadyStateChangeEvent.invoke(this, new FrameworkEventArgs());
-    }
+    __request_onabort_handler = (() => {
+        this.AbortEvent.invoke(this, new AjaxEventArgs(this));
+    }).bind(this);
 
-    get xhr(): XMLHttpRequest { return this.__xhr; }
+    __request_onerror_handler = (() => {
+        this.ErrorEvent.invoke(this, new AjaxEventArgs(this));
+    }).bind(this);
+
+    __request_onload_handler = (() => {
+        this.LoadEvent.invoke(this, new AjaxEventArgs(this));
+    }).bind(this);
+
+    __request_onloadend_handler = (() => {
+        this.LoadEndEvent.invoke(this, new AjaxEventArgs(this));
+    }).bind(this);
+
+    __request_onloadstart_handler = (() => {
+        this.LoadStartEvent.invoke(this, new AjaxEventArgs(this));
+    }).bind(this);
+
+    __request_onprogress_handler = ((evt: ProgressEvent<XMLHttpRequestEventTarget>) => {
+        this.ProgressEvent.invoke(this, new AjaxProgressEventArgs(this, evt.total, evt.loaded));
+    }).bind(this);
+
+    __request_ontimeout_handler = (() => {
+        this.TimeoutEvent.invoke(this, new AjaxEventArgs(this));
+    }).bind(this);
+
+    __request_onReadyStateChange_handler = (() => {
+        this.ReadyStateChangeEvent.invoke(this, new AjaxEventArgs(this));
+    }).bind(this);
+
     private __xhr: XMLHttpRequest;
 
     get method(): number { return this.__method; }
@@ -177,12 +194,23 @@ export class Ajax extends Destructible {
     get url(): string { return this.__url; }
     private __url: string;
 
+    get response(): Response { return this.__xhr.response; }
+
     get loaded(): Promise<Response> { return this.__loaded; }
     private __loaded: Promise<Response>;
 
     protected destructor() {
         if (this.__xhr.status == 0)
             this.__xhr.abort();
+
+        this.__xhr.removeEventListener("load", this.__request_onload_handler);
+        this.__xhr.removeEventListener("loadend", this.__request_onloadend_handler);
+        this.__xhr.removeEventListener("loadstart", this.__request_onloadstart_handler);
+        this.__xhr.removeEventListener("abort", this.__request_onabort_handler);
+        this.__xhr.removeEventListener("error", this.__request_onerror_handler);
+        this.__xhr.removeEventListener("progress", this.__request_onprogress_handler);
+        this.__xhr.removeEventListener("readystatechange", this.__request_onReadyStateChange_handler);
+        this.__xhr.addEventListener("timeout", this.__request_ontimeout_handler);
 
         if (!this.AbortEvent.isDestructed)
             this.AbortEvent.destruct();

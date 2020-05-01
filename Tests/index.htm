@@ -5,21 +5,211 @@
 
     <style type="text/css">
         body {
-            background: #333;
+            background: #fff;
             display: flex;
+        }
+
+        core-image {
+            display: inline-grid;
+            width: 300px;
+            height: 200px;
+            grid-template-rows: auto 6px auto;
+            grid-template-columns: auto 80% auto;
+            background: white;
+            box-shadow: 0 1px 2px #00000066;
+        }
+
+        core-image>img {
+            grid-row-start: 1;
+            grid-row-end: span 3;
+            grid-column-start: 1;
+            grid-column-end: span 3;
+        }
+
+        core-image>core-progress-bar {
+            grid-row: 2;
+            grid-column: 2;
+        }
+
+        core-progress-bar {
+            display: inline-flex;
+            flex: none;
+            background: #fff linear-gradient(to bottom, #999, #b6b6b6);
+            box-shadow: inset 0 1px 1px #00000066, 0 1px 2px #00000033;
+            border: solid 1px #636363;
+        }
+
+        core-progress-bar[hidden] {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        core-progress-bar-fill {
+            display: block;
+            flex: 1;
+            margin: 0 -1px 0 0;
+            background: #fff var(--progress-bar-bg-image);
+            background-size: 200% 100%;
+            border-right: 1px solid #636363;
+            box-shadow: inset 0 1px 1px #ffffff66;
+            --progress-bar-bg-image: linear-gradient(to bottom, transparent, #0000000E);
+            --progress-bar-indeterminate-bg-image: repeating-linear-gradient(-45deg, transparent 0, transparent 4.5px, #00000033 4.5px, #00000033 9px);
+        }
+
+        core-progress-bar[core-indeterminate]>core-progress-bar-fill {
+            background-image: var(--progress-bar-bg-image), var(--progress-bar-indeterminate-bg-image);
+            animation: progress-bar-fill-indeterminate linear 2s infinite;
+        }
+
+        @keyframes progress-bar-fill-indeterminate {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: -37px 0;
+            }
         }
     </style>
 </head>
 
 <body>
-    <script>
-        for (let i = 0; i < 10; i++)
-            document.body.appendChild(document.createElement("core-grid"));
+    <script type="module">
+        import * as Core from "../framework/dist/index.js";
+
+        const Web = Core.Web;
+        const Ajax = Web.Ajax;
+        const AjaxResponseType = Web.AjaxResponseType;
+
+        class CoreProgressBar extends HTMLElement {
+            constructor() {
+
+            }
+
+            get observedAttributes() {
+                return ["core-min", "core-max", "core-value"];
+            }
+
+            get min() { return __min; }
+            set min(value) {
+                this.__min = value;
+                __update();
+            }
+            __min = 0;
+
+            get max() { return __min; }
+            set max(value) {
+                this.__max = value;
+                __update();
+            }
+            __max = 1;
+
+            get value() { return __min; }
+            set value(value) {
+                this.__value = value;
+                this.__indeterminate = false;
+                __update();
+            }
+            __value = 0;
+
+            get indeterminate() { return __indeterminate; }
+            set indeterminate(value) {
+                this.__indeterminate = value;
+                __update();
+            }
+
+            __min_attribute_changed(value) {
+                this.min = Number(value);
+            }
+
+            __max_attribute_changed(value) {
+                this.max = Number(value);
+            }
+
+            __value_attribute_changed(value) {
+                this.value = Number(value);
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (name == "core-min")
+                    __min_attribute_changed(newValue);
+                else if (name == "core-max")
+                    __max_attribute_changed(newValue);
+                else if (name == "core-value")
+                    __value_attribute_changed(newValue);
+            }
+
+            connectedCallback() {
+
+            }
+
+            disconnectedCallback() {
+
+            }
+
+            adoptedCallback() {
+
+            }
+        }
+        customElements.define("core-progress-bar", CoreProgressBar)
+
+        class CoreImage extends HTMLElement {
+            constructor() {
+                super();
+            }
+
+            connectedCallback() {
+                let root = this.attachShadow({ mode: "open" });
+
+                const img = new Image(1, 1);
+                this.__img = img;
+                root.appendChild(img);
+
+                const progressBar = document.createElement("core-progressBar");
+                this.__progressBar = progressBar;
+                root.appendChild(progressBar);
+            }
+
+            disconnectedCallback() {
+                this.__img.remove();
+            }
+
+            static get observedAttributes() {
+                return ["core-src"];
+            }
+
+            async __load(src) {
+                let self = this;
+
+                function onProgress(sender, args) {
+                    self.__progressBar.value = args.loaded;
+                    self.__progressBar.max = args.total;
+                }
+
+                if (src) {
+                    let blob = await Ajax.get(src, { onProgress }, { responseType: AjaxResponseType.Blob });
+                    this.__img.src = URL.createObjectURL(blob);
+                }
+            }
+
+            __src_attribute_changed(value) {
+                __load(value);
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (name == "core-src")
+                    this.__src_attribute_changed(newValue);
+            }
+
+            adoptedCallback() {
+
+            }
+        }
+        customElements.define("core-image", CoreImage);
     </script>
 
-    <xml>
-        
-    </xml>
+    <core-image core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    </core-image>
 </body>
 
 </html>

@@ -5,4 +5,5 @@ export * from "./IAjaxCallbacks.js";
 export * from "./IAjaxOptions.js";
 export * from "./AjaxRequestFailedException.js";
 export * from "./AjaxEventArgs.js"
+export * from "./AjaxProgressEventArgs.js"
 export * from "./Ajax.js";
