@@ -9,9 +9,10 @@ export namespace ObjectUtils {
 
     export function copyProperty<T, U>(src: T, dest: U, key: keyof T, overwrite: boolean = true, bind: boolean = false): boolean {
         const oldDestDesc = Object.getOwnPropertyDescriptor(dest, key),
+            isOverwrite = (<any>dest).hasOwnProperty(key),
             isConfigurable = oldDestDesc ? oldDestDesc.configurable : true;
 
-        if (!(<any>dest).hasOwnProperty(key) || overwrite && isConfigurable) {
+        if ((!isOverwrite || overwrite) && isConfigurable) {
             delete dest[<keyof U><unknown>key];
 
             const srcDesc = Object.getOwnPropertyDescriptor(src, key);
