@@ -1,6 +1,4 @@
 export class FrameworkException {
-    static [Symbol.species] () { return Error; }
-
     constructor(message?: string, innerException?: any) {
         message = message || "An exception has ocurred.";
         this.__message = message;

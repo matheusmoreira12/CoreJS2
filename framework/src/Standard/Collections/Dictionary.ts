@@ -15,7 +15,7 @@ export class Dictionary<TKey, TValue> extends Collection<KeyValuePair<TKey, TVal
         function* getEntries(obj: {
             [key: string]: any;
         }) {
-            for (let key in obj) {
+            for (let key of Object.getOwnPropertyNames(obj)) {
                 let value = obj[key];
                 yield new KeyValuePair<string, any>(key, value);
             }

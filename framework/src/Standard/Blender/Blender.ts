@@ -65,10 +65,10 @@ export namespace Blender {
             return false;
     }
 
-    export function initialize<TBlend, TSource>(blendClass: Class<TBlend>, sourceObj: TSource) {
+    export function initialize<TBlend, TSource>(blendClass: Class<TBlend>, sourceObj: TSource): TBlend {
         const tryInitializeOutput: TryOutput<TBlend> = {};
         if (tryInitialize(sourceObj, blendClass, tryInitializeOutput))
-            return tryInitializeOutput.result;
+            return tryInitializeOutput.result!;
         else
             throw new InvalidOperationException("Cannot initialize an instance for the specified class on the specified object. The specified class may have not been blended with the specified object.");
     }

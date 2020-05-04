@@ -5,6 +5,8 @@ export * from "./Enumeration.js";
 export * from "./MathX.js";
 export * from "./Tokens.js";
 
+import "./global.js";
+
 import * as Exceptions from "./Exceptions/index.js";
 export { Exceptions };
 

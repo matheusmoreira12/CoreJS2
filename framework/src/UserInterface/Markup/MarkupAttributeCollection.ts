@@ -47,7 +47,7 @@ export class MarkupAttributeCollection extends ObservableCollection<MarkupAttrib
     setMany(map: { [name: string]: string }) {
         assertParams({ map }, [Object]);
 
-        for (let name in map) {
+        for (let name of Object.getOwnPropertyNames(map)) {
             const value = map[name];
 
             assert({ name, value }, [String, null]);

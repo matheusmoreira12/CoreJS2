@@ -10,7 +10,7 @@ export function assert(map: { [name: string]: any }, types: Iterable<TypeDesigna
     if (!tryAssert(mode, [String]))
         rejectAssert([String], mode);
 
-    for (let name in map) {
+    for (let name of Object.getOwnPropertyNames(map)) {
         const value = map[name];
         if (!tryAssert(value, types))
             rejectAssert(Array.from(types), value, mode);
@@ -25,7 +25,7 @@ export function assertParams(parameterMap: { [name: string]: any }, types: Itera
     if (!tryAssert(mode, [String]))
         rejectAssert([String], mode);
 
-    for (let parameterName in parameterMap) {
+    for (let parameterName of Object.getOwnPropertyNames(parameterMap)) {
         const parameterValue = parameterMap[parameterName];
         if (!tryAssert(parameterValue, types, mode))
             rejectAssert(Array.from(types), parameterValue);

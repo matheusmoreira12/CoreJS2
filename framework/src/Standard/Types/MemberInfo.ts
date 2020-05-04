@@ -10,7 +10,7 @@ export class MemberInfo<TParent = any, TValue = any> {
             const memberIsFunction: boolean = value instanceof Function,
                 memberIsProperty: boolean = !!descriptor.get || !!descriptor.set;
 
-            return (isStatic ? MemberType.Static : MemberType.Instance) | (memberIsFunction ? MemberType.Function : memberIsProperty ? MemberType.Property : MemberType.Field);
+            return (isStatic ? MemberType.Static : MemberType.Instance) | (memberIsProperty ? MemberType.Property : (memberIsFunction ? MemberType.Function : MemberType.Field));
         }
 
         const attributes = getAttributesFromDescriptor();
