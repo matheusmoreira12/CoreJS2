@@ -22,7 +22,7 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
         throw new ArgumentTypeException("descriptor", typeof descriptor, "object");
 
     let value: number = -1;
-    for (let key in descriptor) {
+    for (let key of Object.getOwnPropertyNames(descriptor)) {
         if (descriptor[key] === null)
             value++;
         else

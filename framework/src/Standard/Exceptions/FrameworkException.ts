@@ -3,9 +3,12 @@ export class FrameworkException {
 
     constructor(message?: string, innerException?: any) {
         message = message || "An exception has ocurred.";
-
         this.__message = message;
+
         this.__data.set("innerException", innerException);
+
+        const stack = new Error().stack;
+        this.__data.set("stack", stack);
     }
 
     get message() { return this.__message; }

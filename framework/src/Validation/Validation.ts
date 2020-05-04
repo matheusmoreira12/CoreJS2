@@ -34,7 +34,7 @@ function tryAssert(value: any, typeDesignators: Iterable<TypeDesignator>, valida
 }
 
 export function assert(map: object, typeDesignators: Iterable<TypeDesignator>, validationMode: number = TypeValidationMode.MatchAny) {
-    for (let key in map) {
+    for (let key of Object.getOwnPropertyNames(map)) {
         const value: any = map[<keyof typeof map>key];
         if (!tryAssert(value, typeDesignators, validationMode))
             throw new ArgumentTypeException(key, value, [...typeDesignators]);
@@ -42,7 +42,7 @@ export function assert(map: object, typeDesignators: Iterable<TypeDesignator>, v
 }
 
 export function assertParams(parameterMap: object, typeDesignators: Iterable<TypeDesignator>, validationMode: number = TypeValidationMode.MatchAny) {
-    for (let key in parameterMap) {
+    for (let key of Object.getOwnPropertyNames(parameterMap)) {
         const value: any = parameterMap[<keyof typeof parameterMap>key];
         if (!tryAssert(value, typeDesignators, validationMode))
             throw new ArgumentTypeException(key, value, [...typeDesignators]);
@@ -61,14 +61,14 @@ function assertCollection(collectionName: string, collection: any[], itemTypes: 
 }
 
 export function assertEach(map: { [collectionName: string]: any[] }, itemTypes: Iterable<TypeDesignator>, itemValidationMode: number, collectionTypes: Iterable<TypeDesignator> = [Array], collectionValidationMode: number = TypeValidationMode.MatchAny) {
-    for (let name in map) {
+    for (let name of Object.getOwnPropertyNames(map)) {
         const collection = map[name];
         assertCollection(name, collection, itemTypes, itemValidationMode, collectionTypes, collectionValidationMode, InvalidTypeException, InvalidTypeException);
     }
 }
 
 export function assertEachParams(parametersMap: { [collectionName: string]: any[] }, parameterItemTypes: Iterable<TypeDesignator>, parameterItemValidationMode: number = TypeValidationMode.MatchAny, parameterTypes: Iterable<TypeDesignator> = [Array], parameterValidationMode: number = TypeValidationMode.MatchAny) {
-    for (let name in parametersMap) {
+    for (let name of Object.getOwnPropertyNames(parametersMap)) {
         const collection = parametersMap[name];
         assertCollection(name, collection, parameterItemTypes, parameterItemValidationMode, parameterTypes, parameterValidationMode, ArgumentTypeException, ArgumentTypeException);
     }

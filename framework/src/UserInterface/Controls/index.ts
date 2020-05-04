@@ -12,8 +12,8 @@ export { Styling };
 import * as Shapes from "./Shapes/index.js";
 export { Shapes };
 
-import * as Standard from "./Standard/index.js";
-export { Standard };
+import * as Base from "./Base/index.js";
+export { Base };
 
 import * as Grids from "./Grids/index.js";
 export { Grids };

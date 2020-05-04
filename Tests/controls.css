@@ -1,5 +1,5 @@
 /*Image*/
-:host(core-image) {
+:host(core-picture) {
     flex: none;
     display: inline-grid;
     align-items: center;
@@ -12,11 +12,11 @@
     box-shadow: 0 1px 2px #00000066;
 }
 
-:host(core-image[hidden]) {
+:host(core-picture[hidden]) {
     visibility: collapse;
 }
 
-:host(core-image)>img {
+:host(core-picture)>img {
     grid-row: 1;
     grid-column: 1;
     display: block;
@@ -24,7 +24,7 @@
     max-height: 100%;
 }
 
-:host(core-image)>core-progress-bar {
+:host(core-picture)>core-progress-bar {
     grid-row: 1;
     grid-column: 1;
 }

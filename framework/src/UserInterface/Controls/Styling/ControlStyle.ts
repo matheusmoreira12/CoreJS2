@@ -1,25 +1,20 @@
 import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../DependencyObjects/index.js";
 import { MarkupElement as Control } from "../../Markup/index.js";
-import { Blender } from "../../../Standard/Blender/index.js";
+import { StringUtils } from "../../../CoreBase/Utils/index.js";
+import { assertParams } from "../../../Validation/index.js";
 
 export class ControlStyle extends DependencyObject {
     constructor(targetControl: Control) {
+        assertParams({ targetControl }, [Control]);
+
         super();
 
         this.__targetControl = targetControl;
-
-        //Blend with DependencyObject
-        Blender.blend(DependencyObject, this);
-        Blender.initialize(DependencyObject, this);
-
-        //Assign interface IDependencyObject
-        this.get = Blender.execute(this, DependencyObject, o => o.get.bind(o));
-        this.set = Blender.execute(this, DependencyObject, o => o.set.bind(o));
-        this.PropertyChangeEvent.attach(this.__onPropertyChange, this);
     }
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
-        this.__targetControl.domElement!.style[<keyof CSSStyleDeclaration>args.property.name] = args.newValue;
+        const cssName = StringUtils.toHyphenCase(args.property.name);
+        this.__targetControl.domElement!.style.setProperty(cssName, args.newValue);
     }
 
     protected __targetControl: Control;
