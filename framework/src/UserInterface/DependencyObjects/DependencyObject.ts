@@ -7,10 +7,8 @@ import * as Storage from "./Storage.js";
 
 const $PropertyChangeEvent = Symbol("PropertyChangeEvent");
 
-export class DependencyObject extends Object {
+export class DependencyObject {
     constructor() {
-        super();
-
         this[$PropertyChangeEvent] = new FrameworkEvent();
     }
 

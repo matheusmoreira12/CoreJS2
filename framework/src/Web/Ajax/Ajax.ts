@@ -1,7 +1,7 @@
 import { AjaxMethod, AjaxResponseType, IAjaxCallbacks, IAjaxOptions, AjaxEventArgs } from "./index.js";
-import { Destructible } from "../Standard/index.js";
-import { assertParams } from "../Validation/index.js";
-import { FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
+import { Destructible } from "../../Standard/index.js";
+import { assertParams } from "../../Validation/index.js";
+import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
 import { AjaxRequestFailedException } from "./AjaxRequestFailedException.js";
 import { AjaxProgressEventArgs } from "./AjaxProgressEventArgs.js";
 

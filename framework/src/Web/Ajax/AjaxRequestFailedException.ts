@@ -1,4 +1,4 @@
-import { FrameworkException } from "../Standard/Exceptions/index.js"
+import { FrameworkException } from "../../Standard/Exceptions/index.js"
 import { AjaxMethod } from "./AjaxMethod.js";
 
 export class AjaxRequestFailedException extends FrameworkException {

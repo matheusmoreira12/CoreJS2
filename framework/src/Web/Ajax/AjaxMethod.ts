@@ -1,4 +1,4 @@
-import { Enumeration } from "../Standard/index.js";
+import { Enumeration } from "../../Standard/index.js";
 
 export const AjaxMethod = Enumeration.create({
     Get: 0,

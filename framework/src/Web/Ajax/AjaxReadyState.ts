@@ -1,4 +1,4 @@
-import { Enumeration } from "../Standard/index.js";
+import { Enumeration } from "../../Standard/index.js";
 
 export const AjaxReadyState = Enumeration.create({
     Unsent: 0,

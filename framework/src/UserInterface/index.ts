@@ -42,9 +42,6 @@ export { ValueConverters }
 import * as Fonts from "./Fonts/index.js";
 export { Fonts };
 
-import * as Markup from "./Markup/index.js";
-export { Markup };
-
 import * as Resources from "./Resources/index.js";
 export { Resources };
 

@@ -23,11 +23,6 @@ export abstract class Destructible {
     private __isDestructed: boolean = false;
 }
 
-declare global {
-    interface Object extends Destructible {        
-    }
-}
-
 function beforeUnload() {
     window.removeEventListener("beforeunload", beforeUnload);
 

@@ -42,8 +42,8 @@
     border: solid 1px #636363;
     --progress-bar-face-color: white;
     --progress-bar-bg-color: grey;
-    --progress-bar-face-bg-image: linear-gradient(to bottom, transparent, #00000011);
-    --progress-bar-face-indeterminate-bg-image: repeating-linear-gradient(-45deg, transparent 0, transparent 4.5px, #00000033 4.5px, #00000033 9px);
+    --progress-bar-face-bg-image: linear-gradient(to bottom, #ffffff11, #00000011);
+    --progress-bar-face-indeterminate-bg-image: repeating-linear-gradient(-45deg, #ffffff33 0, #ffffff33 4.5px, #00000033 4.5px, #00000033 9px);
 }
 
 :host(core-progress-bar[hidden]) {

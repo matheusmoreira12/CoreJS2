@@ -1,5 +1,5 @@
-import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/index.js";
-import { MemberAttributes, Type } from "../Standard/Types/index.js";
+import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/index.js";
+import { MemberAttributes, Type } from "../../Standard/Types/index.js";
 
 export const IAjaxOptions = new Interface(
     new InterfaceMember("mimeType", InterfaceMemberType.Field, Type.get(String), MemberAttributes.Enumerable, true),

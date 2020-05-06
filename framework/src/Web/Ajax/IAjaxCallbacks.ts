@@ -1,6 +1,6 @@
-import { Interface, InterfaceMember, InterfaceMemberType } from "../Standard/Interfaces/index.js";
-import { MemberAttributes } from "../Standard/Types/index.js";
-import { FrameworkEventListener } from "../Standard/Events/index.js";
+import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/index.js";
+import { MemberAttributes } from "../../Standard/Types/index.js";
+import { FrameworkEventListener } from "../../Standard/Events/index.js";
 import { AjaxEventArgs } from "./index.js";
 
 export const IAjaxCallbacks = new Interface(

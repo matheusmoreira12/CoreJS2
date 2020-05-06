@@ -1,4 +1,4 @@
-import { assertParams } from "../ValidationStandalone/index.js";
+import { assertParams } from "../../ValidationStandalone/index.js";
 import { Ajax, AjaxEventArgs } from "./index.js";
 
 const $total = Symbol("total");

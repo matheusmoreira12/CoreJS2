@@ -1,4 +1,4 @@
-import { ObjectUtils } from "../CoreBase/Utils/index";
+import { ObjectUtils } from "../../CoreBase/Utils/index";
 
 export const STATUS = ObjectUtils.getDeepReadonly({
     INFORMATIONAL: {

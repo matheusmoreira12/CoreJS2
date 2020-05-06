@@ -1,5 +1,5 @@
-import { FrameworkEventArgs } from "../Standard/Events/index.js";
-import { assertParams } from "../ValidationStandalone/index.js";
+import { FrameworkEventArgs } from "../../Standard/Events/index.js";
+import { assertParams } from "../../ValidationStandalone/index.js";
 import { Ajax } from "./index.js";
 
 const $target = Symbol("target");

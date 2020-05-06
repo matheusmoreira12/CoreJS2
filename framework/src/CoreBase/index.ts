@@ -1,4 +1,4 @@
-export * from "../Web/Ajax.js";
+export * from "../Web/Ajax/Ajax.js";
 export * from "./IdentifierGenerator.js";
 export * from "./Immediate.js";
 

@@ -3,41 +3,58 @@ import { DeepReadonly, DeepClone } from "./Types.js";
 
 export namespace ObjectUtils {
     export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
-        let keys: (string | symbol)[] = [...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
-        return <(keyof T)[]>keys;
+        return <(keyof T)[]>[...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
+    }
+
+    export function getAllPropertyKeys<T>(obj: T): (keyof T)[] {
+        const keys: (keyof T)[] = [];
+        while (obj) {
+            keys.push(...getOwnPropertyKeys(obj));
+            obj = Object.getPrototypeOf(obj);
+        }
+        return keys;
+    }
+
+    export function getAnyPropertyDescriptor<T>(obj: T, key: keyof T): PropertyDescriptor | undefined {
+        while (obj) {
+            const desc = Object.getOwnPropertyDescriptor(obj, key);
+            if (desc)
+                return desc;
+            obj = Object.getPrototypeOf(obj);
+        }
+        return undefined;
     }
 
     export function copyProperty<T, U>(src: T, dest: U, key: keyof T, overwrite: boolean = true, bind: boolean = false): boolean {
-        const oldDestDesc = Object.getOwnPropertyDescriptor(dest, key),
-            isOverwrite = (<any>dest).hasOwnProperty(key),
+        const oldDestDesc = getAnyPropertyDescriptor(dest, <keyof U><unknown>key),
             isConfigurable = oldDestDesc ? oldDestDesc.configurable : true;
 
-        if ((!isOverwrite || overwrite) && isConfigurable) {
+        if ((!oldDestDesc || overwrite) && isConfigurable) {
             delete dest[<keyof U><unknown>key];
 
-            const srcDesc = Object.getOwnPropertyDescriptor(src, key);
-            const destDesc: PropertyDescriptor = { ...oldDestDesc, ...srcDesc };
-
-            if (bind) {
-                if (typeof destDesc.value == "function")
-                    destDesc.value = destDesc.value.bind(src);
-
-                if (typeof destDesc.get == "function")
-                    destDesc.get = destDesc.get.bind(src);
-
-                if (typeof destDesc.set == "function")
-                    destDesc.set = destDesc.set.bind(src);
+            const srcDesc = getAnyPropertyDescriptor(src, key);
+            if (srcDesc) {
+                const destDesc: PropertyDescriptor = { ...srcDesc };
+                if (bind) {
+                    if (typeof srcDesc.value == "function")
+                        destDesc.value = srcDesc.value.bind(src);
+                    if (srcDesc.get)
+                        destDesc.get = srcDesc.get.bind(src);
+                    if (srcDesc.set)
+                        destDesc.set = srcDesc.set.bind(src);
+                }
+                Object.defineProperty(dest, key, destDesc);
+                return true;
             }
-
-            Object.defineProperty(dest, key, destDesc);
-            return true;
+            else
+                return false;
         }
         else
             return false;
     }
 
     export function crudeCopy<T, U>(src: T, dest: U, overwrite: boolean = true, bind: boolean = false): void {
-        for (let key of getOwnPropertyKeys(src))
+        for (let key of getAllPropertyKeys(src))
             copyProperty(src, dest, <keyof T>key, overwrite, bind);
     }
 
