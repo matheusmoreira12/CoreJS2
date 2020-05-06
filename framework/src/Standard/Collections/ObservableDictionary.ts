@@ -3,32 +3,28 @@ import { Enumeration } from "../Enumeration.js";
 import { FrameworkEvent } from "../Events/FrameworkEvent.js";
 import { FrameworkEventArgs } from "../Events/index.js";
 
-const $action = Symbol("action");
-const $key = Symbol("key");
-const $oldValue = Symbol("oldValue");
-const $newValue = Symbol("newValue");
 
 export class ObservableDictionaryChangeArgs<TKey, TValue> extends FrameworkEventArgs {
     constructor(action: number, key: TKey, oldValue: TValue | null, newValue: TValue | null) {
         super();
 
-        this[$action] = action;
-        this[$key] = key;
-        this[$oldValue] = oldValue;
-        this[$newValue] = newValue;
+        this.__action = action;
+        this.__key = key;
+        this.__oldValue = oldValue;
+        this.__newValue = newValue;
     }
 
-    get action(): number { return this[$action]; }
-    private [$action]: number;
+    get action(): number { return this.__action; }
+    private __action: number;
 
-    get key(): TKey { return this[$key]; }
-    private [$key]: TKey;
+    get key(): TKey { return this.__key; }
+    private __key: TKey;
 
-    get oldValue(): TValue | null { return this[$oldValue]; }
-    private [$oldValue]: TValue | null;
+    get oldValue(): TValue | null { return this.__oldValue; }
+    private __oldValue: TValue | null;
 
-    get newValue(): TValue | null { return this[$newValue]; }
-    private [$newValue]: TValue | null;
+    get newValue(): TValue | null { return this.__newValue; }
+    private __newValue: TValue | null;
 };
 
 export const ObservableDictionaryChangeAction = Enumeration.create({

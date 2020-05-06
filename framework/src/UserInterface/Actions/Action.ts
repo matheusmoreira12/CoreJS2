@@ -3,12 +3,6 @@ import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
 import { Dictionary } from "../../Standard/Collections/index.js";
 import { EventTrigger } from "../Triggers/index.js";
 
-//Public keys for Action
-export const $setTrigger = Symbol("setTrigger");
-
-//Keys for Action
-const $trigger = Symbol("trigger");
-
 /**
  * FrameworkAction base class
  * Represents an user-initiated action.
@@ -20,17 +14,17 @@ export abstract class Action extends Destructible {
         if (this.constructor === Action)
             throw new InvalidOperationException("Invalid constructor");
 
-        this[$trigger] = null;
+        this.__trigger = null;
     }
 
     abstract execute(data: Dictionary<string, any>): void;
 
-    [$setTrigger](trigger: EventTrigger | null) {
-        this[$trigger] = trigger;
+    __setTrigger(trigger: EventTrigger | null) {
+        this.__trigger = trigger;
     }
 
-    get trigger(): EventTrigger | null { return this[$trigger]; }
-    private [$trigger]: EventTrigger | null = null;
+    get trigger(): EventTrigger | null { return this.__trigger; }
+    private __trigger: EventTrigger | null = null;
 
     destructor() {
         if (this.trigger)

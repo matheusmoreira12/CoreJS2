@@ -3,10 +3,6 @@ import { assertParams } from "../../Validation/index.js";
 import { Orientation } from "./Orientation.js";
 import * as UnitConversion from "./UnitConversion.js";
 
-const $unit = Symbol("unit");
-const $value = Symbol("value");
-const $isAuto = Symbol("isAuto");
-const $isInvalid = Symbol("isInvalid");
 
 export class Length {
     static get zero() { return ZERO; }
@@ -94,10 +90,10 @@ export class Length {
         assertParams({ isAuto }, [Boolean]);
         assertParams({ isInvalid }, [Boolean]);
 
-        this[$value] = value;
-        this[$unit] = unit;
-        this[$isAuto] = isAuto;
-        this[$isInvalid] = isInvalid;
+        this.__value = value;
+        this.__unit = unit;
+        this.__isAuto = isAuto;
+        this.__isInvalid = isInvalid;
     }
 
     toCentimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Centimeters)!; }
@@ -142,17 +138,17 @@ export class Length {
             return this.amount == other.amount && this.unit == other.unit;
     }
 
-    get amount(): number { return this[$value]; }
-    private [$value]: number;
+    get amount(): number { return this.__value; }
+    private __value: number;
 
-    get unit(): number { return this[$unit]; }
-    private [$unit]: number;
+    get unit(): number { return this.__unit; }
+    private __unit: number;
 
-    get isAuto(): boolean { return this[$isAuto]; }
-    private [$isAuto]: boolean;
+    get isAuto(): boolean { return this.__isAuto; }
+    private __isAuto: boolean;
 
-    get isInvalid(): boolean { return this[$isInvalid]; }
-    private [$isInvalid]: boolean;
+    get isInvalid(): boolean { return this.__isInvalid; }
+    private __isInvalid: boolean;
 }
 
 const ZERO = new Length(0);

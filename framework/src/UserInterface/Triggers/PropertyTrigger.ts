@@ -5,10 +5,6 @@ import { SetterCollection } from "../Setters/SetterCollection.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
 
 //Keys for PropertyTrigger
-const $target = Symbol("target");
-const $targetProperty = Symbol("targetProperty");
-const $value = Symbol("value");
-const $setters = Symbol("setters");
 
 /**
  * PropertyTrigger class
@@ -22,23 +18,23 @@ export class PropertyTrigger extends Trigger {
         assertParams({ targetProperty }, [DependencyProperty]);
         assertEachParams({ setters }, [Setter], TypeValidationMode.MatchAny, [Array]);
 
-        this[$target] = target;
-        this[$targetProperty] = targetProperty;
-        this[$value] = value;
-        this[$setters] = new SetterCollection(this, ...setters);
+        this.__target = target;
+        this.__targetProperty = targetProperty;
+        this.__value = value;
+        this.__setters = new SetterCollection(this, ...setters);
     }
 
-    get target(): object { return this[$target]; }
-    private [$target]: object;
+    get target(): object { return this.__target; }
+    private __target: object;
 
-    get targetProperty(): DependencyProperty { return this[$targetProperty]; }
-    private [$targetProperty]: DependencyProperty;
+    get targetProperty(): DependencyProperty { return this.__targetProperty; }
+    private __targetProperty: DependencyProperty;
 
-    get value(): any { return this[$value]; }
-    private [$value]: any;
+    get value(): any { return this.__value; }
+    private __value: any;
 
-    get setters(): SetterCollection { return this[$setters]; }
-    private [$setters]: SetterCollection;
+    get setters(): SetterCollection { return this.__setters; }
+    private __setters: SetterCollection;
 
     protected destructor() {
         this.setters.clear();

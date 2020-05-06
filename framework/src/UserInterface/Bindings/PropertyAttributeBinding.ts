@@ -10,18 +10,6 @@ import { BindingDirection } from "./Bindings.js";
 import { IValueConverter } from "../ValueConverters/index.js";
 
 //Keys for PropertyAttributeBinding
-const $source = Symbol("source");
-const $source_PropertyChangeEvent = Symbol("source_PropertyChangeEvent");
-const $source_onPropertyChange = Symbol("source_onPropertyChange");
-const $sourceProperty = Symbol("sourceProperty");
-const $targetElement = Symbol("targetElement");
-const $targetElement_attributeMutationObserver = Symbol("targetElement_attributeMutationObserver");
-const $targetElement_attributeChange_handler = Symbol("targetElement_attributeChange_handler");
-const $targetAttributeName = Symbol("targetAttributeName");
-const $targetAttributeNamespace = Symbol("targetAttributeNamespace");
-const $doInitialUpdate = Symbol("doInitialUpdate");
-const $updateSourceProperty = Symbol("updateSourceProperty");
-const $updateTargetAttribute = Symbol("updateTargetAttribute");
 
 /**
  * PropertyAttributeBinding class
@@ -37,22 +25,22 @@ export class PropertyAttributeBinding extends Binding {
         assertParams({ targetAttributeName }, [String]);
         assertParams({ targetAttributeNamespace }, [String, null]);
 
-        this[$source] = source;
-        this[$sourceProperty] = sourceProperty;
-        this[$targetElement] = targetElement;
-        this[$targetAttributeName] = targetAttributeName;
-        this[$targetAttributeNamespace] = targetAttributeNamespace;
+        this.__source = source;
+        this.__sourceProperty = sourceProperty;
+        this.__targetElement = targetElement;
+        this.__targetAttributeName = targetAttributeName;
+        this.__targetAttributeNamespace = targetAttributeNamespace;
 
-        this[$source_PropertyChangeEvent] = new FrameworkEvent(this[$source_onPropertyChange], this);
-        source.PropertyChangeEvent.attach(this[$source_PropertyChangeEvent]);
+        this.__source_PropertyChangeEvent = new FrameworkEvent(this.__source_onPropertyChange, this);
+        source.PropertyChangeEvent.attach(this.__source_PropertyChangeEvent);
 
-        this[$targetElement_attributeMutationObserver] = new MutationObserver(this[$targetElement_attributeChange_handler].bind(this));
-        this[$targetElement_attributeMutationObserver].observe(targetElement, { attributes: true });
+        this.__targetElement_attributeMutationObserver = new MutationObserver(this.__targetElement_attributeChange_handler.bind(this));
+        this.__targetElement_attributeMutationObserver.observe(targetElement, { attributes: true });
 
-        this[$doInitialUpdate]();
+        this.__doInitialUpdate();
     }
 
-    private [$updateTargetAttribute](propertyValue: any) {
+    private __updateTargetAttribute(propertyValue: any) {
         const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
         if (canUpdateToTarget) {
             const hasValueConverter = !!this.options.valueConverter;
@@ -69,14 +57,14 @@ export class PropertyAttributeBinding extends Binding {
         }
     }
 
-    private [$source_onPropertyChange](sender: any, args: PropertyChangeEventArgs) {
+    private __source_onPropertyChange(sender: any, args: PropertyChangeEventArgs) {
         if (args.property === this.sourceProperty)
-            this[$updateTargetAttribute](args.newValue);
+            this.__updateTargetAttribute(args.newValue);
     }
 
-    private [$source_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs>;
+    private __source_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
 
-    private [$updateSourceProperty](attributeValue: string | null) {
+    private __updateSourceProperty(attributeValue: string | null) {
         const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.options.direction || 0);
         if (canUpdateToSource) {
             const hasValueConverter = !!this.options.valueConverter;
@@ -90,45 +78,45 @@ export class PropertyAttributeBinding extends Binding {
         }
     }
 
-    private [$doInitialUpdate]() {
+    private __doInitialUpdate() {
         const isAttributeSet = this.targetElement.hasAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
         if (isAttributeSet) {
             const attributeValue = this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName);
-            this[$updateSourceProperty](attributeValue);
+            this.__updateSourceProperty(attributeValue);
         }
 
         const propertyValue = Storage.getValue(this.source, this.sourceProperty);
         if (propertyValue !== null)
-            this[$updateTargetAttribute](propertyValue);
+            this.__updateTargetAttribute(propertyValue);
     }
 
-    private [$targetElement_attributeChange_handler](mutations: MutationRecord[]) {
+    private __targetElement_attributeChange_handler(mutations: MutationRecord[]) {
         for (let mutation of mutations) {
             const isTargetAttribute = mutation.type == "attributes" && mutation.attributeName == this.targetAttributeName && mutation.attributeNamespace == this.targetAttributeNamespace;
             if (isTargetAttribute)
-                this[$updateSourceProperty](this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName));
+                this.__updateSourceProperty(this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName));
         }
     }
 
-    private [$targetElement_attributeMutationObserver]: MutationObserver;
+    private __targetElement_attributeMutationObserver: MutationObserver;
 
-    get source(): DependencyObject { return this[$source]; }
-    private [$source]: DependencyObject;
+    get source(): DependencyObject { return this.__source; }
+    private __source: DependencyObject;
 
-    get sourceProperty(): DependencyProperty { return this[$sourceProperty]; }
-    private [$sourceProperty]: DependencyProperty;
+    get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
+    private __sourceProperty: DependencyProperty;
 
-    get targetElement(): Element { return this[$targetElement]; }
-    private [$targetElement]: Element;
+    get targetElement(): Element { return this.__targetElement; }
+    private __targetElement: Element;
 
-    get targetAttributeName(): string { return this[$targetAttributeName]; }
-    private [$targetAttributeName]: string;
+    get targetAttributeName(): string { return this.__targetAttributeName; }
+    private __targetAttributeName: string;
 
-    get targetAttributeNamespace(): string | null { return this[$targetAttributeNamespace]; }
-    private [$targetAttributeNamespace]: string | null;
+    get targetAttributeNamespace(): string | null { return this.__targetAttributeNamespace; }
+    private __targetAttributeNamespace: string | null;
 
     protected destructor(): void {
-        this[$source_PropertyChangeEvent].destruct();
-        this[$targetElement_attributeMutationObserver].disconnect();
+        this.__source_PropertyChangeEvent.destruct();
+        this.__targetElement_attributeMutationObserver.disconnect();
     }
 }

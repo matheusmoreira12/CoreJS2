@@ -7,9 +7,6 @@ const DEFAULT_BINDING_OPTIONS: IBindingOptions = {
     direction: BindingDirection.Both
 };
 
-//Keys for Binding
-const $options = Symbol("options");
-
 /**
  * Binding base class
  */
@@ -22,9 +19,9 @@ export abstract class Binding extends Destructible {
 
         assertParams({ options }, [IBindingOptions]);
 
-        this[$options] = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
+        this.__options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
     }
 
-    get options(): IBindingOptions { return this[$options]; }
-    protected [$options]: IBindingOptions;
+    get options(): IBindingOptions { return this.__options; }
+    protected __options: IBindingOptions;
 }

@@ -1,10 +1,8 @@
-const $content = Symbol("content");
-const $index = Symbol("index");
 
 export class StringReader {
     constructor(content: string) {
-        this[$content] = content;
-        this[$index] = 0;
+        this.__content = content;
+        this.__index = 0;
     }
 
     peek(): string {
@@ -24,14 +22,14 @@ export class StringReader {
     }
 
     copyBlock(buffer: string[], index: number, count: number): number {
-        const start = this[$index],
-            endOfFile = this[$content].length,
-            endOfBlock = this[$index] + count,
+        const start = this.__index,
+            endOfFile = this.__content.length,
+            endOfBlock = this.__index + count,
             end = Math.min(endOfFile, endOfBlock),
             copyCount = end - start;
 
         if (copyCount > 0) {
-            const readChars: string[] = [...this[$content].slice(start, end)];
+            const readChars: string[] = [...this.__content.slice(start, end)];
             buffer.splice(index, copyCount, ...readChars);
         }
 
@@ -40,26 +38,26 @@ export class StringReader {
 
     readBlock(buffer: string[], index: number, count: number): number {
         const readCount = this.copyBlock(buffer, index, count);
-        this[$index] += readCount;
+        this.__index += readCount;
         return readCount;
     }
 
     readLine(): string {
         const readChars: string[] = [],
-            lineEnd = findLineEnd(this[$content], this[$index]);
-        this.readBlock(readChars, 0, lineEnd - this[$index]);
+            lineEnd = findLineEnd(this.__content, this.__index);
+        this.readBlock(readChars, 0, lineEnd - this.__index);
         return readChars.join("");
     }
 
     readToEnd(): string {
         const readChars: string[] = [],
-            endOfFile = this[$content].length - 1;
-        this.readBlock(readChars, 0, endOfFile - this[$index]);
+            endOfFile = this.__content.length - 1;
+        this.readBlock(readChars, 0, endOfFile - this.__index);
         return readChars.join("");
     }
 
-    private [$content]: string;
-    private [$index]: number;
+    private __content: string;
+    private __index: number;
 }
 
 function findLineEnd(content: string, offset: number): number {

@@ -1,4 +1,7 @@
-import { Destructible } from "../../Standard/index.js";
+import { DependencyObject } from "../DependencyObjects/index.js";
 
-export abstract class Control extends Destructible {
+export abstract class Control extends DependencyObject {
+    constructor() {
+        
+    }
 }

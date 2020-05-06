@@ -1,8 +1,6 @@
 import { Length } from "./Length.js";
 import { assertParams } from "../../Validation/index.js";
 
-const $width = Symbol("width");
-const $height = Symbol("height");
 
 export class Size {
     static get zero(): Size { return ZERO };
@@ -26,15 +24,15 @@ export class Size {
         assertParams({ width }, [Length]);
         assertParams({ height }, [Length]);
 
-        this[$width] = width;
-        this[$height] = height;
+        this.__width = width;
+        this.__height = height;
     }
 
-    get width(): Length { return this[$width]; }
-    private [$width]: Length;
+    get width(): Length { return this.__width; }
+    private __width: Length;
 
-    get height(): Length { return this[$height]; }
-    private [$height]: Length;
+    get height(): Length { return this.__height; }
+    private __height: Length;
 }
 
 const ZERO = new Size(Length.zero, Length.zero);

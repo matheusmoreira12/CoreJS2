@@ -7,15 +7,6 @@ import { DependencyObject } from "../DependencyObjects/DependencyObject.js";
 
 const allSetters: Collection<Setter> = new Collection();
 
-//Public keys for Setter
-export const $setTrigger = Symbol("setTrigger");
-
-//Keys for Setter
-const $property = Symbol("property");
-const $value = Symbol("value");
-const $target = Symbol("target");
-const $trigger = Symbol("trigger");
-
 /**
  * Sets the value of the specified property on the specified target to the specified value whenever the trigger's condition is met.
  */
@@ -28,29 +19,29 @@ export class Setter extends Destructible {
         assertParams({ target }, [DependencyObject]);
         assertParams({ property }, [DependencyProperty]);
 
-        this[$target] = target;
-        this[$property] = property;
-        this[$value] = value;
-        this[$trigger] = null;
+        this.__target = target;
+        this.__property = property;
+        this.__value = value;
+        this.__trigger = null;
 
         allSetters.add(this);
     }
 
-    get target(): object { return this[$target]; }
-    private [$target]: object;
+    get target(): object { return this.__target; }
+    private __target: object;
 
-    get property(): DependencyProperty { return this[$property]; }
-    private [$property]: DependencyProperty;
+    get property(): DependencyProperty { return this.__property; }
+    private __property: DependencyProperty;
 
-    get value(): any { return this[$value]; }
-    private [$value]: any;
+    get value(): any { return this.__value; }
+    private __value: any;
 
-    [$setTrigger](trigger: PropertyTrigger | null) {
-        this[$trigger] = trigger;
+    __setTrigger(trigger: PropertyTrigger | null) {
+        this.__trigger = trigger;
     }
 
-    get trigger(): PropertyTrigger | null { return this[$trigger]; }
-    private [$trigger]: PropertyTrigger | null;
+    get trigger(): PropertyTrigger | null { return this.__trigger; }
+    private __trigger: PropertyTrigger | null;
 
     protected destructor(): void {
         if (this.trigger)

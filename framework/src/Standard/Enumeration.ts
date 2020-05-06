@@ -32,7 +32,6 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
     }
 }
 
-const $flags = Symbol("flags");
 
 /**
  * Enumeration Class
@@ -70,24 +69,24 @@ export class Enumeration {
             });
         }
 
-        this[$flags] = flags;
+        this.__flags = flags;
     }
 
     assertFlag(flag: number) {
-        const flagsInverted = MapUtils.invert(this[$flags]);
+        const flagsInverted = MapUtils.invert(this.__flags);
         if (flagsInverted.get(flag) === undefined)
             throw new KeyNotFoundException("The specified flag cannot be found in enumeration.");
     }
 
     getLabel(value: number): string | null {
         function convertExact(this: Enumeration): string | undefined {
-            return MapUtils.invert(this[$flags]).get(value);
+            return MapUtils.invert(this.__flags).get(value);
         }
 
         function convertMultiple(this: Enumeration): string {
             let flagStrs: string[] = [];
 
-            for (let item of this[$flags]) {
+            for (let item of this.__flags) {
                 if (item[1] != 0 && Enumeration.contains(item[1], value))
                     flagStrs.push(item[0]);
             }
@@ -117,5 +116,5 @@ export class Enumeration {
         return result;
     }
 
-    private [$flags]: Map<string, number>;
+    private __flags: Map<string, number>;
 }

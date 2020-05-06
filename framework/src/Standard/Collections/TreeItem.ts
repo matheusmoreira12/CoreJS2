@@ -2,16 +2,13 @@ import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollect
 import { Enumeration } from "../index.js";
 
 //Keys for TreeItem
-const $children = Symbol("children");
-const $parent = Symbol("parent");
-const $children_onChange = Symbol("children_onChange");
 
 export class TreeItem<T extends TreeItem<T>> {
     constructor(...children: T[]) {
-        this[$children] = new ObservableCollection(...children);
-        this[$parent] = null;
+        this.__children = new ObservableCollection(...children);
+        this.__parent = null;
 
-        this.children.ChangeEvent.attach(this[$children_onChange], this);
+        this.children.ChangeEvent.attach(this.__children_onChange, this);
     }
 
     all(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
@@ -93,20 +90,20 @@ export class TreeItem<T extends TreeItem<T>> {
         return [this, ...this.getParents()]
     }
 
-    get children(): ObservableCollection<T> { return this[$children]; }
-    private [$children]: ObservableCollection<T>;
+    get children(): ObservableCollection<T> { return this.__children; }
+    private __children: ObservableCollection<T>;
 
-    get parent(): TreeItem<T> | null { return this[$parent]; }
-    private [$parent]: TreeItem<T> | null;
+    get parent(): TreeItem<T> | null { return this.__parent; }
+    private __parent: TreeItem<T> | null;
 
-    private [$children_onChange](_sender: any, args: ObservableCollectionChangeArgs<T>) {
+    private __children_onChange(_sender: any, args: ObservableCollectionChangeArgs<T>) {
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action)) {
             for (let item of args.oldItems)
-                item[$parent] = null;
+                item.__parent = null;
         }
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action)) {
             for (let item of args.newItems)
-                item[$parent] = this;
+                item.__parent = this;
         }
     }
 

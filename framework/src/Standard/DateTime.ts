@@ -24,77 +24,78 @@ const SECONDS_IN_MINUTE = 60;
 const MINUTES_IN_HOUR = 60;
 const HOURS_IN_DAY = 24;
 
-const addTimeSpans = (a, b) => new TimeSpan(a.ticks + b.ticks);
-const subtractTimeSpans = (a, b) => new TimeSpan(a.ticks - b.ticks);
-const multiplyTimeSpanByNumber = (a, b) => new TimeSpan(a.ticks * b);
-const subtractDateTimes = (a, b) => new TimeSpan(a.ticks - b.ticks);
-const addTimeSpanToDateTime = (a, b) => new DateTime(a.ticks + b.ticks);
-const subtractTimeSpanFromDateTime = (a, b) => new DateTime(a.ticks - b.ticks);
+const addTimeSpans = (a: TimeSpan, b: TimeSpan) => new TimeSpan(a.ticks + b.ticks);
+const subtractTimeSpans = (a: TimeSpan, b: TimeSpan) => new TimeSpan(a.ticks - b.ticks);
+const multiplyTimeSpanByNumber = (a: TimeSpan, b: number) => new TimeSpan(a.ticks * b);
+const subtractDateTimes = (a: DateTime, b: DateTime) => new TimeSpan(a.ticks - b.ticks);
+const addTimeSpanToDateTime = (a: DateTime, b: TimeSpan) => new DateTime(a.ticks + b.ticks);
+const subtractTimeSpanFromDateTime = (a: DateTime, b: TimeSpan) => new DateTime(a.ticks - b.ticks);
 
 const DEFAULT_TIMESPAN_FORMAT = "d.hh:mm:ss.fffffff";
 
 export class TimeSpan {
-    static fromMilliseconds(millis) {
+    ticks: any;
+    static fromMilliseconds(millis: number) {
         let ticks = millis * TICKS_IN_MILLISECOND;
         return new TimeSpan(ticks);
     }
 
-    static fromSeconds(secs) {
+    static fromSeconds(secs: number) {
         let millis = secs * MILLISECONDS_IN_SECOND;
         return this.fromMilliseconds(millis);
     }
 
-    static fromMinutes(mins) {
+    static fromMinutes(mins: number) {
         let secs = mins * SECONDS_IN_MINUTE;
         return this.fromSeconds(secs);
     }
 
-    static fromHours(hours) {
+    static fromHours(hours: number) {
         let mins = hours * MINUTES_IN_HOUR;
         return this.fromMinutes(mins);
     }
 
-    static fromDays(days) {
+    static fromDays(days: number) {
         let hours = days * HOURS_IN_DAY;
         return this.fromHours(hours);
     }
 
-    constructor(ticks) {
+    constructor(ticks: number) {
         this.__ticks = ticks;
     }
 
     toString(format = DEFAULT_TIMESPAN_FORMAT) {
         ///TODO: Implement a non-hardcoded way of converting a DateTime to string using the specified format
 
-        const getPaddedValue = (value, quantifier) => {
+        const getPaddedValue = (value: number, quantifier: number) => {
             return String(value).padStart(quantifier, "0");
         };
 
-        const getDaysString = quantifier => {
+        const getDaysString = (quantifier: number) => {
             if (quantifier > 1)
                 throw "";
 
             return String(this.days);
         };
 
-        const getHoursString = quantifier => {
+        const getHoursString = (quantifier: any) => {
             return getPaddedValue(this.hours, quantifier);
         };
 
-        const getMinutesString = quantifier => {
+        const getMinutesString = (quantifier: any) => {
             return getPaddedValue(this.minutes, quantifier);
         };
 
-        const getSecondsString = quantifier => {
+        const getSecondsString = (quantifier: any) => {
             return getPaddedValue(this.seconds, quantifier);
         };
 
-        const getFractionsString = quantifier => {
+        const getFractionsString = (quantifier: number) => {
             const fractions = this.getFractions(quantifier);
             return getPaddedValue(fractions, quantifier);
         }
 
-        const formatSpecifierReplacer = match => {
+        const getFormattedString = (match: string) => {
             switch (match[0]) {
                 case "d":
                     return getDaysString(match.length);
@@ -111,7 +112,7 @@ export class TimeSpan {
             }
         };
 
-        let result = format.replace(FORMAT_SPECIFIER_REGEXPX, formatSpecifierReplacer);
+        let result = format.replace(FORMAT_SPECIFIER_REGEXPX, getFormattedString);
         return result;
     }
 
@@ -195,15 +196,15 @@ export class TimeSpan {
 }
 
 const GregorianCalendar = {
-    getIsCenturialYear(year) {
+    getIsCenturialYear(year: number) {
         return year % 100 === 0;
     },
 
-    getIsLeapYear(year) {
+    getIsLeapYear(year: number) {
         return year % 400 === 0 || year % 4 === 0 && !this.getIsCenturialYear(year);
     },
 
-    getDaysInMonth(month, year) {
+    getDaysInMonth(month: number, year: number) {
         if (month <= 0 || month > MONTHS_IN_YEAR)
             throw new ArgumentOutOfRangeException("month");
 
@@ -220,7 +221,7 @@ const GregorianCalendar = {
         }
     },
 
-    getDate(ticks) {
+    getDate(ticks: number) {
         const daysFromEpoch = new DateTime(ticks).subtract(new DateTime(0)).totalDays;
         let days = 0;
 
@@ -238,7 +239,7 @@ const GregorianCalendar = {
         }
     },
 
-    getTime(ticks) {
+    getTime(ticks: number) {
         const timeFromEpoch = new DateTime(ticks).subtract(new DateTime(0)),
             millisFromEpoch = timeFromEpoch.totalMilliseconds,
             secsFromEpoch = timeFromEpoch.totalSeconds,
@@ -259,7 +260,7 @@ const GregorianCalendar = {
         };
     },
 
-    getEra(ticks) {
+    getEra(ticks: number) {
         return ticks > 0 ? DateTimeEra.AnnoDomini : DateTimeEra.BeforeChrist;
     }
 };
@@ -279,12 +280,13 @@ const EPOCH_TO_NATIVE = new Date(Date.UTC(1, 0, 1, 0, 0, 0, 0)).setUTCFullYear(1
 const DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss.fffffff z";
 
 export class DateTime {
-    static fromNativeDateTimeStamp(dateTimeStamp): DateTime {
+    ticks: any;
+    static fromNativeDateTimeStamp(dateTimeStamp: number): DateTime {
         const ticks = (dateTimeStamp - EPOCH_TO_NATIVE) * TICKS_IN_MILLISECOND;
         return new DateTime(ticks);
     }
 
-    static fromUTC(year, month, date, hours = 0, minutes = 0, seconds = 0, millis = 0): DateTime {
+    static fromUTC(year: number, month: number, date: number | undefined, hours = 0, minutes = 0, seconds = 0, millis = 0): DateTime {
         const dateTimeStamp = Date.UTC(year, month - 1, date, hours, minutes, seconds, millis);
         return DateTime.fromNativeDateTimeStamp(dateTimeStamp);
     }
@@ -294,18 +296,18 @@ export class DateTime {
         return DateTime.fromNativeDateTimeStamp(dateTimeStamp);
     }
 
-    constructor(ticks) {
+    constructor(ticks: number) {
         this.__ticks = ticks;
     }
 
     toString(format: string = DEFAULT_DATETIME_FORMAT): string {
         ///TODO: Implement a non-hardcoded way of converting a TimeSpan to string using the specified format
 
-        const getPaddedValue = (value, quantifier) => {
+        const getPaddedValue = (value: number, quantifier: number) => {
             return String(value).padStart(quantifier, "0");
         };
 
-        const getYearString = quantifier => {
+        const getYearString = (quantifier: any) => {
             let year = this.year;
             switch (quantifier) {
                 case 2:
@@ -319,47 +321,47 @@ export class DateTime {
             return getPaddedValue(year, quantifier);
         };
 
-        const getMonthString = quantifier => {
+        const getMonthString = (quantifier: any) => {
             return getPaddedValue(this.month, quantifier);
         };
 
-        const getDayString = quantifier => {
+        const getDayString = (quantifier: any) => {
             return getPaddedValue(this.day, quantifier);
         };
 
-        const getHourString = quantifier => {
+        const getHourString = (quantifier: any) => {
             return getPaddedValue(this.hour, quantifier);
         };
 
-        const getHour12String = quantifier => {
+        const getHour12String = (quantifier: any) => {
             const hours = this.hour % 12;
             return getPaddedValue(hours, quantifier);
         };
 
-        const getTimeOfDayString = quantifier => {
+        const getTimeOfDayString = (quantifier: number) => {
             const timeOfDayStr = this.timeOfDay == TimeOfDay.AnteMeridiem ? "AM" : "PM";
 
             return timeOfDayStr.slice(0, quantifier - 1);
         }
 
-        const getMinuteString = quantifier => {
+        const getMinuteString = (quantifier: any) => {
             return getPaddedValue(this.minute, quantifier);
         };
 
-        const getSecondString = quantifier => {
+        const getSecondString = (quantifier: any) => {
             return getPaddedValue(this.second, quantifier);
         };
 
-        const getFractionString = quantifier => {
+        const getFractionString = (quantifier: number) => {
             const fraction = this.getFraction(quantifier);
             return getPaddedValue(fraction, quantifier);
         }
 
-        const getTimeZoneString = quantifier => {
-            return null;
+        const getTimeZoneString = (quantifier: any) => {
+            return "";
         }
 
-        const formatSpecifierReplacer = match => {
+        const getFormattedString = (match: string) => {
             switch (match[0]) {
                 case "y":
                     return getYearString(match.length);
@@ -386,7 +388,7 @@ export class DateTime {
             }
         };
 
-        let result = format.replace(FORMAT_SPECIFIER_REGEXPX, formatSpecifierReplacer);
+        let result = format.replace(FORMAT_SPECIFIER_REGEXPX, getFormattedString);
         return result;
     }
 

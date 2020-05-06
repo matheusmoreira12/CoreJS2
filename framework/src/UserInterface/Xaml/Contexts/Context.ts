@@ -3,7 +3,6 @@ import { assertParams, assertEachParams, TypeValidationMode } from "../../../Val
 import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
 
 //Keys for DataContext
-const $target = Symbol("target");
 
 /**
  * Holds context information for data transactions.
@@ -16,11 +15,11 @@ export class Context extends TreeItem<Context> {
 
         super(...children)
 
-        this[$target] = target;
+        this.__target = target;
     }
 
-    get target(): object | null { return this[$target]; }
-    private [$target]: object | null;
+    get target(): object | null { return this.__target; }
+    private __target: object | null;
 }
 
 const mainContext = new Context(null);

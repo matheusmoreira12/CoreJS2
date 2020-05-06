@@ -9,7 +9,6 @@ const DEFAULT_PROPERTY_OPTIONS: IPropertyOptions = {
 };
 
 //Keys for DependencyProperty
-const $name = Symbol("name");
 
 /**
  * Eases the integration between user-defined properties and framework features.
@@ -29,9 +28,9 @@ export class DependencyProperty {
     constructor(name: string) {
         assertParams({ name }, [String]);
 
-        this[$name] = name;
+        this.__name = name;
     }
 
-    get name(): string { return this[$name]; }
-    private [$name]: string;
+    get name(): string { return this.__name; }
+    private __name: string;
 }

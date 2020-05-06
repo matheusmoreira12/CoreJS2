@@ -1,5 +1,5 @@
 import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "../../Standard/Collections/index.js";
-import { Action, $setTrigger } from "./Action.js";
+import { Action } from "./Action.js";
 import { EventTrigger } from "../Triggers/index.js";
 import { assertParams } from "../../Validation/index.js";
 import { Enumeration } from "../../Standard/index.js";
@@ -18,10 +18,10 @@ export class ActionCollection extends ObservableCollection<Action> {
     private __onChange(sender: any, args: ObservableCollectionChangeArgs<Action>) {
         if (Enumeration.contains(ObservableCollectionChangeAction.Remove, args.action))
             for (let oldItem of args.oldItems)
-                oldItem[$setTrigger](null);
+                oldItem.__setTrigger(null);
         if (Enumeration.contains(ObservableCollectionChangeAction.Add, args.action))
             for (let newItem of args.newItems)
-                newItem[$setTrigger](this.__parentTrigger);
+                newItem.__setTrigger(this.__parentTrigger);
     }
 
     private __parentTrigger: EventTrigger;

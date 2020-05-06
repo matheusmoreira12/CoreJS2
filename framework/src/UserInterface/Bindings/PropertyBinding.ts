@@ -10,17 +10,6 @@ import { IValueConverter } from "../ValueConverters/index.js";
 import * as Storage from "../DependencyObjects/Storage.js";
 
 //Keys for PropertyBinding
-const $source = Symbol("source");
-const $source_PropertyChangeEvent = Symbol("source_PropertyChangeEvent");
-const $source_onPropertyChange = Symbol("source_onPropertyChange");
-const $sourceProperty = Symbol("sourceProperty");
-const $updateSourceProperty = Symbol("updateSourceProperty");
-const $target = Symbol("target");
-const $target_PropertyChangeEvent = Symbol("target_PropertyChangeEvent");
-const $target_onPropertyChange = Symbol("target_onPropertyChange");
-const $targetProperty = Symbol("targetProperty");
-const $updateTargetProperty = Symbol("updateTargetProperty");
-const $doInitialCrossingUpdate = Symbol("doInitialCrossingUpdate");
 
 /**
  * PropertyBinding class
@@ -35,26 +24,26 @@ export class PropertyBinding extends Binding {
         assertParams({ target }, [DependencyObject]);
         assertParams({ targetProperty }, [IBindingOptions]);
 
-        this[$source] = source;
-        this[$sourceProperty] = sourceProperty;
-        this[$target] = target;
-        this[$targetProperty] = targetProperty;
+        this.__source = source;
+        this.__sourceProperty = sourceProperty;
+        this.__target = target;
+        this.__targetProperty = targetProperty;
 
-        this[$doInitialCrossingUpdate]();
+        this.__doInitialCrossingUpdate();
 
-        source.PropertyChangeEvent.attach(this[$source_PropertyChangeEvent]);
-        target.PropertyChangeEvent.attach(this[$target_PropertyChangeEvent]);
+        source.PropertyChangeEvent.attach(this.__source_PropertyChangeEvent);
+        target.PropertyChangeEvent.attach(this.__target_PropertyChangeEvent);
     }
 
-    private [$doInitialCrossingUpdate]() {
+    private __doInitialCrossingUpdate() {
         const sourcePropertyRawValue = Storage.getValue(this.source, this.sourceProperty);
-        this[$updateTargetProperty](sourcePropertyRawValue);
+        this.__updateTargetProperty(sourcePropertyRawValue);
 
         const targetPropertyRawValue = Storage.getValue(this.target, this.targetProperty);
-        this[$updateSourceProperty](targetPropertyRawValue);
+        this.__updateSourceProperty(targetPropertyRawValue);
     }
 
-    private [$updateTargetProperty](sourceValue: any) {
+    private __updateTargetProperty(sourceValue: any) {
         const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction!);
         if (canUpdateToTarget) {
             const hasValueConverter = !!this.options.valueConverter;
@@ -67,15 +56,15 @@ export class PropertyBinding extends Binding {
         }
     }
 
-    private [$source_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
+    private __source_onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         const isSourceProperty = args.property === this.sourceProperty;
         if (isSourceProperty)
-            this[$updateTargetProperty](args.newValue);
+            this.__updateTargetProperty(args.newValue);
     }
 
-    private [$source_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this[$source_onPropertyChange], this);
+    private __source_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.__source_onPropertyChange, this);
 
-    private [$updateSourceProperty](targetValue: any) {
+    private __updateSourceProperty(targetValue: any) {
         const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.options.direction!);
         if (canUpdateToSource) {
             const hasValueConverter = !!this.options.valueConverter;
@@ -88,28 +77,28 @@ export class PropertyBinding extends Binding {
         }
     }
 
-    private [$target_onPropertyChange](_sender: any, args: PropertyChangeEventArgs) {
+    private __target_onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         const isTargetProperty = args.property === this.targetProperty;
         if (isTargetProperty)
-            this[$updateSourceProperty](args.newValue);
+            this.__updateSourceProperty(args.newValue);
     }
 
-    private [$target_PropertyChangeEvent]: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this[$target_onPropertyChange], this);
+    private __target_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.__target_onPropertyChange, this);
 
-    get source(): DependencyObject { return this[$source]; }
-    private [$source]: DependencyObject;
+    get source(): DependencyObject { return this.__source; }
+    private __source: DependencyObject;
 
-    get sourceProperty(): DependencyProperty { return this[$sourceProperty]; }
-    private [$sourceProperty]: DependencyProperty;
+    get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
+    private __sourceProperty: DependencyProperty;
 
-    get target(): DependencyObject { return this[$target]; }
-    private [$target]: DependencyObject;
+    get target(): DependencyObject { return this.__target; }
+    private __target: DependencyObject;
 
-    get targetProperty(): DependencyProperty { return this[$targetProperty]; }
-    private [$targetProperty]: DependencyProperty;
+    get targetProperty(): DependencyProperty { return this.__targetProperty; }
+    private __targetProperty: DependencyProperty;
 
     protected destructor(): void {
-        this[$source_PropertyChangeEvent].destruct();
-        this[$target_PropertyChangeEvent].destruct();
+        this.__source_PropertyChangeEvent.destruct();
+        this.__target_PropertyChangeEvent.destruct();
     }
 }

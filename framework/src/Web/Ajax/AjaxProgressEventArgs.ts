@@ -1,8 +1,6 @@
 import { assertParams } from "../../ValidationStandalone/index.js";
 import { Ajax, AjaxEventArgs } from "./index.js";
 
-const $total = Symbol("total");
-const $loaded = Symbol("loaded");
 
 export class AjaxProgressEventArgs extends AjaxEventArgs {
     constructor(target: Ajax, total: number, loaded: number) {
@@ -11,15 +9,15 @@ export class AjaxProgressEventArgs extends AjaxEventArgs {
 
         super(target);
 
-        this[$total] = total;
-        this[$loaded] = loaded;
+        this.__total = total;
+        this.__loaded = loaded;
     }
 
-    get total() { return this[$total]; }
-    private [$total]: number;
+    get total() { return this.__total; }
+    private __total: number;
 
-    get loaded() { return this[$loaded]; }
-    private [$loaded]: number;
+    get loaded() { return this.__loaded; }
+    private __loaded: number;
 
     get percent() { return this.loaded / this.total * 100; }
 }

@@ -3,37 +3,32 @@ import { Enumeration } from "../Enumeration.js";
 import { FrameworkEvent } from "../Events/FrameworkEvent.js";
 import { FrameworkEventArgs } from "../Events/index.js";
 
-const $action = Symbol("action");
-const $oldItems = Symbol("oldItems");
-const $oldIndex = Symbol("oldIndex");
-const $newItems = Symbol("newItems");
-const $newIndex = Symbol("newIndex");
 
 export class ObservableCollectionChangeArgs<T> extends FrameworkEventArgs {
     constructor(action: number, oldIndex: number, oldItems: T[], newIndex: number, newItems: T[]) {
         super();
 
-        this[$action] = action;
-        this[$oldIndex] = oldIndex;
-        this[$oldItems] = oldItems;
-        this[$newIndex] = newIndex;
-        this[$newItems] = newItems;
+        this.__action = action;
+        this.__oldIndex = oldIndex;
+        this.__oldItems = oldItems;
+        this.__newIndex = newIndex;
+        this.__newItems = newItems;
     }
 
-    get action(): number { return this[$action]; }
-    private [$action]: number;
+    get action(): number { return this.__action; }
+    private __action: number;
 
-    get oldIndex(): number { return this[$oldIndex]; }
-    private [$oldIndex]: number;
+    get oldIndex(): number { return this.__oldIndex; }
+    private __oldIndex: number;
 
-    get oldItems(): T[] { return this[$oldItems]; }
-    private [$oldItems]: T[];
+    get oldItems(): T[] { return this.__oldItems; }
+    private __oldItems: T[];
 
-    get newIndex(): number { return this[$newIndex]; }
-    private [$newIndex]: number;
+    get newIndex(): number { return this.__newIndex; }
+    private __newIndex: number;
 
-    get newItems(): T[] { return this[$newItems]; }
-    private [$newItems]: T[];
+    get newItems(): T[] { return this.__newItems; }
+    private __newItems: T[];
 };
 
 export const ObservableCollectionChangeAction = Enumeration.create({

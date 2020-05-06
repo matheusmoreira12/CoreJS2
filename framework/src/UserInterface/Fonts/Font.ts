@@ -4,11 +4,6 @@ import { FontStyle } from "./FontStyle.js";
 import { assertParams } from "../../Validation/index.js";
 import { Length, LengthUnit } from "../Coordinates/index.js";
 
-const $family = Symbol("family");
-const $size = Symbol("size");
-const $weight = Symbol("weight");
-const $style = Symbol("style");
-const $textDecoration = Symbol("textDecoration");
 
 export class Font {
     static get default(): Font { return DEFAULT_FONT; }
@@ -18,27 +13,27 @@ export class Font {
         assertParams({ size }, [Length]);
         assertParams({ weight, style, textDecoration }, [Number]);
 
-        this[$family] = family;
-        this[$size] = size;
-        this[$weight] = weight;
-        this[$style] = style;
-        this[$textDecoration] = textDecoration;
+        this.__family = family;
+        this.__size = size;
+        this.__weight = weight;
+        this.__style = style;
+        this.__textDecoration = textDecoration;
     }
 
-    get family(): string { return this[$family]; }
-    [$family]: string;
+    get family(): string { return this.__family; }
+    private __family: string;
 
-    get size(): Length { return this[$size]; }
-    [$size]: Length;
+    get size(): Length { return this.__size; }
+    private __size: Length;
 
-    get weight(): number { return this[$weight]; }
-    [$weight]: number;
+    get weight(): number { return this.__weight; }
+    private __weight: number;
 
-    get style(): number { return this[$style]; }
-    [$style]: number;
+    get style(): number { return this.__style; }
+    private __style: number;
 
-    get textDecoration(): number { return this[$textDecoration]; }
-    [$textDecoration]: number;
+    get textDecoration(): number { return this.__textDecoration; }
+    private __textDecoration: number;
 }
 
 const DEFAULT_FONT_FAMILY = "Arial, Verdana, Sans-serif";
