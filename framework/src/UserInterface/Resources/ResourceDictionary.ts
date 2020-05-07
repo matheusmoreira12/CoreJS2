@@ -18,6 +18,7 @@ export class ResourceDictionary extends DependencyObject {
         super();
 
         this.resources = new Collection();
+        this.nestedDictionaries = new Collection();
 
         Storage.store(this);
     }
