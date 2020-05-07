@@ -7,12 +7,14 @@ import { assertParams } from "../../Validation/index.js";
 import * as Storage from "./Storage.js";
 
 
-export class DependencyObject extends Destructible {
+export abstract class DependencyObject extends Destructible {
     constructor() {
         super();
 
-        this.__PropertyChangeEvent = new FrameworkEvent();
+        this.__PropertyChangeEvent = new FrameworkEvent(this.__onPropertyChange, this);
     }
+
+    protected __onPropertyChange(sender: any, args: PropertyChangeEventArgs): void { }
 
     get(property: DependencyProperty): any {
         assertParams({ property }, [DependencyProperty]);
@@ -29,7 +31,7 @@ export class DependencyObject extends Destructible {
     get PropertyChangeEvent(): FrameworkEvent<PropertyChangeEventArgs> { return this.__PropertyChangeEvent; }
     private __PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
 
-    destructor() {
+    protected destructor() {
         this.__PropertyChangeEvent.destruct();
     }
 }

@@ -3,6 +3,7 @@ import { assertParams } from "../../Validation/index.js";
 
 import * as Registry from "./Registry.js";
 import { Class } from "../../Standard/Types/Types.js";
+import { InvalidOperationException } from "../../Standard/Exceptions/index.js";
 
 const DEFAULT_PROPERTY_OPTIONS: IPropertyOptions = {
     defaultValue: null
@@ -23,6 +24,18 @@ export class DependencyProperty {
         const property = new DependencyProperty(name);
         Registry.register(target, property, options);
         return property;
+    }
+
+    static getOptions(property: DependencyProperty): IPropertyOptions {
+        const options = Registry.getOptions(property);
+        if (options)
+            return options;
+        else
+            throw new InvalidOperationException("Cannot get options. The specified property has not been registered.")
+    }
+
+    static getAll(target: Class<any>): DependencyProperty[] {
+        return Registry.getAll(target);
     }
 
     constructor(name: string) {

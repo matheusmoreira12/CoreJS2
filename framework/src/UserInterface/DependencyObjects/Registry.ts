@@ -25,3 +25,8 @@ export function getOptions(property: DependencyProperty): IPropertyOptions | nul
     else
         return null;
 }
+
+export function getAll(target: Class<any>): DependencyProperty[] {
+    const entries = registryEntries.filter(e => e.target === target);
+    return entries.map(e => e.property);
+}
