@@ -19,7 +19,7 @@ export class NativeEvent extends FrameworkEvent<NativeEventArgs> {
     }
 
     private __target_nativeEvent_handler = ((event: Event): void => {
-        this.invoke(this.target, new NativeEventArgs(this, event));
+        this.invoke(this, new NativeEventArgs(this.target, event));
     }).bind(this);
 
     get target(): EventTarget { return this.__target; }
