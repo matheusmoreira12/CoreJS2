@@ -2,12 +2,22 @@ import { DependencyObject, DependencyProperty } from "../UserInterface/Dependenc
 import { Type } from "../Standard/Types/Type.js";
 import { ResourceDictionary } from "../UserInterface/Resources/index.js";
 import { InvalidOperationException } from "../Standard/Exceptions/index.js";
+import { NativeEvent, NativeEventArgs } from "../Standard/Events/index.js";
 
 export abstract class Application extends DependencyObject {
     constructor() {
         super();
 
         this.resources = new ResourceDictionary();
+
+        this.__window_LoadEvent = new NativeEvent(window, "load", this.__window_onLoad, this);
+    }
+
+    private __window_LoadEvent: NativeEvent;
+
+    private __window_onLoad(_sender: any, _args: NativeEventArgs) {
+        if (!this.isInitialized)
+            this.initialize();
     }
 
     protected abstract initializer(): void;
@@ -24,8 +34,7 @@ export abstract class Application extends DependencyObject {
     protected abstract finalizer(): void;
 
     finalize() {
-        if (this.isInitialized)
-        {
+        if (this.isInitialized) {
             this.finalizer();
             this.__isInitialized = false;
         }
@@ -42,6 +51,9 @@ export abstract class Application extends DependencyObject {
 
         if (!this.resources.isDestructed)
             this.resources.destruct();
+
+        if (!this.__window_LoadEvent.isDestructed)
+            this.__window_LoadEvent.destruct();
     }
 
     static resourcesProperty = DependencyProperty.register(Application, "resources", { valueType: Type.get(ResourceDictionary) });
