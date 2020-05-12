@@ -6,6 +6,8 @@ export abstract class Destructible {
     constructor() {
         if (new.target === Destructible)
             throw new InvalidOperationException("Invalid constructor.");
+
+        allDestructibles.push(this);
     }
 
     protected abstract destructor(): void;
@@ -23,12 +25,12 @@ export abstract class Destructible {
     private __isDestructed: boolean = false;
 }
 
-function beforeUnload() {
-    window.removeEventListener("beforeunload", beforeUnload);
+function window_beforeunload() {
+    window.removeEventListener("beforeunload", window_beforeunload);
 
     for (let destructible of allDestructibles) {
         if (!destructible.isDestructed)
             destructible.destruct();
     }
 }
-window.addEventListener("beforeunload", beforeUnload);
+window.addEventListener("beforeunload", window_beforeunload);

@@ -2,7 +2,6 @@ import { DependencyObject, DependencyProperty } from "../UserInterface/Dependenc
 import { Type } from "../Standard/Types/Type.js";
 import { ResourceDictionary } from "../UserInterface/Resources/index.js";
 import { InvalidOperationException } from "../Standard/Exceptions/index.js";
-import { NativeEvent, NativeEventArgs } from "../Standard/Events/index.js";
 
 const allApplications: Application[] = [];
 
