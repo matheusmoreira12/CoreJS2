@@ -13,5 +13,8 @@ export { Validation };
 import * as UserInterface from "./UserInterface/index.js";
 export { UserInterface };
 
+import * as Applications from "./Applications/index.js";
+export { Applications };
+
 import * as Web from "./Web/index.js";
 export { Web };
