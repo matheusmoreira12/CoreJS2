@@ -4,20 +4,15 @@ import { ResourceDictionary } from "../UserInterface/Resources/index.js";
 import { InvalidOperationException } from "../Standard/Exceptions/index.js";
 import { NativeEvent, NativeEventArgs } from "../Standard/Events/index.js";
 
+const allApplications: Application[] = [];
+
 export abstract class Application extends DependencyObject {
     constructor() {
         super();
 
         this.resources = new ResourceDictionary();
 
-        this.__window_LoadEvent = new NativeEvent(window, "load", this.__window_onLoad, this);
-    }
-
-    private __window_LoadEvent: NativeEvent;
-
-    private __window_onLoad(_sender: any, _args: NativeEventArgs) {
-        if (!this.isInitialized)
-            this.initialize();
+        allApplications.push(this);
     }
 
     protected abstract initializer(): void;
@@ -51,12 +46,20 @@ export abstract class Application extends DependencyObject {
 
         if (!this.resources.isDestructed)
             this.resources.destruct();
-
-        if (!this.__window_LoadEvent.isDestructed)
-            this.__window_LoadEvent.destruct();
     }
 
     static resourcesProperty = DependencyProperty.register(Application, "resources", { valueType: Type.get(ResourceDictionary) });
     get resources(): ResourceDictionary { return this.get(Application.resourcesProperty); }
     set resources(value: ResourceDictionary) { this.set(Application.resourcesProperty, value); }
 }
+
+function window_onload() {
+    window.removeEventListener("load", window_onload);
+
+    for (let application of allApplications) {
+        if (!application.isInitialized)
+            application.initialize();
+    }
+}
+
+window.addEventListener("load", window_onload);
