@@ -39,6 +39,9 @@ export abstract class Application extends DependencyObject {
     protected destructor() {
         if (this.isInitialized)
             this.finalize();
+
+        if (!this.resources.isDestructed)
+            this.resources.destruct();
     }
 
     static resourcesProperty = DependencyProperty.register(Application, "resources", { valueType: Type.get(ResourceDictionary) });
