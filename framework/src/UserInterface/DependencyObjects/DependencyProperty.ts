@@ -1,33 +1,43 @@
-import { IPropertyOptions } from "./IPropertyOptions.js";
+import { IPropertyMetadata } from "./IPropertyMetadata.js";
 import { assertParams } from "../../Validation/index.js";
 
 import * as Registry from "./Registry.js";
 import { Class } from "../../Standard/Types/Types.js";
 import { InvalidOperationException } from "../../Standard/Exceptions/index.js";
 
-const DEFAULT_PROPERTY_OPTIONS: IPropertyOptions = {
+const DEFAULT_PROPERTY_METADATA: IPropertyMetadata = {
     defaultValue: null
 };
 
-//Keys for DependencyProperty
+function assertAttachedProperty(target: Class<any>, name: string, isReadonly: boolean) {
+    const descriptor = Object.getOwnPropertyDescriptor(target.prototype, name);
+    if (!descriptor)
+        throw new InvalidOperationException(`Cannot register dependency property. Missing property ${name} in ${target.name}.`)
+    else if (!descriptor.get)
+        throw new InvalidOperationException(`Cannot register dependency property. Missing getter for property ${name} in class ${target.name}.`);
+    else if (!descriptor.set && !isReadonly)
+        throw new InvalidOperationException(`Cannot register dependency property. Missing setter for property ${name} in class ${target.name}.`);
+}
 
 /**
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    static register(target: Class<any>, name: string, options: IPropertyOptions = {}): DependencyProperty {
+    static registerAttached(target: Class<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
         assertParams({ target }, [Function]);
-        assertParams({ options }, [IPropertyOptions]);
+        assertParams({ options: metadata }, [IPropertyMetadata]);
 
-        options = Object.assign({}, DEFAULT_PROPERTY_OPTIONS, options);
+        metadata = Object.assign({}, DEFAULT_PROPERTY_METADATA, metadata);
+
+        assertAttachedProperty(target, name, false);
 
         const property = new DependencyProperty(name);
-        Registry.register(target, property, options);
+        Registry.registerAttached(target, property, metadata);
         return property;
     }
 
-    static getOptions(property: DependencyProperty): IPropertyOptions {
-        const options = Registry.getOptions(property);
+    static getMetadata(property: DependencyProperty): IPropertyMetadata {
+        const options = Registry.getMetadata(property);
         if (options)
             return options;
         else

@@ -51,17 +51,17 @@ export class ResourceDictionary extends DependencyObject {
             throw new InvalidOperationException("Cannot get resource. No resource matches the specified key.");
     }
 
-    static nestedDictionariesProperty = DependencyProperty.register(ResourceDictionary, "nestedDictionaries", { valueType: Type.get(Array) });
+    static nestedDictionariesProperty = DependencyProperty.registerAttached(ResourceDictionary, "nestedDictionaries", { valueType: Type.get(Array) });
     get nestedDictionaries(): ResourceDictionary[] { return this.get(ResourceDictionary.nestedDictionariesProperty); };
     set nestedDictionaries(value: ResourceDictionary[]) { this.set(ResourceDictionary.nestedDictionariesProperty, value); }
 
-    static resourcesProperty = DependencyProperty.register(ResourceDictionary, "resources", { valueType: Type.get(Collection) });
+    static resourcesProperty = DependencyProperty.registerAttached(ResourceDictionary, "resources", { valueType: Type.get(Collection) });
     get resources(): Collection<DependencyObject> { return this.get(ResourceDictionary.resourcesProperty); }
     set resources(value: Collection<DependencyObject>) { this.set(ResourceDictionary.resourcesProperty, value); }
 
-    static keyProperty = DependencyProperty.register(ResourceDictionary, "key", { valueType: Type.get(String) });
+    static keyProperty = DependencyProperty.registerAttached(ResourceDictionary, "key", { valueType: Type.get(String) });
     get key(): string { return this.get(ResourceDictionary.keyProperty); }
     set key(value: string) { this.set(ResourceDictionary.keyProperty, value); }
 
-    static resource_keyProperty = DependencyProperty.register(ResourceDictionary, "key", { valueType: Type.get(String) });
+    static resource_keyProperty = DependencyProperty.registerAttached(ResourceDictionary, "key", { valueType: Type.get(String) });
 }

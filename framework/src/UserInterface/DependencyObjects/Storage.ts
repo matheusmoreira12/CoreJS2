@@ -61,7 +61,7 @@ export function getRawValue(target: DependencyObject, property: DependencyProper
 }
 
 export function getValue(target: DependencyObject, property: DependencyProperty): any {
-    const options = Registry.getOptions(property);
+    const options = Registry.getMetadata(property);
     const rawValue = getRawValue(target, property);
     if (rawValue === null) {
         if (options)

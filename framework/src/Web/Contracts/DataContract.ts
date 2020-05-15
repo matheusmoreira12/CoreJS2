@@ -5,6 +5,7 @@ export class DataContract extends DependencyObject {
         const properties = DependencyProperty.getAll(this.constructor);
         for (let property of properties) {
             const value = data[<keyof typeof data>property.name];
+            const options = DependencyProperty.getMetadata(property);
             if (value !== undefined) {
                 const propOldValue = this.get(property);
                 if (propOldValue instanceof DataContract)

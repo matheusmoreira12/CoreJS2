@@ -47,7 +47,7 @@ export abstract class Application extends DependencyObject {
             this.resources.destruct();
     }
 
-    static resourcesProperty = DependencyProperty.register(Application, "resources", { valueType: Type.get(ResourceDictionary) });
+    static resourcesProperty = DependencyProperty.registerAttached(Application, "resources", { valueType: Type.get(ResourceDictionary) });
     get resources(): ResourceDictionary { return this.get(Application.resourcesProperty); }
     set resources(value: ResourceDictionary) { this.set(Application.resourcesProperty, value); }
 }

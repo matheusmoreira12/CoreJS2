@@ -1,27 +1,31 @@
 import { DependencyProperty } from "./DependencyProperty.js";
-import { IPropertyOptions } from "./IPropertyOptions.js";
+import { IPropertyMetadata } from "./IPropertyMetadata.js";
 import { Class } from "../../Standard/Types/Types.js";
 
 type RegistryEntry = {
     target: typeof Object,
     property: DependencyProperty,
-    options: IPropertyOptions
+    metadata: IPropertyMetadata,
+    isAttached: boolean,
+    isReadonly: boolean
 }
 
 const registryEntries: RegistryEntry[] = [];
 
-export function register(target: Class<any>, property: DependencyProperty, options: IPropertyOptions) {
+export function registerAttached(target: Class<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
     registryEntries.push({
         target,
         property,
-        options
+        metadata,
+        isAttached: true,
+        isReadonly: false
     });
 }
 
-export function getOptions(property: DependencyProperty): IPropertyOptions | null {
+export function getMetadata(property: DependencyProperty): IPropertyMetadata | null {
     const entry = registryEntries.find(e => e.property === property);
     if (entry)
-        return entry.options;
+        return entry.metadata;
     else
         return null;
 }
