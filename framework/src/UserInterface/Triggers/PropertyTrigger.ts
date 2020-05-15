@@ -1,5 +1,5 @@
 import { Trigger } from "./index.js";
-import { DependencyProperty, DependencyObject } from "../DependencyObjects/index.js";
+import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index.js";
 import { Setter } from "../Setters/index.js";
 import { SetterCollection } from "../Setters/SetterCollection.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";

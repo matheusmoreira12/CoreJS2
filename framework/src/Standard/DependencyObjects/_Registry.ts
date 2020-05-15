@@ -1,6 +1,6 @@
 import { DependencyProperty } from "./DependencyProperty.js";
 import { IPropertyMetadata } from "./IPropertyMetadata.js";
-import { Class } from "../../Standard/Types/Types.js";
+import { Class } from "../Types/Types.js";
 
 type RegistryEntry = {
     target: typeof Object,
@@ -19,6 +19,26 @@ export function registerAttached(target: Class<any>, property: DependencyPropert
         metadata,
         isAttached: true,
         isReadonly: false
+    });
+}
+
+export function registerReadonly(target: Class<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+    registryEntries.push({
+        target,
+        property,
+        metadata,
+        isAttached: true,
+        isReadonly: true
+    });
+}
+
+export function register(target: Class<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+    registryEntries.push({
+        target,
+        property,
+        metadata,
+        isAttached: false,
+        isReadonly: true
     });
 }
 

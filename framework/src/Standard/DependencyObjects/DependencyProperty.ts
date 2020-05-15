@@ -1,9 +1,9 @@
 import { IPropertyMetadata } from "./IPropertyMetadata.js";
 import { assertParams } from "../../Validation/index.js";
 
-import * as Registry from "./Registry.js";
-import { Class } from "../../Standard/Types/Types.js";
-import { InvalidOperationException } from "../../Standard/Exceptions/index.js";
+import * as Registry from "./_Registry.js";
+import { Class } from "../Types/Types.js";
+import { InvalidOperationException } from "../Exceptions/index.js";
 
 const DEFAULT_PROPERTY_METADATA: IPropertyMetadata = {
     defaultValue: null
@@ -33,6 +33,30 @@ export class DependencyProperty {
 
         const property = new DependencyProperty(name);
         Registry.registerAttached(target, property, metadata);
+        return property;
+    }
+
+    static registerReadonly(target: Class<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+        assertParams({ target }, [Function]);
+        assertParams({ options: metadata }, [IPropertyMetadata]);
+
+        metadata = Object.assign({}, DEFAULT_PROPERTY_METADATA, metadata);
+
+        assertAttachedProperty(target, name, true);
+
+        const property = new DependencyProperty(name);
+        Registry.registerReadonly(target, property, metadata);
+        return property;
+    }
+
+    static register(target: Class<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+        assertParams({ target }, [Function]);
+        assertParams({ options: metadata }, [IPropertyMetadata]);
+
+        metadata = Object.assign({}, DEFAULT_PROPERTY_METADATA, metadata);
+
+        const property = new DependencyProperty(name);
+        Registry.register(target, property, metadata);
         return property;
     }
 

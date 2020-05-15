@@ -1,4 +1,4 @@
-import { DependencyObject, DependencyProperty } from "../UserInterface/DependencyObjects/index.js";
+import { DependencyObject, DependencyProperty } from "../Standard/DependencyObjects/index.js";
 import { Type } from "../Standard/Types/Type.js";
 import { ResourceDictionary } from "../UserInterface/Resources/index.js";
 import { InvalidOperationException } from "../Standard/Exceptions/index.js";

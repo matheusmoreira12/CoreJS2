@@ -1,4 +1,4 @@
-import { DependencyObject, DependencyProperty } from "../DependencyObjects/index.js";
+import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
 import { Size, Length } from "../Coordinates/index.js";
 import { Type } from "../../Standard/Types/index.js";
 import { InvalidOperationException } from "../../Standard/Exceptions/index.js";

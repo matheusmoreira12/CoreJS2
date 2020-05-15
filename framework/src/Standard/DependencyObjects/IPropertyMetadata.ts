@@ -1,5 +1,5 @@
-import { Type, MemberAttributes } from "../../Standard/Types/index.js";
-import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/index.js";
+import { Type, MemberAttributes } from "../Types/index.js";
+import { Interface, InterfaceMember, InterfaceMemberType } from "../Interfaces/index.js";
 
 export const IPropertyMetadata = new Interface(
     new InterfaceMember("valueType", InterfaceMemberType.Field, null, MemberAttributes.Enumerable, true),

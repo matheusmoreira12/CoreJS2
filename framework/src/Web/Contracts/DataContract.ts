@@ -1,4 +1,4 @@
-import { DependencyObject, DependencyProperty } from "../../UserInterface/DependencyObjects/index.js";
+import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
 
 export class DataContract extends DependencyObject {
     update(data: object) {

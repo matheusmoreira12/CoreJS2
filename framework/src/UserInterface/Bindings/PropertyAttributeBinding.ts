@@ -1,10 +1,10 @@
 import { Binding, IBindingOptions } from "./index.js";
-import { DependencyProperty, PropertyChangeEventArgs } from "../DependencyObjects/index.js";
+import { DependencyProperty, PropertyChangeEventArgs } from "../../Standard/DependencyObjects/index.js";
 import { assertParams } from "../../Validation/index.js";
-import { DependencyObject } from "../DependencyObjects/DependencyObject.js";
+import { DependencyObject } from "../../Standard/DependencyObjects/DependencyObject.js";
 import { FrameworkEvent } from "../../Standard/Events/index.js";
 
-import * as Storage from "../DependencyObjects/Storage.js";
+import * as Storage from "../../Standard/DependencyObjects/_Storage.js";
 import { Enumeration } from "../../Standard/index.js";
 import { BindingDirection } from "./Bindings.js";
 import { IValueConverter } from "../ValueConverters/index.js";

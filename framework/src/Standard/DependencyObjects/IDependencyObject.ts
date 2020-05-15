@@ -1,9 +1,9 @@
 import { DependencyProperty } from "./DependencyProperty.js";
-import { FrameworkEvent } from "../../Standard/Events/index.js";
+import { FrameworkEvent } from "../Events/index.js";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent.js";
-import { Interface, InterfaceMember } from "../../Standard/Interfaces/index.js";
-import { MemberType } from "../../Standard/Types/Types.js";
-import { Type } from "../../Standard/Types/Type.js";
+import { Interface, InterfaceMember } from "../Interfaces/index.js";
+import { MemberType } from "../Types/Types.js";
+import { Type } from "../Types/Type.js";
 
 export const IDependencyObject = new Interface(
     new InterfaceMember("get", MemberType.Function),

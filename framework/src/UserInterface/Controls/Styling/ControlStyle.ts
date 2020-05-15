@@ -1,4 +1,4 @@
-import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../DependencyObjects/index.js";
+import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../../Standard/DependencyObjects/index.js";
 import { Control } from "../Control.js";
 import { StringUtils } from "../../../CoreBase/Utils/index.js";
 

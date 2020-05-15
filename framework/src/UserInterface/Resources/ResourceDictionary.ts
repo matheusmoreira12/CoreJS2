@@ -1,4 +1,4 @@
-import { DependencyProperty, DependencyObject } from "../DependencyObjects/index.js";
+import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index.js";
 import { TryOutput } from "../../Standard/Types/Types.js";
 import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
 import * as Storage from "./Storage.js";

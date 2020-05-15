@@ -1,4 +1,4 @@
-import { DependencyProperty } from "../../DependencyObjects/index.js";
+import { DependencyProperty } from "../../../Standard/DependencyObjects/index.js";
 import { Type } from "../../../Standard/Types/index.js";
 // import { Control } from "../index.js";
 import { Template } from "./Template.js";

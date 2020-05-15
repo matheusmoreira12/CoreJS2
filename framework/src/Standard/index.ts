@@ -37,3 +37,6 @@ export { URLs };
 
 import * as Timing from "./Timing/index.js";
 export { Timing };
+
+import * as DependencyObjects from "./DependencyObjects/index.js";
+export { DependencyObjects };
