@@ -1,8 +1,10 @@
 import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
 import { Trigger } from "./index.js";
-import { Dictionary } from "../../Standard/Collections/index.js";
-import { Action, ActionCollection } from "../Actions/index.js";
+import { Dictionary, Collection } from "../../Standard/Collections/index.js";
+import { Action } from "../Actions/index.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
+import { DependencyProperty } from "../../Standard/DependencyObjects/index.js";
+import { Type } from "../../Standard/Types/index.js";
 
 //Keys for EventTrigger
 
@@ -17,16 +19,10 @@ export class EventTrigger extends Trigger {
         assertParams({ targetEvent }, [FrameworkEvent]);
         assertEachParams({ actions }, [Action], TypeValidationMode.MatchAny, [Array]);
 
-        this.__targetEvent = targetEvent;
-        this.__actions = new ActionCollection(this, ...actions);
+        targetEvent.attach(this.__targetEvent_handler);
 
-        this.targetEvent.attach(this.__targetEvent_handler);
-    }
-
-    private __removeAllActions() {
-        const actionsCopy = [...this.actions];
-        for (let action of actionsCopy)
-            action.__setTrigger(null);
+        this.set(EventTrigger.targetEventProperty, targetEvent);
+        this.set(EventTrigger.actionsProperty, new Collection(...actions));
     }
 
     private __executeAllActions(data: Dictionary<string, any>) {
@@ -47,17 +43,17 @@ export class EventTrigger extends Trigger {
     private __targetEvent_handler(sender: any, args: FrameworkEventArgs) {
         const data: Dictionary<string, any> = Dictionary.fromKeyValueObject(args);
         data.set("origin", sender);
-        
+
         this.__executeAllActions(data);
     }
 
-    get targetEvent(): FrameworkEvent { return this.__targetEvent; }
-    private __targetEvent: FrameworkEvent;
+    static targetEventProperty = DependencyProperty.registerReadonly(EventTrigger, "targetEvent", { valueType: Type.get(FrameworkEvent) })
+    get targetEvent(): FrameworkEvent { return this.get(EventTrigger.targetEventProperty); }
 
-    get actions(): ActionCollection { return this.__actions; }
-    private __actions: ActionCollection;
+    static actionsProperty = DependencyProperty.registerReadonly(EventTrigger, "actions", { valueType: Type.get(Collection) })
+    get actions(): Collection<Action> { return this.get(EventTrigger.actionsProperty); }
 
     protected destructor() {
-        this.__removeAllActions();
+        this.actions.clear();
     }
 }

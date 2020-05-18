@@ -1,52 +1,29 @@
 import { DependencyProperty } from "../../Standard/DependencyObjects/index.js"
 import { assertParams } from "../../Validation/index.js";
-import { PropertyTrigger } from "../Triggers/index.js";
-import { Destructible } from "../../Standard/index.js";
-import { Collection } from "../../Standard/Collections/index.js";
 import { DependencyObject } from "../../Standard/DependencyObjects/DependencyObject.js";
-
-const allSetters: Collection<Setter> = new Collection();
+import { Type } from "../../Standard/Types/index.js";
 
 /**
  * Sets the value of the specified property on the specified target to the specified value whenever the trigger's condition is met.
  */
-export class Setter extends Destructible {
-    static getAll(): Setter[] { return [...allSetters]; }
-
+export class Setter extends DependencyObject {
     constructor(target: DependencyObject, property: DependencyProperty, value: any) {
         super();
 
         assertParams({ target }, [DependencyObject]);
         assertParams({ property }, [DependencyProperty]);
 
-        this.__target = target;
-        this.__property = property;
-        this.__value = value;
-        this.__trigger = null;
-
-        allSetters.add(this);
+        this.set(Setter.targetProperty, target);
+        this.set(Setter.propertyProperty, property);
+        this.set(Setter.valueProperty, value);
     }
 
-    get target(): object { return this.__target; }
-    private __target: object;
+    static targetProperty = DependencyProperty.registerReadonly(Setter, "target", { valueType: Type.get(DependencyObject) });
+    get target(): DependencyObject { return this.get(Setter.targetProperty); }
 
-    get property(): DependencyProperty { return this.__property; }
-    private __property: DependencyProperty;
+    static propertyProperty = DependencyProperty.registerReadonly(Setter, "property", { valueType: Type.get(DependencyProperty) });
+    get property(): DependencyProperty { return this.get(Setter.propertyProperty); }
 
-    get value(): any { return this.__value; }
-    private __value: any;
-
-    __setTrigger(trigger: PropertyTrigger | null) {
-        this.__trigger = trigger;
-    }
-
-    get trigger(): PropertyTrigger | null { return this.__trigger; }
-    private __trigger: PropertyTrigger | null;
-
-    protected destructor(): void {
-        if (this.trigger)
-            this.trigger.setters.remove(this);
-
-        allSetters.remove(this);
-    }
+    static valueProperty = DependencyProperty.registerReadonly(Setter, "value");
+    get value(): any { return this.get(Setter.valueProperty); }
 }

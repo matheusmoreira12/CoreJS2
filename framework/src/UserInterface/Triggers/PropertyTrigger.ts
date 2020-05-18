@@ -1,8 +1,9 @@
 import { Trigger } from "./index.js";
 import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index.js";
 import { Setter } from "../Setters/index.js";
-import { SetterCollection } from "../Setters/SetterCollection.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
+import { Type } from "../../Standard/Types/Type.js";
+import { Collection } from "../../Standard/Collections/index.js";
 
 //Keys for PropertyTrigger
 
@@ -11,30 +12,30 @@ import { assertParams, assertEachParams, TypeValidationMode } from "../../Valida
  * Triggers a group of setters when the specified property matches the specified value.
  */
 export class PropertyTrigger extends Trigger {
-    constructor(target: DependencyObject, targetProperty: DependencyProperty, value: any, ...setters: Setter[]) {
+    constructor(target: DependencyObject, property: DependencyProperty, value: any, ...setters: Setter[]) {
         super();
 
         assertParams({ target }, [Object]);
-        assertParams({ targetProperty }, [DependencyProperty]);
+        assertParams({ property }, [DependencyProperty]);
         assertEachParams({ setters }, [Setter], TypeValidationMode.MatchAny, [Array]);
 
-        this.__target = target;
-        this.__targetProperty = targetProperty;
-        this.__value = value;
-        this.__setters = new SetterCollection(this, ...setters);
+        this.set(PropertyTrigger.targetProperty, target);
+        this.set(PropertyTrigger.propertyProperty, property);
+        this.set(PropertyTrigger.valueProperty, value);
+        this.set(PropertyTrigger.settersProperty, new Collection(...setters));
     }
 
-    get target(): object { return this.__target; }
-    private __target: object;
+    static targetProperty = DependencyProperty.registerReadonly(PropertyTrigger, "target", { valueType: Type.get(DependencyObject) });
+    get target(): object { return this.get(PropertyTrigger.targetProperty); }
 
-    get targetProperty(): DependencyProperty { return this.__targetProperty; }
-    private __targetProperty: DependencyProperty;
+    static propertyProperty = DependencyProperty.registerReadonly(PropertyTrigger, "property", { valueType: Type.get(DependencyProperty) });
+    get property(): DependencyProperty { return this.get(PropertyTrigger.propertyProperty); }
 
-    get value(): any { return this.__value; }
-    private __value: any;
+    static valueProperty = DependencyProperty.registerReadonly(PropertyTrigger, "value");
+    get value(): any { return this.get(PropertyTrigger.valueProperty); }
 
-    get setters(): SetterCollection { return this.__setters; }
-    private __setters: SetterCollection;
+    static settersProperty = DependencyProperty.registerReadonly(PropertyTrigger, "setters", { valueType: Type.get(Collection) });
+    get setters(): Collection<Setter> { return this.get(PropertyTrigger.settersProperty); }
 
     protected destructor() {
         this.setters.clear();
