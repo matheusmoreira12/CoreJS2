@@ -1,7 +1,7 @@
-import { Destructible } from "../../Standard/index.js";
 import { IBindingOptions, BindingDirection } from "./index.js";
 import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
 import { assertParams } from "../../Validation/index.js";
+import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
 
 const DEFAULT_BINDING_OPTIONS: IBindingOptions = {
     direction: BindingDirection.Both
@@ -10,7 +10,7 @@ const DEFAULT_BINDING_OPTIONS: IBindingOptions = {
 /**
  * Binding base class
  */
-export abstract class Binding extends Destructible {
+export abstract class Binding extends DependencyObject {
     constructor(options?: IBindingOptions) {
         if (new.target === Binding)
             throw new InvalidOperationException("Invalid constructor.");
@@ -19,9 +19,10 @@ export abstract class Binding extends Destructible {
 
         assertParams({ options }, [IBindingOptions]);
 
-        this.__options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
+        options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
+        this.set(Binding.optionsProperty, options);
     }
 
-    get options(): IBindingOptions { return this.__options; }
-    protected __options: IBindingOptions;
+    static optionsProperty = DependencyProperty.registerReadonly(Binding, "options", { valueType: IBindingOptions });
+    get options(): IBindingOptions { return this.get(Binding.optionsProperty); }
 }

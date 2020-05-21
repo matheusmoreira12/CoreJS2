@@ -8,6 +8,7 @@ import * as Storage from "../../Standard/DependencyObjects/_Storage.js";
 import { Enumeration } from "../../Standard/index.js";
 import { BindingDirection } from "./Bindings.js";
 import { IValueConverter } from "../ValueConverters/index.js";
+import { Type } from "../../Standard/Types/index.js";
 
 //Keys for PropertyAttributeBinding
 
@@ -25,11 +26,11 @@ export class PropertyAttributeBinding extends Binding {
         assertParams({ targetAttributeName }, [String]);
         assertParams({ targetAttributeNamespace }, [String, null]);
 
-        this.__source = source;
-        this.__sourceProperty = sourceProperty;
-        this.__targetElement = targetElement;
-        this.__targetAttributeName = targetAttributeName;
-        this.__targetAttributeNamespace = targetAttributeNamespace;
+        this.set(PropertyAttributeBinding.sourceProperty, source);
+        this.set(PropertyAttributeBinding.sourcePropertyProperty, sourceProperty);
+        this.set(PropertyAttributeBinding.targetElementProperty, targetElement);
+        this.set(PropertyAttributeBinding.targetAttributeNameProperty, targetAttributeName);
+        this.set(PropertyAttributeBinding.targetAttributeNamespaceProperty, targetAttributeNamespace);
 
         this.__source_PropertyChangeEvent = new FrameworkEvent(this.__source_onPropertyChange, this);
         source.PropertyChangeEvent.attach(this.__source_PropertyChangeEvent);
@@ -100,20 +101,20 @@ export class PropertyAttributeBinding extends Binding {
 
     private __targetElement_attributeMutationObserver: MutationObserver;
 
-    get source(): DependencyObject { return this.__source; }
-    private __source: DependencyObject;
+    static sourceProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "source", { valueType: Type.get(DependencyObject) });
+    get source(): DependencyObject { return this.get(PropertyAttributeBinding.sourceProperty); }
 
-    get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
-    private __sourceProperty: DependencyProperty;
+    static sourcePropertyProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "sourceProperty", { valueType: Type.get(DependencyProperty) });
+    get sourceProperty(): DependencyProperty { return this.get(PropertyAttributeBinding.sourcePropertyProperty); }
 
-    get targetElement(): Element { return this.__targetElement; }
-    private __targetElement: Element;
+    static targetElementProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetElement", { valueType: Type.get(Element) });
+    get targetElement(): Element { return this.get(PropertyAttributeBinding.targetElementProperty); }
 
-    get targetAttributeName(): string { return this.__targetAttributeName; }
-    private __targetAttributeName: string;
+    static targetAttributeNameProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetAttributeName", { valueType: Type.get(String) });
+    get targetAttributeName(): string { return this.get(PropertyAttributeBinding.targetAttributeNameProperty); }
 
-    get targetAttributeNamespace(): string | null { return this.__targetAttributeNamespace; }
-    private __targetAttributeNamespace: string | null;
+    static targetAttributeNamespaceProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetAttributeNamespace");
+    get targetAttributeNamespace(): string | null { return this.get(PropertyAttributeBinding.targetAttributeNamespaceProperty); }
 
     protected destructor(): void {
         this.__source_PropertyChangeEvent.destruct();

@@ -8,6 +8,7 @@ import { BindingDirection } from "./Bindings.js";
 import { IValueConverter } from "../ValueConverters/index.js";
 
 import * as Storage from "../../Standard/DependencyObjects/_Storage.js";
+import { Type } from "../../Standard/Types/index.js";
 
 //Keys for PropertyBinding
 
@@ -24,10 +25,10 @@ export class PropertyBinding extends Binding {
         assertParams({ target }, [DependencyObject]);
         assertParams({ targetProperty }, [IBindingOptions]);
 
-        this.__source = source;
-        this.__sourceProperty = sourceProperty;
-        this.__target = target;
-        this.__targetProperty = targetProperty;
+        this.set(PropertyBinding.sourceProperty, source);
+        this.set(PropertyBinding.sourcePropertyProperty, sourceProperty);
+        this.set(PropertyBinding.targetProperty, target);
+        this.set(PropertyBinding.targetPropertyProperty, targetProperty);
 
         this.__doInitialCrossingUpdate();
 
@@ -85,17 +86,17 @@ export class PropertyBinding extends Binding {
 
     private __target_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.__target_onPropertyChange, this);
 
-    get source(): DependencyObject { return this.__source; }
-    private __source: DependencyObject;
+    static sourceProperty = DependencyProperty.registerReadonly(PropertyBinding, "source", { valueType: Type.get(DependencyObject) });
+    get source(): DependencyObject { return this.get(PropertyBinding.sourceProperty); }
 
-    get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
-    private __sourceProperty: DependencyProperty;
+    static sourcePropertyProperty = DependencyProperty.registerReadonly(PropertyBinding, "sourceProperty", { valueType: Type.get(DependencyObject) });
+    get sourceProperty(): DependencyProperty { return this.get(PropertyBinding.sourcePropertyProperty); }
 
-    get target(): DependencyObject { return this.__target; }
-    private __target: DependencyObject;
+    static targetProperty = DependencyProperty.registerReadonly(PropertyBinding, "target", { valueType: Type.get(DependencyObject) });
+    get target(): DependencyObject { return this.get(PropertyBinding.targetProperty); }
 
-    get targetProperty(): DependencyProperty { return this.__targetProperty; }
-    private __targetProperty: DependencyProperty;
+    static targetPropertyProperty = DependencyProperty.registerReadonly(PropertyBinding, "targetProperty", { valueType: Type.get(DependencyObject) });
+    get targetProperty(): DependencyProperty { return this.get(PropertyBinding.targetPropertyProperty); }
 
     protected destructor(): void {
         this.__source_PropertyChangeEvent.destruct();
