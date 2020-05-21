@@ -4,7 +4,6 @@ import { FontStyle } from "./FontStyle.js";
 import { assertParams } from "../../Validation/index.js";
 import { Length, LengthUnit } from "../Coordinates/index.js";
 
-
 export class Font {
     static get default(): Font { return DEFAULT_FONT; }
 

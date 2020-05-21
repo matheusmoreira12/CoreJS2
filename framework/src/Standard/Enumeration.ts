@@ -32,7 +32,6 @@ function* getEnumerationFlags(descriptor: EnumerationDescriptor): Generator<{ ke
     }
 }
 
-
 /**
  * Enumeration Class
  * Represents an enumeration of options.

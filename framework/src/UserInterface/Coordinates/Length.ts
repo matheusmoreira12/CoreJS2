@@ -3,7 +3,6 @@ import { assertParams } from "../../Validation/index.js";
 import { Orientation } from "./Orientation.js";
 import * as UnitConversion from "./UnitConversion.js";
 
-
 export class Length {
     static get zero() { return ZERO; }
     static get auto() { return AUTO; }

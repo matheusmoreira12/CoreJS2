@@ -3,7 +3,6 @@ import { Enumeration } from "../Enumeration.js";
 import { FrameworkEvent } from "../Events/FrameworkEvent.js";
 import { FrameworkEventArgs } from "../Events/index.js";
 
-
 export class ObservableCollectionChangeArgs<T> extends FrameworkEventArgs {
     constructor(action: number, oldIndex: number, oldItems: T[], newIndex: number, newItems: T[]) {
         super();

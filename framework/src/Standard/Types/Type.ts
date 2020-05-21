@@ -4,8 +4,6 @@ import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, Memb
 import { MemberInfo } from "./MemberInfo.js";
 import { Enumeration } from "../index.js";
 
-//Keys for Type
-
 export class Type<T = any> {
     static get<T>(_class: Class<T>): Type<T> {
         if (typeof _class != "function")

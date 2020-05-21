@@ -1,7 +1,6 @@
 import { assertParams } from "../../ValidationStandalone/index.js";
 import { Ajax, AjaxEventArgs } from "./index.js";
 
-
 export class AjaxProgressEventArgs extends AjaxEventArgs {
     constructor(target: Ajax, total: number, loaded: number) {
         assertParams({ total }, [Number])

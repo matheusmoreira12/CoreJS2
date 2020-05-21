@@ -6,7 +6,6 @@ import { assertParams } from "../../Validation/index.js";
 
 import * as Storage from "./_Storage.js";
 
-
 export abstract class DependencyObject extends Destructible {
     constructor() {
         super();

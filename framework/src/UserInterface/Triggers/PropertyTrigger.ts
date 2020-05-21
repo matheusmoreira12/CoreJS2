@@ -5,8 +5,6 @@ import { assertParams, assertEachParams, TypeValidationMode } from "../../Valida
 import { Type } from "../../Standard/Types/Type.js";
 import { Collection } from "../../Standard/Collections/index.js";
 
-//Keys for PropertyTrigger
-
 /**
  * PropertyTrigger class
  * Triggers a group of setters when the specified property matches the specified value.

@@ -10,8 +10,6 @@ import { IValueConverter } from "../ValueConverters/index.js";
 import * as Storage from "../../Standard/DependencyObjects/_Storage.js";
 import { Type } from "../../Standard/Types/index.js";
 
-//Keys for PropertyBinding
-
 /**
  * PropertyBinding class
  * Allows the binding of two framework properties.

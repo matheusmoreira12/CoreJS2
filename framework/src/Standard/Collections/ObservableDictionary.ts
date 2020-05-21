@@ -3,7 +3,6 @@ import { Enumeration } from "../Enumeration.js";
 import { FrameworkEvent } from "../Events/FrameworkEvent.js";
 import { FrameworkEventArgs } from "../Events/index.js";
 
-
 export class ObservableDictionaryChangeArgs<TKey, TValue> extends FrameworkEventArgs {
     constructor(action: number, key: TKey, oldValue: TValue | null, newValue: TValue | null) {
         super();

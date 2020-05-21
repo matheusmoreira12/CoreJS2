@@ -10,8 +10,6 @@ import { BindingDirection } from "./Bindings.js";
 import { IValueConverter } from "../ValueConverters/index.js";
 import { Type } from "../../Standard/Types/index.js";
 
-//Keys for PropertyAttributeBinding
-
 /**
  * PropertyAttributeBinding class
  * Allows the binding of an attribute to a framework property.

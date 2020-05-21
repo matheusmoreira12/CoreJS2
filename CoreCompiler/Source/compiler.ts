@@ -97,6 +97,4 @@ let transformResult = ts.transform(
     [nestedIdentifierTransformer()]
 );
 
-
-
 console.log(transformResult.transformed[0]);

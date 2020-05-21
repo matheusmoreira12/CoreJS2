@@ -1,7 +1,6 @@
 import { Length } from "./Length.js";
 import { assertParams } from "../../Validation/index.js";
 
-
 export class Size {
     static get zero(): Size { return ZERO };
     static centimeters(width: number, height: number): Size { return new Size(Length.centimeters(width), Length.centimeters(height)); }

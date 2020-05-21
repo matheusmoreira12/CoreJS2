@@ -6,8 +6,6 @@ import { assertParams, assertEachParams, TypeValidationMode } from "../../Valida
 import { DependencyProperty } from "../../Standard/DependencyObjects/index.js";
 import { Type } from "../../Standard/Types/index.js";
 
-//Keys for EventTrigger
-
 /**
  * EventTrigger class
  * Triggers a group of actions upon the firing of an event.

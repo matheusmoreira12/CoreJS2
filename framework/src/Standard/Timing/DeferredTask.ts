@@ -1,8 +1,6 @@
 import { Destructible } from "../Destructible.js";
 import { Method } from "../Types/Types.js";
 
-//Keys for ImmediateTask
-
 export class DeferredTask<TArgs extends any[] = undefined[]> extends Destructible {
 
     constructor(taskCallback: Method<TArgs, void, undefined>) {

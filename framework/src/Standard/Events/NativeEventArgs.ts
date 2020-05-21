@@ -1,6 +1,5 @@
 import { FrameworkEventArgs } from "./FrameworkEventArgs.js";
 
-
 export class NativeEventArgs extends FrameworkEventArgs {
     constructor(target: any, event: Event) {
         super();

@@ -1,8 +1,6 @@
 import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "./ObservableCollection.js";
 import { Enumeration } from "../index.js";
 
-//Keys for TreeItem
-
 export class TreeItem<T extends TreeItem<T>> {
     constructor(...children: T[]) {
         this.__children = new ObservableCollection(...children);
@@ -106,6 +104,5 @@ export class TreeItem<T extends TreeItem<T>> {
                 item.__parent = this;
         }
     }
-
 
 }
