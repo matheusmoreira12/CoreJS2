@@ -43,14 +43,16 @@ export function register(target: Class<any>, property: DependencyProperty, metad
 }
 
 export function getMetadata(property: DependencyProperty): IPropertyMetadata | null {
-    const entry = registryEntries.find(e => e.property === property);
-    if (entry)
-        return entry.metadata;
-    else
-        return null;
+    for (let entry of registryEntries) {
+        if (entry.property === property)
+            return entry.metadata;
+    }
+    return null;
 }
 
-export function getAll(target: Class<any>): DependencyProperty[] {
-    const entries = registryEntries.filter(e => e.target === target);
-    return entries.map(e => e.property);
+export function* getAll(target: Class<any>): IterableIterator<DependencyProperty> {
+    for (let entry of registryEntries) {
+        if (entry.target === target)
+            yield entry.property;
+    }
 }

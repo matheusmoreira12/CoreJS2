@@ -2,7 +2,7 @@ import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from ".
 import { Control } from "../Control.js";
 import { StringUtils } from "../../../CoreBase/Utils/index.js";
 
-// import * as Registry from "../Registry.js";
+import * as Registry from "../_Registry.js";
 
 export class ControlStyle extends DependencyObject {
     constructor(targetControl: Control) {
@@ -13,8 +13,21 @@ export class ControlStyle extends DependencyObject {
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
         const cssName = StringUtils.toHyphenCase(args.property.name);
-        // const domElem = Registry.getDOMElement(this.__targetControl);
-        // domElem.style.setProperty(cssName, args.newValue);
+        const domElem = Registry.getDOMElement(this.__targetControl);
+        domElem.style.setProperty(cssName, args.newValue);
+    }
+
+    protected __checkChanges() {
+        const domElem = Registry.getDOMElement(this.__targetControl);
+        const compStyle = getComputedStyle(domElem);
+        const props = DependencyProperty.getAll(this.constructor);
+
+        for (let prop of props) {
+            const propName = prop.name;
+            this.set(prop, compStyle[<keyof typeof compStyle>propName]);
+        }
+
+        setInterval(this.__checkChanges, 0, this);
     }
 
     static alignContentProperty = DependencyProperty.registerAttached(ControlStyle, "alignContent");
@@ -1850,4 +1863,8 @@ export class ControlStyle extends DependencyObject {
     set zoom(value: string | null) { this.set(ControlStyle.zoomProperty, value); }
 
     private __targetControl: Control;
+
+    protected destructor() {
+        super.destructor();
+    }
 }

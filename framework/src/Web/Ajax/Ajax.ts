@@ -114,7 +114,11 @@ export class Ajax extends Destructible {
         this.__xhr = xhr;
         xhr.open(toNativeMethod(method), url);
 
-        const { responseType = DEFAULT_RESPONSE_TYPE, mimeType = DEFAULT_MIME, body = null } = options;
+        const { responseType = DEFAULT_RESPONSE_TYPE, mimeType = DEFAULT_MIME, body = null, headers } = options;
+        if (headers !== undefined) {
+            for (let name of Object.getOwnPropertyNames(headers))
+                xhr.setRequestHeader(name, headers[name]);
+        }
         if (responseType !== undefined)
             xhr.responseType = toNativeResponseType(responseType);
         if (mimeType !== undefined)

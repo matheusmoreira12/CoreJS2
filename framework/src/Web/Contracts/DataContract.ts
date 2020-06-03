@@ -1,18 +1,22 @@
 import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
+import { Type } from "../../Standard/Types/Type.js";
 
 export class DataContract extends DependencyObject {
     update(data: object) {
-        const properties = DependencyProperty.getAll(this.constructor);
-        for (let property of properties) {
-            const value = data[<keyof typeof data>property.name];
-            const options = DependencyProperty.getMetadata(property);
+        const props = DependencyProperty.getAll(this.constructor);
+        for (let prop of props) {
+            const value = data[<keyof typeof data>prop.name];
+            const meta = DependencyProperty.getMetadata(prop);
             if (value !== undefined) {
-                const propOldValue = this.get(property);
-                if (propOldValue instanceof DataContract)
-                    propOldValue.update(value);
+                const oldValue = this.get(prop);
+                const valueType = meta.valueType;
+                if (valueType && DATA_CONTRACT_TYPE.matches(valueType))
+                    oldValue.update(value);
                 else
-                    this.set(property, value);
+                    this.set(prop, value);
             }
         }
     }
 }
+
+const DATA_CONTRACT_TYPE = Type.get(DataContract);

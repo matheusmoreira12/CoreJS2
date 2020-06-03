@@ -68,7 +68,7 @@ export class DependencyProperty {
             throw new InvalidOperationException("Cannot get options. The specified property has not been registered.")
     }
 
-    static getAll(target: Class<any>): DependencyProperty[] {
+    static getAll(target: Class<any>): IterableIterator<DependencyProperty> {
         return Registry.getAll(target);
     }
 

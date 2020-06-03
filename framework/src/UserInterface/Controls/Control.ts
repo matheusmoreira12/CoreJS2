@@ -30,6 +30,37 @@ export abstract class Control extends DependencyObject {
 
     }
 
+    //Lifecycle Management
+    protected abstract __initializer(): void;
+
+    protected abstract __finalizer(): void;
+
+    initialize(domElement: Element) {
+        if (this.isInitialized)
+            throw new InvalidOperationException("Cannot initialize control. Control has already been initialized.");
+        else {
+            this.set(Control.domElementProperty, domElement);
+            this.__initializer();
+            this.set(Control.isInitializedProperty, true);
+        }
+    }
+
+    finalize() {
+        if (this.isInitialized) {
+            this.__finalizer();
+            this.set(Control.domElementProperty, null);
+            this.set(Control.isInitializedProperty, false);
+        }
+        else
+            throw new InvalidOperationException("Cannot finalize control. Control has not been initialized.");
+    }
+
+    static isInitializedProperty = DependencyProperty.registerReadonly(Control, "isInitialized", { valueType: Type.get(Boolean), defaultValue: false });
+    get isInitialized(): boolean { return this.get(Control.isInitializedProperty); }
+
+    static domElementProperty = DependencyProperty.registerReadonly(Control, "domElement", { defaultValue: null });
+    get domElement(): Element | null { return this.get(Control.domElementProperty); }
+
     static widthProperty = DependencyProperty.registerAttached(Control, "width", { valueType: Type.get(Length) });
     get width(): Length { return this.get(Control.widthProperty); }
     set width(value: Length) { this.set(Control.widthProperty, value); }
@@ -45,7 +76,7 @@ export abstract class Control extends DependencyObject {
     static actualHeightProperty = DependencyProperty.registerAttached(Control, "actualHeight", { valueType: Type.get(Length) });
     get actualHeight(): Length { return this.get(Control.actualHeightProperty); }
     set actualHeight(value: Length) { this.set(Control.actualHeightProperty, value); }
-    
+
     get style(): ControlStyle { return this.__style; }
     private __style: ControlStyle = new ControlStyle(this);
 }

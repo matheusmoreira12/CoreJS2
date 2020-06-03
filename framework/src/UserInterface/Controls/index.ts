@@ -1,9 +1,9 @@
-// export * from "./Control.js";
+export * from "./Control.js";
 
 export * from "./AutosizeMode.js";
 
-// import * as Styling from "./Styling/index.js";
-// export { Styling };
+import * as Styling from "./Styling/index.js";
+export { Styling };
 
 import * as Templating from "./Templating/index.js";
 export { Templating };

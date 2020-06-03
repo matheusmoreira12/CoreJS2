@@ -23,20 +23,18 @@ export class ResourceDictionary extends DependencyObject {
         Storage.store(this);
     }
 
+    * getAllResources(): IterableIterator<DependencyObject> {
+        yield * this.resources;
+        
+        for (let nestedDictionary of this.nestedDictionaries)
+            yield * nestedDictionary.resources;
+    }
+
     tryGetResource(key: string, output: TryOutput<any>): boolean {
-        //Search in resources
-        for (let resource of this.resources) {
+        for (let resource of this.getAllResources()) {
             const resourceKey = resource.get(ResourceDictionary.resource_keyProperty);
             if (resourceKey == key) {
                 output.result = resource;
-                return true;
-            }
-        }
-        //Search in nested dictionaries
-        for (let dictionary of this.nestedDictionaries) {
-            const tryGetResourceOutput: TryOutput<any> = {};
-            if (dictionary.tryGetResource(key, tryGetResourceOutput)) {
-                output.result = tryGetResourceOutput.result;
                 return true;
             }
         }
