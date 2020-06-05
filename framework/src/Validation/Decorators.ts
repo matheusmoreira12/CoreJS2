@@ -1,4 +1,4 @@
-import { Type } from "../Standard/Types/index.js";
+import { Type } from "../Standard/Reflection/index.js";
 import { Interface } from "../Standard/Interfaces/index.js";
 
 type Class = new() => any;

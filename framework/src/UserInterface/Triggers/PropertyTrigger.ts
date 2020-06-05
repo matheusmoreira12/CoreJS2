@@ -2,7 +2,7 @@ import { Trigger } from "./index.js";
 import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index.js";
 import { Setter } from "../Setters/index.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
-import { Type } from "../../Standard/Types/Type.js";
+import { Type } from "../../Standard/Reflection/Type.js";
 import { Collection } from "../../Standard/Collections/index.js";
 
 /**

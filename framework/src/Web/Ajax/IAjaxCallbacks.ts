@@ -1,5 +1,5 @@
 import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/index.js";
-import { MemberAttributes } from "../../Standard/Types/index.js";
+import { MemberAttributes } from "../../Standard/Reflection/index.js";
 import { FrameworkEventListener } from "../../Standard/Events/index.js";
 import { AjaxEventArgs } from "./index.js";
 

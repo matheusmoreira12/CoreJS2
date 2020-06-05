@@ -3,14 +3,17 @@ import { Interface } from "../Interfaces/index.js";
 import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types.js";
 import { MemberInfo } from "./MemberInfo.js";
 import { Enumeration } from "../index.js";
+import { Attribute } from "./Metadata/Attributes/index.js";
+
+import * as _AttributeRegistry from "./Metadata/Attributes/_Registry.js";
 
 export class Type<T = any> {
-    static get<T>(_class: Class<T>): Type<T> {
-        if (typeof _class != "function")
-            throw new ArgumentTypeException("_class", Function);
+    static get<T>(ctor: Class<T>): Type<T> {
+        if (typeof ctor != "function")
+            throw new ArgumentTypeException("ctor", Function);
 
         let result = new Type();
-        result.__initializeWithClass(_class);
+        result.__initializeWithClass(ctor);
 
         return result;
     }
@@ -27,16 +30,16 @@ export class Type<T = any> {
         this.__hasInstance = true;
 
         if (instance !== null && instance !== undefined) {
-            this.__class = (<any>instance).constructor;
-            this.__hasClass = true;
+            this._ctor = (<any>instance).constructor;
+            this._hasCtor = true;
         }
 
         this.__isInitialized = true;
     }
 
     private __initializeWithClass(_class: Class<T>): void {
-        this.__class = _class;
-        this.__hasClass = true;
+        this._ctor = _class;
+        this._hasCtor = true;
 
         if (_class.prototype) {
             this.__instance = _class.prototype;
@@ -58,28 +61,28 @@ export class Type<T = any> {
     getName(): string {
         this.__checkInitializationStatus();
 
-        if (!this.__hasClass)
+        if (!this._hasCtor)
             return String(this.__instance);
 
-        return (<Class<any>>this.__class).name;
+        return (<Class<any>>this._ctor).name;
     }
 
     getMembers(selectionType: number = MemberSelectionType.Any, selectionAttributes: number = MemberSelectionAttributes.Any): MemberInfo[] {
         this.__checkInitializationStatus();
 
         function* generateMembers(this: Type<T>): Generator<MemberInfo> {
-            if (!this.__hasClass) return;
+            if (!this._hasCtor) return;
 
-            for (let name of Object.getOwnPropertyNames(this.__class)) {
-                const descriptor = Object.getOwnPropertyDescriptor(this.__class, name);
-                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>name, <PropertyDescriptor>descriptor, true);
+            for (let name of Object.getOwnPropertyNames(this._ctor)) {
+                const descriptor = Object.getOwnPropertyDescriptor(this._ctor, name);
+                yield MemberInfo.fromPropertyDescriptor(this, <keyof T & string>name, <PropertyDescriptor>descriptor, true);
             }
 
             if (!this.__hasInstance) return;
 
             for (let name of Object.getOwnPropertyNames(this.__instance)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__instance, name);
-                yield MemberInfo.fromPropertyDescriptor(this, <keyof T>name, <PropertyDescriptor>descriptor);
+                yield MemberInfo.fromPropertyDescriptor(this, <keyof T & string>name, <PropertyDescriptor>descriptor);
             }
         }
 
@@ -152,10 +155,10 @@ export class Type<T = any> {
     }
 
     private __getEffectiveValue(): any {
-        if (!this.__hasClass)
+        if (!this._hasCtor)
             return this.__instance;
 
-        return this.__class;
+        return this._ctor;
     }
 
     equals(other: Type): boolean {
@@ -237,14 +240,14 @@ export class Type<T = any> {
     getParentType(): Type | null {
         this.__checkInitializationStatus();
 
-        if (this.__hasClass) {
+        if (this._hasCtor) {
             if (this.__hasInstance) {
                 let parentInstance = this.__getParentInstance(this.__instance);
                 if (parentInstance !== null)
                     return Type.of(parentInstance);
             }
             else {
-                let parentClass = this.__getParentClass(<Class<any>>this.__class);
+                let parentClass = this.__getParentClass(<Class<any>>this._ctor);
                 if (parentClass !== null)
                     return Type.get(parentClass);
             }
@@ -253,9 +256,21 @@ export class Type<T = any> {
         return null;
     }
 
+    getAttributes<T extends Attribute = Attribute>(attribute?: Class<T>): T[] {
+        if (attribute === undefined || attribute instanceof Attribute) {
+            if (this._hasCtor)
+                return <T[]>_AttributeRegistry.getRegisteredAttributes(this._ctor, null, attribute);
+            else
+                return [];
+        }
+        else
+            throw new ArgumentTypeException("attribute");
+    }
+
+    _ctor: Class<any> | undefined = undefined;
+    _hasCtor: boolean = false;
+ 
     private __instance: any | undefined;
     private __hasInstance: boolean = false;
-    private __class: Class<any> | undefined = undefined;
-    private __hasClass: boolean = false;
     private __isInitialized: boolean = false;
 }

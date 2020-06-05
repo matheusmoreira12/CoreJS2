@@ -2,7 +2,7 @@ import { IPropertyMetadata } from "./IPropertyMetadata.js";
 import { assertParams } from "../../Validation/index.js";
 
 import * as Registry from "./_Registry.js";
-import { Class } from "../Types/Types.js";
+import { Class } from "../Reflection/Types.js";
 import { InvalidOperationException } from "../Exceptions/index.js";
 
 const DEFAULT_PROPERTY_METADATA: IPropertyMetadata = {

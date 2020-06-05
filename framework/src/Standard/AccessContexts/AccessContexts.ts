@@ -1,5 +1,5 @@
 import { AccessContext } from "./AccessContext.js";
-import { TryOutput } from "../Types/Types.js";
+import { TryOutput } from "../Reflection/Types.js";
 import { ContextStorage } from "./ContextStorage.js";
 import { InvalidOperationException } from "../Exceptions/index.js"
 

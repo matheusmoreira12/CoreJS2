@@ -1,4 +1,4 @@
-import { Type } from "../Standard/Types/Type.js";
+import { Type } from "../Standard/Reflection/Type.js";
 import { Interface } from "../Standard/Interfaces/index.js";
 import { TypeDesignator } from "./Types.js";
 import { NotSupportedException, ArgumentTypeException, InvalidTypeException, FrameworkException } from "../Standard/Exceptions/index.js"

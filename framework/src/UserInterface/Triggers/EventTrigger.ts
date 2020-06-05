@@ -4,7 +4,7 @@ import { Dictionary, Collection } from "../../Standard/Collections/index.js";
 import { Action } from "../Actions/index.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
 import { DependencyProperty } from "../../Standard/DependencyObjects/index.js";
-import { Type } from "../../Standard/Types/index.js";
+import { Type } from "../../Standard/Reflection/index.js";
 
 /**
  * EventTrigger class

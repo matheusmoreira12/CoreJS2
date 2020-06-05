@@ -29,8 +29,8 @@ export { Interfaces };
 import * as Strings from "./Strings/index.js";
 export { Strings };
 
-import * as Types from "./Types/index.js";
-export { Types };
+import * as Reflection from "./Reflection/index.js";
+export { Reflection };
 
 import * as URLs from "./URLs/index.js";
 export { URLs };

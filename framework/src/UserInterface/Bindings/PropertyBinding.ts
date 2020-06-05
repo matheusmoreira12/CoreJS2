@@ -8,7 +8,7 @@ import { BindingDirection } from "./Bindings.js";
 import { IValueConverter } from "../ValueConverters/index.js";
 
 import * as Storage from "../../Standard/DependencyObjects/_Storage.js";
-import { Type } from "../../Standard/Types/index.js";
+import { Type } from "../../Standard/Reflection/index.js";
 
 /**
  * PropertyBinding class

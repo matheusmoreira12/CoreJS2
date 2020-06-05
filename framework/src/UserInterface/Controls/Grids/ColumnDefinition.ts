@@ -1,5 +1,5 @@
 import { DependencyObject, DependencyProperty } from "../../../Standard/DependencyObjects/index.js";
-import { Type } from "../../../Standard/Types/Type.js";
+import { Type } from "../../../Standard/Reflection/Type.js";
 import { Length } from "../../Coordinates/index.js";
 
 export class ColumnDefinition extends DependencyObject {

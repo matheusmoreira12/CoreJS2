@@ -1,5 +1,5 @@
 import { DependencyProperty } from "../../../Standard/DependencyObjects/index.js";
-import { Type } from "../../../Standard/Types/Type.js";
+import { Type } from "../../../Standard/Reflection/Type.js";
 import { Template } from "./Template.js";
 
 export abstract class DataTemplate extends Template {

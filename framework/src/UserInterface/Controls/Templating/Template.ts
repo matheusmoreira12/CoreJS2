@@ -1,6 +1,6 @@
 import { DependencyObject, DependencyProperty } from "../../../Standard/DependencyObjects/index.js";
 import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
-import { Type } from "../../../Standard/Types/index.js";
+import { Type } from "../../../Standard/Reflection/index.js";
 // import { Control } from "../Control.js";
 import { ControlTemplate } from "./ControlTemplate.js";
 

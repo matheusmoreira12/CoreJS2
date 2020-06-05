@@ -1,5 +1,5 @@
 import { BlendedInstanceInfo } from "./BlendedInstanceInfo.js";
-import { Class, TryOutput } from "../../Standard/Types/Types.js";
+import { Class, TryOutput } from "../Reflection/Types.js";
 import { Destructible } from "../Destructible.js";
 
 export namespace Storage {

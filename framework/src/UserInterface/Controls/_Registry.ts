@@ -1,6 +1,6 @@
 import { Collection } from "../../Standard/Collections/index.js";
 import { Control } from "./index.js";
-import { Class, TryOutput } from "../../Standard/Types/Types.js";
+import { Class, TryOutput } from "../../Standard/Reflection/Types.js";
 
 const registeredControls = new Collection<ControlInfo>();
 

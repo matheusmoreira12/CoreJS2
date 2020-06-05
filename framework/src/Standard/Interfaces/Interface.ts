@@ -1,6 +1,6 @@
-﻿import { Type } from "../Types/Type.js";
+﻿import { Type } from "../Reflection/Type.js";
 import { InterfaceMember } from "./InterfaceMember.js";
-import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Types/index.js";
+import { MemberInfo, MemberType, MemberSelectionType, MemberAttributes } from "../Reflection/index.js";
 import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces.js";
 import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index.js";
 import { Enumeration } from "../index.js";

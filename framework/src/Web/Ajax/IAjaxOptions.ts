@@ -1,5 +1,5 @@
 import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/index.js";
-import { MemberAttributes, Type } from "../../Standard/Types/index.js";
+import { MemberAttributes, Type } from "../../Standard/Reflection/index.js";
 import { IAjaxHeaders } from "./IAjaxHeaders.js";
 
 export const IAjaxOptions = new Interface(

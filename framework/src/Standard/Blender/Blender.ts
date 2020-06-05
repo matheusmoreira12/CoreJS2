@@ -1,8 +1,8 @@
-import { Class } from "../../Standard/Types/Types.js";
+import { Class } from "../Reflection/Types.js";
 import { ExecutePredicate } from "./Types.js";
 import { Storage } from "./Storage.js";
 import { InvalidOperationException } from "../Exceptions/index.js";
-import { TryOutput } from "../Types/Types.js";
+import { TryOutput } from "../Reflection/Types.js";
 import { BlendedInstanceInfo } from "./BlendedInstanceInfo.js";
 
 export namespace Blender {

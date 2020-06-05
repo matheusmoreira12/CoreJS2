@@ -1,5 +1,5 @@
 import { AccessContext } from "./AccessContext.js";
-import { TryOutput } from "../Types/Types.js";
+import { TryOutput } from "../Reflection/Types.js";
 
 function objExtends(obj: Function, objCtor: Function): boolean {
     while (obj instanceof Function) {

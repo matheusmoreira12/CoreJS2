@@ -1,6 +1,6 @@
 import { DependencyProperty } from "./DependencyProperty.js";
 import { IPropertyMetadata } from "./IPropertyMetadata.js";
-import { Class } from "../Types/Types.js";
+import { Class } from "../Reflection/Types.js";
 
 type RegistryEntry = {
     target: typeof Object,

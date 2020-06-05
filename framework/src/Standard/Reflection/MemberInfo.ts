@@ -1,7 +1,11 @@
 import { Type, MemberAttributes, MemberType } from "./index.js";
+import { Attribute } from "./Metadata/Attributes/index.js";
+import { Class } from "./Types.js";
+
+import * as _AttributeRegistry from "./Metadata/Attributes/_Registry.js";
 
 export class MemberInfo<TParent = any, TValue = any> {
-    static fromPropertyDescriptor<TParent>(parentType: Type<TParent>, key: keyof TParent, descriptor: PropertyDescriptor, isStatic: boolean = false): MemberInfo<TParent, any> {
+    static fromPropertyDescriptor<TParent>(parentType: Type<TParent>, name: keyof TParent & string, descriptor: PropertyDescriptor, isStatic: boolean = false): MemberInfo<TParent, any> {
         function getAttributesFromDescriptor(): number {
             return (descriptor.writable ? MemberAttributes.Writable : 0) | (descriptor.enumerable ? MemberAttributes.Enumerable : 0) | (descriptor.configurable ? MemberAttributes.Configurable : 0);
         }
@@ -14,14 +18,14 @@ export class MemberInfo<TParent = any, TValue = any> {
         }
 
         const attributes = getAttributesFromDescriptor();
-        const value = <TParent[typeof key]>descriptor.value;
+        const value = <TParent[typeof name]>descriptor.value;
         const memberType = getMemberType();
         const type = Type.of(value);
-        return new MemberInfo(key, memberType, parentType, attributes, type);
+        return new MemberInfo(name, memberType, parentType, attributes, type);
     }
 
-    constructor(key: keyof TParent, memberType: number, parentType: Type<TParent>, attributes: number, type: Type<TValue>) {
-        this.__key = key;
+    constructor(name: keyof TParent & string, memberType: number, parentType: Type<TParent>, attributes: number, type: Type<TValue>) {
+        this.__name = name;
         this.__memberType = memberType;
         this.__parentType = parentType;
         this.__attributes = attributes;
@@ -29,11 +33,21 @@ export class MemberInfo<TParent = any, TValue = any> {
     }
 
     isSame(other: MemberInfo) {
-        if (this.__key !== other.__key) return false;
-        if (this.__memberType !== other.memberType) return false;
-        if (this.__memberType === MemberType.Property && this.__type.equals(other.__type)) return false;
+        if (this.__name !== other.__name)
+            return false;
+        else if (this.__memberType !== other.memberType)
+            return false;
+        else if (this.__memberType === MemberType.Property && this.__type.equals(other.__type))
+            return false;
+        else
+            return true;
+    }
 
-        return true;
+    getAttributes<T extends Attribute = Attribute>(attribute?: Class<T>): T[] {
+        if (this.__parentType._hasCtor)
+            return <T[]>_AttributeRegistry.getRegisteredAttributes(this.parentType._ctor, <string | symbol>this.name, attribute);
+        else
+            return [];
     }
 
     get parentType(): Type<TParent> { return this.__parentType; }
@@ -45,8 +59,8 @@ export class MemberInfo<TParent = any, TValue = any> {
     get memberType(): number { return this.__memberType; }
     protected __memberType: number;
 
-    get key(): keyof TParent { return this.__key; }
-    protected __key: keyof TParent;
+    get name(): keyof TParent & string { return this.__name; }
+    protected __name: keyof TParent & string;
 
     get attributes(): number { return this.__attributes; }
     protected __attributes: number;

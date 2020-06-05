@@ -1,5 +1,5 @@
 import { Destructible } from "../Destructible.js";
-import { Method } from "../Types/Types.js";
+import { Method } from "../Reflection/Types.js";
 
 export class DeferredTask<TArgs extends any[] = undefined[]> extends Destructible {
 

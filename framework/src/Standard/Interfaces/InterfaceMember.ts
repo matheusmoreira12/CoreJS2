@@ -1,7 +1,7 @@
-import { Type } from "../Types/index.js";
+import { Type } from "../Reflection/index.js";
 import { Interface, InterfaceMemberKey } from "./index.js";
 import { ArgumentTypeException } from "../Exceptions/index.js"
-import { MemberAttributes } from "../Types/index.js";
+import { MemberAttributes } from "../Reflection/index.js";
 
 export class InterfaceMember {
     constructor(key: string | number | symbol, memberType: number, type: Type | Interface | null = null, attributes: number = MemberAttributes.Enumerable, isOptional: boolean = true) {

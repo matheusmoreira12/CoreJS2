@@ -1,6 +1,6 @@
 import { Enumeration } from "../../Standard/index.js";
 import { Interface, InterfaceMemberType, InterfaceMember } from "../../Standard/Interfaces/index.js";
-import { Type, MemberAttributes } from "../../Standard/Types/index.js";
+import { Type, MemberAttributes } from "../../Standard/Reflection/index.js";
 import { IValueConverter } from "../ValueConverters/index.js";
 
 export const BindingDirection = Enumeration.create({

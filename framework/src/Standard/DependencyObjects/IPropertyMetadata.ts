@@ -1,4 +1,4 @@
-import { Type, MemberAttributes } from "../Types/index.js";
+import { Type, MemberAttributes } from "../Reflection/index.js";
 import { Interface, InterfaceMember, InterfaceMemberType } from "../Interfaces/index.js";
 
 export const IPropertyMetadata = new Interface(
