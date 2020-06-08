@@ -2,7 +2,7 @@ import { DependencyProperty } from "./DependencyProperty.js";
 import { FrameworkEvent } from "../Events/index.js";
 import { PropertyChangeEventArgs } from "./PropertyChangeEvent.js";
 import { Interface, InterfaceMember } from "../Interfaces/index.js";
-import { MemberType } from "../Reflection/Types.js";
+import { MemberType } from "../Reflection/MemberType.js";
 import { Type } from "../Reflection/Type.js";
 
 export const IDependencyObject = new Interface(

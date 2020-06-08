@@ -1,10 +1,10 @@
 import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../Exceptions/index.js"
 import { Interface } from "../Interfaces/index.js";
 import { Class } from "./Types.js";
-import { MemberSelectionAttributes } from "./MemberSelectionAttributes";
-import { MemberType } from "./MemberType";
-import { MemberAttributes } from "./MemberAttributes";
-import { MemberSelectionType } from "./MemberSelectionType";
+import { MemberSelectionAttributes } from "./MemberSelectionAttributes.js";
+import { MemberType } from "./MemberType.js";
+import { MemberAttributes } from "./MemberAttributes.js";
+import { MemberSelectionType } from "./MemberSelectionType.js";
 import { MemberInfo } from "./MemberInfo.js";
 import { Enumeration } from "../index.js";
 import { TypeMetadata } from "./~TypeMetadata.js";
