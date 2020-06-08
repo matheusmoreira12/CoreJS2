@@ -1,8 +1,8 @@
 import { InvalidOperationException } from "../../../Exceptions/index.js";
 
-export abstract class Attribute {
+export abstract class Flag {
     constructor() {
-        if (new.target === Attribute)
+        if (new.target === Flag)
             throw new InvalidOperationException("Invalid constructor.");
     }
 }

@@ -1,76 +1,72 @@
 import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../Exceptions/index.js"
 import { Interface } from "../Interfaces/index.js";
-import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types.js";
+import { Class } from "./Types.js";
+import { MemberSelectionAttributes } from "./MemberSelectionAttributes";
+import { MemberType } from "./MemberType";
+import { MemberAttributes } from "./MemberAttributes";
+import { MemberSelectionType } from "./MemberSelectionType";
 import { MemberInfo } from "./MemberInfo.js";
 import { Enumeration } from "../index.js";
-import { Attribute } from "./Metadata/Attributes/index.js";
+import { TypeMetadata } from "./~TypeMetadata.js";
+import { storeMetadata } from "./~Storage.js";
 
-import * as _AttributeRegistry from "./Metadata/Attributes/_Registry.js";
-
-export class Type<T = any> {
-    static get<T>(ctor: Class<T>): Type<T> {
+export class Type extends MemberInfo {
+    static get(ctor: Class<any>): Type {
         if (typeof ctor != "function")
             throw new ArgumentTypeException("ctor", Function);
 
-        let result = new Type();
-        result.__initializeWithClass(ctor);
-
+        const result = new Type();
+        const metadata: TypeMetadata = {
+            //MemberInfo metadata
+            name: ctor.name,
+            memberType: MemberType.Type,
+            flags: [],
+            declaringType: null,
+            reflectedType: result,
+            //Type metadata
+            ctor,
+            ctorAvailable: true,
+            reference: undefined,
+            referenceAvailable: false,
+            members: [],
+            membersEvaluated: false
+        };
+        result._metadataToken = storeMetadata(metadata);
         return result;
     }
 
-    static of<T>(instance: T): Type<T> {
-        let result = new Type();
-        result.__initializeWithInstance(instance);
-
+    static of(reference: any): Type {
+        const ctorAvailable = reference !== undefined && reference !== null;
+        const ctor = ctorAvailable ? reference.constructor : undefined;
+        const name = ctorAvailable ? ctor.name : typeof reference;
+        const result = new Type();
+        const metadata: TypeMetadata = {
+            //MemberInfo metadata
+            name,
+            memberType: MemberType.Type,
+            flags: [],
+            declaringType: null,
+            reflectedType: result,
+            //Type metadata
+            ctor,
+            ctorAvailable,
+            reference,
+            referenceAvailable: true,
+            members: [],
+            membersEvaluated: false
+        }
+        result._metadataToken = storeMetadata(metadata);
         return result;
-    }
-
-    private __initializeWithInstance(instance: T): void {
-        this.__instance = instance;
-        this.__hasInstance = true;
-
-        if (instance !== null && instance !== undefined) {
-            this._ctor = (<any>instance).constructor;
-            this._hasCtor = true;
-        }
-
-        this.__isInitialized = true;
-    }
-
-    private __initializeWithClass(_class: Class<T>): void {
-        this._ctor = _class;
-        this._hasCtor = true;
-
-        if (_class.prototype) {
-            this.__instance = _class.prototype;
-            this.__hasInstance = true;
-        }
-
-        this.__isInitialized = true;
-    }
-
-    private __checkInitializationStatus() {
-        if (!this.__isInitialized)
-            throw new InvalidOperationException("Type has not been initialized.");
     }
 
     get [Symbol.toStringTag]() {
-        return `Type(${this.getName()})`;
-    }
-
-    getName(): string {
-        this.__checkInitializationStatus();
-
-        if (!this._hasCtor)
-            return String(this.__instance);
-
-        return (<Class<any>>this._ctor).name;
+        return `Type(${this.name})`;
     }
 
     getMembers(selectionType: number = MemberSelectionType.Any, selectionAttributes: number = MemberSelectionAttributes.Any): MemberInfo[] {
         this.__checkInitializationStatus();
 
-        function* generateMembers(this: Type<T>): Generator<MemberInfo> {
+        function* generateMembers(this: Type): Generator<MemberInfo> {
             if (!this._hasCtor) return;
 
             for (let name of Object.getOwnPropertyNames(this._ctor)) {
@@ -82,11 +78,11 @@ export class Type<T = any> {
 
             for (let name of Object.getOwnPropertyNames(this.__instance)) {
                 const descriptor = Object.getOwnPropertyDescriptor(this.__instance, name);
-                yield MemberInfo.fromPropertyDescriptor(this, <keyof T & string>name, <PropertyDescriptor>descriptor);
+                yield MemberInfo.fromPropertyDescriptor(this, name, <PropertyDescriptor>descriptor);
             }
         }
 
-        function* selectMembers(this: Type<T>, members: Iterable<MemberInfo>): Generator<MemberInfo> {
+        function* selectMembers(this: Type, members: Iterable<MemberInfo>): Generator<MemberInfo> {
             function memberTypeMatches(memberType: number): boolean {
                 const selectionHasFunction: boolean = Enumeration.contains(MemberSelectionType.Function, <number>selectionType),
                     selectionHasProperty: boolean = Enumeration.contains(MemberSelectionType.Property, <number>selectionType),
@@ -255,22 +251,4 @@ export class Type<T = any> {
 
         return null;
     }
-
-    getAttributes<T extends Attribute = Attribute>(attribute?: Class<T>): T[] {
-        if (attribute === undefined || attribute instanceof Attribute) {
-            if (this._hasCtor)
-                return <T[]>_AttributeRegistry.getRegisteredAttributes(this._ctor, null, attribute);
-            else
-                return [];
-        }
-        else
-            throw new ArgumentTypeException("attribute");
-    }
-
-    _ctor: Class<any> | undefined = undefined;
-    _hasCtor: boolean = false;
- 
-    private __instance: any | undefined;
-    private __hasInstance: boolean = false;
-    private __isInitialized: boolean = false;
 }

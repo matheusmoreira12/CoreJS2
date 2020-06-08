@@ -1,2 +1,2 @@
-export * from "./Attribute.js";
+export * from "./Flag.js";
 export * from "./Decorators.js";

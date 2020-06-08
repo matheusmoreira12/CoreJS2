@@ -1,2 +1,2 @@
-import * as Attributes from "./Attributes/index.js";
-export { Attributes };
+import * as Flags from "./Flags/index.js";
+export { Flags };

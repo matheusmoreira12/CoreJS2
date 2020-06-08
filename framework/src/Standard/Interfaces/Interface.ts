@@ -52,7 +52,7 @@ export class Interface {
         function* generateInterfaceMembers(type: Type): Generator<InterfaceMember> {
             function generateInterfaceMember(member: MemberInfo): InterfaceMember {
                 const interfaceMemberType = convertMemberTypeToInterfaceMemberType(member.memberType);
-                return new InterfaceMember(member.key, interfaceMemberType, member.type, member.attributes);
+                return new InterfaceMember(member.name, interfaceMemberType, member.type, member.attributes);
             }
 
             const instanceMembers: Iterable<MemberInfo> = type.getMembers(MemberSelectionType.Instance | MemberSelectionType.Property | MemberSelectionType.Function);
@@ -88,7 +88,7 @@ export class Interface {
 
             let typeMembers = [...type.getMembers(MemberSelectionType.Instance)];
             for (let interfaceMember of _interface.members) {
-                let typeMember = typeMembers.find(m => m.key === interfaceMember.key);
+                let typeMember = typeMembers.find(m => m.name === interfaceMember.key);
 
                 let differenceType = getMemberDifferenceType(interfaceMember, typeMember);
                 if (differenceType == InterfaceDifferenceKind.None)
