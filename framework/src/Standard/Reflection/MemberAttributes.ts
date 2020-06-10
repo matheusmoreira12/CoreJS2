@@ -1,4 +1,5 @@
-import { Enumeration } from "../Enumeration.js";
+import { Enumeration } from "../index.js";
+
 export const MemberAttributes = Enumeration.create({
     Configurable: 1,
     Enumerable: 2,

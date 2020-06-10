@@ -1,4 +1,4 @@
-export type AccessContext<TTarget extends object> = Readonly<TTarget> & {
+export type AccessContext<TTarget extends object> = TTarget & {
     public: TTarget;
 }
 

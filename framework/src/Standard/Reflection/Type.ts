@@ -1,185 +1,119 @@
-import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../Exceptions/index.js"
+import { ArgumentTypeException, InvalidOperationException } from "../Exceptions/index.js"
 import { Interface } from "../Interfaces/index.js";
 import { Class } from "./Types.js";
-import { MemberSelectionAttributes } from "./MemberSelectionAttributes.js";
-import { MemberType } from "./MemberType.js";
-import { MemberAttributes } from "./MemberAttributes.js";
-import { MemberSelectionType } from "./MemberSelectionType.js";
-import { MemberInfo } from "./MemberInfo.js";
-import { Enumeration } from "../index.js";
-import { TypeMetadata } from "./~TypeMetadata.js";
-import { storeMetadata } from "./~Storage.js";
+import { MemberType, MemberInfo } from "./index.js";
+import { MemberSelectionOptions } from "./MemberBindingOptions.js";
+import { prot, getProtected } from "../AccessContexts/index.js";
 
 export class Type extends MemberInfo {
     static get(ctor: Class<any>): Type {
         if (typeof ctor != "function")
             throw new ArgumentTypeException("ctor", Function);
 
-        const result = new Type();
-        const metadata: TypeMetadata = {
-            //MemberInfo metadata
-            name: ctor.name,
-            memberType: MemberType.Type,
-            flags: [],
-            declaringType: null,
-            reflectedType: result,
-            //Type metadata
-            ctor,
-            ctorAvailable: true,
-            reference: undefined,
-            referenceAvailable: false,
-            members: [],
-            membersEvaluated: false
-        };
-        result._metadataToken = storeMetadata(metadata);
+        const name = ctor.name;
+        const result = new Type(name);
+        prot(result, function () {
+            this._ctor = ctor;
+            this._hasCtor = true;
+            this._reference = null;
+            this._hasReference = false;
+        });
         return result;
     }
 
     static of(reference: any): Type {
         const ctorAvailable = reference !== undefined && reference !== null;
-        const ctor = ctorAvailable ? reference.constructor : undefined;
-        const name = ctorAvailable ? ctor.name : typeof reference;
-        const result = new Type();
-        const metadata: TypeMetadata = {
-            //MemberInfo metadata
-            name,
-            memberType: MemberType.Type,
-            flags: [],
-            declaringType: null,
-            reflectedType: result,
-            //Type metadata
-            ctor,
-            ctorAvailable,
-            reference,
-            referenceAvailable: true,
-            members: [],
-            membersEvaluated: false
+        let name: string;
+        let ctor: Class<any> = null;
+        if (ctorAvailable) {
+            ctor = reference.constructor;
+            name = ctor.name;
         }
-        result._metadataToken = storeMetadata(metadata);
+        else
+            name = String(reference);
+        const result = new Type(name);
+        prot(result, function () {
+            this._ctor = ctor;
+            this._hasCtor = ctorAvailable;
+            this._reference = reference;
+            this._hasReference = true;
+        });
         return result;
+    }
+
+    constructor(name: string) {
+        super(MemberType.Type, name);
+
+        prot(this, function () {
+            this._ctor = null;
+            this._hasCtor = false;
+            this._reference = null;
+            this._hasReference = false;
+            this._members = [];
+            this._membersEvaluated = false;
+        });
     }
 
     get [Symbol.toStringTag]() {
         return `Type(${this.name})`;
     }
 
-    getMembers(selectionType: number = MemberSelectionType.Any, selectionAttributes: number = MemberSelectionAttributes.Any): MemberInfo[] {
-        this.__checkInitializationStatus();
+    getMembers(options: number = MemberSelectionOptions.Any): MemberInfo[] {
+        MemberSelectionOptions.assertFlag(options);
 
-        function* generateMembers(this: Type): Generator<MemberInfo> {
-            if (!this._hasCtor) return;
-
-            for (let name of Object.getOwnPropertyNames(this._ctor)) {
-                const descriptor = Object.getOwnPropertyDescriptor(this._ctor, name);
-                yield MemberInfo.fromPropertyDescriptor(this, <keyof T & string>name, <PropertyDescriptor>descriptor, true);
+        return prot(this, function () {
+            let members: MemberInfo[];
+            if (this._membersEvaluated)
+                members = this._members;
+            else {
+                members = [];
+                //TODO: evaluate members
+                this._members = members;
+                this._membersEvaluated = true;
             }
-
-            if (!this.__hasInstance) return;
-
-            for (let name of Object.getOwnPropertyNames(this.__instance)) {
-                const descriptor = Object.getOwnPropertyDescriptor(this.__instance, name);
-                yield MemberInfo.fromPropertyDescriptor(this, name, <PropertyDescriptor>descriptor);
+            if (options === MemberSelectionOptions.Any)
+                return members;
+            else {
+                const selectedMembers: MemberInfo[] = [];
+                //TODO: select members
+                return selectedMembers;
             }
-        }
-
-        function* selectMembers(this: Type, members: Iterable<MemberInfo>): Generator<MemberInfo> {
-            function memberTypeMatches(memberType: number): boolean {
-                const selectionHasFunction: boolean = Enumeration.contains(MemberSelectionType.Function, <number>selectionType),
-                    selectionHasProperty: boolean = Enumeration.contains(MemberSelectionType.Property, <number>selectionType),
-                    selectionHasField: boolean = Enumeration.contains(MemberSelectionType.Field, <number>selectionType),
-                    selectionHasStatic: boolean = Enumeration.contains(MemberSelectionType.Static, <number>selectionType),
-                    selectionHasInstance: boolean = Enumeration.contains(MemberSelectionType.Instance, <number>selectionType);
-
-                const memberIsFunction: boolean = Enumeration.contains(MemberType.Function, memberType),
-                    memberIsProperty: boolean = Enumeration.contains(MemberType.Property, memberType),
-                    memberIsField: boolean = Enumeration.contains(MemberType.Field, memberType),
-                    memberIsStatic: boolean = Enumeration.contains(MemberType.Static, memberType),
-                    memberIsInstance: boolean = Enumeration.contains(MemberType.Instance, memberType);
-
-                return !(!selectionHasFunction && memberIsFunction || !selectionHasProperty && memberIsProperty || !selectionHasField && memberIsField || !selectionHasStatic && memberIsStatic || !selectionHasInstance && memberIsInstance);
-            }
-
-            function memberAttributesMatch(memberAttributes: number): boolean {
-                const selectionHasEnumerable = Enumeration.contains(MemberSelectionAttributes.Enumerable, <number>selectionAttributes),
-                    selectionHasConfigurable = Enumeration.contains(MemberSelectionAttributes.Configurable, <number>selectionAttributes),
-                    selectionHasWritable = Enumeration.contains(MemberSelectionAttributes.Writable, <number>selectionAttributes);
-
-                const memberIsEnumerable = Enumeration.contains(MemberAttributes.Enumerable, memberAttributes),
-                    memberIsConfigurable = Enumeration.contains(MemberAttributes.Configurable, memberAttributes),
-                    memberIsWritable = Enumeration.contains(MemberAttributes.Writable, memberAttributes);
-
-                return !(selectionHasEnumerable && !memberIsEnumerable || selectionHasConfigurable && !memberIsConfigurable || selectionHasWritable && !memberIsWritable);
-            }
-
-            for (let member of members) {
-                if (!memberTypeMatches(member.memberType)) continue;
-                if (!memberAttributesMatch(member.attributes)) continue;
-
-                yield member;
-            }
-        }
-
-        if (selectionType !== undefined && typeof selectionType !== "number")
-            throw new InvalidTypeException("selectionType", selectionType, Number);
-        if (selectionAttributes !== undefined && typeof selectionAttributes !== "number")
-            throw new InvalidTypeException("selectionAttributes", selectionAttributes, Number);
-
-        selectionType = selectionType === undefined ? MemberSelectionType.Any : selectionType;
-        selectionAttributes = selectionAttributes === undefined ? MemberSelectionAttributes.Any : selectionAttributes;
-
-        let members = generateMembers.call(this);
-
-        const resultsNeedSelection = selectionType === MemberSelectionType.Any && selectionAttributes === MemberSelectionAttributes.Any;
-        if (resultsNeedSelection) {
-            let selectedMembers = selectMembers.call(this, members);
-            return [...selectedMembers];
-        }
-        else
-            return [...members];
-    }
-
-    getAllMembers(selectionType: number = MemberSelectionType.Any, selectionAttributes: number = MemberSelectionAttributes.Any): MemberInfo[] {
-        const ownMembers: MemberInfo[] = this.getMembers(selectionType, selectionAttributes);
-
-        const parentType = this.getParentType();
-        if (parentType !== null) {
-            const parentMembers: MemberInfo[] = parentType.getMembers(selectionType, selectionAttributes);
-            return [...ownMembers, ...parentMembers];
-        }
-
-        return ownMembers;
-    }
-
-    private __getEffectiveValue(): any {
-        if (!this._hasCtor)
-            return this.__instance;
-
-        return this._ctor;
+        });
     }
 
     equals(other: Type): boolean {
-        this.__checkInitializationStatus();
-
-        if (!(other instanceof Type))
+        if (other instanceof Type) {
+            const _this = getProtected(this);
+            const _other = getProtected(other);
+            if (_this._hasReference) {
+                if (_other._hasReference)
+                    return _this._reference === _other._reference;
+                else if (_other._hasCtor)
+                    return _this._reference.constructor === _other._ctor;
+            }
+            else if (_this._hasCtor) {
+                if (_other._hasCtor)
+                    return _this._ctor === _other._ctor;
+                else if (_other._hasReference)
+                    return _this._ctor === _other._reference.constructor;
+            }
+            throw new InvalidOperationException(ERR_INVALID_TYPE);
+        }
+        else
             throw new ArgumentTypeException("other");
-
-        return this.__getEffectiveValue() === other.__getEffectiveValue();
     }
 
     extends(other: Type): boolean {
-        this.__checkInitializationStatus();
-
-        for (let type of this.getParentTypes()) {
-            if (type.equals(other))
+        let baseType = this.baseType;
+        while (baseType !== null) {
+            if (baseType.equals(other))
                 return true;
+            baseType = baseType.baseType;
         }
-
         return false;
     }
 
     matches(other: Type | Interface): boolean {
-        this.__checkInitializationStatus();
-
         if (other instanceof Interface)
             return this.implements(other);
         else
@@ -203,8 +137,6 @@ export class Type extends MemberInfo {
     }
 
     implements(_interface: Interface) {
-        this.__checkInitializationStatus();
-
         let analysis = Interface.differ(this, _interface);
         if (analysis.isEmpty)
             return true;
@@ -212,43 +144,35 @@ export class Type extends MemberInfo {
         return false;
     }
 
-    getParentTypes(): Type[] {
-        let parentType = this.getParentType();
-        if (parentType === null)
-            return [];
-
-        return [parentType, ...parentType.getParentTypes()];
-    }
-
-    private __getParentInstance(instance: any): any {
-        let parentInstance = Object.getPrototypeOf(instance);
-        return parentInstance;
-    }
-
-    private __getParentClass(_class: Class<any>): Class<any> | null {
-        let parentClass = Object.getPrototypeOf(_class);
-        if (typeof parentClass == "function")
-            return parentClass;
-
-        return null;
-    }
-
-    getParentType(): Type | null {
-        this.__checkInitializationStatus();
-
-        if (this._hasCtor) {
-            if (this.__hasInstance) {
-                let parentInstance = this.__getParentInstance(this.__instance);
-                if (parentInstance !== null)
-                    return Type.of(parentInstance);
+    get baseType(): Type | null {
+        return prot(this, function () {
+            if (this._hasCtor) {
+                if (this._hasReference) {
+                    const baseReference = Object.getPrototypeOf(this._reference);
+                    if (baseReference === null)
+                        return null;
+                    else
+                        return Type.of(baseReference);
+                }
+                else {
+                    const baseCtor = Object.getPrototypeOf(this._ctor);
+                    if (baseCtor === null)
+                        return null;
+                    else
+                        return Type.get(baseCtor);
+                }
             }
-            else {
-                let parentClass = this.__getParentClass(<Class<any>>this._ctor);
-                if (parentClass !== null)
-                    return Type.get(parentClass);
-            }
-        }
-
-        return null;
+            else
+                return null;
+        });
     }
+
+    protected _ctor!: Class<any>;
+    protected _hasCtor!: boolean;
+    protected _reference!: any;
+    protected _hasReference!: boolean;
+    protected _members!: MemberInfo[];
+    protected _membersEvaluated!: boolean;
 }
+
+const ERR_INVALID_TYPE = "Invalid Type instance.";
