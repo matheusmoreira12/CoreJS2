@@ -22,18 +22,23 @@ export class Type extends MemberInfo {
     }
 
     static of(reference: any): Type {
-        const ctorAvailable = reference !== undefined && reference !== null && typeof reference.constructor === "function";
-        let name: string;
+        let name: string = "";
         let ctor: Class<any> = null;
-        if (ctorAvailable) {
-            ctor = reference.constructor;
-            name = ctor.name;
+        let hasCtor: boolean = false;
+        if (reference === undefined)
+            name = "undefined";
+        else if (reference === null)
+            name = "null";
+        else {
+            hasCtor = typeof reference.constructor === "function";
+            if (hasCtor) {
+                ctor = reference.constructor;
+                name = ctor.name;
+            }
         }
-        else
-            name = typeof reference;
         const result = new Type(name);
         result._ctor = ctor;
-        result._hasCtor = ctorAvailable;
+        result._hasCtor = hasCtor;
         result._reference = reference;
         result._hasReference = true;
         return result;
@@ -54,7 +59,7 @@ export class Type extends MemberInfo {
         return `Type(${this.name})`;
     }
 
-    getMembers(options: number = MemberSelectionOptions.Any): MemberInfo[] {
+    getMembers(options: number = MemberSelectionOptions.Any, name: string | null = null): MemberInfo[] {
         function createMember(name: string, descriptor: PropertyDescriptor, declaringType: Type, isStatic: boolean = false): MemberInfo {
             const isField = descriptor.hasOwnProperty("value");
             const isProperty = descriptor.hasOwnProperty("get") || descriptor.hasOwnProperty("set");
@@ -109,28 +114,34 @@ export class Type extends MemberInfo {
             return members;
         }
 
-        function selectMembers(members: MemberInfo[], options: number) {
+        function selectMembers(members: MemberInfo[], options: number, name: string | null) {
             const selectedMembers: MemberInfo[] = [];
             for (let member of members) {
                 const isStatic = (<FieldInfoBase>member).isStatic;
-                if (Enumeration.contains(MemberType.Constructor, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Constructor, options))
-                    continue;
-                if (Enumeration.contains(MemberType.Function, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Functions, options))
-                    continue;
-                else if (Enumeration.contains(MemberType.Property, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Properties, options))
-                    continue;
-                else if (Enumeration.contains(MemberType.Field, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Fields, options))
+                if (name !== null && name !== member.name)
                     continue;
                 else if (isStatic && Enumeration.contains(MemberSelectionOptions.InstanceOnly, options))
                     continue;
                 else if (!isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options))
+                    continue;
+                else if (Enumeration.contains(MemberType.Constructor, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Constructor, options))
+                    continue;
+                else if (Enumeration.contains(MemberType.Function, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Functions, options))
+                    continue;
+                else if (Enumeration.contains(MemberType.Property, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Properties, options))
+                    continue;
+                else if (Enumeration.contains(MemberType.Field, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Fields, options))
                     continue;
                 selectedMembers.push(member);
             }
             return selectedMembers;
         }
 
+        if (typeof options != "number")
+            throw new ArgumentTypeException("options");
         MemberSelectionOptions.assertFlag(options);
+        if (name !== null && typeof name != "string")
+            throw new ArgumentTypeException(name);
 
         let members: MemberInfo[];
         if (this._membersEvaluated)
@@ -140,10 +151,10 @@ export class Type extends MemberInfo {
             this._members = members;
             this._membersEvaluated = true;
         }
-        if (options === MemberSelectionOptions.Any)
+        if (options == MemberSelectionOptions.Any && name === null)
             return members;
         else {
-            const selectedMembers = selectMembers(members, options);
+            const selectedMembers = selectMembers(members, options, name);
             return selectedMembers;
         }
     }
