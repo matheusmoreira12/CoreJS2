@@ -30,7 +30,7 @@ export class Type extends MemberInfo {
             name = ctor.name;
         }
         else
-            name = typeof reference;
+            name = `${reference}`;
         const result = new Type(name);
         result._ctor = ctor;
         result._hasCtor = ctorAvailable;
@@ -55,7 +55,7 @@ export class Type extends MemberInfo {
     }
 
     getMembers(options: number = MemberSelectionOptions.Any): MemberInfo[] {
-        function createMember(descriptor: PropertyDescriptor, declaringType: Type, isStatic: boolean = false): MemberInfo {
+        function createMember(name: string, descriptor: PropertyDescriptor, declaringType: Type, isStatic: boolean = false): MemberInfo {
             const isField = descriptor.hasOwnProperty("value");
             const isProperty = descriptor.hasOwnProperty("get") || descriptor.hasOwnProperty("set");
             const isFunction = descriptor.value instanceof Function;
@@ -98,11 +98,13 @@ export class Type extends MemberInfo {
             const members: MemberInfo[] = [];
             for (let name in staticDescriptors) {
                 const descriptor = staticDescriptors[name];
-                createMember(descriptor, type, true);
+                const member = createMember(name, descriptor, type, true);
+                members.push(member);
             }
             for (let name in instanceDescriptors) {
                 const descriptor = instanceDescriptors[name];
-                createMember(descriptor, type);
+                const member = createMember(name, descriptor, type);
+                members.push(member);
             }
             return members;
         }
