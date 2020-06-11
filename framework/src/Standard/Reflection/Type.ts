@@ -22,7 +22,7 @@ export class Type extends MemberInfo {
     }
 
     static of(reference: any): Type {
-        const ctorAvailable = reference !== undefined && reference !== null;
+        const ctorAvailable = reference !== undefined && reference !== null && typeof reference.constructor === "function";
         let name: string;
         let ctor: Class<any> = null;
         if (ctorAvailable) {
@@ -30,7 +30,7 @@ export class Type extends MemberInfo {
             name = ctor.name;
         }
         else
-            name = String(reference);
+            name = typeof reference;
         const result = new Type(name);
         result._ctor = ctor;
         result._hasCtor = ctorAvailable;
@@ -87,8 +87,11 @@ export class Type extends MemberInfo {
                     staticDescriptors = { ...Object.getOwnPropertyDescriptors(_type._ctor), ...staticDescriptors };
                     if (_type._hasReference)
                         instanceDescriptors = { ...Object.getOwnPropertyDescriptors(_type._reference), ...instanceDescriptors };
-                    else
-                        instanceDescriptors = { ...Object.getOwnPropertyDescriptors(_type._ctor.prototype), ...instanceDescriptors };
+                    else {
+                        const prototype = _type._ctor.prototype;
+                        if (prototype !== undefined && prototype !== null)
+                            instanceDescriptors = { ...Object.getOwnPropertyDescriptors(_type._ctor.prototype), ...instanceDescriptors };
+                    }
                 }
                 _type = _type.baseType;
             }
@@ -98,7 +101,7 @@ export class Type extends MemberInfo {
                 createMember(descriptor, type, true);
             }
             for (let name in instanceDescriptors) {
-                const descriptor = staticDescriptors[name];
+                const descriptor = instanceDescriptors[name];
                 createMember(descriptor, type);
             }
             return members;
@@ -215,7 +218,7 @@ export class Type extends MemberInfo {
             }
             else {
                 const baseCtor = Object.getPrototypeOf(this._ctor);
-                if (baseCtor === null)
+                if (typeof baseCtor !== "function")
                     return null;
                 else
                     return Type.get(baseCtor);
