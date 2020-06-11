@@ -60,33 +60,33 @@ export class Type extends MemberInfo {
     }
 
     getMembers(options: number = MemberSelectionOptions.Any, name: string | null = null): MemberInfo[] {
-        function createMember(name: string, descriptor: PropertyDescriptor, declaringType: Type, isStatic: boolean = false): MemberInfo {
-            const isField = descriptor.hasOwnProperty("value");
-            const isProperty = descriptor.hasOwnProperty("get") || descriptor.hasOwnProperty("set");
-            const isFunction = descriptor.value instanceof Function;
-            const isConstructor = isFunction && name == "constructor";
-            if (isField) {
-                if (isFunction) {
-                    if (isConstructor && !isStatic)
-                        return new ConstructorInfo(name, declaringType, []);
-                    else
-                        return new FunctionInfo(name, declaringType, [], isStatic);
+        function createMembers(declaringType: Type): MemberInfo[] {
+            function createMember(name: string, descriptor: PropertyDescriptor, declaringType: Type, isStatic: boolean = false): MemberInfo {
+                const isField = descriptor.hasOwnProperty("value");
+                const isProperty = descriptor.hasOwnProperty("get") || descriptor.hasOwnProperty("set");
+                const isFunction = descriptor.value instanceof Function;
+                const isConstructor = isFunction && name == "constructor";
+                if (isField) {
+                    if (isFunction) {
+                        if (isConstructor && !isStatic)
+                            return new ConstructorInfo(name, declaringType, []);
+                        else
+                            return new FunctionInfo(name, declaringType, [], isStatic);
+                    }
+                    else {
+                        const type = Type.of(descriptor.value);
+                        return new FieldInfo(name, declaringType, type, isStatic);
+                    }
                 }
-                else {
-                    const type = Type.of(descriptor.value);
-                    return new FieldInfo(name, declaringType, type, isStatic);
-                }
+                else if (isProperty)
+                    return new PropertyInfo(name, declaringType);
+                else
+                    throw new InvalidOperationException("Cannot create member.");
             }
-            else if (isProperty)
-                return new PropertyInfo(name, declaringType);
-            else
-                throw new InvalidOperationException("Cannot create member.");
-        }
 
-        function createMembers(type: Type): MemberInfo[] {
             let staticDescriptors: PropertyDescriptorMap = {};
             let instanceDescriptors: PropertyDescriptorMap = {};
-            let _type: Type | null = type;
+            let _type: Type | null = declaringType;
             while (_type !== null) {
                 if (_type._hasCtor) {
                     staticDescriptors = { ...Object.getOwnPropertyDescriptors(_type._ctor), ...staticDescriptors };
@@ -100,15 +100,16 @@ export class Type extends MemberInfo {
                 }
                 _type = _type.baseType;
             }
+
             const members: MemberInfo[] = [];
             for (let name in staticDescriptors) {
                 const descriptor = staticDescriptors[name];
-                const member = createMember(name, descriptor, type, true);
+                const member = createMember(name, descriptor, declaringType, true);
                 members.push(member);
             }
             for (let name in instanceDescriptors) {
                 const descriptor = instanceDescriptors[name];
-                const member = createMember(name, descriptor, type);
+                const member = createMember(name, descriptor, declaringType);
                 members.push(member);
             }
             return members;
@@ -132,7 +133,8 @@ export class Type extends MemberInfo {
                     continue;
                 else if (Enumeration.contains(MemberType.Field, member.memberType) && !Enumeration.contains(MemberSelectionOptions.Fields, options))
                     continue;
-                selectedMembers.push(member);
+                else
+                    selectedMembers.push(member);
             }
             return selectedMembers;
         }
