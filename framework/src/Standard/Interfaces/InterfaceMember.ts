@@ -1,25 +1,21 @@
 import { Type } from "../Reflection/index.js";
 import { Interface, InterfaceMemberKey } from "./index.js";
 import { ArgumentTypeException } from "../Exceptions/index.js"
-import { MemberAttributes } from "../Reflection/index.js";
 
 export class InterfaceMember {
-    constructor(key: string | number | symbol, memberType: number, type: Type | Interface | null = null, attributes: number = MemberAttributes.Enumerable, isOptional: boolean = true) {
+    constructor(key: string | number | symbol, memberType: number, type: Type | Interface | null = null, isOptional: boolean = true) {
         if (typeof key !== "string" && typeof key !== "symbol")
             throw new ArgumentTypeException(`key`, key, String);
         if (typeof memberType !== "number")
             throw new ArgumentTypeException(`memberType`, memberType, Number);
         if (type !== null && !(type instanceof Type) && !(type instanceof Interface))
             throw new ArgumentTypeException(`valueType`, type, Type);
-        if (typeof attributes !== "number")
-            throw new ArgumentTypeException(`attributes`, attributes, Number);
         if (typeof isOptional !== "boolean")
             throw new ArgumentTypeException(`isOptional`, isOptional, Boolean);
 
         this.__key = key;
         this.__memberType = memberType;
         this.__type = type || null;
-        this.__attributes = attributes;
         this.__isOptional = isOptional;
     }
 
@@ -31,9 +27,6 @@ export class InterfaceMember {
 
     get type(): Type | Interface | null { return this.__type; }
     private __type: Type | Interface | null;
-
-    get attributes(): number { return this.__attributes; }
-    private __attributes: number;
 
     get isOptional(): boolean { return this.__isOptional; }
     private __isOptional: boolean;
