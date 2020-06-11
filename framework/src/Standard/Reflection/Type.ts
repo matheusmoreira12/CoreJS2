@@ -30,7 +30,7 @@ export class Type extends MemberInfo {
             name = ctor.name;
         }
         else
-            name = `${reference}`;
+            name = typeof reference;
         const result = new Type(name);
         result._ctor = ctor;
         result._hasCtor = ctorAvailable;
