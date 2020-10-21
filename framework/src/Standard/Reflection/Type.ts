@@ -60,8 +60,8 @@ export class Type extends MemberInfo {
     }
 
     getMembers(options: number = MemberSelectionOptions.Any, name: string | null = null): MemberInfo[] {
-        function createMembers(declaringType: Type): MemberInfo[] {
-            function createMember(name: string, descriptor: PropertyDescriptor, declaringType: Type, isStatic: boolean = false): MemberInfo {
+        const createMembers = (declaringType: Type): MemberInfo[] => {
+            const createMember = (name: string, descriptor: PropertyDescriptor, declaringType: Type, isStatic: boolean = false): MemberInfo => {
                 const isField = descriptor.hasOwnProperty("value");
                 const isProperty = descriptor.hasOwnProperty("get") || descriptor.hasOwnProperty("set");
                 const isFunction = descriptor.value instanceof Function;
@@ -115,7 +115,7 @@ export class Type extends MemberInfo {
             return members;
         }
 
-        function selectMembers(members: MemberInfo[], options: number, name: string | null) {
+        const selectMembers = (members: MemberInfo[], options: number, name: string | null): MemberInfo[] => {
             const selectedMembers: MemberInfo[] = [];
             for (let member of members) {
                 const isStatic = (<FieldInfoBase>member).isStatic;
