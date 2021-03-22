@@ -2,8 +2,6 @@
 import { TryOutput } from "../../Standard/Reflection/Types.js";
 import { assertParams } from "../../ValidationStandalone/ValidationStandalone.js";
 import { ColorChannel } from "./ColorChannel.js";
-import { ColorHSL } from "./ColorHSL.js";
-import { ColorRGB } from "./ColorRGB.js";
 import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
 
