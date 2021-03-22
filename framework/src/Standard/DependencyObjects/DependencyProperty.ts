@@ -2,14 +2,14 @@ import { IPropertyMetadata } from "./IPropertyMetadata.js";
 import { assertParams } from "../../Validation/index.js";
 
 import * as Registry from "./_Registry.js";
-import { Class } from "../Reflection/Types.js";
+import { ClassOf } from "../Reflection/Types.js";
 import { InvalidOperationException } from "../Exceptions/index.js";
 
 const DEFAULT_PROPERTY_METADATA: IPropertyMetadata = {
     defaultValue: null
 };
 
-function assertAttachedProperty(target: Class<any>, name: string, isReadonly: boolean) {
+function assertAttachedProperty(target: ClassOf<any>, name: string, isReadonly: boolean) {
     const descriptor = Object.getOwnPropertyDescriptor(target.prototype, name);
     if (!descriptor)
         throw new InvalidOperationException(`Cannot register dependency property. Missing property ${name} in ${target.name}.`)
@@ -23,7 +23,7 @@ function assertAttachedProperty(target: Class<any>, name: string, isReadonly: bo
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    static registerAttached(target: Class<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+    static registerAttached(target: ClassOf<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
         assertParams({ target }, [Function]);
         assertParams({ options: metadata }, [IPropertyMetadata]);
 
@@ -36,7 +36,7 @@ export class DependencyProperty {
         return property;
     }
 
-    static registerReadonly(target: Class<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+    static registerReadonly(target: ClassOf<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
         assertParams({ target }, [Function]);
         assertParams({ options: metadata }, [IPropertyMetadata]);
 
@@ -49,7 +49,7 @@ export class DependencyProperty {
         return property;
     }
 
-    static register(target: Class<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+    static register(target: ClassOf<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
         assertParams({ target }, [Function]);
         assertParams({ options: metadata }, [IPropertyMetadata]);
 
@@ -68,7 +68,7 @@ export class DependencyProperty {
             throw new InvalidOperationException("Cannot get options. The specified property has not been registered.")
     }
 
-    static getAll(target: Class<any>): IterableIterator<DependencyProperty> {
+    static getAll(target: ClassOf<any>): IterableIterator<DependencyProperty> {
         return Registry.getAll(target);
     }
 

@@ -1,6 +1,6 @@
 import { ArgumentTypeException, InvalidOperationException, InvalidTypeException } from "../Exceptions/index.js"
 import { Interface } from "../Interfaces/index.js";
-import { Class, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types.js";
+import { ClassOf, MemberSelectionType, MemberType, MemberSelectionAttributes, MemberAttributes } from "./Types.js";
 import { MemberInfo } from "./MemberInfo.js";
 import { Enumeration } from "../index.js";
 import { Attribute } from "./Metadata/Attributes/index.js";
@@ -8,7 +8,7 @@ import { Attribute } from "./Metadata/Attributes/index.js";
 import * as _AttributeRegistry from "./Metadata/Attributes/_Registry.js";
 
 export class Type<T = any> {
-    static get<T>(ctor: Class<T>): Type<T> {
+    static get<T>(ctor: ClassOf<T>): Type<T> {
         if (typeof ctor != "function")
             throw new ArgumentTypeException("ctor", Function);
 
@@ -37,7 +37,7 @@ export class Type<T = any> {
         this.__isInitialized = true;
     }
 
-    private __initializeWithClass(_class: Class<T>): void {
+    private __initializeWithClass(_class: ClassOf<T>): void {
         this._ctor = _class;
         this._hasCtor = true;
 
@@ -64,7 +64,7 @@ export class Type<T = any> {
         if (!this._hasCtor)
             return String(this.__instance);
 
-        return (<Class<any>>this._ctor).name;
+        return (<ClassOf<any>>this._ctor).name;
     }
 
     getMembers(selectionType: number = MemberSelectionType.Any, selectionAttributes: number = MemberSelectionAttributes.Any): MemberInfo[] {
@@ -229,7 +229,7 @@ export class Type<T = any> {
         return parentInstance;
     }
 
-    private __getParentClass(_class: Class<any>): Class<any> | null {
+    private __getParentClass(_class: ClassOf<any>): ClassOf<any> | null {
         let parentClass = Object.getPrototypeOf(_class);
         if (typeof parentClass == "function")
             return parentClass;
@@ -247,7 +247,7 @@ export class Type<T = any> {
                     return Type.of(parentInstance);
             }
             else {
-                let parentClass = this.__getParentClass(<Class<any>>this._ctor);
+                let parentClass = this.__getParentClass(<ClassOf<any>>this._ctor);
                 if (parentClass !== null)
                     return Type.get(parentClass);
             }
@@ -256,7 +256,7 @@ export class Type<T = any> {
         return null;
     }
 
-    getAttributes<T extends Attribute = Attribute>(attribute?: Class<T>): T[] {
+    getAttributes<T extends Attribute = Attribute>(attribute?: ClassOf<T>): T[] {
         if (attribute === undefined || attribute instanceof Attribute) {
             if (this._hasCtor)
                 return <T[]>_AttributeRegistry.getRegisteredAttributes(this._ctor, null, attribute);
@@ -267,7 +267,7 @@ export class Type<T = any> {
             throw new ArgumentTypeException("attribute");
     }
 
-    _ctor: Class<any> | undefined = undefined;
+    _ctor: ClassOf<any> | undefined = undefined;
     _hasCtor: boolean = false;
  
     private __instance: any | undefined;

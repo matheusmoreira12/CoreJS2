@@ -1,15 +1,15 @@
 import { Attribute } from "./index.js";
-import { Class } from "../../Types.js";
+import { ClassOf } from "../../Types.js";
 
 type RegistryEntry = {
-    ctor: Class<any>;
+    ctor: ClassOf<any>;
     key: string | symbol | null;
     attributes: Attribute[]
 }
 
 const registeredAttributes: RegistryEntry[] = [];
 
-export function registerAttributes(ctor: Class<any>, key: string | symbol | null, attributes: Attribute[]) {
+export function registerAttributes(ctor: ClassOf<any>, key: string | symbol | null, attributes: Attribute[]) {
     let entry = registeredAttributes.find(e => e.ctor === ctor && e.key === null);
     if (entry)
         entry.attributes.push(attributes);
@@ -23,7 +23,7 @@ export function registerAttributes(ctor: Class<any>, key: string | symbol | null
     }
 }
 
-export function getRegisteredAttributes(ctor: Class<any>, key: string | symbol | null, attrCtor?: Class<Attribute>): Attribute[] {
+export function getRegisteredAttributes(ctor: ClassOf<any>, key: string | symbol | null, attrCtor?: ClassOf<Attribute>): Attribute[] {
     const entry = registeredAttributes.find(e => e.ctor === ctor && e.key === key);
     if (entry) {
         if (attrCtor === undefined)

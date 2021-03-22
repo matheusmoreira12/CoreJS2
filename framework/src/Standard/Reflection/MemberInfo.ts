@@ -1,6 +1,6 @@
 import { Type, MemberAttributes, MemberType } from "./index.js";
 import { Attribute } from "./Metadata/Attributes/index.js";
-import { Class } from "./Types.js";
+import { ClassOf } from "./Types.js";
 
 import * as _AttributeRegistry from "./Metadata/Attributes/_Registry.js";
 
@@ -43,7 +43,7 @@ export class MemberInfo<TParent = any, TValue = any> {
             return true;
     }
 
-    getAttributes<T extends Attribute = Attribute>(attribute?: Class<T>): T[] {
+    getAttributes<T extends Attribute = Attribute>(attribute?: ClassOf<T>): T[] {
         if (this.__parentType._hasCtor)
             return <T[]>_AttributeRegistry.getRegisteredAttributes(this.parentType._ctor, <string | symbol>this.key, attribute);
         else

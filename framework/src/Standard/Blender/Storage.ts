@@ -1,12 +1,12 @@
 import { BlendedInstanceInfo } from "./BlendedInstanceInfo.js";
-import { Class, TryOutput } from "../Reflection/Types.js";
+import { ClassOf, TryOutput } from "../Reflection/Types.js";
 import { Destructible } from "../Destructible.js";
 
 export namespace Storage {
     const allBlendedInstances: BlendedInstanceInfo<any, any>[] = [];
 
-    export function tryStore<TBlend, TTarget>(blendClass: Class<TBlend>, targetObj: TTarget): boolean {
-        if (tryGet(<Class<any>>targetObj, blendClass))
+    export function tryStore<TBlend, TTarget>(blendClass: ClassOf<TBlend>, targetObj: TTarget): boolean {
+        if (tryGet(<ClassOf<any>>targetObj, blendClass))
             return false;
         else {
             const instance = BlendedInstanceInfo.create(blendClass, targetObj);
@@ -19,7 +19,7 @@ export namespace Storage {
         allBlendedInstances.splice(allBlendedInstances.indexOf(instance), 1);
     }
 
-    export function tryDiscard<TBlend, TTarget>(baseClass: Class<TBlend>, targetObj: TTarget): boolean {
+    export function tryDiscard<TBlend, TTarget>(baseClass: ClassOf<TBlend>, targetObj: TTarget): boolean {
         const tryGetOutput: TryOutput<BlendedInstanceInfo<TTarget, TBlend>> = {};
         if (tryGet(baseClass, targetObj, {})) {
             const info = <BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.result;
@@ -41,11 +41,11 @@ export namespace Storage {
             return false;
     }
 
-    function getInstance(blendClass: Class<any>, sourceObj: any): BlendedInstanceInfo<any, any> | null {
+    function getInstance(blendClass: ClassOf<any>, sourceObj: any): BlendedInstanceInfo<any, any> | null {
         return allBlendedInstances.find(bi => bi.targetObj === sourceObj && bi.blendClass === blendClass) || null
     }
 
-    export function tryGet<TBlend, TSource>(blendClass: Class<TBlend>, sourceObj: TSource, output?: TryOutput<BlendedInstanceInfo<TSource, TBlend>>): boolean {
+    export function tryGet<TBlend, TSource>(blendClass: ClassOf<TBlend>, sourceObj: TSource, output?: TryOutput<BlendedInstanceInfo<TSource, TBlend>>): boolean {
         output = output || {};
 
         const instance = <BlendedInstanceInfo<TSource, TBlend>>getInstance(blendClass, sourceObj);

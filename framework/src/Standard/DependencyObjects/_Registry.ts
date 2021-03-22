@@ -1,6 +1,6 @@
 import { DependencyProperty } from "./DependencyProperty.js";
 import { IPropertyMetadata } from "./IPropertyMetadata.js";
-import { Class } from "../Reflection/Types.js";
+import { ClassOf } from "../Reflection/Types.js";
 
 type RegistryEntry = {
     target: typeof Object,
@@ -12,7 +12,7 @@ type RegistryEntry = {
 
 const registryEntries: RegistryEntry[] = [];
 
-export function registerAttached(target: Class<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+export function registerAttached(target: ClassOf<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -22,7 +22,7 @@ export function registerAttached(target: Class<any>, property: DependencyPropert
     });
 }
 
-export function registerReadonly(target: Class<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+export function registerReadonly(target: ClassOf<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -32,7 +32,7 @@ export function registerReadonly(target: Class<any>, property: DependencyPropert
     });
 }
 
-export function register(target: Class<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+export function register(target: ClassOf<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -50,7 +50,7 @@ export function getMetadata(property: DependencyProperty): IPropertyMetadata | n
     return null;
 }
 
-export function* getAll(target: Class<any>): IterableIterator<DependencyProperty> {
+export function* getAll(target: ClassOf<any>): IterableIterator<DependencyProperty> {
     for (let entry of registryEntries) {
         if (entry.target === target)
             yield entry.property;
