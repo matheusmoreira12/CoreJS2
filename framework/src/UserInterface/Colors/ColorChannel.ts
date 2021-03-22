@@ -19,6 +19,12 @@ function getColorChannelMetadata(colorChannel: ColorChannel): ColorChannelMetada
 }
 
 export class ColorChannel extends Number {
+    static coerceValue(value: any): ColorChannel {
+        if (value instanceof ColorChannel)
+            return value;
+        return new ColorChannel(value);
+    }
+
     static fromPercent(value: number): ColorChannel {
         assertParams({ value }, [ Number ]);
 
