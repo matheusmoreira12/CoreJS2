@@ -25,7 +25,7 @@ export class MemberInfo<TParent = any, TValue = any> {
     }
 
     constructor(name: keyof TParent & string, memberType: number, parentType: Type<TParent>, attributes: number, type: Type<TValue>) {
-        this.__name = name;
+        this.__key = name;
         this.__memberType = memberType;
         this.__parentType = parentType;
         this.__attributes = attributes;
@@ -33,7 +33,7 @@ export class MemberInfo<TParent = any, TValue = any> {
     }
 
     isSame(other: MemberInfo) {
-        if (this.__name !== other.__name)
+        if (this.__key !== other.__key)
             return false;
         else if (this.__memberType !== other.memberType)
             return false;
@@ -45,7 +45,7 @@ export class MemberInfo<TParent = any, TValue = any> {
 
     getAttributes<T extends Attribute = Attribute>(attribute?: Class<T>): T[] {
         if (this.__parentType._hasCtor)
-            return <T[]>_AttributeRegistry.getRegisteredAttributes(this.parentType._ctor, <string | symbol>this.name, attribute);
+            return <T[]>_AttributeRegistry.getRegisteredAttributes(this.parentType._ctor, <string | symbol>this.key, attribute);
         else
             return [];
     }
@@ -59,8 +59,8 @@ export class MemberInfo<TParent = any, TValue = any> {
     get memberType(): number { return this.__memberType; }
     protected __memberType: number;
 
-    get name(): keyof TParent & string { return this.__name; }
-    protected __name: keyof TParent & string;
+    get key(): keyof TParent & string { return this.__key; }
+    protected __key: keyof TParent & string;
 
     get attributes(): number { return this.__attributes; }
     protected __attributes: number;

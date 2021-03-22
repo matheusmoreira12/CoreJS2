@@ -1,15 +1,15 @@
 import { Enumeration } from "../Enumeration.js";
 
-export type Constructor<T extends Object> = Function & T["constructor"];
+export type ConstructorOf<T extends Object> = T["constructor"] & Function;
 
-export type Class<T extends Object> = {
+export type ClassOf<T extends Object> = ConstructorOf<T> & {
     prototype: T,
-    constructor: Constructor<T>
-} & Constructor<T>;
+    constructor: ConstructorOf<T>
+};
 
 export type Method<TArgs extends any[] = undefined[], TResult = void, TThisArg = undefined> = (this: TThisArg, ...args: TArgs) => TResult;
 
-export type Instance<TClass extends Class<Object>> = Object & TClass["prototype"];
+export type InstanceOf<TClass extends ClassOf<Object>> = TClass["prototype"] & Object;
 
 export type TryOutput<TResult> = { result?: TResult };
 
