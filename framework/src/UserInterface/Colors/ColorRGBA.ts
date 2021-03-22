@@ -43,10 +43,7 @@ export class ColorRGBA extends Color {
                     ColorChannel.tryParse(blueStr, tryParseBlueOutput) && // Parse blue channel
                     ColorChannel.tryParse(alphaStr, tryParseAlphaOutput); // Parse opacity channel
 
-                output.result = new ColorRGBA(tryParseRedOutput.result, 
-                    tryParseGreenOutput.result, 
-                    tryParseBlueOutput.result, 
-                    tryParseAlphaOutput.result);
+                output.result = new ColorRGBA(tryParseRedOutput.result, tryParseGreenOutput.result, tryParseBlueOutput.result,  tryParseAlphaOutput.result);
 
                 return isValid;
             }
