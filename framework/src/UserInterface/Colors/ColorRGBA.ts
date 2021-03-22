@@ -1,4 +1,10 @@
-﻿import { ColorConversion } from "./index.js";
+﻿import { ArgumentOutOfRangeException } from "../../Standard/Exceptions/FrameworkException.js";
+import { TryOutput } from "../../Standard/Reflection/Types.js";
+import { assertParams } from "../../ValidationStandalone/ValidationStandalone.js";
+import { ColorChannel } from "./ColorChannel.js";
+import { ColorHSL } from "./ColorHSL.js";
+import { ColorRGB } from "./ColorRGB.js";
+import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
 
 export class ColorRGBA extends Color {
@@ -6,25 +12,39 @@ export class ColorRGBA extends Color {
         const value = ColorConversion.convertFromRGBA(r, g, b, a);
         super(value);
 
-        this.__r = r;
-        this.__g = g;
-        this.__b = b;
-        this.__a = a;
+        this.__r = new ColorChannel(r);
+        this.__g = new ColorChannel(g);
+        this.__b = new ColorChannel(b);
+        this.__a = new ColorChannel(a);
+    }
+
+    static tryParse(value: string, output: TryOutput<ColorRGBA>): boolean {
+        assertParams({ value }, [ String ]);
+
+        
+    }
+
+    static parse(value: string) {
+        const tryParseOutput: TryOutput<ColorRGBA> = {};
+        if (this.tryParse(value, tryParseOutput))
+            return tryParseOutput.result!;
+
+        throw new ArgumentOutOfRangeException("value");
     }
 
     toString() {
-        return `rgba(${this.r * 100}%, ${this.g * 100}%, ${this.b * 100}%, ${this.a * 100}%)`;
+        return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 
-    public get r(): number { return this.__r; }
-    private __r: number;
+    public get r(): ColorChannel { return this.__r; }
+    private __r: ColorChannel;
 
-    public get g(): number { return this.__g; }
-    private __g: number;
+    public get g(): ColorChannel { return this.__g; }
+    private __g: ColorChannel;
 
-    public get b(): number { return this.__b; }
-    private __b: number;
+    public get b(): ColorChannel { return this.__b; }
+    private __b: ColorChannel;
 
-    public get a(): number { return this.__a; }
-    private __a: number;
+    public get a(): ColorChannel { return this.__a; }
+    private __a: ColorChannel;
 }
