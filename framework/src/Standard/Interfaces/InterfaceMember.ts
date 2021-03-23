@@ -4,7 +4,7 @@ import { assertParams } from "../../Validation/index.js";
 
 export abstract class InterfaceMember {
     constructor(name: string, memberType: number) {
-        if (new.target === this.constructor)
+        if (new.target === InterfaceMember)
             throw new InvalidOperationException("Invalid constructor.");
 
         assertParams({ key: name }, [String]);

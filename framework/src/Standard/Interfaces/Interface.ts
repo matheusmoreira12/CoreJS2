@@ -39,7 +39,7 @@ export class Interface {
                     return InterfaceDifferenceKind.Missing;
                 if (typeMember.memberType != interfaceMember.memberType)
                     return InterfaceDifferenceKind.Invalid;
-                    if (interfaceMember.memberType !== null) {
+                    if ((interfaceMember as InterfaceField).type !== null) {
                         if (typeMember.memberType === MemberType.Field) {
                             const typeMatches = (typeMember as FieldInfo).type.matches((interfaceMember as InterfaceField).type!);
                             if (!typeMatches)

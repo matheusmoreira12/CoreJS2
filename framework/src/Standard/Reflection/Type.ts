@@ -162,19 +162,15 @@ export class Type {
 
     equals(other: Type): boolean {
         if (other instanceof Type) {
+            if (this._hasCtor) {
+                if (other._hasCtor)
+                    return this._ctor === other._ctor;
+            }
             if (this._hasReference) {
                 if (other._hasReference)
                     return this._reference === other._reference;
-                else if (other._hasCtor)
-                    return this._reference.constructor === other._ctor;
             }
-            else if (this._hasCtor) {
-                if (other._hasCtor)
-                    return this._ctor === other._ctor;
-                else if (other._hasReference)
-                    return this._ctor === other._reference.constructor;
-            }
-            throw new InvalidOperationException(ERR_INVALID_TYPE);
+            return false;
         }
         else
             throw new ArgumentTypeException("other");
@@ -215,6 +211,7 @@ export class Type {
 
     implements(_interface: Interface) {
         let analysis = Interface.differ(this, _interface);
+        console.log(analysis);
         if (analysis.isEmpty)
             return true;
 
