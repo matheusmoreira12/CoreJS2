@@ -6,14 +6,14 @@ import { Enumeration } from "../index.js";
 import { FieldInfo } from "./FieldInfo.js";
 import { PropertyInfo } from "./PropertyInfo.js";
 import { FieldInfoBase } from "./FieldInfoBase.js";
-import { TypeConstraint } from "./TypeConstraints/TypeConstraint.js";
+import { TypeConstraint, TypeConstraintType } from "./TypeConstraints/TypeConstraint.js";
+import { assertParams } from "../../ValidationStandalone/index.js";
 
 export type TypeMatchingConstraint = Type | Interface | TypeConstraint;
 
 export class Type {
     static get(ctor: ClassOf<any>): Type {
-        if (typeof ctor != "function")
-            throw new ArgumentTypeException("ctor", Function);
+        assertParams({ ctor }, [Function])
 
         const name = ctor.name;
         const result = new Type(name);
@@ -28,10 +28,8 @@ export class Type {
         let name: string = "";
         let ctor: ClassOf<any> = null;
         let hasCtor: boolean = false;
-        if (reference === undefined)
-            name = "undefined";
-        else if (reference === null)
-            name = "null";
+        if (reference === undefined || reference === null)
+            name = String(reference);
         else {
             hasCtor = typeof reference.constructor === "function";
             if (hasCtor) {
@@ -163,23 +161,33 @@ export class Type {
         }
     }
 
+    obeysConstraint(constraint: TypeConstraint): boolean {
+        assertParams({ other: constraint }, [TypeConstraint]);
+
+        if (constraint.type === TypeConstraintType.Or)
+            return this.matchesAny(...constraint.baseTypes);
+        if (constraint.type === TypeConstraintType.And)
+            return this.matchesAll(...constraint.baseTypes);
+        return false;
+    }
+
     equals(other: Type): boolean {
-        if (other instanceof Type) {
-            if (this._hasCtor) {
-                if (other._hasCtor)
-                    return this._ctor === other._ctor;
-            }
-            if (this._hasReference) {
-                if (other._hasReference)
-                    return this._reference === other._reference;
-            }
-            return false;
+        assertParams({ other }, [Type]);
+
+        if (this._hasCtor) {
+            if (other._hasCtor)
+                return this._ctor === other._ctor;
         }
-        else
-            throw new ArgumentTypeException("other");
+        if (this._hasReference) {
+            if (other._hasReference)
+                return this._reference === other._reference;
+        }
+        return false;
     }
 
     extends(other: Type): boolean {
+        assertParams({ other }, [Type]);
+
         let baseType = this.baseType;
         while (baseType !== null) {
             if (baseType.equals(other))
@@ -189,14 +197,19 @@ export class Type {
         return false;
     }
 
-    matches(other: Type | Interface): boolean {
+    matches(other: TypeMatchingConstraint): boolean {
+        assertParams({ other }, [Interface, Type, TypeConstraint]);
+
         if (other instanceof Interface)
             return this.implements(other);
-        else
-            return this.equals(other) || this.extends(other);
+        if (other instanceof TypeConstraint)
+            return this.obeysConstraint(other);
+        return this.equals(other) || this.extends(other);
     }
 
-    matchesAny(...others: (Type | Interface)[]) {
+    matchesAny(...others: TypeMatchingConstraint[]) {
+        assertParams({ others }, [Array])
+
         for (let other of others) {
             if (this.matches(other))
                 return true;
@@ -204,7 +217,9 @@ export class Type {
         return false;
     }
 
-    matchesAll(...others: (Type | Interface)[]) {
+    matchesAll(...others: TypeMatchingConstraint[]) {
+        assertParams({ others }, [Array])
+
         for (let other of others) {
             if (!this.matches(other))
                 return false;
@@ -213,6 +228,8 @@ export class Type {
     }
 
     implements(_interface: Interface) {
+        assertParams({ _interface }, [Interface])
+
         let analysis = Interface.differ(this, _interface);
         console.log(analysis);
         if (analysis.isEmpty)
