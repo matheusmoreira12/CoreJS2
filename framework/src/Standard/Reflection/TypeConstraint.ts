@@ -1,5 +1,5 @@
 import { assertEachParams } from "../../Validation/index.js";
-import { InvalidOperationException } from "../Exceptions/FrameworkException.js";
+import { InvalidOperationException } from "../Exceptions/index.js";
 import { Enumeration } from "../index.js";
 import { Interface } from "../Interfaces/index.js";
 import { Type } from "./index.js";
