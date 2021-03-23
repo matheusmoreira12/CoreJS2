@@ -11,7 +11,7 @@ export const TypeConstraintType = Enumeration.create({
     And: null
 });
 
-export class TypeConstraint {
+export abstract class TypeConstraint {
     constructor(type: number, baseTypes: TypeConstraintBaseType[]) {
         if (new.target === TypeConstraint)
             throw new InvalidOperationException("Invalid Constructor.");
