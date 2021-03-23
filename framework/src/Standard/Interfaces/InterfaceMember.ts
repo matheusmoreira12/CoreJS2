@@ -1,10 +1,10 @@
 import { Type } from "../Reflection/index.js";
 import { Interface, InterfaceMemberKey } from "./index.js";
 import { ArgumentTypeException } from "../Exceptions/index.js"
-import { MemberAttributes } from "../Reflection/index.js";
+import { Attributes } from "../Reflection/index.js";
 
 export class InterfaceMember {
-    constructor(key: string | number | symbol, memberType: number, type: Type | Interface | null = null, attributes: number = MemberAttributes.Enumerable, isOptional: boolean = true) {
+    constructor(key: string | number | symbol, memberType: number, type: Type | Interface | null = null, attributes: number = Attributes.Enumerable, isOptional: boolean = true) {
         if (typeof key !== "string" && typeof key !== "symbol")
             throw new ArgumentTypeException(`key`, key, String);
         if (typeof memberType !== "number")

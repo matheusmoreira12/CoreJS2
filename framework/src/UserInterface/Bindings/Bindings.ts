@@ -1,6 +1,6 @@
 import { Enumeration } from "../../Standard/index.js";
 import { Interface, InterfaceMemberType, InterfaceMember } from "../../Standard/Interfaces/index.js";
-import { Type, MemberAttributes } from "../../Standard/Reflection/index.js";
+import { Type, MemberAttributes as Attributes } from "../../Standard/Reflection/index.js";
 import { IValueConverter } from "../ValueConverters/index.js";
 
 export const BindingDirection = Enumeration.create({
@@ -10,8 +10,8 @@ export const BindingDirection = Enumeration.create({
 });
 
 export const IBindingOptions = new Interface(
-    new InterfaceMember("direction", InterfaceMemberType.Field, Type.get(Number), MemberAttributes.Enumerable, true),
-    new InterfaceMember("valueConverter", InterfaceMemberType.Field, IValueConverter, MemberAttributes.Enumerable, true),
+    new InterfaceMember("direction", InterfaceMemberType.Field, Type.get(Number), Attributes.Enumerable, true),
+    new InterfaceMember("valueConverter", InterfaceMemberType.Field, IValueConverter, Attributes.Enumerable, true),
 );
 
 export interface IBindingOptions {

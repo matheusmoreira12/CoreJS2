@@ -1,14 +1,15 @@
 import { ArgumentTypeException, InvalidOperationException } from "../Exceptions/index.js"
 import { Interface } from "../Interfaces/index.js";
-import { Class } from "./Types.js";
+import { ClassOf } from "./Types.js";
 import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, FunctionInfo } from "./index.js";
 import { Enumeration } from "../index.js";
 import { FieldInfo } from "./FieldInfo.js";
 import { PropertyInfo } from "./PropertyInfo.js";
 import { FieldInfoBase } from "./FieldInfoBase.js";
+import { Attributes } from "./Metadata/index.js";
 
-export class Type extends MemberInfo {
-    static get(ctor: Class<any>): Type {
+export class Type {
+    static get(ctor: ClassOf<any>): Type {
         if (typeof ctor != "function")
             throw new ArgumentTypeException("ctor", Function);
 
@@ -23,7 +24,7 @@ export class Type extends MemberInfo {
 
     static of(reference: any): Type {
         let name: string = "";
-        let ctor: Class<any> = null;
+        let ctor: ClassOf<any> = null;
         let hasCtor: boolean = false;
         if (reference === undefined)
             name = "undefined";
@@ -45,10 +46,9 @@ export class Type extends MemberInfo {
     }
 
     constructor(name: string) {
-        super(MemberType.Type, name);
-
         this._ctor = null;
         this._hasCtor = false;
+        this._name = name;
         this._reference = null;
         this._hasReference = false;
         this._members = [];
@@ -243,8 +243,11 @@ export class Type extends MemberInfo {
             return null;
     }
 
-    protected _ctor: Class<any>;
+    get name() { return this._name; }
+
+    protected _ctor: ClassOf<any>;
     protected _hasCtor: boolean;
+    protected _name: string;
     protected _reference: any;
     protected _hasReference: boolean;
     protected _members: MemberInfo[];

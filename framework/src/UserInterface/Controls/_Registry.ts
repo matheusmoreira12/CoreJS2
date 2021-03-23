@@ -1,18 +1,18 @@
 import { Collection } from "../../Standard/Collections/index.js";
 import { Control } from "./index.js";
-import { ClassOf, TryOutput } from "../../Standard/Reflection/Types.js";
+import { ClassOfOf, TryOutput } from "../../Standard/Reflection/Types.js";
 
 const registeredControls = new Collection<ControlInfo>();
 
 const controlInstances = new Collection<ControlInstanceInfo>();
 
 interface ControlInfo {
-    ctor: ClassOf<Control>;
+    ctor: ClassOfOf<Control>;
     elementName: string;
 }
 
 interface ControlInstanceInfo {
-    ctor: ClassOf<Control>;
+    ctor: ClassOfOf<Control>;
     instance: Control;
     element: Element;
 }
@@ -27,7 +27,7 @@ export function tryFinalizeInstance(): boolean {
     
 }
 
-export function tryCreateInstance(ctor: ClassOf<Control>, output: TryOutput<Control>): boolean {
+export function tryCreateInstance(ctor: ClassOfOf<Control>, output: TryOutput<Control>): boolean {
     const info = registeredControls.find(i => i.ctor === ctor);
     if (info) {
         const domElem = document.createElement(info.elementName);
@@ -64,7 +64,7 @@ export function tryGetDOMElement(instance: Control, output: TryOutput<Element>):
         return false;
 }
 
-export function tryRegister(ctor: ClassOf<Control>, elementName: string): boolean {
+export function tryRegister(ctor: ClassOfOf<Control>, elementName: string): boolean {
     const isElementNameRegistered = registeredControls.some(e => e.elementName);
     if (isElementNameRegistered)
         return false;
@@ -82,7 +82,7 @@ export function tryRegister(ctor: ClassOf<Control>, elementName: string): boolea
     }
 }
 
-export function tryDeRegister(ctor: ClassOf<Control>, forceQuit: boolean = false): boolean {
+export function tryDeRegister(ctor: ClassOfOf<Control>, forceQuit: boolean = false): boolean {
     const controlInfo = registeredControls.find(c => c.ctor === ctor);
     if (controlInfo) {
         const instanceInfos = controlInstances.filter(i => i.ctor === ctor);
