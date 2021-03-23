@@ -1,4 +1,5 @@
 import { assertEachParams } from "../../Validation/index.js";
+import { InvalidOperationException } from "../Exceptions/FrameworkException.js";
 import { Enumeration } from "../index.js";
 import { Interface } from "../Interfaces/index.js";
 import { Type } from "./index.js";
@@ -12,7 +13,9 @@ export const TypeConstraintType = Enumeration.create({
 
 export class TypeConstraint {
     constructor(type: number, baseTypes: TypeConstraintBaseType[]) {
-        TypeConstraintType.assertFlag(type);
+        if (new.target === TypeConstraint)
+            throw new InvalidOperationException("Invalid Constructor.");
+
         assertEachParams({ baseTypes }, [Type, Interface, TypeConstraint]);
 
         this.__type = type;
