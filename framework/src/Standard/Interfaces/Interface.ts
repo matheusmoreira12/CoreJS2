@@ -1,50 +1,6 @@
-﻿import { Type } from "../Reflection/Type.js";
-import { InterfaceMember } from "./InterfaceMember.js";
-import { MemberInfo, MemberType, MemberSelectionOptions, Attributes, FieldInfo, PropertyInfo } from "../Reflection/index.js";
-import { InterfaceMemberType, InterfaceDifferenceKind } from "./Interfaces.js";
-import { InterfaceImplementationAnalysis, InterfaceDifference } from "./Analysis/index.js";
-import { Enumeration } from "../index.js";
-
-function convertMemberTypeToInterfaceMemberType(memberType: number) {
-    if (Enumeration.contains(MemberType.Function, memberType))
-        return InterfaceMemberType.Function;
-    else if (Enumeration.contains(MemberType.Property, memberType))
-        return InterfaceMemberType.Property;
-    else if (Enumeration.contains(MemberType.Field, memberType))
-        return InterfaceMemberType.Field;
-    else
-        return -1;
-}
-
-function compareMemberAttributesWithInterfaceMemberAttributes(typeMemberAttributes: number, interfaceMemberAttributes: number) {
-    const interfaceMemberIsEnumerable = Enumeration.contains(Attributes.Enumerable, interfaceMemberAttributes),
-        interfaceMemberIsConfigurable = Enumeration.contains(Attributes.Configurable, interfaceMemberAttributes),
-        interfaceMemberIsWritable = Enumeration.contains(Attributes.Writable, interfaceMemberAttributes);
-
-    const memberIsEnumerable = Enumeration.contains(Attributes.Enumerable, typeMemberAttributes),
-        memberIsConfigurable = Enumeration.contains(Attributes.Configurable, typeMemberAttributes),
-        memberIsWritable = Enumeration.contains(Attributes.Writable, typeMemberAttributes);
-
-    return !(interfaceMemberIsEnumerable && !memberIsEnumerable || 
-        interfaceMemberIsConfigurable && !memberIsConfigurable || 
-        interfaceMemberIsWritable && !memberIsWritable);
-}
-
-function compareMemberTypeWithInterfaceType(memberType: number, interfaceMemberType: number) {
-    const equivalentInterfaceMemberType = convertMemberTypeToInterfaceMemberType(memberType);
-    return equivalentInterfaceMemberType == interfaceMemberType;
-}
-
-function compareMemberValueTypeWithInterfaceValueType(memberValueType: Type, interfaceMemberValueType: Type | Interface | null) {
-    if (interfaceMemberValueType === null)
-        return true;
-    else if (interfaceMemberValueType instanceof Type)
-        return interfaceMemberValueType.equals(memberValueType);
-    else if (interfaceMemberValueType instanceof Interface)
-        return memberValueType.implements(interfaceMemberValueType);
-    else
-        return false;
-}
+﻿import { FieldInfo, MemberInfo, MemberSelectionOptions, MemberType, Type } from "../Reflection/index.js";
+import { InterfaceDifference, InterfaceImplementationAnalysis } from "./Analysis/index.js";
+import { InterfaceDifferenceKind, InterfaceField, InterfaceFunction, InterfaceMember, InterfaceProperty } from "./index.js";
 
 export class Interface {
     static extract(type: Function): Interface;
@@ -54,10 +10,12 @@ export class Interface {
         function* generateInterfaceMembers(type: Type): Generator<InterfaceMember> {
             function generateInterfaceMember(member: MemberInfo): InterfaceMember | undefined {
                 switch (member.memberType) {
-                    case MemberType.Property:
-                        return new InterfaceProperty(member.name);
                     case MemberType.Function:
                         return new InterfaceFunction(member.name);
+                    case MemberType.Property:
+                        return new InterfaceProperty(member.name);
+                    case MemberType.Field:
+                        return new InterfaceField(member.name, (member as FieldInfo).type)
                 }
             }
 
@@ -77,30 +35,29 @@ export class Interface {
     static differ(type: Type, _interface: Interface): InterfaceImplementationAnalysis {
         function* analizeMembers(): Generator<InterfaceDifference> {
             function getMemberDifferenceType(interfaceMember: InterfaceMember, typeMember: MemberInfo | undefined): number {
-                if (typeMember === undefined) {
-                    if (!interfaceMember.isOptional)
-                        return InterfaceDifferenceKind.Missing;
-                }
-                else {
-                    if (!compareMemberAttributesWithInterfaceMemberAttributes(typeMember.attributes, interfaceMember.attributes))
-                        return InterfaceDifferenceKind.MissingAttributes;
-                    else if (!compareMemberTypeWithInterfaceType(typeMember.memberType, interfaceMember.memberType))
-                        return InterfaceDifferenceKind.Invalid;
-                    else if (!compareMemberValueTypeWithInterfaceValueType(typeMember.type, interfaceMember.type))
-                        return InterfaceDifferenceKind.IncorrectType;
-                }
+                if (typeMember === undefined)
+                    return InterfaceDifferenceKind.Missing;
+                if (typeMember.memberType != interfaceMember.memberType)
+                    return InterfaceDifferenceKind.Invalid;
+                    if (interfaceMember.memberType !== null) {
+                        if (typeMember.memberType === MemberType.Field) {
+                            const typeMatches = (typeMember as FieldInfo).type.matches((interfaceMember as InterfaceField).type!);
+                            if (!typeMatches)
+                                return InterfaceDifferenceKind.InvalidFieldType;
+                        }
+                    }
                 return InterfaceDifferenceKind.None;
             }
 
             let typeMembers = [...type.getMembers(MemberSelectionOptions.InstanceOnly)];
             for (let interfaceMember of _interface.members) {
-                let typeMember = typeMembers.find(m => m.key === interfaceMember.key);
+                let typeMember = typeMembers.find(m => m.name === interfaceMember.name);
 
                 let differenceType = getMemberDifferenceType(interfaceMember, typeMember);
                 if (differenceType == InterfaceDifferenceKind.None)
                     continue;
 
-                yield new InterfaceDifference(type, _interface, interfaceMember.key, differenceType);
+                yield new InterfaceDifference(type, _interface, interfaceMember.name, differenceType);
             }
         }
 

@@ -1,4 +1,4 @@
-import { Interface, InterfaceMember, InterfaceMemberType } from "../../Standard/Interfaces/index.js";
+import { Interface, InterfaceFunction } from "../../Standard/Interfaces/index.js";
 
 export interface IValueValidator {
     validate?: (value: any) => boolean
@@ -8,5 +8,5 @@ export interface IValueValidator {
  * ValueValidator Interface 
  * Exposes a friendly interface for validating values between layers of abstraction.*/
 export const IValueValidator = new Interface(
-    new InterfaceMember("validate", InterfaceMemberType.Function)
+    new InterfaceFunction("validate")
 );

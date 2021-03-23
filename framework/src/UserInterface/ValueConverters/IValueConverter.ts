@@ -1,11 +1,11 @@
-import { Interface, InterfaceMemberType, InterfaceMember } from "../../Standard/Interfaces/index.js";
+import { Interface, InterfaceFunction } from "../../Standard/Interfaces/index.js";
 
 /**
  * IValueConverter Interface
  * Exposes a friendly interface for converting values between inner data types and the interface.*/
 export const IValueConverter = new Interface(
-    new InterfaceMember("convert", InterfaceMemberType.Function),
-    new InterfaceMember("convertBack", InterfaceMemberType.Function)
+    new InterfaceFunction("convert"),
+    new InterfaceFunction("convertBack")
 );
 
 /**

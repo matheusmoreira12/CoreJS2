@@ -6,7 +6,6 @@ import { Enumeration } from "../index.js";
 import { FieldInfo } from "./FieldInfo.js";
 import { PropertyInfo } from "./PropertyInfo.js";
 import { FieldInfoBase } from "./FieldInfoBase.js";
-import { Attributes } from "./Metadata/index.js";
 
 export class Type {
     static get(ctor: ClassOf<any>): Type {
