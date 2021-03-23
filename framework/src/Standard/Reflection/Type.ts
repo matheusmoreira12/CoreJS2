@@ -6,6 +6,9 @@ import { Enumeration } from "../index.js";
 import { FieldInfo } from "./FieldInfo.js";
 import { PropertyInfo } from "./PropertyInfo.js";
 import { FieldInfoBase } from "./FieldInfoBase.js";
+import { TypeConstraint } from "./TypeConstraints/TypeConstraint.js";
+
+export type TypeMatchingConstraint = Type | Interface | TypeConstraint;
 
 export class Type {
     static get(ctor: ClassOf<any>): Type {

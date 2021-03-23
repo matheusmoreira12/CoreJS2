@@ -13,4 +13,6 @@ export * from "./FunctionInfo.js";
 export * from "./ConstructorInfo.js";
 export * from "./ParameterInfo.js";
 export * from "./Type.js";
-export * from "./TypeConstraint.js";
+
+import * as TypeConstraints from "./TypeConstraints/index.js";
+export { TypeConstraints };
