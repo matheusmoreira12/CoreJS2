@@ -13,3 +13,4 @@ export * from "./FunctionInfo.js";
 export * from "./ConstructorInfo.js";
 export * from "./ParameterInfo.js";
 export * from "./Type.js";
+export * from "./TypeConstraint.js";
