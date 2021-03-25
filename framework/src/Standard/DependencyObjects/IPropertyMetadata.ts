@@ -1,5 +1,5 @@
 import { Interface, InterfaceField } from "../Interfaces/index.js";
-import { Type, Attributes } from "../Reflection/index.js";
+import { Type } from "../Reflection/index.js";
 
 export const IPropertyMetadata = new Interface(
     new InterfaceField("valueType", Type.of(null)),
