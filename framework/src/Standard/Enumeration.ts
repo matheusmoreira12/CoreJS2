@@ -1,5 +1,5 @@
-import { ArgumentTypeException, FormatException, InvalidOperationException, KeyNotFoundException, InvalidTypeException } from "./Exceptions/index.js";
-import { MapUtils } from "../CoreBase/Utils/index.js";
+import { ArgumentTypeException, FormatException, InvalidOperationException, KeyNotFoundException, InvalidTypeException } from "./exceptions/index.js";
+import { MapUtils } from "../core-base/utils/index.js";
 
 export type EnumerationDescriptor = { [key: string]: number | null };
 

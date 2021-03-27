@@ -1,5 +1,5 @@
-import { LengthUnit } from "./LengthUnit.js";
-import { Orientation } from "./Orientation.js";
+import { LengthUnit } from "./length-unit.js";
+import { Orientation } from "./orientation.js";
 
 function getScreenDPI(): number {
     const div = document.createElement("div");

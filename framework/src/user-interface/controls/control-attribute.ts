@@ -1,5 +1,5 @@
-import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
-import { Type } from "../../Standard/Reflection/index.js";
+import { DependencyObject, DependencyProperty } from "../../standard/dependency-objects/index.js";
+import { Type } from "../../standard/reflection/index.js";
 
 export class ControlAttribute extends DependencyObject {
     static nameProperty = DependencyProperty.registerAttached(ControlAttribute, "name", { valueType: Type.get(String), defaultValue: "" });

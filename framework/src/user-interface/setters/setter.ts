@@ -1,7 +1,7 @@
-import { DependencyProperty } from "../../Standard/DependencyObjects/index.js"
-import { assertParams } from "../../Validation/index.js";
-import { DependencyObject } from "../../Standard/DependencyObjects/DependencyObject.js";
-import { Type } from "../../Standard/Reflection/index.js";
+import { DependencyProperty } from "../../standard/dependency-objects/index.js"
+import { assertParams } from "../../validation/index.js";
+import { DependencyObject } from "../../standard/dependency-objects/dependency-object.js";
+import { Type } from "../../standard/reflection/index.js";
 
 /**
  * Sets the value of the specified property on the specified target to the specified value whenever the trigger's condition is met.

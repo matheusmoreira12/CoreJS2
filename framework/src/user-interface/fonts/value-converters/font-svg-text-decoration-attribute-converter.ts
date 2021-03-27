@@ -1,6 +1,6 @@
-import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
-import { Font } from "../Font.js";
-import { TextDecorationSVGAttributeConverter } from "./TextDecorationSVGAttributeConverter.js";
+import { InvalidOperationException } from "../../../standard/exceptions/index.js"
+import { Font } from "../font.js";
+import { TextDecorationSVGAttributeConverter } from "./text-decoration-svg-attribute-converter.js";
 
 export class FontSVGTextDecorationAttributeConverter {
     convert(value: Font | null): string | null {

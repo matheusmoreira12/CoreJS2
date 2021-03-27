@@ -1,6 +1,6 @@
-import { Interface, InterfaceField } from "../../Standard/Interfaces/index.js";
-import { Type } from "../../Standard/Reflection/index.js";
-import { IAjaxHeaders } from "./IAjaxHeaders.js";
+import { Interface, InterfaceField } from "../../standard/interfaces/index.js";
+import { Type } from "../../standard/reflection/index.js";
+import { IAjaxHeaders } from "./i-ajax-headers.js";
 
 export const IAjaxOptions = new Interface(
     new InterfaceField("mimeType", Type.get(String)),

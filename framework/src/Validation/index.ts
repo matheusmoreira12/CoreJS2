@@ -1,6 +1,6 @@
-export * from "./Validation.js";
+export * from "./validation.js";
 
-export * from "./TypeValidationMode.js";
+export * from "./type-validation-mode.js";
 
-import * as Decorators from "./Decorators.js";
+import * as Decorators from "./decorators.js";
 export { Decorators };

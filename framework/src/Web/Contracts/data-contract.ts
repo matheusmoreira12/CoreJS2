@@ -1,5 +1,5 @@
-import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
-import { Type } from "../../Standard/Reflection/Type.js";
+import { DependencyObject, DependencyProperty } from "../../standard/dependency-objects/index.js";
+import { Type } from "../../standard/reflection/type.js";
 
 export class DataContract extends DependencyObject {
     update(data: object) {

@@ -1,1 +1,1 @@
-export * from "./DataContract.js";
+export * from "./data-contract.js";

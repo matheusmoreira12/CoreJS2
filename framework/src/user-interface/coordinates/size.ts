@@ -1,5 +1,5 @@
-import { Length } from "./Length.js";
-import { assertParams } from "../../Validation/index.js";
+import { Length } from "./length.js";
+import { assertParams } from "../../validation/index.js";
 
 export class Size {
     static get zero(): Size { return ZERO };

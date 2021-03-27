@@ -1,2 +1,2 @@
-export * from "./Attribute.js";
-export * from "./Decorators.js";
+export * from "./attribute.js";
+export * from "./decorators.js";

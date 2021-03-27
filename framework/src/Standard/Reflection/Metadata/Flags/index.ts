@@ -1,2 +1,2 @@
-export * from "./Flag.js";
-export * from "./Decorators.js";
+export * from "./flag.js";
+export * from "./decorators.js";

@@ -1,2 +1,2 @@
-export * from "./Timer.js";
-export * from "./DeferredTask.js";
+export * from "./timer.js";
+export * from "./deferred-task.js";

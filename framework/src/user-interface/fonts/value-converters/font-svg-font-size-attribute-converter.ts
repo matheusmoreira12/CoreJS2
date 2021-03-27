@@ -1,7 +1,7 @@
-import { LengthCSSPropertyConverter } from "../../Coordinates/ValueConverters/index.js";
-import { IValueConverter } from "../../ValueConverters/index.js";
-import { Font } from "../Font.js";
-import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
+import { LengthCSSPropertyConverter } from "../../coordinates/value-converters/index.js";
+import { IValueConverter } from "../../value-converters/index.js";
+import { Font } from "../font.js";
+import { InvalidOperationException } from "../../../standard/exceptions/index.js"
 
 export class FontSVGFontSizeAttributeConverter implements IValueConverter {
     convert(value: Font): string | null {

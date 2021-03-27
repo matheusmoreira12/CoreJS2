@@ -1,4 +1,4 @@
-import { Interface, InterfaceFunction } from "../../Standard/Interfaces/index.js";
+import { Interface, InterfaceFunction } from "../../standard/interfaces/index.js";
 
 /**
  * IValueConverter Interface

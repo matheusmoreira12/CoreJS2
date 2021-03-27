@@ -1,5 +1,5 @@
-import { assertParams } from "../../Validation/index.js";
-import { ClassOf, MemberType, Type } from "../Reflection/index.js";
+import { assertParams } from "../../validation/index.js";
+import { ClassOf, MemberType, Type } from "../reflection/index.js";
 import { Interface, InterfaceMember } from "./index.js";
 
 export class InterfaceField extends InterfaceMember {

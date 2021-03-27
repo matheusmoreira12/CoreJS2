@@ -1,4 +1,4 @@
-import { assertParams } from "../../ValidationStandalone/index.js";
+import { assertParams } from "../../validation-standalone/index.js";
 import { Ajax, AjaxEventArgs } from "./index.js";
 
 export class AjaxProgressEventArgs extends AjaxEventArgs {

@@ -1,8 +1,8 @@
-﻿import { Enumeration } from "../Standard/Enumeration.js";
-import { Timer } from "../Standard/Timing/index.js";
-import { BroadcastEvent, FrameworkEvent, FrameworkEventArgs } from "../Standard/Events/index.js";
-import DragEmulator from "./DragEmulator.js";
-import { Destructible } from "../Standard/index.js";
+﻿import { Enumeration } from "../standard/enumeration.js";
+import { Timer } from "../standard/timing/index.js";
+import { BroadcastEvent, FrameworkEvent, FrameworkEventArgs } from "../standard/events/index.js";
+import DragEmulator from "./drag-emulator.js";
+import { Destructible } from "../standard/index.js";
 import { DOMUtils } from "./index.js";
 
 const DEFAULT_DRAG_HANDLER_OPTIONS = {

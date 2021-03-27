@@ -1,9 +1,9 @@
-import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index.js";
-import { TryOutput } from "../../Standard/Reflection/Types.js";
-import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
-import * as Storage from "./Storage.js";
-import { Type } from "../../Standard/Reflection/Type.js";
-import { Collection } from "../../Standard/Collections/index.js";
+import { DependencyProperty, DependencyObject } from "../../standard/dependency-objects/index.js";
+import { TryOutput } from "../../standard/reflection/types.js";
+import { InvalidOperationException } from "../../standard/exceptions/index.js"
+import * as Storage from "./storage.js";
+import { Type } from "../../standard/reflection/type.js";
+import { Collection } from "../../standard/collections/index.js";
 
 export class ResourceDictionary extends DependencyObject {
     static get(key: string): ResourceDictionary {

@@ -1,5 +1,5 @@
-import { FrameworkException } from "../../Standard/Exceptions/index.js"
-import { AjaxMethod } from "./AjaxMethod.js";
+import { FrameworkException } from "../../standard/exceptions/index.js"
+import { AjaxMethod } from "./ajax-method.js";
 
 export class AjaxRequestFailedException extends FrameworkException {
     constructor(method: string, url: string, status: number, statusText: string, message?: string, innerException?: Error) {

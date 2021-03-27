@@ -1,9 +1,9 @@
 import { Trigger } from "./index.js";
-import { DependencyProperty, DependencyObject } from "../../Standard/DependencyObjects/index.js";
-import { Setter } from "../Setters/index.js";
-import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
-import { Type } from "../../Standard/Reflection/Type.js";
-import { Collection } from "../../Standard/Collections/index.js";
+import { DependencyProperty, DependencyObject } from "../../standard/dependency-objects/index.js";
+import { Setter } from "../setters/index.js";
+import { assertParams, assertEachParams, TypeValidationMode } from "../../validation/index.js";
+import { Type } from "../../standard/reflection/type.js";
+import { Collection } from "../../standard/collections/index.js";
 
 /**
  * PropertyTrigger class

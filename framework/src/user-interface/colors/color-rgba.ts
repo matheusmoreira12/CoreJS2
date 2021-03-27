@@ -1,7 +1,7 @@
-﻿import { ArgumentOutOfRangeException } from "../../Standard/Exceptions/FrameworkException.js";
-import { TryOutput } from "../../Standard/Reflection/Types.js";
-import { assertParams } from "../../ValidationStandalone/ValidationStandalone.js";
-import { ColorChannel } from "./ColorChannel.js";
+﻿import { ArgumentOutOfRangeException } from "../../standard/exceptions/framework-exception.js";
+import { TryOutput } from "../../standard/reflection/types.js";
+import { assertParams } from "../../validation-standalone/validation-standalone.js";
+import { ColorChannel } from "./color-channel.js";
 import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
 

@@ -1,7 +1,7 @@
-export * from "./Font.js";
-export * from "./FontWeight.js";
-export * from "./FontStyle.js";
-export * from "./TextDecoration.js";
+export * from "./font.js";
+export * from "./font-weight.js";
+export * from "./font-style.js";
+export * from "./text-decoration.js";
 
-import * as ValueConverters from "./ValueConverters/index.js";
+import * as ValueConverters from "./value-converters/index.js";
 export { ValueConverters }

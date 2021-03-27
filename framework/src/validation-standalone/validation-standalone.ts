@@ -1,6 +1,6 @@
-import { ArgumentTypeException, InvalidTypeException } from "../Standard/Exceptions/index.js";
-import { TypeDesignator, AssertionMode } from "./Types.js";
-import { tryAssert, rejectAssert } from "./Utils/AssertionUtils.js";
+import { ArgumentTypeException, InvalidTypeException } from "../standard/exceptions/index.js";
+import { TypeDesignator, AssertionMode } from "./types.js";
+import { tryAssert, rejectAssert } from "./utils/assertion-utils.js";
 
 export function assert(map: { [name: string]: any }, types: Iterable<TypeDesignator>, mode: AssertionMode = "any") {
     if (!tryAssert(map, [Object]))

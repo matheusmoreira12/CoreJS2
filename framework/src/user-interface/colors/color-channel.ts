@@ -1,7 +1,7 @@
-import { ArgumentOutOfRangeException } from "../../Standard/Exceptions/FrameworkException.js";
-import MathX from "../../Standard/MathX.js";
-import { TryOutput } from "../../Standard/Reflection/Types.js";
-import { assertParams } from "../../Validation/index.js";
+import { ArgumentOutOfRangeException } from "../../standard/exceptions/framework-exception.js";
+import MathX from "../../standard/math-x.js";
+import { TryOutput } from "../../standard/reflection/types.js";
+import { assertParams } from "../../validation/index.js";
 
 type ColorChannelMetadata = {
     parsedType: "percent" | "float" | null;

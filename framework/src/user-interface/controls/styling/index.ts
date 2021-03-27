@@ -1,1 +1,1 @@
-export * from "./ControlStyle.js";
+export * from "./control-style.js";

@@ -1,6 +1,6 @@
-import { FrameworkEventArgs } from "../Events/index.js";
+import { FrameworkEventArgs } from "../events/index.js";
 import { DependencyProperty } from "./index.js";
-import { ArgumentTypeException } from "../Exceptions/index.js"
+import { ArgumentTypeException } from "../exceptions/index.js"
 
 /**
  * PropertyChangeEventArgs class

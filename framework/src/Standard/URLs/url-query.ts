@@ -1,5 +1,5 @@
 ﻿import { URLQueryParameter } from "./index.js";
-import { URLToken } from "./URLTokenifier.js";
+import { URLToken } from "./url-tokenifier.js";
 export class URLQuery {
     static fromToken(token: URLToken) {
         function* getParameters(tokens: Iterable<URLToken>): Generator<URLQueryParameter> {

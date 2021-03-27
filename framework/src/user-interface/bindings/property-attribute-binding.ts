@@ -1,14 +1,14 @@
 import { Binding, IBindingOptions } from "./index.js";
-import { DependencyProperty, PropertyChangeEventArgs } from "../../Standard/DependencyObjects/index.js";
-import { assertParams } from "../../Validation/index.js";
-import { DependencyObject } from "../../Standard/DependencyObjects/DependencyObject.js";
-import { FrameworkEvent } from "../../Standard/Events/index.js";
+import { DependencyProperty, PropertyChangeEventArgs } from "../../standard/dependency-objects/index.js";
+import { assertParams } from "../../validation/index.js";
+import { DependencyObject } from "../../standard/dependency-objects/dependency-object.js";
+import { FrameworkEvent } from "../../standard/events/index.js";
 
-import * as Storage from "../../Standard/DependencyObjects/_Storage.js";
-import { Enumeration } from "../../Standard/index.js";
-import { BindingDirection } from "./Bindings.js";
-import { IValueConverter } from "../ValueConverters/index.js";
-import { Type } from "../../Standard/Reflection/index.js";
+import * as Storage from "../../standard/dependency-objects/_storage.js";
+import { Enumeration } from "../../standard/index.js";
+import { BindingDirection } from "./bindings.js";
+import { IValueConverter } from "../value-converters/index.js";
+import { Type } from "../../standard/reflection/index.js";
 
 /**
  * PropertyAttributeBinding class

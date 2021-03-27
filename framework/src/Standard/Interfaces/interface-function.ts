@@ -1,4 +1,4 @@
-import { MemberType } from "../Reflection/index.js";
+import { MemberType } from "../reflection/index.js";
 import { InterfaceMember } from "./index.js";
 
 export class InterfaceFunction extends InterfaceMember {

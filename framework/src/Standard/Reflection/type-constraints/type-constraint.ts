@@ -1,7 +1,7 @@
-import { assertEachParams } from "../../../Validation/index.js";
-import { InvalidOperationException } from "../../Exceptions/index.js";
+import { assertEachParams } from "../../../validation/index.js";
+import { InvalidOperationException } from "../../exceptions/index.js";
 import { Enumeration } from "../../index.js";
-import { Interface } from "../../Interfaces/index.js";
+import { Interface } from "../../interfaces/index.js";
 import { Type } from "../index.js";
 
 export type TypeConstraintBaseType = Type | Interface | TypeConstraint;

@@ -1,3 +1,3 @@
-export * from "./TypeConstraint.js";
-export * from "./AndConstraint.js";
-export * from "./OrConstraint.js";
+export * from "./type-constraint.js";
+export * from "./and-constraint.js";
+export * from "./or-constraint.js";

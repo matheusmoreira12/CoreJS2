@@ -1,6 +1,6 @@
-import { Destructible, Enumeration } from "../Standard/index.js"
-import { URL } from "../Standard/URLs/URL.js";
-import { DataContract } from "./Contracts/DataContract.js";
+import { Destructible, Enumeration } from "../standard/index.js"
+import { URL } from "../standard/urls/url.js";
+import { DataContract } from "./contracts/data-contract.js";
 
 export const PeriodicUpdaterStatus = Enumeration.create({
     Ready: null,

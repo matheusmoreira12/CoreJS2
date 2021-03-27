@@ -1,6 +1,6 @@
-import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
-import { Dictionary } from "../../Standard/Collections/index.js";
-import { DependencyObject } from "../../Standard/DependencyObjects/index.js";
+import { InvalidOperationException } from "../../standard/exceptions/index.js"
+import { Dictionary } from "../../standard/collections/index.js";
+import { DependencyObject } from "../../standard/dependency-objects/index.js";
 
 /**
  * FrameworkAction base class

@@ -1,5 +1,5 @@
-import { Interface, InterfaceFunction } from "../../Standard/Interfaces/index.js";
-import { FrameworkEventListener } from "../../Standard/Events/index.js";
+import { Interface, InterfaceFunction } from "../../standard/interfaces/index.js";
+import { FrameworkEventListener } from "../../standard/events/index.js";
 import { AjaxEventArgs } from "./index.js";
 
 export const IAjaxCallbacks = new Interface(

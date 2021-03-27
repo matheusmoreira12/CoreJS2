@@ -1,5 +1,5 @@
-import { IValueConverter } from "../../../ValueConverters/index.js";
-import { NotSupportedException } from "../../../../Standard/Exceptions/index.js"
+import { IValueConverter } from "../../../value-converters/index.js";
+import { NotSupportedException } from "../../../../standard/exceptions/index.js"
 
 export class GridPositionCSSGridStartConverter implements IValueConverter {
     convert(value: number | null): string | null {

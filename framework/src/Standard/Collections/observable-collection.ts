@@ -1,7 +1,7 @@
-﻿import { Collection } from "./Collection.js";
-import { Enumeration } from "../Enumeration.js";
-import { FrameworkEvent } from "../Events/FrameworkEvent.js";
-import { FrameworkEventArgs } from "../Events/index.js";
+﻿import { Collection } from "./collection.js";
+import { Enumeration } from "../enumeration.js";
+import { FrameworkEvent } from "../events/framework-event.js";
+import { FrameworkEventArgs } from "../events/index.js";
 
 export class ObservableCollectionChangeArgs<T> extends FrameworkEventArgs {
     constructor(action: number, oldIndex: number, oldItems: T[], newIndex: number, newItems: T[]) {

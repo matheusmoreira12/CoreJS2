@@ -1,18 +1,18 @@
-export * from "./MemberSelectionOptions.js"
-export * from "./Types.js";
+export * from "./member-selection-options.js"
+export * from "./types.js";
 
-export * from "./Metadata/index.js";
+export * from "./metadata/index.js";
 
-export * from "./MemberType.js"
-export * from "./MemberInfo.js";
-export * from "./FieldInfoBase.js";
-export * from "./FieldInfo.js";
-export * from "./PropertyInfo.js";
-export * from "./FunctionInfoBase.js";
-export * from "./FunctionInfo.js";
-export * from "./ConstructorInfo.js";
-export * from "./ParameterInfo.js";
-export * from "./Type.js";
+export * from "./member-type.js"
+export * from "./member-info.js";
+export * from "./field-info-base.js";
+export * from "./field-info.js";
+export * from "./property-info.js";
+export * from "./function-info-base.js";
+export * from "./function-info.js";
+export * from "./constructor-info.js";
+export * from "./parameter-info.js";
+export * from "./type.js";
 
-import * as TypeConstraints from "./TypeConstraints/index.js";
+import * as TypeConstraints from "./type-constraints/index.js";
 export { TypeConstraints };

@@ -1,6 +1,6 @@
 import { InterfaceMemberKey } from "./index.js";
-import { InvalidOperationException } from "../Exceptions/index.js"
-import { assertParams } from "../../Validation/index.js";
+import { InvalidOperationException } from "../exceptions/index.js"
+import { assertParams } from "../../validation/index.js";
 
 export abstract class InterfaceMember {
     constructor(name: string, memberType: number) {

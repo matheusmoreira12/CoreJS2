@@ -1,5 +1,5 @@
-import { MemberType } from "./MemberType.js";
-import { ArgumentTypeException, InvalidOperationException } from "../Exceptions/index.js";
+import { MemberType } from "./member-type.js";
+import { ArgumentTypeException, InvalidOperationException } from "../exceptions/index.js";
 
 export class MemberInfo {
     constructor(memberType: number, name: string) {

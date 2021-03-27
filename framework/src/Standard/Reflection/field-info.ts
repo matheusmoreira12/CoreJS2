@@ -1,6 +1,6 @@
-import { FieldInfoBase } from "./FieldInfoBase.js";
+import { FieldInfoBase } from "./field-info-base.js";
 import { Type, MemberType } from "./index.js";
-import { InvalidTypeException } from "../Exceptions/index.js";
+import { InvalidTypeException } from "../exceptions/index.js";
 
 export class FieldInfo extends FieldInfoBase {
     constructor(name: string, declaringType: Type, type: Type, isStatic: boolean = false) {

@@ -1,8 +1,8 @@
-import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
-import { Size, Length } from "../Coordinates/index.js";
-import { Type } from "../../Standard/Reflection/index.js";
-import { InvalidOperationException } from "../../Standard/Exceptions/index.js";
-import { ControlStyle } from "./Styling/index.js";
+import { DependencyObject, DependencyProperty } from "../../standard/dependency-objects/index.js";
+import { Size, Length } from "../coordinates/index.js";
+import { Type } from "../../standard/reflection/index.js";
+import { InvalidOperationException } from "../../standard/exceptions/index.js";
+import { ControlStyle } from "./styling/index.js";
 
 export abstract class Control extends DependencyObject {
     constructor() {

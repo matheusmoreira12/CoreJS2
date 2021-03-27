@@ -1,9 +1,9 @@
 import { AjaxMethod, AjaxResponseType, IAjaxCallbacks, IAjaxOptions, AjaxEventArgs } from "./index.js";
-import { Destructible } from "../../Standard/index.js";
-import { assertParams } from "../../Validation/index.js";
-import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
-import { AjaxRequestFailedException } from "./AjaxRequestFailedException.js";
-import { AjaxProgressEventArgs } from "./AjaxProgressEventArgs.js";
+import { Destructible } from "../../standard/index.js";
+import { assertParams } from "../../validation/index.js";
+import { FrameworkEvent, FrameworkEventArgs } from "../../standard/events/index.js";
+import { AjaxRequestFailedException } from "./ajax-request-failed-exception.js";;
+import { AjaxProgressEventArgs } from "./ajax-progress-event-args.js";;
 
 const AJAX_METHOD_MAP = new Map([
     [AjaxMethod.Get, "GET"],

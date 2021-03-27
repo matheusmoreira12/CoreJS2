@@ -1,5 +1,5 @@
 import { TypeConstraint } from "./index.js";
-import { TypeConstraintBaseType, TypeConstraintType } from "./TypeConstraint.js";
+import { TypeConstraintBaseType, TypeConstraintType } from "./type-constraint.js";
 
 export class AndConstraint extends TypeConstraint {
     constructor(types: TypeConstraintBaseType[]) {

@@ -1,5 +1,5 @@
 import { MemberInfo, Type } from "./index.js";
-import { ArgumentTypeException, InvalidOperationException } from "../Exceptions/index.js";
+import { ArgumentTypeException, InvalidOperationException } from "../exceptions/index.js";
 
 export class FieldInfoBase extends MemberInfo {
     constructor(memberType: number, name: string, declaringType: Type, isStatic: boolean = false) {

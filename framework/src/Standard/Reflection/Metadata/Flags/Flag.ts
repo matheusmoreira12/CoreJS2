@@ -1,4 +1,4 @@
-import { InvalidOperationException } from "../../../Exceptions/index.js";
+import { InvalidOperationException } from "../../../exceptions/index.js";
 
 export abstract class Flag {
     constructor() {

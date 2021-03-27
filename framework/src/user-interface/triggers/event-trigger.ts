@@ -1,10 +1,10 @@
-import { FrameworkEvent, FrameworkEventArgs } from "../../Standard/Events/index.js";
+import { FrameworkEvent, FrameworkEventArgs } from "../../standard/events/index.js";
 import { Trigger } from "./index.js";
-import { Dictionary, Collection } from "../../Standard/Collections/index.js";
-import { Action } from "../Actions/index.js";
-import { assertParams, assertEachParams, TypeValidationMode } from "../../Validation/index.js";
-import { DependencyProperty } from "../../Standard/DependencyObjects/index.js";
-import { Type } from "../../Standard/Reflection/index.js";
+import { Dictionary, Collection } from "../../standard/collections/index.js";
+import { Action } from "../actions/index.js";
+import { assertParams, assertEachParams, TypeValidationMode } from "../../validation/index.js";
+import { DependencyProperty } from "../../standard/dependency-objects/index.js";
+import { Type } from "../../standard/reflection/index.js";
 
 /**
  * EventTrigger class

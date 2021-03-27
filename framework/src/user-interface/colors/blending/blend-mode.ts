@@ -1,7 +1,7 @@
 //Documentation: https://www.w3.org/TR/compositing-1/
 
-import { Color } from "../Color.js";
-import { InvalidOperationException } from "../../../Standard/Exceptions/index.js";
+import { Color } from "../color.js";
+import { InvalidOperationException } from "../../../standard/exceptions/index.js";
 
 export abstract class BlendMode {
     constructor() {

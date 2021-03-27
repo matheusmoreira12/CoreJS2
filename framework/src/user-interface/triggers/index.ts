@@ -1,3 +1,3 @@
-export * from "./Trigger.js";
-export * from "./EventTrigger.js";
-export * from "./PropertyTrigger.js";
+export * from "./trigger.js";
+export * from "./event-trigger.js";
+export * from "./property-trigger.js";

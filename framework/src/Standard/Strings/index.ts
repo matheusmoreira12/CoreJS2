@@ -1,2 +1,2 @@
-export * from "./RegExpXContext.js";
-export * from "./StringReader.js";
+export * from "./reg-exp-xcontext.js";
+export * from "./string-reader.js";

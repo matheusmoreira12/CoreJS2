@@ -1,5 +1,5 @@
 import { Type, MemberType } from "./index.js";
-import { FieldInfoBase } from "./FieldInfoBase.js";
+import { FieldInfoBase } from "./field-info-base.js";
 
 export class PropertyInfo extends FieldInfoBase {
     constructor(name: string, declaringType: Type, isStatic: boolean = false) {

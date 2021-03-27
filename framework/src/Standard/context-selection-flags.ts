@@ -1,5 +1,5 @@
-﻿import { ArgumentTypeException } from "./Exceptions/index.js";
-import { RegExpXContext, RegExpX } from "./Strings/RegExpXContext.js";
+﻿import { ArgumentTypeException } from "./exceptions/index.js";
+import { RegExpXContext, RegExpX } from "./strings/reg-exp-xcontext.js";
 
 const REGEXPX_CONTEXT = new RegExpXContext();
 REGEXPX_CONTEXT.declareNamedPattern("member", "(\\w+(\\s+)?|\\*)+");

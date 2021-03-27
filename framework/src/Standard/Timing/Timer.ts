@@ -1,5 +1,5 @@
 ﻿import { Destructible } from "../index.js";
-import { FrameworkEvent, FrameworkEventArgs } from "../Events/index.js";
+import { FrameworkEvent, FrameworkEventArgs } from "../events/index.js";
 
 export class Timer extends Destructible {
     constructor(delayMillis = 100, isPeriodic = true) {

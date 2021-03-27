@@ -1,4 +1,4 @@
-import { ClassOf } from "../Standard/Reflection/Types.js";
+import { ClassOf } from "../standard/reflection/types.js";
 
 export type TypeDesignator = undefined | null | Function;
 

@@ -1,5 +1,5 @@
-import { FrameworkEventArgs } from "../../Standard/Events/index.js";
-import { assertParams } from "../../ValidationStandalone/index.js";
+import { FrameworkEventArgs } from "../../standard/events/index.js";
+import { assertParams } from "../../validation-standalone/index.js";
 import { Ajax } from "./index.js";
 
 export class AjaxEventArgs extends FrameworkEventArgs {

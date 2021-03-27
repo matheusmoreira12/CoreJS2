@@ -1,7 +1,7 @@
-import { Dictionary } from "./Dictionary.js";
-import { Enumeration } from "../Enumeration.js";
-import { FrameworkEvent } from "../Events/FrameworkEvent.js";
-import { FrameworkEventArgs } from "../Events/index.js";
+import { Dictionary } from "./dictionary.js";
+import { Enumeration } from "../enumeration.js";
+import { FrameworkEvent } from "../events/framework-event.js";
+import { FrameworkEventArgs } from "../events/index.js";
 
 export class ObservableDictionaryChangeArgs<TKey, TValue> extends FrameworkEventArgs {
     constructor(action: number, key: TKey, oldValue: TValue | null, newValue: TValue | null) {

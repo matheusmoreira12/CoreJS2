@@ -1,8 +1,8 @@
-import { FontWeight } from "./FontWeight.js";
-import { TextDecoration } from "./TextDecoration.js";
-import { FontStyle } from "./FontStyle.js";
-import { assertParams } from "../../Validation/index.js";
-import { Length, LengthUnit } from "../Coordinates/index.js";
+import { FontWeight } from "./font-weight.js";
+import { TextDecoration } from "./text-decoration.js";
+import { FontStyle } from "./font-style.js";
+import { assertParams } from "../../validation/index.js";
+import { Length, LengthUnit } from "../coordinates/index.js";
 
 export class Font {
     static get default(): Font { return DEFAULT_FONT; }

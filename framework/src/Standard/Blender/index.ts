@@ -1,1 +1,1 @@
-export * from "./Blender.js";
+export * from "./blender.js";

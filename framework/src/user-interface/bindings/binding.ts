@@ -1,7 +1,7 @@
 import { IBindingOptions, BindingDirection } from "./index.js";
-import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
-import { assertParams } from "../../Validation/index.js";
-import { DependencyObject, DependencyProperty } from "../../Standard/DependencyObjects/index.js";
+import { InvalidOperationException } from "../../standard/exceptions/index.js"
+import { assertParams } from "../../validation/index.js";
+import { DependencyObject, DependencyProperty } from "../../standard/dependency-objects/index.js";
 
 const DEFAULT_BINDING_OPTIONS: IBindingOptions = {
     direction: BindingDirection.Both

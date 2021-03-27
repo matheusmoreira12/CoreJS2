@@ -1,6 +1,6 @@
 import { FontStyle } from "../index.js";
-import { MapUtils } from "../../../CoreBase/Utils/index.js";
-import { IValueConverter } from "../../ValueConverters/index.js";
+import { MapUtils } from "../../../core-base/utils/index.js";
+import { IValueConverter } from "../../value-converters/index.js";
 
 const FONT_STYLE_SVG_ATTRIBUTE_MAP = new Map([
     [FontStyle.Normal, "normal"],

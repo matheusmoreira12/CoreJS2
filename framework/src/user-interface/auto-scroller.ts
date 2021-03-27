@@ -1,6 +1,6 @@
-﻿import { Enumeration } from "../Standard/index.js";
-import { ArgumentNullException, ArgumentTypeException } from "../Standard/Exceptions/index.js"
-import { FrameworkEvent } from "../Standard/Events/index.js";
+﻿import { Enumeration } from "../standard/index.js";
+import { ArgumentNullException, ArgumentTypeException } from "../standard/exceptions/index.js"
+import { FrameworkEvent } from "../standard/events/index.js";
 import { DOMUtils } from "./index.js";
 import { Timer } from "./index.js";
 

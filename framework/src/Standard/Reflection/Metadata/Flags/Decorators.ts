@@ -1,5 +1,5 @@
 import { Flag } from "./index.js";
-import { ArgumentTypeException, InvalidOperationException } from "../../../Exceptions/index.js";
+import { ArgumentTypeException, InvalidOperationException } from "../../../exceptions/index.js";
 
 const INVALID_ARG_CONTEXT_ERR_MSG = "Cannot declare attributes. Attributes can only be declared on a class or class field context.";
 

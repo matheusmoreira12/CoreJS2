@@ -1,6 +1,6 @@
-import { Font } from "../Font.js";
-import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
-import { FontWeightSVGAttributeConverter } from "./FontWeightSVGAttributeConverter.js";
+import { Font } from "../font.js";
+import { InvalidOperationException } from "../../../standard/exceptions/index.js"
+import { FontWeightSVGAttributeConverter } from "./font-weight-svg-attribute-converter.js";
 
 export class FontSVGFontWeightAttributeConverter {
     convert(value: Font | null): string | null {

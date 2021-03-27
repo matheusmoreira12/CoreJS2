@@ -1,5 +1,5 @@
 import { IValueConverter } from "./index.js";
-import { ContextSelectionFlags, Enumeration } from "../../Standard/index.js";
+import { ContextSelectionFlags, Enumeration } from "../../standard/index.js";
 
 export class BooleanAttributeValueConverter implements IValueConverter {
     convertBack(value: string | null): boolean | null {

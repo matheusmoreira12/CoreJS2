@@ -1,6 +1,6 @@
 import { TextDecoration } from "../index.js";
-import { MapUtils } from "../../../CoreBase/Utils/index.js";
-import { IValueConverter } from "../../ValueConverters/index.js";
+import { MapUtils } from "../../../core-base/utils/index.js";
+import { IValueConverter } from "../../value-converters/index.js";
 
 const TEXT_DECORATION_SVG_ATTRIBUTE_MAP = new Map([
     [TextDecoration.None, "none"],

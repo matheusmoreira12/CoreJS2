@@ -1,1 +1,1 @@
-export * from "./ResourceDictionary.js";
+export * from "./resource-dictionary.js";

@@ -1,7 +1,7 @@
-import { DependencyObject, DependencyProperty } from "../Standard/DependencyObjects/index.js";
-import { Type } from "../Standard/Reflection/Type.js";
-import { ResourceDictionary } from "../UserInterface/Resources/index.js";
-import { InvalidOperationException } from "../Standard/Exceptions/index.js";
+import { DependencyObject, DependencyProperty } from "../standard/dependency-objects/index.js";
+import { Type } from "../standard/reflection/type.js";
+import { ResourceDictionary } from "../user-interface/resources/index.js";
+import { InvalidOperationException } from "../standard/exceptions/index.js";
 
 const allApplications: Application[] = [];
 

@@ -1,10 +1,10 @@
 import { Destructible } from "../index.js";
-import { DependencyProperty } from "./DependencyProperty.js";
-import { FrameworkEvent } from "../Events/index.js";
-import { PropertyChangeEventArgs } from "./PropertyChangeEvent.js";
-import { assertParams } from "../../Validation/index.js";
+import { DependencyProperty } from "./dependency-property.js";
+import { FrameworkEvent } from "../events/index.js";
+import { PropertyChangeEventArgs } from "./property-change-event.js";
+import { assertParams } from "../../validation/index.js";
 
-import * as Storage from "./_Storage.js";
+import * as Storage from "./_storage.js";
 
 export abstract class DependencyObject extends Destructible {
     constructor() {

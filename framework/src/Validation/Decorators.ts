@@ -1,5 +1,5 @@
-import { Type } from "../Standard/Reflection/index.js";
-import { Interface } from "../Standard/Interfaces/index.js";
+import { Type } from "../standard/reflection/index.js";
+import { Interface } from "../standard/interfaces/index.js";
 
 type Class = new() => any;
 type TypeDesignator = null | undefined | Type | Interface | Class;

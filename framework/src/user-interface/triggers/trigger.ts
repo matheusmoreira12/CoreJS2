@@ -1,6 +1,6 @@
-import { Destructible } from "../../Standard/index.js";
-import { InvalidOperationException } from "../../Standard/Exceptions/index.js"
-import { DependencyObject } from "../../Standard/DependencyObjects/index.js";
+import { Destructible } from "../../standard/index.js";
+import { InvalidOperationException } from "../../standard/exceptions/index.js"
+import { DependencyObject } from "../../standard/dependency-objects/index.js";
 
 /**
  * Trigger base class

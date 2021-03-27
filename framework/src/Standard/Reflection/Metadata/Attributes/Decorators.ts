@@ -1,7 +1,7 @@
 import { Attribute } from "./index.js";
-import { ArgumentTypeException, InvalidOperationException } from "../../../Exceptions/index.js";
+import { ArgumentTypeException, InvalidOperationException } from "../../../exceptions/index.js";
 
-import * as _Registry from "./_Registry.js";
+import * as _Registry from "./_registry.js";
 
 const INVALID_ARG_CONTEXT_ERR_MSG = "Cannot declare attributes. Attributes can only be declared on a class or class field context.";
 

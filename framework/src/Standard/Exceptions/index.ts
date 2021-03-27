@@ -1,1 +1,1 @@
-export * from "./FrameworkException.js";
+export * from "./framework-exception.js";

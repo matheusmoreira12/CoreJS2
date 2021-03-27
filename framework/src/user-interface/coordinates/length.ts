@@ -1,7 +1,7 @@
-import { LengthUnit } from "./LengthUnit.js";
-import { assertParams } from "../../Validation/index.js";
-import { Orientation } from "./Orientation.js";
-import * as UnitConversion from "./UnitConversion.js";
+import { LengthUnit } from "./length-unit.js";
+import { assertParams } from "../../validation/index.js";
+import { Orientation } from "./orientation.js";
+import * as UnitConversion from "./unit-conversion.js";
 
 export class Length {
     static get zero() { return ZERO; }

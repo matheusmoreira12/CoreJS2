@@ -1,5 +1,5 @@
-﻿import { FieldInfo, MemberInfo, MemberSelectionOptions, MemberType, Type } from "../Reflection/index.js";
-import { InterfaceDifference, InterfaceImplementationAnalysis } from "./Analysis/index.js";
+﻿import { FieldInfo, MemberInfo, MemberSelectionOptions, MemberType, Type } from "../reflection/index.js";
+import { InterfaceDifference, InterfaceImplementationAnalysis } from "./analysis/index.js";
 import { InterfaceDifferenceKind, InterfaceField, InterfaceFunction, InterfaceMember, InterfaceProperty } from "./index.js";
 
 export class Interface {

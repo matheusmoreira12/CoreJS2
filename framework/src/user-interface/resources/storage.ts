@@ -1,5 +1,5 @@
-import { TryOutput } from "../../Standard/Reflection/Types.js";
-import { ResourceDictionary } from "./ResourceDictionary.js";
+import { TryOutput } from "../../standard/reflection/types.js";
+import { ResourceDictionary } from "./resource-dictionary.js";
 
 const allDictionaries: ResourceDictionary[] = [];
 

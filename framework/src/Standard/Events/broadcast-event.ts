@@ -1,6 +1,6 @@
 import { FrameworkEvent, FrameworkEventListener, FrameworkEventArgs } from "./index.js";
-import { ArgumentTypeException } from "../Exceptions/index.js"
-import { Collection } from "../Collections/index.js";
+import { ArgumentTypeException } from "../exceptions/index.js"
+import { Collection } from "../collections/index.js";
 
 /**
  * BroadcastFrameworkEvent Class

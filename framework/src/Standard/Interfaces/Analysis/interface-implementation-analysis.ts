@@ -1,4 +1,4 @@
-import { Type } from "../../Reflection/index.js";
+import { Type } from "../../reflection/index.js";
 import { Interface } from "../index.js";
 import { InterfaceDifference } from "./index.js";
 

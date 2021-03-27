@@ -1,6 +1,6 @@
-import { Type } from "../Standard/Reflection/Type.js";
-import { ClassOf } from "../Standard/Reflection/Types.js";
-import { Interface } from "../Standard/Interfaces/index.js";
+import { Type } from "../standard/reflection/type.js";
+import { ClassOf } from "../standard/reflection/types.js";
+import { Interface } from "../standard/interfaces/index.js";
 
 export type TypeDesignator = undefined | null | Type | Interface | ClassOf<object>;
 

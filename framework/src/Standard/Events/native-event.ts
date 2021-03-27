@@ -1,5 +1,5 @@
-import { FrameworkEvent, FrameworkEventListener } from "./FrameworkEvent.js";
-import { NativeEventArgs } from "./NativeEventArgs.js";
+import { FrameworkEvent, FrameworkEventListener } from "./framework-event.js";
+import { NativeEventArgs } from "./native-event-args.js";
 
 type NativeEventListener = FrameworkEventListener<NativeEventArgs>;
 

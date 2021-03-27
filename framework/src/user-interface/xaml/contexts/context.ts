@@ -1,6 +1,6 @@
-import { TreeItem } from "../../../Standard/Collections/index.js";
-import { assertParams, assertEachParams, TypeValidationMode } from "../../../Validation/index.js";
-import { InvalidOperationException } from "../../../Standard/Exceptions/index.js"
+import { TreeItem } from "../../../standard/collections/index.js";
+import { assertParams, assertEachParams, TypeValidationMode } from "../../../validation/index.js";
+import { InvalidOperationException } from "../../../standard/exceptions/index.js"
 
 //Keys for DataContext
 

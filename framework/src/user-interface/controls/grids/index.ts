@@ -1,5 +1,5 @@
-export * from "./ColumnDefinition.js";
-export * from "./RowDefinition.js";
+export * from "./column-definition.js";
+export * from "./row-definition.js";
 
-import * as ValueConverters from "./ValueConverters/index.js";
+import * as ValueConverters from "./value-converters/index.js";
 export { ValueConverters };

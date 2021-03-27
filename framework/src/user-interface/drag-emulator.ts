@@ -1,5 +1,5 @@
-﻿import { ArgumentTypeException } from "../Standard/Exceptions/index.js";
-import { FrameworkEvent } from "../Standard/Events/index.js";
+﻿import { ArgumentTypeException } from "../standard/exceptions/index.js";
+import { FrameworkEvent } from "../standard/events/index.js";
 import { DragDropHandler } from "./index.js";
 
 export default class DragEmulator {

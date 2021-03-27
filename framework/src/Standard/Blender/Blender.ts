@@ -1,9 +1,9 @@
-import { ClassOf } from "../Reflection/Types.js";
-import { ExecutePredicate } from "./Types.js";
-import { Storage } from "./Storage.js";
-import { InvalidOperationException } from "../Exceptions/index.js";
-import { TryOutput } from "../Reflection/Types.js";
-import { BlendedInstanceInfo } from "./BlendedInstanceInfo.js";
+import { ClassOf } from "../reflection/types.js";
+import { ExecutePredicate } from "./types.js";
+import { Storage } from "./storage.js";
+import { InvalidOperationException } from "../exceptions/index.js";
+import { TryOutput } from "../reflection/types.js";
+import { BlendedInstanceInfo } from "./blended-instance-info.js";
 
 export namespace Blender {
     export function tryBlend<TTarget, TBlend>(blendClass: ClassOf<TBlend>, targetObj: TTarget): boolean {

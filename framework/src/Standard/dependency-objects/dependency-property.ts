@@ -1,9 +1,9 @@
-import { IPropertyMetadata } from "./IPropertyMetadata.js";
-import { assertParams } from "../../Validation/index.js";
+import { IPropertyMetadata } from "./i-property-metadata.js";
+import { assertParams } from "../../validation/index.js";
 
-import * as Registry from "./_Registry.js";
-import { ClassOf } from "../Reflection/Types.js";
-import { InvalidOperationException } from "../Exceptions/index.js";
+import * as Registry from "./_registry.js";
+import { ClassOf } from "../reflection/types.js";
+import { InvalidOperationException } from "../exceptions/index.js";
 
 const DEFAULT_PROPERTY_METADATA: IPropertyMetadata = {
     defaultValue: null

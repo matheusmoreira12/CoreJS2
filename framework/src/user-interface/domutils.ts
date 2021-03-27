@@ -1,5 +1,5 @@
-import { ArgumentTypeException } from "../Standard/Exceptions/index.js"
-import { DeferredTask } from "../Standard/Timing/index.js";
+import { ArgumentTypeException } from "../standard/exceptions/index.js"
+import { DeferredTask } from "../standard/timing/index.js";
 
 export function insertElementAt(parent: Element, position: number, child: Element) {
     if (parent.children.length === 0 || position >= parent.children.length - 1)

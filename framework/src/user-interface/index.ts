@@ -1,55 +1,55 @@
-export * from "./Animations.js";
-export * from "./AutoScroller.js";
-export * from "./DragDropHandler.js";
-export * from "./DragEmulator.js";
-export * from "../Standard/Timing/Timer.js";
-export * from "./Animations.js";
-export * from "./AutoScroller.js";
-export * from "./DragDropHandler.js";
-export * from "./DragEmulator.js";
-export * from "../Standard/Timing/Timer.js";
+export * from "./animations.js";
+export * from "./auto-scroller.js";
+export * from "./drag-drop-handler.js";
+export * from "./drag-emulator.js";
+export * from "../standard/timing/timer.js";
+export * from "./animations.js";
+export * from "./auto-scroller.js";
+export * from "./drag-drop-handler.js";
+export * from "./drag-emulator.js";
+export * from "../standard/timing/timer.js";
 
-import * as DOMUtils from "./DOMUtils.js";
+import * as DOMUtils from "./domutils.js";
 export { DOMUtils };
 
-import * as DataContexts from "./Xaml/Contexts/index.js";
+import * as DataContexts from "./xaml/contexts/index.js";
 export { DataContexts };
 
-import * as Actions from "./Actions/index.js";
+import * as Actions from "./actions/index.js";
 export { Actions }
 
-import * as Bindings from "./Bindings/index.js";
+import * as Bindings from "./bindings/index.js";
 export { Bindings }
 
-import * as Colors from "./Colors/index.js";
+import * as Colors from "./colors/index.js";
 export { Colors }
 
-import * as DependencyObjects from "../Standard/DependencyObjects/index.js";
+import * as DependencyObjects from "../standard/dependency-objects/index.js";
 export { DependencyObjects }
 
-import * as Setters from "./Setters/index.js";
+import * as Setters from "./setters/index.js";
 export { Setters }
 
-import * as Triggers from "./Triggers/index.js";
+import * as Triggers from "./triggers/index.js";
 export { Triggers }
 
-import * as Validation from "./Validation/index.js";
+import * as Validation from "./validation/index.js";
 export { Validation }
 
-import * as ValueConverters from "./ValueConverters/index.js";
+import * as ValueConverters from "./value-converters/index.js";
 export { ValueConverters }
 
-import * as Fonts from "./Fonts/index.js";
+import * as Fonts from "./fonts/index.js";
 export { Fonts };
 
-import * as Resources from "./Resources/index.js";
+import * as Resources from "./resources/index.js";
 export { Resources };
 
-import * as Controls from "./Controls/index.js";
+import * as Controls from "./controls/index.js";
 export { Controls };
 
-import * as Coordinates from "./Coordinates/index.js";
+import * as Coordinates from "./coordinates/index.js";
 export { Coordinates };
 
-import * as Xaml from "./Xaml/index.js";
+import * as Xaml from "./xaml/index.js";
 export { Xaml };

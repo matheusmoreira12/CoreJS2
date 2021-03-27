@@ -1,6 +1,6 @@
-import { DependencyProperty } from "../../../Standard/DependencyObjects/index.js";
-import { Type } from "../../../Standard/Reflection/Type.js";
-import { Template } from "./Template.js";
+import { DependencyProperty } from "../../../standard/dependency-objects/index.js";
+import { Type } from "../../../standard/reflection/type.js";
+import { Template } from "./template.js";
 
 export abstract class DataTemplate extends Template {
     static dataClassProperty = DependencyProperty.registerAttached(DataTemplate, "dataClass", { valueType: Type.get(Function) });

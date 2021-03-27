@@ -1,8 +1,8 @@
-import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../../Standard/DependencyObjects/index.js";
-import { Control } from "../Control.js";
-import { StringUtils } from "../../../CoreBase/Utils/index.js";
+import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../../standard/dependency-objects/index.js";
+import { Control } from "../control.js";
+import { StringUtils } from "../../../core-base/utils/index.js";
 
-import * as Registry from "../_Registry.js";
+import * as Registry from "../_registry.js";
 
 export class ControlStyle extends DependencyObject {
     constructor(targetControl: Control) {

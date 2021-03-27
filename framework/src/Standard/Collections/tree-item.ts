@@ -1,4 +1,4 @@
-import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "./ObservableCollection.js";
+import { ObservableCollection, ObservableCollectionChangeArgs, ObservableCollectionChangeAction } from "./observable-collection.js";
 import { Enumeration } from "../index.js";
 
 export class TreeItem<T extends TreeItem<T>> {

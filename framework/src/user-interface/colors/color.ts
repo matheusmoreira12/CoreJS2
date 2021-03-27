@@ -1,12 +1,12 @@
 ﻿import { ColorConversion } from "./index.js";
-import { ArgumentOutOfRangeException, InvalidOperationException } from "../../Standard/Exceptions/index.js";
+import { ArgumentOutOfRangeException, InvalidOperationException } from "../../standard/exceptions/index.js";
 import { ColorRGBA } from "./index.js";
 import { ColorRGB } from "./index.js";
 import { ColorHSL } from "./index.js";
 import { ColorHSLA } from "./index.js";
 
 import { Blending } from "./index.js";
-import { TryOutput } from "../../Standard/Reflection/Types.js";
+import { TryOutput } from "../../standard/reflection/types.js";
 
 export abstract class Color extends Number {
     static fromRGBAHex(value: number): ColorRGBA {

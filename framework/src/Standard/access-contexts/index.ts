@@ -1,2 +1,2 @@
-export * from "./AccessContext.js";
-export * from "./AccessContexts.js";
+export * from "./access-context.js";
+export * from "./access-contexts.js";

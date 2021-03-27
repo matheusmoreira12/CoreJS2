@@ -1,5 +1,5 @@
 import { Attribute } from "./index.js";
-import { ClassOf } from "../../Types.js";
+import { ClassOf } from "../../types.js";
 
 type RegistryEntry = {
     ctor: ClassOf<any>;

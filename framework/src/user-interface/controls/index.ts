@@ -1,18 +1,18 @@
-export * from "./Control.js";
+export * from "./control.js";
 
-export * from "./AutosizeMode.js";
+export * from "./autosize-mode.js";
 
-import * as Styling from "./Styling/index.js";
+import * as Styling from "./styling/index.js";
 export { Styling };
 
-import * as Templating from "./Templating/index.js";
+import * as Templating from "./templating/index.js";
 export { Templating };
 
-import * as Shapes from "./Shapes/index.js";
+import * as Shapes from "./shapes/index.js";
 export { Shapes };
 
-import * as Base from "./Base/index.js";
+import * as Base from "./base/index.js";
 export { Base };
 
-import * as Grids from "./Grids/index.js";
+import * as Grids from "./grids/index.js";
 export { Grids };
