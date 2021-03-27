@@ -1,4 +1,3 @@
-export * from "./color-channel.js";
 export * from "./color.js";
 export * from "./color-hsl.js";
 export * from "./color-hsla.js";

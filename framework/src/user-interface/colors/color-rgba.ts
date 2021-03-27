@@ -1,26 +1,20 @@
 ﻿import { ArgumentOutOfRangeException } from "../../standard/exceptions/framework-exception.js";
 import { TryOutput } from "../../standard/reflection/types.js";
 import { assertParams } from "../../validation-standalone/validation-standalone.js";
-import { ColorChannel } from "./color-channel.js";
 import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
 
 export class ColorRGBA extends Color {
-    constructor(r: ColorChannel, g: ColorChannel, b: ColorChannel, a: ColorChannel);
-    constructor(r: number, g: number, b: number, a: number);
-    constructor(r: ColorChannel | number, g: ColorChannel | number, b: ColorChannel | number, a: ColorChannel | number) {
-        assertParams({ r }, [ColorChannel, Number]);
-        assertParams({ g }, [ColorChannel, Number]);
-        assertParams({ b }, [ColorChannel, Number]);
-        assertParams({ a }, [ColorChannel, Number]);
+    constructor(r: number, g: number, b: number, a: number) {
+        assertParams({ r, g, b, a }, [Number]);
 
         const value = ColorConversion.convertFromRGBA(Number(r), Number(g), Number(b), Number(a));
         super(value);
 
-        this.__r = ColorChannel.coerceValue(r);
-        this.__g = ColorChannel.coerceValue(g);
-        this.__b = ColorChannel.coerceValue(b);
-        this.__a = ColorChannel.coerceValue(a);
+        this.__r = r;
+        this.__g = g;
+        this.__b = b;
+        this.__a = a;
     }
 
     static tryParse(value: string, output: TryOutput<ColorRGBA> = {}): boolean {
@@ -35,19 +29,8 @@ export class ColorRGBA extends Color {
                     blueStr = channelStrs[2].trim(),
                     alphaStr = channelStrs[3].trim();
 
-                const tryParseRedOutput: TryOutput<ColorChannel> = {},
-                    tryParseGreenOutput: TryOutput<ColorChannel> = {},
-                    tryParseBlueOutput: TryOutput<ColorChannel> = {},
-                    tryParseAlphaOutput: TryOutput<ColorChannel> = {};
-
-                if (ColorChannel.tryParse(redStr, tryParseRedOutput) && // Parse red channel
-                    ColorChannel.tryParse(greenStr, tryParseGreenOutput) && // Parse green channel
-                    ColorChannel.tryParse(blueStr, tryParseBlueOutput) && // Parse blue channel
-                    ColorChannel.tryParse(alphaStr, tryParseAlphaOutput)) { // Parse opacity channel
-
-                    output.result = new ColorRGBA(tryParseRedOutput.result!, tryParseGreenOutput.result!, tryParseBlueOutput.result!, tryParseAlphaOutput.result!);
-                    return true;
-                }
+                output.result = new ColorRGBA(Number(redStr), Number(greenStr), Number(blueStr), Number(alphaStr));
+                return true;
             }
         }
         return false;
@@ -65,15 +48,15 @@ export class ColorRGBA extends Color {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 
-    public get r(): ColorChannel { return this.__r; }
-    private __r: ColorChannel;
+    public get r(): number { return this.__r; }
+    private __r: number;
 
-    public get g(): ColorChannel { return this.__g; }
-    private __g: ColorChannel;
+    public get g(): number { return this.__g; }
+    private __g: number;
 
-    public get b(): ColorChannel { return this.__b; }
-    private __b: ColorChannel;
+    public get b(): number { return this.__b; }
+    private __b: number;
 
-    public get a(): ColorChannel { return this.__a; }
-    private __a: ColorChannel;
+    public get a(): number { return this.__a; }
+    private __a: number;
 }

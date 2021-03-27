@@ -2,7 +2,7 @@
 import { ArgumentNullException, ArgumentTypeException } from "../standard/exceptions/index.js"
 import { FrameworkEvent } from "../standard/events/index.js";
 import { DOMUtils } from "./index.js";
-import { Timer } from "./index.js";
+import { Timer } from "../standard/timing/index.js";
 
 export const AutoScrollerOrientation = Enumeration.create({
     Horizontal: null,
