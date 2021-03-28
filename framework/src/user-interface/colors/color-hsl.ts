@@ -13,7 +13,7 @@ export class ColorHSL extends Color {
         if (value.startsWith("hsl(") && value.endsWith(")")) {
             const channelsStr = value.slice(4, -1); // Remove name and braces
             const channelStrs = channelsStr.split(","); //Split into the individual channels
-            if (channelStrs.length == 4) {
+            if (channelStrs.length == 3) {
                 const hueStr = channelStrs[0].trim(),
                     saturationStr = channelStrs[1].trim(),
                     luminosityStr = channelStrs[2].trim();

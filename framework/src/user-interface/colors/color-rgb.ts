@@ -13,7 +13,7 @@ export class ColorRGB extends Color {
         if (value.startsWith("rgb(") && value.endsWith(")")) {
             const channelsStr = value.slice(4, -1); // Remove name and braces
             const channelStrs = channelsStr.split(","); //Split into the individual channels
-            if (channelStrs.length == 4) {
+            if (channelStrs.length == 3) {
                 const redStr = channelStrs[0].trim(),
                     greenStr = channelStrs[1].trim(),
                     blueStr = channelStrs[2].trim();

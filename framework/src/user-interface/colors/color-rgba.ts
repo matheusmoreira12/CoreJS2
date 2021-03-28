@@ -1,7 +1,7 @@
 ﻿import { ArgumentOutOfRangeException } from "../../standard/exceptions/framework-exception.js";
 import { MathX } from "../../standard/index.js";
 import { TryOutput } from "../../standard/reflection/types.js";
-import { assertParams } from "../../validation-standalone/validation-standalone.js";
+import { assertParams } from "../../validation/index.js";
 import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
 import { _Parsing } from "./_parsing.js";
@@ -25,8 +25,8 @@ export class ColorRGBA extends Color {
                     tryParseAlphaOutput: TryOutput<number> = {};
                 if (_Parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
                     _Parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
-                    _Parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse blue
-                    _Parsing.tryParsePercentage(blueStr, tryParseAlphaOutput) || _Parsing.tryParseNumber(alphaStr, tryParseAlphaOutput)) { // Parse alpha
+                    _Parsing.tryParseNumber(blueStr, tryParseBlueOutput) && // Parse blue
+                    _Parsing.tryParsePercentage(alphaStr, tryParseAlphaOutput) || _Parsing.tryParseNumber(alphaStr, tryParseAlphaOutput)) { // Parse alpha
                     output.result = new ColorRGBA(tryParseRedOutput.result!, tryParseGreenOutput.result!, tryParseBlueOutput.result!, tryParseAlphaOutput.result!);
                     return true;
                 }
