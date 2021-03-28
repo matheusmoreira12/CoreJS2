@@ -26,7 +26,7 @@ export class ColorRGBA extends Color {
                 if (_parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
                     _parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
                     _parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse blue
-                    _parsing.tryParseNumber(blueStr, tryParseAlphaOutput)) { // Parse alpha
+                    _parsing.tryParsePercentage(blueStr, tryParseAlphaOutput) || _parsing.tryParseNumber(alphaStr, tryParseAlphaOutput)) { // Parse alpha
                     output.result = new ColorRGBA(tryParseRedOutput.result!, tryParseGreenOutput.result!, tryParseBlueOutput.result!, tryParseAlphaOutput.result!);
                     return true;
                 }

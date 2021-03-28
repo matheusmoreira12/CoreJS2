@@ -15,7 +15,7 @@ export const _parsing = {
         if (value.endsWith("%"))
         {
             value = value.slice(0, -1);
-            output.result = Number(value);
+            output.result = Number(value) / 100;
             return true;
         }
         return false;

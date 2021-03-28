@@ -45,9 +45,9 @@ export class ColorHSL extends Color {
         const value = ColorConversion.convertFromRGBA(rgb.r, rgb.g, rgb.b, 1);
         super(value);
 
-        this.__h = MathX.limitToBounds(h, 0, 1);
-        this.__s = MathX.limitToBounds(h, 0, 1);
-        this.__l = MathX.limitToBounds(h, 0, 1);
+        this.__h = h % 360;
+        this.__s = MathX.limitToBounds(s, 0, 1);
+        this.__l = MathX.limitToBounds(l, 0, 1);
     }
 
     toString() {

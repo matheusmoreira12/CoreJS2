@@ -26,7 +26,7 @@ export class ColorHSLA extends Color {
                 if (_parsing.tryParseHue(hueStr, tryParseHueOutput) && //Parse hue
                     _parsing.tryParsePercentage(saturationStr, tryParseSaturationOutput) && //Parse saturation
                     _parsing.tryParsePercentage(luminosityStr, tryParseLuminosityOutput) && //Parse luminosity
-                    (_parsing.tryParsePercentage(alphaStr, tryParseLuminosityOutput) || _parsing.tryParseNumber(alphaStr, tryParseAlphaOutput))) { //Parse alpha
+                    (_parsing.tryParsePercentage(alphaStr, tryParseAlphaOutput) || _parsing.tryParseNumber(alphaStr, tryParseAlphaOutput))) { //Parse alpha
                     output.result = new ColorHSLA(tryParseHueOutput.result!, tryParseSaturationOutput.result!, tryParseLuminosityOutput.result!, tryParseAlphaOutput.result!);
                     return true;
                 }
@@ -48,14 +48,14 @@ export class ColorHSLA extends Color {
         const value = ColorConversion.convertFromRGBA(rgb.r, rgb.g, rgb.b, a);
         super(value);
 
-        this.__h = MathX.limitToBounds(h, 0, 1);
+        this.__h = h % 360;
         this.__s = MathX.limitToBounds(s, 0, 1);
         this.__l = MathX.limitToBounds(l, 0, 1);
         this.__a = MathX.limitToBounds(a, 0, 1);
     }
 
     toString() {
-        return `hsla(${this.h}deg, ${this.s}, ${this.l}, ${this.a})`;
+        return `hsla(${this.h}deg, ${this.s * 100}%, ${this.l * 100}%, ${this.a})`;
     }
 
     get h(): number { return this.__h; }
