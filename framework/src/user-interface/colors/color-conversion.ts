@@ -1,4 +1,4 @@
-import MathX from "../../standard/math-x.js";
+import { MathX } from "../../standard/math-x.js";
 
 const ColorConversion = {
     convertToRGBA(value: number): { r: number, g: number, b: number, a: number } {

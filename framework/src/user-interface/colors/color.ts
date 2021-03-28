@@ -40,7 +40,7 @@ export abstract class Color extends Number {
         return ColorRGB.tryParse(value, <any>output) || // Try parsing RGB color
             ColorRGBA.tryParse(value, <any>output) || // Try parsing RGBA color 
             ColorHSL.tryParse(value, <any>output) || // Try parsing HSL color
-            ColorRGB.tryParse(value, <any>output);  // Try parsing HSLA color
+            ColorHSLA.tryParse(value, <any>output);  // Try parsing HSLA color
     }
 
     static parse(value: string) {

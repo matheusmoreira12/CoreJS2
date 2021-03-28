@@ -1,4 +1,4 @@
-const MathX = {
+export const MathX = {
     orderMag(value: number): number {
         const exponent = Math.log10(value),
             order = Math.trunc(exponent);
@@ -38,4 +38,3 @@ const MathX = {
         return nearestToHalf[0];
     }
 };
-export default MathX;

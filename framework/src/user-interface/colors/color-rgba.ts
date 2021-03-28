@@ -1,27 +1,17 @@
 ﻿import { ArgumentOutOfRangeException } from "../../standard/exceptions/framework-exception.js";
+import { MathX } from "../../standard/index.js";
 import { TryOutput } from "../../standard/reflection/types.js";
 import { assertParams } from "../../validation-standalone/validation-standalone.js";
 import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
+import { _parsing } from "./_parsing.js";
 
 export class ColorRGBA extends Color {
-    constructor(r: number, g: number, b: number, a: number) {
-        assertParams({ r, g, b, a }, [Number]);
-
-        const value = ColorConversion.convertFromRGBA(Number(r), Number(g), Number(b), Number(a));
-        super(value);
-
-        this.__r = r;
-        this.__g = g;
-        this.__b = b;
-        this.__a = a;
-    }
-
     static tryParse(value: string, output: TryOutput<ColorRGBA> = {}): boolean {
         assertParams({ value }, [String]);
 
-        if (value.startsWith("rgb(") && value.endsWith(")")) {
-            const channelsStr = value.slice(4, -1); // Remove name and braces
+        if (value.startsWith("rgba(") && value.endsWith(")")) {
+            const channelsStr = value.slice(5, -1); // Remove name and braces
             const channelStrs = channelsStr.split(","); //Split into the individual channels
             if (channelStrs.length == 4) {
                 const redStr = channelStrs[0].trim(),
@@ -29,8 +19,17 @@ export class ColorRGBA extends Color {
                     blueStr = channelStrs[2].trim(),
                     alphaStr = channelStrs[3].trim();
 
-                output.result = new ColorRGBA(Number(redStr), Number(greenStr), Number(blueStr), Number(alphaStr));
-                return true;
+                const tryParseRedOutput: TryOutput<number> = {},
+                    tryParseGreenOutput: TryOutput<number> = {},
+                    tryParseBlueOutput: TryOutput<number> = {},
+                    tryParseAlphaOutput: TryOutput<number> = {};
+                if (_parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
+                    _parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
+                    _parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse blue
+                    _parsing.tryParseNumber(blueStr, tryParseAlphaOutput)) { // Parse alpha
+                    output.result = new ColorRGBA(tryParseRedOutput.result!, tryParseGreenOutput.result!, tryParseBlueOutput.result!, tryParseAlphaOutput.result!);
+                    return true;
+                }
             }
         }
         return false;
@@ -42,6 +41,18 @@ export class ColorRGBA extends Color {
             return tryParseOutput.result!;
 
         throw new ArgumentOutOfRangeException("value");
+    }
+
+    constructor(r: number, g: number, b: number, a: number) {
+        assertParams({ r, g, b, a }, [Number]);
+
+        const value = ColorConversion.convertFromRGBA(Number(r), Number(g), Number(b), Number(a));
+        super(value);
+
+        this.__r = MathX.limitToBounds(Math.round(r), 0, 255);
+        this.__g = MathX.limitToBounds(Math.round(g), 0, 255);
+        this.__b = MathX.limitToBounds(Math.round(b), 0, 255);
+        this.__a = MathX.limitToBounds(a, 0, 1);
     }
 
     toString() {
