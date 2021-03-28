@@ -2,8 +2,8 @@
 import { MathX } from "../../standard/index.js";
 import { TryOutput } from "../../standard/reflection/types.js";
 import { assertParams } from "../../validation/index.js";
-import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
+import _ColorConversion from "./_color-conversion.js";
 import { _Parsing } from "./_parsing.js";
 
 export class ColorRGBA extends Color {
@@ -46,7 +46,7 @@ export class ColorRGBA extends Color {
     constructor(r: number, g: number, b: number, a: number) {
         assertParams({ r, g, b, a }, [Number]);
 
-        const value = ColorConversion.convertFromRGBA(r, g, b, a);
+        const value = _ColorConversion.convertFromRGBA(r, g, b, a);
         super(value);
 
         this.__r = MathX.limitToBounds(Math.round(r), 0, 255);

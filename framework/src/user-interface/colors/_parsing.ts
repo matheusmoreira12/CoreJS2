@@ -25,7 +25,7 @@ export const _Parsing = {
 
     tryParseNumber(value: string, output: TryOutput<number> = {}): boolean {
         const valueNbr = Number(value);
-        if (valueNbr !== NaN) {
+        if (!isNaN(valueNbr)) {
             output.result = valueNbr;
             return true;
         }

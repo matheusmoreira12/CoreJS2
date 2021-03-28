@@ -3,7 +3,7 @@ import { MathX } from "../../standard/index.js";
 import { TryOutput } from "../../standard/reflection/index.js";
 import { assertParams } from "../../validation/index.js";
 import { Color } from "./index.js";
-import { ColorConversion } from "./index.js";
+import _ColorConversion from "./_color-conversion.js";
 import { _Parsing } from "./_parsing.js";
 
 export class ColorHSL extends Color {
@@ -41,8 +41,8 @@ export class ColorHSL extends Color {
     }
 
     constructor(h: number, s: number, l: number) {
-        const rgb = ColorConversion.convertHSLtoRGB(h, s, l);
-        const value = ColorConversion.convertFromRGBA(rgb.r, rgb.g, rgb.b, 1);
+        const rgb = _ColorConversion.convertHSLtoRGB(h, s, l);
+        const value = _ColorConversion.convertFromRGBA(rgb.r, rgb.g, rgb.b, 1);
         super(value);
 
         this.__h = h % 360;

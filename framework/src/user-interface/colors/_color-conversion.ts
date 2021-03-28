@@ -1,4 +1,4 @@
-const ColorConversion = {
+const _ColorConversion = {
     convertToRGBA(value: number): { r: number, g: number, b: number, a: number } {
         const byteR = (value >>> 24) & 0xFF,
             byteG = (value >>> 16) & 0xFF,
@@ -94,4 +94,4 @@ const ColorConversion = {
         return { r,  g, b };
     }
 };
-export default ColorConversion;
+export default _ColorConversion;
