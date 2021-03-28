@@ -4,7 +4,7 @@ import { TryOutput } from "../../standard/reflection/index.js";
 import { assertParams } from "../../validation/index.js";
 import { Color } from "./index.js";
 import { ColorConversion } from "./index.js";
-import { _parsing } from "./_parsing.js";
+import { _Parsing } from "./_parsing.js";
 
 export class ColorHSLA extends Color {
     static tryParse(value: string, output: TryOutput<ColorHSLA> = {}): boolean {
@@ -23,10 +23,10 @@ export class ColorHSLA extends Color {
                     tryParseSaturationOutput: TryOutput<number> = {},
                     tryParseLuminosityOutput: TryOutput<number> = {},
                     tryParseAlphaOutput: TryOutput<number> = {};
-                if (_parsing.tryParseHue(hueStr, tryParseHueOutput) && //Parse hue
-                    _parsing.tryParsePercentage(saturationStr, tryParseSaturationOutput) && //Parse saturation
-                    _parsing.tryParsePercentage(luminosityStr, tryParseLuminosityOutput) && //Parse luminosity
-                    (_parsing.tryParsePercentage(alphaStr, tryParseAlphaOutput) || _parsing.tryParseNumber(alphaStr, tryParseAlphaOutput))) { //Parse alpha
+                if (_Parsing.tryParseHue(hueStr, tryParseHueOutput) && //Parse hue
+                    _Parsing.tryParsePercentage(saturationStr, tryParseSaturationOutput) && //Parse saturation
+                    _Parsing.tryParsePercentage(luminosityStr, tryParseLuminosityOutput) && //Parse luminosity
+                    (_Parsing.tryParsePercentage(alphaStr, tryParseAlphaOutput) || _Parsing.tryParseNumber(alphaStr, tryParseAlphaOutput))) { //Parse alpha
                     output.result = new ColorHSLA(tryParseHueOutput.result!, tryParseSaturationOutput.result!, tryParseLuminosityOutput.result!, tryParseAlphaOutput.result!);
                     return true;
                 }

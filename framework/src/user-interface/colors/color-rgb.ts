@@ -1,9 +1,10 @@
 ﻿import { ArgumentOutOfRangeException } from "../../standard/exceptions/index.js";
+import { MathX } from "../../standard/math-x.js";
 import { TryOutput } from "../../standard/reflection/index.js";
 import { assertParams } from "../../validation/index.js";
 import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
-import { _parsing } from "./_parsing.js";
+import { _Parsing } from "./_parsing.js";
 
 export class ColorRGB extends Color {
     static tryParse(value: string, output: TryOutput<ColorRGB> = {}): boolean {
@@ -20,9 +21,9 @@ export class ColorRGB extends Color {
                 const tryParseRedOutput: TryOutput<number> = {},
                     tryParseGreenOutput: TryOutput<number> = {},
                     tryParseBlueOutput: TryOutput<number> = {};
-                if (_parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
-                    _parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
-                    _parsing.tryParseNumber(blueStr, tryParseBlueOutput)) { // Parse blue
+                if (_Parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
+                    _Parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
+                    _Parsing.tryParseNumber(blueStr, tryParseBlueOutput)) { // Parse blue
                     output.result = new ColorRGB(tryParseRedOutput.result!, tryParseGreenOutput.result!, tryParseBlueOutput.result!);
                     return true;
                 }
@@ -42,13 +43,13 @@ export class ColorRGB extends Color {
     constructor(r: number, g: number, b: number) {
         const value = ColorConversion.convertFromRGBA(r, g, b, 1);
         super(value);
-        this.__r = r;
-        this.__g = g;
-        this.__b = b;
+        this.__r = MathX.limitToBounds(Math.round(r), 0, 255);
+        this.__g = MathX.limitToBounds(Math.round(g), 0, 255);
+        this.__b = MathX.limitToBounds(Math.round(b), 0, 255);
     }
 
     toString() {
-        return `rgb(${this.r * 100}%, ${this.g * 100}%, ${this.b * 100}%)`;
+        return `rgb(${this.r}, ${this.g}, ${this.b})`;
     }
 
     public get r(): number { return this.__r; }

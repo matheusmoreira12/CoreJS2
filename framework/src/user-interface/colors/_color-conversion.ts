@@ -1,5 +1,3 @@
-import { MathX } from "../../standard/math-x.js";
-
 const ColorConversion = {
     convertToRGBA(value: number): { r: number, g: number, b: number, a: number } {
         const byteR = (value >>> 24) & 0xFF,
@@ -8,10 +6,10 @@ const ColorConversion = {
             byteA = value & 0xFF;
 
         return {
-            r: byteR / 255,
-            g: byteG / 255,
-            b: byteB / 255,
-            a: byteA / 255
+            r: byteR,
+            g: byteG,
+            b: byteB,
+            a: byteA
         };
     },
 
@@ -21,15 +19,10 @@ const ColorConversion = {
     },
 
     convertFromRGBA(r: number, g: number, b: number, a: number): number {
-        r = MathX.limitToBounds(r, 0, 1);
-        g = MathX.limitToBounds(g, 0, 1);
-        b = MathX.limitToBounds(b, 0, 1);
-        a = MathX.limitToBounds(a, 0, 1);
-
-        const byteR = Math.round(r * 255),
-            byteG = Math.round(g * 255),
-            byteB = Math.round(b * 255),
-            byteA = Math.round(a * 255);
+        const byteR = Math.round(r),
+            byteG = Math.round(g),
+            byteB = Math.round(b),
+            byteA = Math.round(a);
 
         return Number(BigInt(byteR) << 24n | BigInt(byteG) << 16n | BigInt(byteB) << 8n | BigInt(byteA));
     },
@@ -41,12 +34,12 @@ const ColorConversion = {
     convertRGBtoHSL(r: number, g: number, b: number): { h: number, s: number, l: number } {
         function getHue(): number {
             if (d != 0) {
-                if (cmax == r)
-                    return 60 * (((g - b) / d) % 6);
-                if (cmax == g)
-                    return 60 * ((b - r) / d + 2);
-                if (cmax == b)
-                    return 60 * ((r - g) / d + 4);
+                if (cmax == _r)
+                    return 60 * (((_g - _b) / d) % 6);
+                if (cmax == _g)
+                    return 60 * ((_b - _r) / d + 2);
+                if (cmax == _b)
+                    return 60 * ((_r - _g) / d + 4);
             }
             return 0;
         }
@@ -58,8 +51,12 @@ const ColorConversion = {
             return 0;
         }
 
-        const cmax = Math.max(r, g, b),
-            cmin = Math.min(r, g, b),
+        const _r = r / 255,
+            _g = g / 255,
+            _b = b / 255;
+
+        const cmax = Math.max(_r, _g, _b),
+            cmin = Math.min(_r, _g, _b),
             d = cmax - cmin,
             h = getHue(),
             l = (cmax + cmin) / 2,
@@ -89,8 +86,12 @@ const ColorConversion = {
             m = l - c / 2;
 
         const [_r, _g, _b] = getRGB();
+        
+        const r = (_r + m) * 255,
+            g = (_g + m) * 255,
+            b = (_b + m) * 255;
 
-        return { r: (_r + m), g: (_g + m), b: (_b + m) };
+        return { r,  g, b };
     }
 };
 export default ColorConversion;

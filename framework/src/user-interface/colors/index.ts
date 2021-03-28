@@ -4,7 +4,7 @@ export * from "./color-hsla.js";
 export * from "./color-rgb.js";
 export * from "./color-rgba.js";
 
-import ColorConversion from "./color-conversion.js";
+import ColorConversion from "./_color-conversion.js";
 export { ColorConversion };
 
 import WebColors from "./web-colors.js";

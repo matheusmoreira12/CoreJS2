@@ -4,7 +4,7 @@ import { TryOutput } from "../../standard/reflection/index.js";
 import { assertParams } from "../../validation/index.js";
 import { Color } from "./index.js";
 import { ColorConversion } from "./index.js";
-import { _parsing } from "./_parsing.js";
+import { _Parsing } from "./_parsing.js";
 
 export class ColorHSL extends Color {
     static tryParse(value: string, output: TryOutput<ColorHSL> = {}): boolean {
@@ -21,9 +21,9 @@ export class ColorHSL extends Color {
                 const tryParseHueOutput: TryOutput<number> = {},
                     tryParseSaturationOutput: TryOutput<number> = {},
                     tryParseLuminosityOutput: TryOutput<number> = {};
-                if (_parsing.tryParseHue(hueStr) && // Parse hue
-                    _parsing.tryParsePercentage(saturationStr) && // Parse saturation
-                    _parsing.tryParsePercentage(luminosityStr)){ // Parse luminosity
+                if (_Parsing.tryParseHue(hueStr) && // Parse hue
+                    _Parsing.tryParsePercentage(saturationStr) && // Parse saturation
+                    _Parsing.tryParsePercentage(luminosityStr)){ // Parse luminosity
                     output.result = new ColorHSL(tryParseHueOutput.result!, tryParseSaturationOutput.result!, tryParseLuminosityOutput.result!);
                     return true;
                 }

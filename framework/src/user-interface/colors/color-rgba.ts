@@ -4,7 +4,7 @@ import { TryOutput } from "../../standard/reflection/types.js";
 import { assertParams } from "../../validation-standalone/validation-standalone.js";
 import { ColorConversion } from "./index.js";
 import { Color } from "./index.js";
-import { _parsing } from "./_parsing.js";
+import { _Parsing } from "./_parsing.js";
 
 export class ColorRGBA extends Color {
     static tryParse(value: string, output: TryOutput<ColorRGBA> = {}): boolean {
@@ -23,10 +23,10 @@ export class ColorRGBA extends Color {
                     tryParseGreenOutput: TryOutput<number> = {},
                     tryParseBlueOutput: TryOutput<number> = {},
                     tryParseAlphaOutput: TryOutput<number> = {};
-                if (_parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
-                    _parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
-                    _parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse blue
-                    _parsing.tryParsePercentage(blueStr, tryParseAlphaOutput) || _parsing.tryParseNumber(alphaStr, tryParseAlphaOutput)) { // Parse alpha
+                if (_Parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
+                    _Parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
+                    _Parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse blue
+                    _Parsing.tryParsePercentage(blueStr, tryParseAlphaOutput) || _Parsing.tryParseNumber(alphaStr, tryParseAlphaOutput)) { // Parse alpha
                     output.result = new ColorRGBA(tryParseRedOutput.result!, tryParseGreenOutput.result!, tryParseBlueOutput.result!, tryParseAlphaOutput.result!);
                     return true;
                 }
@@ -46,7 +46,7 @@ export class ColorRGBA extends Color {
     constructor(r: number, g: number, b: number, a: number) {
         assertParams({ r, g, b, a }, [Number]);
 
-        const value = ColorConversion.convertFromRGBA(Number(r), Number(g), Number(b), Number(a));
+        const value = ColorConversion.convertFromRGBA(r, g, b, a);
         super(value);
 
         this.__r = MathX.limitToBounds(Math.round(r), 0, 255);
