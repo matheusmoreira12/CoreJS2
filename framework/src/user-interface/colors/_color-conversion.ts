@@ -9,7 +9,7 @@ const _ColorConversion = {
             r: byteR,
             g: byteG,
             b: byteB,
-            a: byteA
+            a: byteA / 255
         };
     },
 
@@ -22,7 +22,7 @@ const _ColorConversion = {
         const byteR = Math.round(r),
             byteG = Math.round(g),
             byteB = Math.round(b),
-            byteA = Math.round(a);
+            byteA = Math.round(a * 255);
 
         return Number(BigInt(byteR) << 24n | BigInt(byteG) << 16n | BigInt(byteB) << 8n | BigInt(byteA));
     },
