@@ -1,55 +1,14 @@
-﻿import { ArgumentOutOfRangeException } from "../../standard/exceptions/index.js";
-import { MathX } from "../../standard/math-x.js";
-import { TryOutput } from "../../standard/reflection/index.js";
-import { assertParams } from "../../validation/index.js";
+﻿import { MathX } from "../../standard/math-x.js";
 import { Color } from "./index.js";
 import _ColorConversion from "./_color-conversion.js";
-import { _Parsing } from "./_parsing.js";
 
 export class ColorRGB extends Color {
-    static tryParse(value: string, output: TryOutput<ColorRGB> = {}): boolean {
-        assertParams({ value }, [String]);
-
-        if (value.startsWith("rgb(") && value.endsWith(")")) {
-            const channelsStr = value.slice(4, -1); // Remove name and braces
-            const channelStrs = channelsStr.split(","); //Split into the individual channels
-            if (channelStrs.length == 3) {
-                const redStr = channelStrs[0].trim(),
-                    greenStr = channelStrs[1].trim(),
-                    blueStr = channelStrs[2].trim();
-                
-                const tryParseRedOutput: TryOutput<number> = {},
-                    tryParseGreenOutput: TryOutput<number> = {},
-                    tryParseBlueOutput: TryOutput<number> = {};
-                if (_Parsing.tryParseNumber(redStr, tryParseRedOutput) && // Parse red
-                    _Parsing.tryParseNumber(greenStr, tryParseGreenOutput) && // Parse green
-                    _Parsing.tryParseNumber(blueStr, tryParseBlueOutput)) { // Parse blue
-                    output.result = new ColorRGB(tryParseRedOutput.result!, tryParseGreenOutput.result!, tryParseBlueOutput.result!);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    static parse(value: string) {
-        const tryParseOutput: TryOutput<ColorRGB> = {};
-        if (this.tryParse(value, tryParseOutput))
-            return tryParseOutput.result!;
-
-        throw new ArgumentOutOfRangeException("value");
-    }
-
     constructor(r: number, g: number, b: number) {
         const value = _ColorConversion.convertFromRGBA(r, g, b, 1);
         super(value);
-        this.__r = MathX.limitToBounds(Math.round(r), 0, 255);
-        this.__g = MathX.limitToBounds(Math.round(g), 0, 255);
-        this.__b = MathX.limitToBounds(Math.round(b), 0, 255);
-    }
-
-    toString() {
-        return `rgb(${this.r}, ${this.g}, ${this.b})`;
+        this.__r = MathX.limitToBounds(r, 0, 1);
+        this.__g = MathX.limitToBounds(g, 0, 1);
+        this.__b = MathX.limitToBounds(b, 0, 1);
     }
 
     public get r(): number { return this.__r; }

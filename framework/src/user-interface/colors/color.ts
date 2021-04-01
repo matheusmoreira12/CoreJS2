@@ -38,29 +38,12 @@ export abstract class Color extends Number {
         return new ColorRGB(r, g, b);
     }
 
-    static tryParse(value: string, output: TryOutput<Color>): boolean {
-        return ColorRGB.tryParse(value, <any>output) || // Try parsing RGB color
-            ColorRGBA.tryParse(value, <any>output) || // Try parsing RGBA color 
-            ColorHSL.tryParse(value, <any>output) || // Try parsing HSL color
-            ColorHSLA.tryParse(value, <any>output);  // Try parsing HSLA color
-    }
-
-    static parse(value: string) {
-        const tryParseOutput: TryOutput<Color> = {};
-        if (this.tryParse(value, tryParseOutput))
-            return tryParseOutput.result!;
-
-        throw new ArgumentOutOfRangeException("value");
-    }
-
     constructor(value: number) {
         if (new.target === Color)
             throw new InvalidOperationException("Invalid constructor.");
 
         super(value);
     }
-
-    abstract toString(): string;
 
     toRGBA(): ColorRGBA {
         const value = Number(this);

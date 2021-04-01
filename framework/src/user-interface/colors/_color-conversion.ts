@@ -6,9 +6,9 @@ const _ColorConversion = {
             byteA = value & 0xFF;
 
         return {
-            r: byteR,
-            g: byteG,
-            b: byteB,
+            r: byteR / 255,
+            g: byteG / 255,
+            b: byteB / 255,
             a: byteA / 255
         };
     },
@@ -19,9 +19,9 @@ const _ColorConversion = {
     },
 
     convertFromRGBA(r: number, g: number, b: number, a: number): number {
-        const byteR = Math.round(r),
-            byteG = Math.round(g),
-            byteB = Math.round(b),
+        const byteR = Math.round(r * 255),
+            byteG = Math.round(g * 255),
+            byteB = Math.round(b * 255),
             byteA = Math.round(a * 255);
 
         return Number(BigInt(byteR) << 24n | BigInt(byteG) << 16n | BigInt(byteB) << 8n | BigInt(byteA));
@@ -34,12 +34,12 @@ const _ColorConversion = {
     convertRGBtoHSL(r: number, g: number, b: number): { h: number, s: number, l: number } {
         function getHue(): number {
             if (d != 0) {
-                if (cmax == _r)
-                    return 60 * (((_g - _b) / d) % 6);
-                if (cmax == _g)
-                    return 60 * ((_b - _r) / d + 2);
-                if (cmax == _b)
-                    return 60 * ((_r - _g) / d + 4);
+                if (cmax == r)
+                    return 60 * (((g - b) / d) % 6);
+                if (cmax == g)
+                    return 60 * ((b - r) / d + 2);
+                if (cmax == b)
+                    return 60 * ((r - g) / d + 4);
             }
             return 0;
         }
@@ -51,12 +51,8 @@ const _ColorConversion = {
             return 0;
         }
 
-        const _r = r / 255,
-            _g = g / 255,
-            _b = b / 255;
-
-        const cmax = Math.max(_r, _g, _b),
-            cmin = Math.min(_r, _g, _b),
+        const cmax = Math.max(r, g, b),
+            cmin = Math.min(r, g, b),
             d = cmax - cmin,
             h = getHue(),
             l = (cmax + cmin) / 2,
@@ -85,13 +81,9 @@ const _ColorConversion = {
             x = c * (1 - Math.abs((h / 60) % 2 - 1)),
             m = l - c / 2;
 
-        const [_r, _g, _b] = getRGB();
+        const [r, g, b] = getRGB();
         
-        const r = (_r + m) * 255,
-            g = (_g + m) * 255,
-            b = (_b + m) * 255;
-
-        return { r,  g, b };
+        return { r: r + m,  g: g + m, b: b + m };
     }
 };
 export default _ColorConversion;
