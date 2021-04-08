@@ -146,12 +146,15 @@
         }
         customElements.define("core-progress-bar", CoreProgressBar)
 
-        class CoreImage extends CoreControl {
+        class CorePicture extends CoreControl {
             constructor() {
                 super();
 
-                const img = document.createElement("img");
-                this.__img = img;
+                this.__drop_shadow1 = document.createElement("core-picture-drop-shadow1");
+                this.__drop_shadow2 = document.createElement("core-picture-drop-shadow2");
+                this.__frame = document.createElement("core-picture-frame");
+                this.__img = document.createElement("img");
+                this.__innerShade = document.createElement("core-picture-frame");
 
                 const progressBar = document.createElement("core-progress-bar");
                 this.__progressBar = progressBar;
@@ -160,14 +163,23 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                this.__shadow.appendChild(this.__img);
+                this.__shadow.appendChild(this.__drop_shadow1);
+                this.__shadow.appendChild(this.__drop_shadow2);
+                this.__shadow.appendChild(this.__frame);
+                this.__frame.appendChild(this.__img);
+                this.__shadow.appendChild(this.__innerShade);
                 this.__shadow.appendChild(this.__progressBar);
             }
 
             disconnectedCallback() {
                 super.disconnectedCallback();
 
+                this.__drop_shadow1.remove();
+                this.__drop_shadow2.remove();
                 this.__img.remove();
+                this.__frame.remove();
+                this.__innerShade.remove();
+                this.__progressBar.remove();
             }
 
             static get observedAttributes() {
@@ -219,7 +231,7 @@
 
             }
         }
-        customElements.define("core-picture", CoreImage);
+        customElements.define("core-picture", CorePicture);
     </script>
 
     <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
