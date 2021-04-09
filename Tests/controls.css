@@ -1,15 +1,20 @@
+*[hidden] {
+    visibility: collapse;
+}
+
 /*Image*/
 :host(core-picture) {
     position: relative;
     display: inline-block;
-    flex: none;
+    flex: 0;
+    place-self: center;
     margin: 7px;
     vertical-align: middle;
 }
 
-:host(core-picture-shadow1),
-:host(core-picture-shadow2) {
-    content: "";
+core-picture-drop-shadow1,
+core-picture-drop-shadow2 {
+    display: inline-block;
     width: 100%;
     height: 100%;
     padding: 2px;
@@ -18,20 +23,19 @@
     left: -2px;
     top: 4px;
     filter: blur(4px);
-    transition: all .218s;
 }
 
-:host(core-picture-drop-shadow1) {
+core-picture-drop-shadow1 {
     transform: skew(0, -2deg);
     background: transparent linear-gradient(to right, #0003, transparent);
 }
 
-:host(core-picture-drop-shadow2) {
+core-picture-drop-shadow2 {
     transform: skew(0, 2deg);
     background: transparent linear-gradient(to right, transparent, #0003);
 }
 
-:host(core-picture-frame) {
+core-picture-frame {
     display: inline-block;
     position: relative;
     padding: 7px;
@@ -39,14 +43,25 @@
     box-shadow: inset 0 0.5px 1px #fff7, inset 0 -0.5px 1px #0007;
 }
 
-:host(core-picture-inner-shade) {
+core-picture-inner-shade {
     position: absolute;
     left: 0;
     top: 0;
     display: inline-block;
     width: 100%;
     height: 100%;
-    background-image: linear-gradient(92deg, #0001, #7771 20%, #7771 80%, #fff1);
+    background-image: linear-gradient(92deg, #0001, #fff1);
+}
+
+core-picture-progress-bar-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-flex;
+    place-items: center;
+    place-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 /*Progress Bar*/
@@ -64,10 +79,6 @@
     --progress-bar-bg-color: grey;
     --progress-bar-face-bg-image: linear-gradient(to bottom, #ffffff11, #00000011);
     --progress-bar-face-indeterminate-bg-image: repeating-linear-gradient(-45deg, #ffffff33 0, #ffffff33 4.5px, #00000033 4.5px, #00000033 9px);
-}
-
-:host(core-progress-bar[hidden]) {
-    visibility: collapse;
 }
 
 core-progress-bar-fill {

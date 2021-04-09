@@ -6,13 +6,8 @@
         body {
             background: #fff;
             display: flex;
+            flex-flow: row;
             flex-wrap: wrap;
-        }
-
-        core-picture {
-            width: 240px;
-            height: 180px;
-            flex: none;
         }
     </style>
 </head>
@@ -154,7 +149,8 @@
                 this.__drop_shadow2 = document.createElement("core-picture-drop-shadow2");
                 this.__frame = document.createElement("core-picture-frame");
                 this.__img = document.createElement("img");
-                this.__innerShade = document.createElement("core-picture-frame");
+                this.__innerShade = document.createElement("core-picture-inner-shade");
+                this.__progressBarContainer = document.createElement("core-picture-progress-bar-container");
 
                 const progressBar = document.createElement("core-progress-bar");
                 this.__progressBar = progressBar;
@@ -168,7 +164,8 @@
                 this.__shadow.appendChild(this.__frame);
                 this.__frame.appendChild(this.__img);
                 this.__shadow.appendChild(this.__innerShade);
-                this.__shadow.appendChild(this.__progressBar);
+                this.__shadow.appendChild(this.__progressBarContainer);
+                this.__progressBarContainer.appendChild(this.__progressBar);
             }
 
             disconnectedCallback() {
@@ -180,10 +177,37 @@
                 this.__frame.remove();
                 this.__innerShade.remove();
                 this.__progressBar.remove();
+                this.__progressBarContainer.remove();
             }
 
             static get observedAttributes() {
                 return ["core-src"];
+            }
+
+            __hideImage() {
+                this.__img.animate([
+                        { opacity: 1 },
+                        { opacity: 0 },
+                    ],
+                    {
+                        duration: 436
+                    }
+                ).onfinish = () => {
+                    this.__img.style.opacity = 0;
+                }
+            }
+
+            __revealImage() {
+                this.__img.animate([
+                        { opacity: 0 },
+                        { opacity: 1 },
+                    ],
+                    {
+                        duration: 436
+                    }
+                ).onfinish = () => {
+                    this.__img.style.opacity = 1;
+                }
             }
 
             async __load(src) {
@@ -194,74 +218,75 @@
                     self.__progressBar.max = args.total;
                 }
 
-                if (src) {
-                    this.__progressBar.indeterminate = true;
-                    this.__progressBar.hidden = false;
-                    this.__img.hidden = true;
+                this.__progressBar.indeterminate = true;
+                this.__progressBar.hidden = false;                
 
-                    let blob = await Ajax.get(src, { onProgress }, { responseType: AjaxResponseType.Blob });
-                    this.__img.src = URL.createObjectURL(blob);
+                this.__img.style.width = "320px";
+                this.__img.style.height = "240px";
 
-                    this.__img.hidden = false;
-                    this.__progressBar.hidden = true;
-                }
+                this.__hideImage();
+
+                let blob = await Ajax.get(src, { onProgress }, { responseType: AjaxResponseType.Blob });
+                this.__img.src = URL.createObjectURL(blob);
+
+                this.__img.onload = () => this.__revealImage();
+
+                this.__progressBar.hidden = true;
             }
 
             __update() {
-                __load(this.src);
+                if (this.__src !== undefined && this.isConnected) {
+                    this.__load(this.src);
+                }
             }
 
             get src() { return this.__src; }
             set src(value) {
-                __update();
                 this.__src = value;
+                this.__update();
             }
             __src = "";
 
             __src_attribute_changed(value) {
-                this.__load(value);
+                this.src = value;
             }
 
             attributeChangedCallback(name, oldValue, newValue) {
                 if (name == "core-src")
                     this.__src_attribute_changed(newValue);
             }
-
-            adoptedCallback() {
-
-            }
         }
         customElements.define("core-picture", CorePicture);
     </script>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 
-    <core-picture core-src="./aerial-view-of-seashore-near-large-grey-rocks-853199.jpg">
+    <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
 </body>
 
