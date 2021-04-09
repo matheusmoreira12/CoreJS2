@@ -1,7 +1,7 @@
-import { AjaxMethod, AjaxResponseType, IAjaxCallbacks, IAjaxOptions, AjaxEventArgs } from "./index.js";
+import { AjaxMethod, AjaxResponseType, AjaxCallbacks, AjaxOptions, AjaxEventArgs } from "./index.js";
 import { Destructible } from "../../standard/index.js";
 import { assertParams } from "../../validation/index.js";
-import { FrameworkEvent, FrameworkEventArgs } from "../../standard/events/index.js";
+import { FrameworkEvent } from "../../standard/events/index.js";
 import { AjaxRequestFailedException } from "./ajax-request-failed-exception.js";;
 import { AjaxProgressEventArgs } from "./ajax-progress-event-args.js";;
 
@@ -37,9 +37,9 @@ const DEFAULT_RESPONSE_TYPE = AjaxResponseType.Default;
  * A wrapper class for XMLHTTPRequest for making inline Ajax requests.
  */
 export class Ajax extends Destructible {
-    static send(method: number, url: string, callbacks: IAjaxCallbacks = {}, options: IAjaxOptions = {}): Promise<Response> {
-        assertParams({ callbacks }, [IAjaxCallbacks]);
-        assertParams({ options }, [IAjaxOptions]);
+    static send(method: number, url: string, callbacks: AjaxCallbacks = {}, options: AjaxOptions = {}): Promise<Response> {
+        assertParams({ callbacks }, [Object]);
+        assertParams({ options }, [Object]);
 
         //Create ajax wrapper
         const ajax = new Ajax(method, url, options);
@@ -66,43 +66,43 @@ export class Ajax extends Destructible {
         return ajax.loaded;
     }
 
-    static get(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static get(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Get, url, events, options);
     }
 
-    static head(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static head(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Head, url, events, options);
     }
 
-    static post(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static post(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Post, url, events, options);
     }
 
-    static put(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static put(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Put, url, events, options);
     }
 
-    static delete(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static delete(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Delete, url, events, options);
     }
 
-    static connect(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static connect(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Connect, url, events, options);
     }
 
-    static options(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static options(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Options, url, events, options);
     }
 
-    static trace(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static trace(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Trace, url, events, options);
     }
 
-    static patch(url: string, events?: IAjaxCallbacks, options?: IAjaxOptions): Promise<Response> {
+    static patch(url: string, events?: AjaxCallbacks, options?: AjaxOptions): Promise<Response> {
         return this.send(AjaxMethod.Patch, url, events, options);
     }
 
-    constructor(method: number, url: string, options: IAjaxOptions = {}) {
+    constructor(method: number, url: string, options: AjaxOptions = {}) {
         super();
 
         assertParams({ method }, [Number]);

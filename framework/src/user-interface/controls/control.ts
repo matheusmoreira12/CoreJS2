@@ -1,8 +1,9 @@
-import { DependencyObject, DependencyProperty } from "../../standard/dependency-objects/index.js";
+import { DependencyObject, DependencyProperty, PropertyMetadata } from "../../standard/dependency-objects/index.js";
 import { Size, Length } from "../coordinates/index.js";
 import { Type } from "../../standard/reflection/index.js";
 import { InvalidOperationException } from "../../standard/exceptions/index.js";
 import { ControlStyle } from "./styling/index.js";
+import { OrConstraint } from "../../standard/reflection/type-constraints/or-constraint.js";
 
 export abstract class Control extends DependencyObject {
     constructor() {
@@ -55,25 +56,25 @@ export abstract class Control extends DependencyObject {
             throw new InvalidOperationException("Cannot finalize control. Control has not been initialized.");
     }
 
-    static isInitializedProperty = DependencyProperty.registerReadonly(Control, "isInitialized", { valueType: Type.get(Boolean), defaultValue: false });
+    static isInitializedProperty = DependencyProperty.registerAttachedReadonly(Control, "isInitialized", new PropertyMetadata(Type.get(Boolean), false ));
     get isInitialized(): boolean { return this.get(Control.isInitializedProperty); }
 
-    static domElementProperty = DependencyProperty.registerReadonly(Control, "domElement", { defaultValue: null });
+    static domElementProperty = DependencyProperty.registerAttachedReadonly(Control, "domElement", new PropertyMetadata(new OrConstraint([Type.get(Element), Type.of(null)]), null));
     get domElement(): Element | null { return this.get(Control.domElementProperty); }
 
-    static widthProperty = DependencyProperty.registerAttached(Control, "width", { valueType: Type.get(Length) });
+    static widthProperty = DependencyProperty.registerAttached(Control, "width", new PropertyMetadata(Type.get(Length)));
     get width(): Length { return this.get(Control.widthProperty); }
     set width(value: Length) { this.set(Control.widthProperty, value); }
 
-    static heightProperty = DependencyProperty.registerAttached(Control, "height", { valueType: Type.get(Length) });
+    static heightProperty = DependencyProperty.registerAttached(Control, "height", new PropertyMetadata(Type.get(Length)));
     get height(): Length { return this.get(Control.heightProperty); }
     set height(value: Length) { this.set(Control.heightProperty, value); }
 
-    static actualWidthProperty = DependencyProperty.registerAttached(Control, "actualWidth", { valueType: Type.get(Length) });
+    static actualWidthProperty = DependencyProperty.registerAttached(Control, "actualWidth", new PropertyMetadata(Type.get(Length)));
     get actualWidth(): Length { return this.get(Control.actualWidthProperty); }
     set actualWidth(value: Length) { this.set(Control.actualWidthProperty, value); }
 
-    static actualHeightProperty = DependencyProperty.registerAttached(Control, "actualHeight", { valueType: Type.get(Length) });
+    static actualHeightProperty = DependencyProperty.registerAttached(Control, "actualHeight", new PropertyMetadata(Type.get(Length)));
     get actualHeight(): Length { return this.get(Control.actualHeightProperty); }
     set actualHeight(value: Length) { this.set(Control.actualHeightProperty, value); }
 

@@ -1,12 +1,11 @@
-import { Binding, IBindingOptions } from "./index.js";
-import { DependencyProperty, PropertyChangeEventArgs } from "../../standard/dependency-objects/index.js";
+import { Binding, BindingDirection } from "./index.js";
+import { DependencyProperty, PropertyChangeEventArgs, PropertyMetadata } from "../../standard/dependency-objects/index.js";
 import { assertParams } from "../../validation/index.js";
 import { DependencyObject } from "../../standard/dependency-objects/dependency-object.js";
 import { FrameworkEvent } from "../../standard/events/index.js";
 
 import * as Storage from "../../standard/dependency-objects/_storage.js";
 import { Enumeration } from "../../standard/index.js";
-import { BindingDirection } from "./bindings.js";
 import { IValueConverter } from "../value-converters/index.js";
 import { Type } from "../../standard/reflection/index.js";
 
@@ -15,8 +14,8 @@ import { Type } from "../../standard/reflection/index.js";
  * Allows the binding of an attribute to a framework property.
  */
 export class PropertyAttributeBinding extends Binding {
-    constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, targetAttributeNamespace: string | null = null, options?: IBindingOptions) {
-        super(options);
+    constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, targetAttributeNamespace: string | null = null, direction: number = BindingDirection.Both, valueConverter: IValueConverter) {
+        super(direction, valueConverter);
 
         assertParams({ source }, [DependencyObject]);
         assertParams({ sourceProperty }, [DependencyProperty]);
@@ -40,12 +39,12 @@ export class PropertyAttributeBinding extends Binding {
     }
 
     private __updateTargetAttribute(propertyValue: any) {
-        const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.options.direction || 0);
+        const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.direction);
         if (canUpdateToTarget) {
-            const hasValueConverter = !!this.options.valueConverter;
+            const hasValueConverter = !!this.valueConverter;
             let attributeValue: string | null;
             if (hasValueConverter)
-                attributeValue = (<IValueConverter>this.options.valueConverter).convert(propertyValue);
+                attributeValue = (<IValueConverter>this.valueConverter).convert(propertyValue);
             else
                 attributeValue = String(propertyValue);
 
@@ -64,12 +63,12 @@ export class PropertyAttributeBinding extends Binding {
     private __source_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
 
     private __updateSourceProperty(attributeValue: string | null) {
-        const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.options.direction || 0);
+        const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.direction);
         if (canUpdateToSource) {
-            const hasValueConverter = !!this.options.valueConverter;
+            const hasValueConverter = !!this.valueConverter;
             let propertyValue: any;
             if (hasValueConverter)
-                propertyValue = (<IValueConverter>this.options.valueConverter).convertBack(attributeValue);
+                propertyValue = (<IValueConverter>this.valueConverter).convertBack(attributeValue);
             else
                 propertyValue = attributeValue;
 
@@ -99,19 +98,19 @@ export class PropertyAttributeBinding extends Binding {
 
     private __targetElement_attributeMutationObserver: MutationObserver;
 
-    static sourceProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "source", { valueType: Type.get(DependencyObject) });
+    static sourceProperty = DependencyProperty.registerAttachedReadonly(PropertyAttributeBinding, "source", new PropertyMetadata(Type.get(DependencyObject)));
     get source(): DependencyObject { return this.get(PropertyAttributeBinding.sourceProperty); }
 
-    static sourcePropertyProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "sourceProperty", { valueType: Type.get(DependencyProperty) });
+    static sourcePropertyProperty = DependencyProperty.registerAttachedReadonly(PropertyAttributeBinding, "sourceProperty", new PropertyMetadata(Type.get(DependencyProperty)));
     get sourceProperty(): DependencyProperty { return this.get(PropertyAttributeBinding.sourcePropertyProperty); }
 
-    static targetElementProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetElement", { valueType: Type.get(Element) });
+    static targetElementProperty = DependencyProperty.registerAttachedReadonly(PropertyAttributeBinding, "targetElement", new PropertyMetadata(Type.get(Element)));
     get targetElement(): Element { return this.get(PropertyAttributeBinding.targetElementProperty); }
 
-    static targetAttributeNameProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetAttributeName", { valueType: Type.get(String) });
+    static targetAttributeNameProperty = DependencyProperty.registerAttachedReadonly(PropertyAttributeBinding, "targetAttributeName", new PropertyMetadata(Type.get(String)));
     get targetAttributeName(): string { return this.get(PropertyAttributeBinding.targetAttributeNameProperty); }
 
-    static targetAttributeNamespaceProperty = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetAttributeNamespace");
+    static targetAttributeNamespaceProperty = DependencyProperty.registerAttachedReadonly(PropertyAttributeBinding, "targetAttributeNamespace", new PropertyMetadata(null));
     get targetAttributeNamespace(): string | null { return this.get(PropertyAttributeBinding.targetAttributeNamespaceProperty); }
 
     protected destructor(): void {

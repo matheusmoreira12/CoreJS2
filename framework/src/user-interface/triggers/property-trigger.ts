@@ -1,5 +1,5 @@
 import { Trigger } from "./index.js";
-import { DependencyProperty, DependencyObject } from "../../standard/dependency-objects/index.js";
+import { DependencyProperty, DependencyObject, PropertyMetadata } from "../../standard/dependency-objects/index.js";
 import { Setter } from "../setters/index.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../validation/index.js";
 import { Type } from "../../standard/reflection/type.js";
@@ -23,16 +23,16 @@ export class PropertyTrigger extends Trigger {
         this.set(PropertyTrigger.settersProperty, new Collection(...setters));
     }
 
-    static targetProperty = DependencyProperty.registerReadonly(PropertyTrigger, "target", { valueType: Type.get(DependencyObject) });
+    static targetProperty = DependencyProperty.registerAttachedReadonly(PropertyTrigger, "target", new PropertyMetadata(Type.get(DependencyObject)));
     get target(): object { return this.get(PropertyTrigger.targetProperty); }
 
-    static propertyProperty = DependencyProperty.registerReadonly(PropertyTrigger, "property", { valueType: Type.get(DependencyProperty) });
+    static propertyProperty = DependencyProperty.registerAttachedReadonly(PropertyTrigger, "property", new PropertyMetadata(Type.get(DependencyProperty)));
     get property(): DependencyProperty { return this.get(PropertyTrigger.propertyProperty); }
 
-    static valueProperty = DependencyProperty.registerReadonly(PropertyTrigger, "value");
+    static valueProperty = DependencyProperty.registerAttachedReadonly(PropertyTrigger, "value", new PropertyMetadata(null));
     get value(): any { return this.get(PropertyTrigger.valueProperty); }
 
-    static settersProperty = DependencyProperty.registerReadonly(PropertyTrigger, "setters", { valueType: Type.get(Collection) });
+    static settersProperty = DependencyProperty.registerAttachedReadonly(PropertyTrigger, "setters", new PropertyMetadata(Type.get(Collection)));
     get setters(): Collection<Setter> { return this.get(PropertyTrigger.settersProperty); }
 
     protected destructor() {

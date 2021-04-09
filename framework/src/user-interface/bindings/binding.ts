@@ -1,28 +1,31 @@
-import { IBindingOptions, BindingDirection } from "./index.js";
+import { BindingDirection } from "./index.js";
 import { InvalidOperationException } from "../../standard/exceptions/index.js"
 import { assertParams } from "../../validation/index.js";
-import { DependencyObject, DependencyProperty } from "../../standard/dependency-objects/index.js";
-
-const DEFAULT_BINDING_OPTIONS: IBindingOptions = {
-    direction: BindingDirection.Both
-};
+import { DependencyObject, DependencyProperty, PropertyMetadata } from "../../standard/dependency-objects/index.js";
+import { IValueConverter } from "../value-converters/i-value-converter.js";
+import { Type } from "../../standard/reflection/type.js";
+import { OrConstraint } from "../../standard/reflection/type-constraints/or-constraint.js";
 
 /**
  * Binding base class
  */
 export abstract class Binding extends DependencyObject {
-    constructor(options?: IBindingOptions) {
+    constructor(direction: number = BindingDirection.Both, valueConverter: IValueConverter | undefined) {
         if (new.target === Binding)
             throw new InvalidOperationException("Invalid constructor.");
 
         super();
 
-        assertParams({ options }, [IBindingOptions]);
+        BindingDirection.assertFlag(BindingDirection.Both);
+        assertParams({ valueConverter }, [IValueConverter, undefined]);
 
-        options = Object.assign({}, DEFAULT_BINDING_OPTIONS, options);
-        this.set(Binding.optionsProperty, options);
+        this.set(Binding.directionProperty, direction);
+        this.set(Binding.valueConverterProperty, valueConverter);
     }
 
-    static optionsProperty = DependencyProperty.registerReadonly(Binding, "options", { valueType: IBindingOptions });
-    get options(): IBindingOptions { return this.get(Binding.optionsProperty); }
+    static directionProperty = DependencyProperty.registerAttachedReadonly(Binding, "direction", new PropertyMetadata(Type.get(Number)));
+    get direction(): number { return this.get(Binding.directionProperty); }
+
+    static valueConverterProperty = DependencyProperty.registerAttachedReadonly(Binding, "valueConverter", new PropertyMetadata(new OrConstraint([IValueConverter, Type.of(null)])));
+    get valueConverter(): IValueConverter | null { return this.get(Binding.valueConverterProperty); }
 }

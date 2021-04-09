@@ -12,7 +12,7 @@ export abstract class Template extends DependencyObject {
             throw new InvalidOperationException("Invalid contructor.");
     }
 
-    // static childProperty = DependencyProperty.register(Template, "child", { valueType: Type.get(Control) });
+    // static childProperty = DependencyProperty.register(Template, "child", new PropertyMetadata(Type.get(Control)))
     // get child(): ControlTemplate { return this.get(Template.childProperty); }
     // set child(value: ControlTemplate) { this.set(Template.childProperty, value); }
 }

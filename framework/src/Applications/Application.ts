@@ -1,4 +1,4 @@
-import { DependencyObject, DependencyProperty } from "../standard/dependency-objects/index.js";
+import { DependencyObject, DependencyProperty, PropertyMetadata } from "../standard/dependency-objects/index.js";
 import { Type } from "../standard/reflection/type.js";
 import { ResourceDictionary } from "../user-interface/resources/index.js";
 import { InvalidOperationException } from "../standard/exceptions/index.js";
@@ -47,7 +47,7 @@ export abstract class Application extends DependencyObject {
             this.resources.destruct();
     }
 
-    static resourcesProperty = DependencyProperty.registerAttached(Application, "resources", { valueType: Type.get(ResourceDictionary) });
+    static resourcesProperty = DependencyProperty.registerAttached(Application, "resources", new PropertyMetadata(Type.get(ResourceDictionary)));
     get resources(): ResourceDictionary { return this.get(Application.resourcesProperty); }
     set resources(value: ResourceDictionary) { this.set(Application.resourcesProperty, value); }
 }

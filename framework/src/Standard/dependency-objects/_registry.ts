@@ -1,18 +1,18 @@
 import { DependencyProperty } from "./dependency-property.js";
-import { IPropertyMetadata } from "./i-property-metadata.js";
+import { PropertyMetadata } from "./property-metadata.js";
 import { ClassOf } from "../reflection/types.js";
 
 type RegistryEntry = {
     target: typeof Object,
     property: DependencyProperty,
-    metadata: IPropertyMetadata,
+    metadata: PropertyMetadata,
     isAttached: boolean,
     isReadonly: boolean
 }
 
 const registryEntries: RegistryEntry[] = [];
 
-export function registerAttached(target: ClassOf<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+export function registerAttached(target: ClassOf<any>, property: DependencyProperty, metadata: PropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -22,7 +22,7 @@ export function registerAttached(target: ClassOf<any>, property: DependencyPrope
     });
 }
 
-export function registerReadonly(target: ClassOf<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+export function registerReadonly(target: ClassOf<any>, property: DependencyProperty, metadata: PropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -32,7 +32,7 @@ export function registerReadonly(target: ClassOf<any>, property: DependencyPrope
     });
 }
 
-export function register(target: ClassOf<any>, property: DependencyProperty, metadata: IPropertyMetadata) {
+export function register(target: ClassOf<any>, property: DependencyProperty, metadata: PropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -42,7 +42,7 @@ export function register(target: ClassOf<any>, property: DependencyProperty, met
     });
 }
 
-export function getMetadata(property: DependencyProperty): IPropertyMetadata | null {
+export function getMetadata(property: DependencyProperty): PropertyMetadata | null {
     for (let entry of registryEntries) {
         if (entry.property === property)
             return entry.metadata;

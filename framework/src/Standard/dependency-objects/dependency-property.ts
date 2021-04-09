@@ -1,13 +1,9 @@
-import { IPropertyMetadata } from "./i-property-metadata.js";
 import { assertParams } from "../../validation/index.js";
 
 import * as Registry from "./_registry.js";
 import { ClassOf } from "../reflection/types.js";
 import { InvalidOperationException } from "../exceptions/index.js";
-
-const DEFAULT_PROPERTY_METADATA: IPropertyMetadata = {
-    defaultValue: null
-};
+import { PropertyMetadata } from "./index.js";
 
 function assertAttachedProperty(target: ClassOf<any>, name: string, isReadonly: boolean) {
     const descriptor = Object.getOwnPropertyDescriptor(target.prototype, name);
@@ -23,11 +19,9 @@ function assertAttachedProperty(target: ClassOf<any>, name: string, isReadonly: 
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    static registerAttached(target: ClassOf<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+    static registerAttached(target: ClassOf<any>, name: string, metadata: PropertyMetadata): DependencyProperty {
         assertParams({ target }, [Function]);
-        assertParams({ options: metadata }, [IPropertyMetadata]);
-
-        metadata = Object.assign({}, DEFAULT_PROPERTY_METADATA, metadata);
+        assertParams({ metadata }, [PropertyMetadata]);
 
         assertAttachedProperty(target, name, false);
 
@@ -36,12 +30,9 @@ export class DependencyProperty {
         return property;
     }
 
-    static registerReadonly(target: ClassOf<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+    static registerAttachedReadonly(target: ClassOf<any>, name: string, metadata: PropertyMetadata): DependencyProperty {
         assertParams({ target }, [Function]);
-        assertParams({ options: metadata }, [IPropertyMetadata]);
-
-        metadata = Object.assign({}, DEFAULT_PROPERTY_METADATA, metadata);
-
+        assertParams({ options: metadata }, [PropertyMetadata]);
         assertAttachedProperty(target, name, true);
 
         const property = new DependencyProperty(name);
@@ -49,18 +40,16 @@ export class DependencyProperty {
         return property;
     }
 
-    static register(target: ClassOf<any>, name: string, metadata: IPropertyMetadata = {}): DependencyProperty {
+    static register(target: ClassOf<any>, name: string, metadata: PropertyMetadata): DependencyProperty {
         assertParams({ target }, [Function]);
-        assertParams({ options: metadata }, [IPropertyMetadata]);
-
-        metadata = Object.assign({}, DEFAULT_PROPERTY_METADATA, metadata);
+        assertParams({ options: metadata }, [PropertyMetadata]);
 
         const property = new DependencyProperty(name);
         Registry.register(target, property, metadata);
         return property;
     }
 
-    static getMetadata(property: DependencyProperty): IPropertyMetadata {
+    static getMetadata(property: DependencyProperty): PropertyMetadata {
         const options = Registry.getMetadata(property);
         if (options)
             return options;

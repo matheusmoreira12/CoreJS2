@@ -3,7 +3,7 @@ import { Trigger } from "./index.js";
 import { Dictionary, Collection } from "../../standard/collections/index.js";
 import { Action } from "../actions/index.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../validation/index.js";
-import { DependencyProperty } from "../../standard/dependency-objects/index.js";
+import { DependencyProperty, PropertyMetadata } from "../../standard/dependency-objects/index.js";
 import { Type } from "../../standard/reflection/index.js";
 
 /**
@@ -45,10 +45,10 @@ export class EventTrigger extends Trigger {
         this.__executeAllActions(data);
     }
 
-    static targetEventProperty = DependencyProperty.registerReadonly(EventTrigger, "targetEvent", { valueType: Type.get(FrameworkEvent) })
+    static targetEventProperty = DependencyProperty.registerAttachedReadonly(EventTrigger, "targetEvent", new PropertyMetadata(Type.get(FrameworkEvent)))
     get targetEvent(): FrameworkEvent { return this.get(EventTrigger.targetEventProperty); }
 
-    static actionsProperty = DependencyProperty.registerReadonly(EventTrigger, "actions", { valueType: Type.get(Collection) })
+    static actionsProperty = DependencyProperty.registerAttachedReadonly(EventTrigger, "actions", new PropertyMetadata(Type.get(Collection)))
     get actions(): Collection<Action> { return this.get(EventTrigger.actionsProperty); }
 
     protected destructor() {

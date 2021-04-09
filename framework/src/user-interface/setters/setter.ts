@@ -1,4 +1,4 @@
-import { DependencyProperty } from "../../standard/dependency-objects/index.js"
+import { DependencyProperty, PropertyMetadata } from "../../standard/dependency-objects/index.js"
 import { assertParams } from "../../validation/index.js";
 import { DependencyObject } from "../../standard/dependency-objects/dependency-object.js";
 import { Type } from "../../standard/reflection/index.js";
@@ -18,12 +18,12 @@ export class Setter extends DependencyObject {
         this.set(Setter.valueProperty, value);
     }
 
-    static targetProperty = DependencyProperty.registerReadonly(Setter, "target", { valueType: Type.get(DependencyObject) });
+    static targetProperty = DependencyProperty.registerAttachedReadonly(Setter, "target", new PropertyMetadata(Type.get(DependencyObject)));
     get target(): DependencyObject { return this.get(Setter.targetProperty); }
 
-    static propertyProperty = DependencyProperty.registerReadonly(Setter, "property", { valueType: Type.get(DependencyProperty) });
+    static propertyProperty = DependencyProperty.registerAttachedReadonly(Setter, "property", new PropertyMetadata(Type.get(DependencyProperty)));
     get property(): DependencyProperty { return this.get(Setter.propertyProperty); }
 
-    static valueProperty = DependencyProperty.registerReadonly(Setter, "value");
+    static valueProperty = DependencyProperty.registerAttachedReadonly(Setter, "value", new PropertyMetadata(null));
     get value(): any { return this.get(Setter.valueProperty); }
 }
