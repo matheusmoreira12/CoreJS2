@@ -3,7 +3,7 @@ import { PropertyMetadata } from "./property-metadata.js";
 import { ClassOf } from "../reflection/types.js";
 
 type RegistryEntry = {
-    target: typeof Object,
+    target: ClassOf<Object>,
     property: DependencyProperty,
     metadata: PropertyMetadata,
     isAttached: boolean,
@@ -12,7 +12,7 @@ type RegistryEntry = {
 
 const registryEntries: RegistryEntry[] = [];
 
-export function registerAttached(target: ClassOf<any>, property: DependencyProperty, metadata: PropertyMetadata) {
+export function registerAttached(target: ClassOf<object>, property: DependencyProperty, metadata: PropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -22,7 +22,7 @@ export function registerAttached(target: ClassOf<any>, property: DependencyPrope
     });
 }
 
-export function registerReadonly(target: ClassOf<any>, property: DependencyProperty, metadata: PropertyMetadata) {
+export function registerReadonly(target: ClassOf<object>, property: DependencyProperty, metadata: PropertyMetadata) {
     registryEntries.push({
         target,
         property,
@@ -32,7 +32,7 @@ export function registerReadonly(target: ClassOf<any>, property: DependencyPrope
     });
 }
 
-export function register(target: ClassOf<any>, property: DependencyProperty, metadata: PropertyMetadata) {
+export function register(target: ClassOf<object>, property: DependencyProperty, metadata: PropertyMetadata) {
     registryEntries.push({
         target,
         property,

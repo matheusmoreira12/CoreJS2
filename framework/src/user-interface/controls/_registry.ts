@@ -1,6 +1,6 @@
 import { Collection } from "../../standard/collections/index.js";
 import { Control } from "./index.js";
-import { ClassOf, TryOutput } from "../../standard/reflection/types.js";
+import { ClassOf, ConstructorOf, InstanceOf, TryOutput } from "../../standard/reflection/types.js";
 
 const registeredControls = new Collection<ControlInfo>();
 
@@ -17,7 +17,7 @@ interface ControlInstanceInfo {
     element: Element;
 }
 
-type ControlConstructor = new () => Control;
+type ControlConstructor = ConstructorOf<Control>;
 
 export function tryInitializeInstance(): boolean {
 
@@ -31,7 +31,7 @@ export function tryCreateInstance(ctor: ClassOf<Control>, output: TryOutput<Cont
     const info = registeredControls.find(i => i.ctor === ctor);
     if (info) {
         const domElem = document.createElement(info.elementName);
-        const instance = new (<ControlConstructor>ctor)();
+        const instance = new (<any>ctor)();
         output.result = instance;
         return true;
     }

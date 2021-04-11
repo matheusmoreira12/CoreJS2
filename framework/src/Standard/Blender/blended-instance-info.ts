@@ -7,7 +7,7 @@ export type BlendedInstanceInfo<TTarget, TBlend> = {
 };
 
 export namespace BlendedInstanceInfo {
-    export function create<TTarget, TBlend>(blendClass: ClassOf<TBlend>, targetObj: TTarget): BlendedInstanceInfo<TTarget, TBlend> {
+    export function create<TTarget extends object, TBlend extends object>(blendClass: ClassOf<TBlend>, targetObj: TTarget): BlendedInstanceInfo<TTarget, TBlend> {
         return {
             blendClass,
             blend: null,

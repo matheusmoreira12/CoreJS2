@@ -1,4 +1,5 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <script type="module" src="../framework/dist/index.js"></script>
 
@@ -141,19 +142,45 @@
         }
         customElements.define("core-progress-bar", CoreProgressBar)
 
+        function intersectsWithViewport(element) {
+            const rect = element.getBoundingClientRect();
+            return (
+                rect.bottom >= 0 &&
+                rect.right >= 0 &&
+                rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+                rect.left <= (window.innerWidth || document.documentElement.clientWidth)
+            );
+        }
+
+        function isHidden(element) {
+            const computedStyle = getComputedStyle(element);
+            return computedStyle.display == "none" ||
+                computedStyle.visibility != "visible" ||
+                computedStyle.opacity == "0";
+        }
+
         class CorePicture extends CoreControl {
             constructor() {
                 super();
 
                 this.__drop_shadow1 = document.createElement("core-picture-drop-shadow1");
+
                 this.__drop_shadow2 = document.createElement("core-picture-drop-shadow2");
+
                 this.__frame = document.createElement("core-picture-frame");
+
                 this.__img = document.createElement("img");
+                this.__img.style.width = "320px";
+                this.__img.style.height = "240px";
+                this.__img.style.opacity = 0;
+
                 this.__innerShade = document.createElement("core-picture-inner-shade");
+
                 this.__progressBarContainer = document.createElement("core-picture-progress-bar-container");
 
-                const progressBar = document.createElement("core-progress-bar");
-                this.__progressBar = progressBar;
+                this.__progressBar = document.createElement("core-progress-bar");
+
+                window.addEventListener("scroll", (ev) => this.__window_onScroll(ev));
             }
 
             connectedCallback() {
@@ -166,6 +193,9 @@
                 this.__shadow.appendChild(this.__innerShade);
                 this.__shadow.appendChild(this.__progressBarContainer);
                 this.__progressBarContainer.appendChild(this.__progressBar);
+
+                this.__updateIsVisible();
+                this.__update();
             }
 
             disconnectedCallback() {
@@ -184,33 +214,48 @@
                 return ["core-src"];
             }
 
+            __window_onScroll() {
+                this.__updateIsVisible();
+                this.__update();
+            }
+
+            __updateIsVisible() {
+                this.isVisible = intersectsWithViewport(this) && !isHidden(this);
+            }
+
             __hideImage() {
-                this.__img.animate([
+                if (this.__img.style.opacity == 1) {
+                    this.__img.animate([
                         { opacity: 1 },
                         { opacity: 0 },
                     ],
-                    {
-                        duration: 436
+                        {
+                            duration: 436
+                        }
+                    ).onfinish = () => {
+                        this.__img.style.opacity = 0;
                     }
-                ).onfinish = () => {
-                    this.__img.style.opacity = 0;
                 }
             }
 
             __revealImage() {
-                this.__img.animate([
+                if (this.__img.style.opacity == 0) {
+                    this.__img.animate([
                         { opacity: 0 },
                         { opacity: 1 },
                     ],
-                    {
-                        duration: 436
+                        {
+                            duration: 436
+                        }
+                    ).onfinish = () => {
+                        this.__img.style.opacity = 1;
                     }
-                ).onfinish = () => {
-                    this.__img.style.opacity = 1;
                 }
             }
 
             async __load(src) {
+                this.isLoading = true;
+
                 let self = this;
 
                 function onProgress(sender, args) {
@@ -219,30 +264,34 @@
                 }
 
                 this.__progressBar.indeterminate = true;
-                this.__progressBar.hidden = false;                
-
-                this.__img.style.width = "320px";
-                this.__img.style.height = "240px";
+                this.__progressBar.hidden = false;
 
                 this.__hideImage();
 
-                let blob = await Ajax.get(src, { onProgress }, { responseType: AjaxResponseType.Blob });
-                this.__img.src = URL.createObjectURL(blob);
+                if (src !== null) {
+                    let blob = await Ajax.get(src, { onProgress }, { responseType: AjaxResponseType.Blob });
+                    this.__img.src = URL.createObjectURL(blob);
 
-                this.__img.onload = () => this.__revealImage();
+                    this.__img.onload = () => this.__revealImage();
+                }
 
                 this.__progressBar.hidden = true;
+
+                this.isLoading = false;
+                this.hasLoaded = true;
             }
 
             __update() {
-                if (this.__src !== undefined && this.isConnected) {
+                if (this.isConnected && this.isVisible && !this.isLoading && !this.hasLoaded) {
                     this.__load(this.src);
                 }
             }
 
             get src() { return this.__src; }
             set src(value) {
+                this.hasLoaded = false;
                 this.__src = value;
+
                 this.__update();
             }
             __src = "";

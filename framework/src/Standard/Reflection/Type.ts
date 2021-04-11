@@ -12,7 +12,7 @@ import { assertParams } from "../../validation-standalone/index.js";
 export type TypeMatchingConstraint = Type | Interface | TypeConstraint;
 
 export class Type {
-    static get(ctor: ClassOf<any>): Type {
+    static get(ctor: Function): Type {
         assertParams({ ctor }, [Function])
 
         const name = ctor.name;
@@ -26,7 +26,7 @@ export class Type {
 
     static of(reference: any): Type {
         let name: string = "";
-        let ctor: ClassOf<any> = null;
+        let ctor: NewableFunction | null = null;
         let hasCtor: boolean = false;
         if (reference === undefined || reference === null)
             name = String(reference);
@@ -34,7 +34,7 @@ export class Type {
             hasCtor = typeof reference.constructor === "function";
             if (hasCtor) {
                 ctor = reference.constructor;
-                name = ctor.name;
+                name = ctor!.name;
             }
         }
         const result = new Type(name);
@@ -93,9 +93,9 @@ export class Type {
                     if (_type._hasReference)
                         instanceDescriptors = { ...Object.getOwnPropertyDescriptors(_type._reference), ...instanceDescriptors };
                     else {
-                        const prototype = _type._ctor.prototype;
+                        const prototype = _type._ctor!.prototype;
                         if (prototype !== undefined && prototype !== null)
-                            instanceDescriptors = { ...Object.getOwnPropertyDescriptors(_type._ctor.prototype), ...instanceDescriptors };
+                            instanceDescriptors = { ...Object.getOwnPropertyDescriptors(_type._ctor!.prototype), ...instanceDescriptors };
                     }
                 }
                 _type = _type.baseType;
@@ -261,7 +261,7 @@ export class Type {
 
     get name() { return this._name; }
 
-    protected _ctor: ClassOf<any>;
+    protected _ctor: NewableFunction | null;
     protected _hasCtor: boolean;
     protected _name: string;
     protected _reference: any;
