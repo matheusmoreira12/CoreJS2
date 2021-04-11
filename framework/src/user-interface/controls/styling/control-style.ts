@@ -2,33 +2,40 @@ import { DependencyObject, DependencyProperty, PropertyChangeEventArgs, Property
 import { Control } from "../control.js";
 import { StringUtils } from "../../../core-base/utils/index.js";
 
-import * as Registry from "../_registry.js";
-
 export class ControlStyle extends DependencyObject {
     constructor(targetControl: Control) {
         super();
 
         this.__targetControl = targetControl;
+
+        this.__initializeStyle();
+    }
+
+    private __initializeStyle() {
+        const styleElement = document.createElement("style");
+        document.head.appendChild(styleElement);
+        const styleSheet = styleElement.sheet;
+        styleSheet?.addRule(`#control-${this.__targetControl!.uniqueId}`);
+        const styleRule = styleSheet?.cssRules[0];
+        const styleDeclaration = (styleRule as CSSStyleRule).style;
+        this.__styleElement = styleElement;        
+        this.__styleDeclaration = styleDeclaration;
+    }
+
+    private __styleElement: HTMLStyleElement | null = null;
+    private __styleDeclaration: CSSStyleDeclaration | null = null;
+
+    private __getPropertyCSSName(propertyName: string) {
+        return StringUtils.toHyphenCase(propertyName);
     }
 
     protected __onPropertyChange(_sender: any, args: PropertyChangeEventArgs) {
-        const cssName = StringUtils.toHyphenCase(args.property.name);
-        const domElem = Registry.getDOMElement(this.__targetControl);
-        domElem.style.setProperty(cssName, args.newValue);
+        this.__styleDeclaration?.setProperty(this.__getPropertyCSSName(args.property.name), args.newValue);
     }
 
-    protected __checkChanges() {
-        const domElem = Registry.getDOMElement(this.__targetControl);
-        const compStyle = getComputedStyle(domElem);
-        const props = DependencyProperty.getAll(this.constructor);
-
-        for (let prop of props) {
-            const propName = prop.name;
-            this.set(prop, compStyle[<keyof typeof compStyle>propName]);
-        }
-
-        setInterval(this.__checkChanges, 0, this);
-    }
+    static allProperty = DependencyProperty.registerAttached(ControlStyle, "all", new PropertyMetadata(null));
+    get all(): string { return this.get(ControlStyle.allProperty); }
+    set all(value: string) { this.set(ControlStyle.allProperty, value); }
 
     static alignContentProperty = DependencyProperty.registerAttached(ControlStyle, "alignContent", new PropertyMetadata(null));
     get alignContent(): string { return this.get(ControlStyle.alignContentProperty); }
@@ -1142,6 +1149,26 @@ export class ControlStyle extends DependencyObject {
     get overflowY(): string { return this.get(ControlStyle.overflowYProperty); }
     set overflowY(value: string) { this.set(ControlStyle.overflowYProperty, value); }
 
+    static overscrollBehaviorProperty = DependencyProperty.registerAttached(ControlStyle, "overscrollBehavior", new PropertyMetadata(null));
+    get overscrollBehavior(): string { return this.get(ControlStyle.overscrollBehaviorProperty); }
+    set overscrollBehavior(value: string) { this.set(ControlStyle.overscrollBehaviorProperty, value); }
+
+    static overscrollBehaviorBlockProperty = DependencyProperty.registerAttached(ControlStyle, "overscrollBehaviorBlock", new PropertyMetadata(null));
+    get overscrollBehaviorBlock(): string { return this.get(ControlStyle.overscrollBehaviorBlockProperty); }
+    set overscrollBehaviorBlock(value: string) { this.set(ControlStyle.overscrollBehaviorBlockProperty, value); }
+
+    static overscrollBehaviorInlineProperty = DependencyProperty.registerAttached(ControlStyle, "overscrollBehaviorInline", new PropertyMetadata(null));
+    get overscrollBehaviorInline(): string { return this.get(ControlStyle.overscrollBehaviorInlineProperty); }
+    set overscrollBehaviorInline(value: string) { this.set(ControlStyle.overscrollBehaviorInlineProperty, value); }
+
+    static overscrollBehaviorXProperty = DependencyProperty.registerAttached(ControlStyle, "overscrollBehaviorX", new PropertyMetadata(null));
+    get overscrollBehaviorX(): string { return this.get(ControlStyle.overscrollBehaviorXProperty); }
+    set overscrollBehaviorX(value: string) { this.set(ControlStyle.overscrollBehaviorXProperty, value); }
+
+    static overscrollBehaviorYProperty = DependencyProperty.registerAttached(ControlStyle, "overscrollBehaviorY", new PropertyMetadata(null));
+    get overscrollBehaviorY(): string { return this.get(ControlStyle.overscrollBehaviorYProperty); }
+    set overscrollBehaviorY(value: string) { this.set(ControlStyle.overscrollBehaviorYProperty, value); }
+
     static paddingProperty = DependencyProperty.registerAttached(ControlStyle, "padding", new PropertyMetadata(null));
     get padding(): string { return this.get(ControlStyle.paddingProperty); }
     set padding(value: string) { this.set(ControlStyle.paddingProperty, value); }
@@ -1862,9 +1889,13 @@ export class ControlStyle extends DependencyObject {
     get zoom(): string | null { return this.get(ControlStyle.zoomProperty); }
     set zoom(value: string | null) { this.set(ControlStyle.zoomProperty, value); }
 
-    private __targetControl: Control;
+    private __targetControl: Control | null;
 
     protected destructor() {
+        this.__styleDeclaration = null;
+        this.__styleElement?.remove();
+        this.__targetControl = null;
+
         super.destructor();
     }
 }

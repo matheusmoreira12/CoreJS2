@@ -1,10 +1,9 @@
 import { Destructible } from "../index.js";
-import { DependencyProperty } from "./dependency-property.js";
 import { FrameworkEvent } from "../events/index.js";
-import { PropertyChangeEventArgs } from "./property-change-event.js";
 import { assertParams } from "../../validation/index.js";
+import { DependencyProperty, DependencyPropertyKey, PropertyChangeEventArgs } from "./index.js";
 
-import * as Storage from "./_storage.js";
+import { _Storage } from "./_storage.js";
 
 export abstract class DependencyObject extends Destructible {
     constructor() {
@@ -18,13 +17,15 @@ export abstract class DependencyObject extends Destructible {
     get(property: DependencyProperty): any {
         assertParams({ property }, [DependencyProperty]);
 
-        return Storage.getValue(this, property);
+        return _Storage.getValue(this, property);
     }
 
-    set(property: DependencyProperty, value: any): void {
-        assertParams({ property }, [DependencyProperty]);
+    set(property: DependencyProperty, value: any): void;
+    set(propertyKey: DependencyPropertyKey, value: any): void;
+    set(propertyOrPropertyKey: DependencyProperty | DependencyPropertyKey, value: any): void {
+        assertParams({ property: propertyOrPropertyKey }, [DependencyProperty]);
 
-        Storage.setValue(this, this, property, value);
+        _Storage.setValue(this, this, propertyOrPropertyKey, value);
     }
 
     get PropertyChangeEvent(): FrameworkEvent<PropertyChangeEventArgs> { return this.__PropertyChangeEvent; }

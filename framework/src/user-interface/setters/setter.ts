@@ -1,4 +1,4 @@
-import { DependencyProperty, PropertyMetadata } from "../../standard/dependency-objects/index.js"
+import { DependencyProperty, DependencyPropertyKey, PropertyMetadata } from "../../standard/dependency-objects/index.js"
 import { assertParams } from "../../validation/index.js";
 import { DependencyObject } from "../../standard/dependency-objects/dependency-object.js";
 import { Type } from "../../standard/reflection/index.js";
@@ -13,17 +13,20 @@ export class Setter extends DependencyObject {
         assertParams({ target }, [DependencyObject]);
         assertParams({ property }, [DependencyProperty]);
 
-        this.set(Setter.targetProperty, target);
-        this.set(Setter.propertyProperty, property);
-        this.set(Setter.valueProperty, value);
+        this.set(Setter.__targetPropertyKey, target);
+        this.set(Setter.__propertyPropertyKey, property);
+        this.set(Setter.__valuePropertyKey, value);
     }
 
-    static targetProperty = DependencyProperty.registerAttachedReadonly(Setter, "target", new PropertyMetadata(Type.get(DependencyObject)));
+    static __targetPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Setter, "target", new PropertyMetadata(Type.get(DependencyObject)));
+    static targetProperty: DependencyProperty = Setter.__targetPropertyKey.property;
     get target(): DependencyObject { return this.get(Setter.targetProperty); }
 
-    static propertyProperty = DependencyProperty.registerAttachedReadonly(Setter, "property", new PropertyMetadata(Type.get(DependencyProperty)));
+    static __propertyPropertyKey = DependencyProperty.registerReadonly(Setter, "property", new PropertyMetadata(Type.get(DependencyProperty)));
+    static propertyProperty = Setter.__propertyPropertyKey.property;
     get property(): DependencyProperty { return this.get(Setter.propertyProperty); }
 
-    static valueProperty = DependencyProperty.registerAttachedReadonly(Setter, "value", new PropertyMetadata(null));
+    static __valuePropertyKey = DependencyProperty.registerReadonly(Setter, "value", new PropertyMetadata(null));
+    static valueProperty = Setter.__valuePropertyKey.property;
     get value(): any { return this.get(Setter.valueProperty); }
 }

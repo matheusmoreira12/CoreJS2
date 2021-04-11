@@ -1,13 +1,12 @@
 import { Binding, BindingDirection } from "./index.js";
-import { DependencyProperty, PropertyChangeEventArgs, PropertyMetadata } from "../../standard/dependency-objects/index.js";
+import { DependencyObject, DependencyProperty, DependencyPropertyKey, PropertyChangeEventArgs, PropertyMetadata } from "../../standard/dependency-objects/index.js";
 import { assertParams } from "../../validation/index.js";
-import { DependencyObject } from "../../standard/dependency-objects/dependency-object.js";
 import { FrameworkEvent } from "../../standard/events/index.js";
 import { Enumeration } from "../../standard/index.js";
 import { IValueConverter } from "../value-converters/index.js";
-
-import * as Storage from "../../standard/dependency-objects/_storage.js";
 import { Type } from "../../standard/reflection/index.js";
+
+import { _Storage } from "../../standard/dependency-objects/_storage.js";
 
 /**
  * PropertyBinding class
@@ -22,10 +21,10 @@ export class PropertyBinding extends Binding {
         assertParams({ target }, [DependencyObject]);
         assertParams({ targetProperty }, [DependencyProperty]);
 
-        this.set(PropertyBinding.sourceProperty, source);
-        this.set(PropertyBinding.sourcePropertyProperty, sourceProperty);
-        this.set(PropertyBinding.targetProperty, target);
-        this.set(PropertyBinding.targetPropertyProperty, targetProperty);
+        this.set(PropertyBinding.__sourcePropertyKey, source);
+        this.set(PropertyBinding.__sourcePropertyPropertyKey, sourceProperty);
+        this.set(PropertyBinding.__targetPropertyKey, target);
+        this.set(PropertyBinding.__targetPropertyPropertyKey, targetProperty);
 
         this.__doInitialCrossingUpdate();
 
@@ -34,10 +33,10 @@ export class PropertyBinding extends Binding {
     }
 
     private __doInitialCrossingUpdate() {
-        const sourcePropertyRawValue = Storage.getValue(this.source, this.sourceProperty);
+        const sourcePropertyRawValue = _Storage.getValue(this.source, this.sourceProperty);
         this.__updateTargetProperty(sourcePropertyRawValue);
 
-        const targetPropertyRawValue = Storage.getValue(this.target, this.targetProperty);
+        const targetPropertyRawValue = _Storage.getValue(this.target, this.targetProperty);
         this.__updateSourceProperty(targetPropertyRawValue);
     }
 
@@ -50,7 +49,7 @@ export class PropertyBinding extends Binding {
                 targetValue = (<IValueConverter>this.valueConverter).convert(sourceValue);
             else
                 targetValue = sourceValue;
-            Storage.setValue(this, this.target, this.targetProperty, targetValue);
+            _Storage.setValue(this, this.target, this.targetProperty, targetValue);
         }
     }
 
@@ -71,7 +70,7 @@ export class PropertyBinding extends Binding {
                 sourceValue = (<IValueConverter>this.valueConverter).convert(targetValue);
             else
                 sourceValue = targetValue;
-            Storage.setValue(this, this.target, this.targetProperty, sourceValue);
+            _Storage.setValue(this, this.target, this.targetProperty, sourceValue);
         }
     }
 
@@ -83,16 +82,20 @@ export class PropertyBinding extends Binding {
 
     private __target_PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs> = new FrameworkEvent(this.__target_onPropertyChange, this);
 
-    static sourceProperty = DependencyProperty.registerAttachedReadonly(PropertyBinding, "source", new PropertyMetadata(Type.get(DependencyObject)));
+    static __sourcePropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(PropertyBinding, "source", new PropertyMetadata(Type.get(DependencyObject)));
+    static sourceProperty = PropertyBinding.__sourcePropertyKey.property;
     get source(): DependencyObject { return this.get(PropertyBinding.sourceProperty); }
 
-    static sourcePropertyProperty = DependencyProperty.registerAttachedReadonly(PropertyBinding, "sourceProperty", new PropertyMetadata(Type.get(DependencyObject)));
+    static __sourcePropertyPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(PropertyBinding, "sourceProperty", new PropertyMetadata(Type.get(DependencyObject)));
+    static sourcePropertyProperty: DependencyProperty = PropertyBinding.__sourcePropertyPropertyKey.property;
     get sourceProperty(): DependencyProperty { return this.get(PropertyBinding.sourcePropertyProperty); }
 
-    static targetProperty = DependencyProperty.registerAttachedReadonly(PropertyBinding, "target", new PropertyMetadata(Type.get(DependencyObject)));
+    static __targetPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(PropertyBinding, "target", new PropertyMetadata(Type.get(DependencyObject)));
+    static targetProperty: DependencyProperty = PropertyBinding.__targetPropertyKey.property;
     get target(): DependencyObject { return this.get(PropertyBinding.targetProperty); }
 
-    static targetPropertyProperty = DependencyProperty.registerAttachedReadonly(PropertyBinding, "targetProperty", new PropertyMetadata(Type.get(DependencyObject)));
+    static __targetPropertyPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(PropertyBinding, "targetProperty", new PropertyMetadata(Type.get(DependencyObject)));
+    static targetPropertyProperty: DependencyProperty = PropertyBinding.__targetPropertyPropertyKey.property;
     get targetProperty(): DependencyProperty { return this.get(PropertyBinding.targetPropertyProperty); }
 
     protected destructor(): void {

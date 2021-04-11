@@ -17,8 +17,6 @@ interface ControlInstanceInfo {
     element: Element;
 }
 
-type ControlConstructor = ConstructorOf<Control>;
-
 export function tryInitializeInstance(): boolean {
 
 }
@@ -96,4 +94,8 @@ export function tryDeRegister(ctor: ClassOf<Control>, forceQuit: boolean = false
     }
     else
         return false;
+}
+
+export function tryGetStylesheet(__targetControl: Control): CSSStyleDeclaration {
+    throw new Error("Function not implemented.");
 }
