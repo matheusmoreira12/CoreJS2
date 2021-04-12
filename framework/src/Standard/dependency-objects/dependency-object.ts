@@ -23,7 +23,7 @@ export abstract class DependencyObject extends Destructible {
     set(property: DependencyProperty, value: any): void;
     set(propertyKey: DependencyPropertyKey, value: any): void;
     set(propertyOrPropertyKey: DependencyProperty | DependencyPropertyKey, value: any): void {
-        assertParams({ property: propertyOrPropertyKey }, [DependencyProperty]);
+        assertParams({ property: propertyOrPropertyKey }, [DependencyProperty, DependencyPropertyKey]);
 
         _Storage.setValue(this, this, propertyOrPropertyKey, value);
     }
