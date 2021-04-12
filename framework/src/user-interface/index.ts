@@ -22,9 +22,6 @@ export { Bindings }
 import * as Colors from "./colors/index.js";
 export { Colors }
 
-import * as DependencyObjects from "../standard/dependency-objects/index.js";
-export { DependencyObjects }
-
 import * as Setters from "./setters/index.js";
 export { Setters }
 
