@@ -39,7 +39,7 @@ export namespace _Storage {
 
     export function internal_setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {
         const newSetter = InternalSetter.create(source, target, property, value);
-        setters.push(newSetter);
+        setters.add(newSetter);
     }
 
     function _setValue(source: object, target: DependencyObject, property: DependencyProperty, value: any) {

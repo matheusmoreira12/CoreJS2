@@ -231,7 +231,6 @@ export class Type {
         assertParams({ _interface }, [Interface])
 
         let analysis = Interface.differ(this, _interface);
-        console.log(analysis);
         if (analysis.isEmpty)
             return true;
 

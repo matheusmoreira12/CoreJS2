@@ -43,13 +43,12 @@ export class PropertyBinding extends Binding {
     private __updateTargetProperty(sourceValue: any) {
         const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.direction!);
         if (canUpdateToTarget) {
-            const hasValueConverter = !!this.valueConverter;
-            let targetValue: any;
-            if (hasValueConverter)
-                targetValue = (<IValueConverter>this.valueConverter).convert(sourceValue);
+            let newTargetValue: any;
+            if (this.valueConverter)
+                newTargetValue = this.valueConverter.convert(sourceValue);
             else
-                targetValue = sourceValue;
-            _Storage.setValue(this, this.target, this.targetProperty, targetValue);
+                newTargetValue = sourceValue;
+            _Storage.setValue(this, this.target, this.targetProperty, newTargetValue);
         }
     }
 
@@ -64,13 +63,12 @@ export class PropertyBinding extends Binding {
     private __updateSourceProperty(targetValue: any) {
         const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.direction!);
         if (canUpdateToSource) {
-            const hasValueConverter = !!this.valueConverter;
-            let sourceValue: any;
-            if (hasValueConverter)
-                sourceValue = (<IValueConverter>this.valueConverter).convert(targetValue);
+            let newSourceValue: any;
+            if (this.valueConverter)
+                newSourceValue = this.valueConverter.convertBack(targetValue);
             else
-                sourceValue = targetValue;
-            _Storage.setValue(this, this.target, this.targetProperty, sourceValue);
+                newSourceValue = targetValue;
+            _Storage.setValue(this, this.source, this.sourceProperty, newSourceValue);
         }
     }
 

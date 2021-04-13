@@ -39,9 +39,8 @@ export class PropertyAttributeBinding extends Binding {
     private __updateTargetAttribute(propertyValue: any) {
         const canUpdateToTarget = Enumeration.contains(BindingDirection.ToTarget, this.direction);
         if (canUpdateToTarget) {
-            const hasValueConverter = !!this.valueConverter;
             let attributeValue: string | null;
-            if (hasValueConverter)
+            if (this.valueConverter)
                 attributeValue = (<IValueConverter>this.valueConverter).convert(propertyValue);
             else
                 attributeValue = String(propertyValue);
@@ -63,9 +62,8 @@ export class PropertyAttributeBinding extends Binding {
     private __updateSourceProperty(attributeValue: string | null) {
         const canUpdateToSource = Enumeration.contains(BindingDirection.ToSource, this.direction);
         if (canUpdateToSource) {
-            const hasValueConverter = !!this.valueConverter;
             let propertyValue: any;
-            if (hasValueConverter)
+            if (this.valueConverter)
                 propertyValue = (<IValueConverter>this.valueConverter).convertBack(attributeValue);
             else
                 propertyValue = attributeValue;
