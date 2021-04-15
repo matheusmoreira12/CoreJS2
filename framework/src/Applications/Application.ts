@@ -9,7 +9,10 @@ export abstract class Application extends DependencyObject {
     constructor() {
         super();
 
-        this.resources = new ResourceDictionary();
+        if (new.target === Application)
+            throw new InvalidOperationException("Invalid constructor.");
+
+        this.set(Application.__resourcesPropertyKey, new ResourceDictionary());
 
         allApplications.push(this);
     }
@@ -47,9 +50,9 @@ export abstract class Application extends DependencyObject {
             this.resources.destruct();
     }
 
-    static resourcesProperty = DependencyProperty.registerAttached(Application, "resources", new PropertyMetadata(Type.get(ResourceDictionary)));
+    static __resourcesPropertyKey = DependencyProperty.registerReadonly(Application, "resources", new PropertyMetadata(Type.get(ResourceDictionary)));
+    static resourcesProperty = Application.__resourcesPropertyKey.property;
     get resources(): ResourceDictionary { return this.get(Application.resourcesProperty); }
-    set resources(value: ResourceDictionary) { this.set(Application.resourcesProperty, value); }
 }
 
 function window_onload() {
