@@ -6,6 +6,10 @@ import { InvalidOperationException } from "../standard/exceptions/index.js";
 const allApplications: Application[] = [];
 
 export abstract class Application extends DependencyObject {
+    static getAll(): Application[] {
+        return [...allApplications];
+    }
+
     constructor() {
         super();
 
@@ -15,6 +19,8 @@ export abstract class Application extends DependencyObject {
         this.set(Application.__resourcesPropertyKey, new ResourceDictionary());
 
         allApplications.push(this);
+
+        ApplicationInitializer.checkDocumentReadyStateAndInitializeApplication(this);
     }
 
     protected abstract initializer(): void;
@@ -55,13 +61,29 @@ export abstract class Application extends DependencyObject {
     get resources(): ResourceDictionary { return this.get(Application.resourcesProperty); }
 }
 
-function window_onload() {
-    window.removeEventListener("load", window_onload);
+namespace ApplicationInitializer {
+    let canInitializeApplications = false;
 
-    for (let application of allApplications) {
-        if (!application.isInitialized)
+    function updateCanInitializeApplications() {
+        canInitializeApplications = document.readyState == "interactive" || document.readyState == "complete";
+    }
+
+    export function checkDocumentReadyStateAndInitializeApplication(application: Application) {
+        if (canInitializeApplications && !application.isInitialized)
             application.initialize();
     }
-}
 
-window.addEventListener("load", window_onload);
+    function checkDocumentReadyStateAndInitializeAllApplications() {
+        for (let application of allApplications) {
+            if (!application.isInitialized)
+                checkDocumentReadyStateAndInitializeApplication(application);
+        }
+    }
+
+    function document_onreadystatechange() {
+        updateCanInitializeApplications();
+        checkDocumentReadyStateAndInitializeAllApplications();
+    }
+
+    document.addEventListener("readystatechange", document_onreadystatechange);
+}
