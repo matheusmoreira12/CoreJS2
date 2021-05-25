@@ -1,7 +1,5 @@
-import { Point } from "../coordinates/point.js";
-import { StylusInteractionType } from "./stylus-interaction-type.js";
-import { UserInteractionData } from "./user-interaction-data.js";
-
+import { Point } from "../coordinates/index.js";
+import { StylusInteractionType, UserInteractionData } from "./index.js";
 
 export class StylusInteractionData extends UserInteractionData {
     constructor(interactionType: number, position: Point, tipPressure: number) {

@@ -1,7 +1,5 @@
-import { MouseButton } from "./mouse-button.js";
-import { Point } from "../coordinates/point.js";
-import { UserInteractionData } from "./user-interaction-data.js";
-
+import { Point } from "../coordinates/index.js";
+import { MouseButton, UserInteractionData } from "./index.js";
 
 export class MouseInteractionData extends UserInteractionData {
     constructor(button: number, position: Point) {

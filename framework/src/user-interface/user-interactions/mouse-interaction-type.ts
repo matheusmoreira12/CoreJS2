@@ -1,4 +1,4 @@
-import { Enumeration } from "../lib/corejs/src/standard/index.js";
+import { Enumeration } from "../../standard/index.js";
 
 export const MouseInteractionType = Enumeration.create({
     MouseDown: 0,
