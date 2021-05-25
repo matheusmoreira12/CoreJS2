@@ -19,13 +19,7 @@ const SCREEN_PPI = getScreenDPI();
 
 function measureText(text: string, element: Element): { width: number, height: number } {
     const div = document.createElement("div");
-    div.setAttribute("style", `
-position: absolute;
-top: 0;
-left: 0;
-width: auto;
-height: auto;
-font: inherit;`);
+    div.setAttribute("style", "margin: 0; padding: 0; position: absolute; top: 0; left: 0; width: auto; height: auto; font: inherit;");
     div.textContent = text;
     element.appendChild(div);
     const result = { width: div.clientWidth, height: div.clientHeight };

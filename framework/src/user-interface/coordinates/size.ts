@@ -3,25 +3,39 @@ import { assertParams } from "../../validation/index.js";
 
 export class Size {
     static get zero(): Size { return ZERO };
-    static centimeters(width: number, height: number): Size { return new Size(Length.centimeters(width), Length.centimeters(height)); }
-    static millimeters(width: number, height: number): Size { return new Size(Length.millimeters(width), Length.millimeters(height)); }
-    static inches(width: number, height: number): Size { return new Size(Length.inches(width), Length.inches(height)); }
-    static pixels(width: number, height: number): Size { return new Size(Length.pixels(width), Length.pixels(height)); }
-    static points(width: number, height: number): Size { return new Size(Length.points(width), Length.points(height)); }
-    static picas(width: number, height: number): Size { return new Size(Length.picas(width), Length.picas(height)); }
-    static em(width: number, height: number): Size { return new Size(Length.em(width), Length.em(height)); }
-    static ex(width: number, height: number): Size { return new Size(Length.ex(width), Length.ex(height)); }
-    static ch(width: number, height: number): Size { return new Size(Length.ch(width), Length.ch(height)); }
-    static rem(width: number, height: number): Size { return new Size(Length.rem(width), Length.rem(height)); }
-    static vw(width: number, height: number): Size { return new Size(Length.vw(width), Length.vw(height)); }
-    static vh(width: number, height: number): Size { return new Size(Length.vh(width), Length.vh(height)); }
-    static vmin(width: number, height: number): Size { return new Size(Length.vmin(width), Length.vmin(height)); }
-    static vmax(width: number, height: number): Size { return new Size(Length.vmax(width), Length.vmax(height)); }
-    static percent(width: number, height: number): Size { return new Size(Length.percent(width), Length.percent(height)); }
+
+    static getCentimeters(width: number, height: number): Size { return new Size(Length.getCentimeters(width), Length.getCentimeters(height)); }
+
+    static getMillimeters(width: number, height: number): Size { return new Size(Length.getMillimeters(width), Length.getMillimeters(height)); }
+
+    static getInches(width: number, height: number): Size { return new Size(Length.getInches(width), Length.getInches(height)); }
+
+    static getPixels(width: number, height: number): Size { return new Size(Length.getPixels(width), Length.getPixels(height)); }
+
+    static getPoints(width: number, height: number): Size { return new Size(Length.getPoints(width), Length.getPoints(height)); }
+
+    static getPicas(width: number, height: number): Size { return new Size(Length.getPicas(width), Length.getPicas(height)); }
+
+    static getEm(width: number, height: number): Size { return new Size(Length.getEm(width), Length.getEm(height)); }
+
+    static getEx(width: number, height: number): Size { return new Size(Length.getEx(width), Length.getEx(height)); }
+
+    static getCh(width: number, height: number): Size { return new Size(Length.getCh(width), Length.getCh(height)); }
+
+    static getRem(width: number, height: number): Size { return new Size(Length.getRem(width), Length.getRem(height)); }
+
+    static getVw(width: number, height: number): Size { return new Size(Length.getVw(width), Length.getVw(height)); }
+
+    static getVh(width: number, height: number): Size { return new Size(Length.getVh(width), Length.getVh(height)); }
+
+    static getVmin(width: number, height: number): Size { return new Size(Length.getVmin(width), Length.getVmin(height)); }
+
+    static getVmax(width: number, height: number): Size { return new Size(Length.getVmax(width), Length.getVmax(height)); }
+
+    static getPercent(width: number, height: number): Size { return new Size(Length.getPercent(width), Length.getPercent(height)); }
 
     constructor(width: Length, height: Length) {
-        assertParams({ width }, [Length]);
-        assertParams({ height }, [Length]);
+        assertParams({ width, height }, [Length]);
 
         this.__width = width;
         this.__height = height;

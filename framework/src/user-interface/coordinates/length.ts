@@ -5,79 +5,96 @@ import * as UnitConversion from "./unit-conversion.js";
 
 export class Length {
     static get zero() { return ZERO; }
+
     static get auto() { return AUTO; }
+
     static get invalid() { return new Length(0, LengthUnit.None, false, true); }
-    static centimeters(value: number): Length {
+
+    static getCentimeters(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Centimeters);
     }
-    static millimeters(value: number): Length {
+
+    static getMillimeters(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Millimeters);
     }
-    static inches(value: number): Length {
+
+    static getInches(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Inches);
     }
-    static pixels(value: number): Length {
+
+    static getPixels(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Pixels);
     }
-    static points(value: number): Length {
+
+    static getPoints(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Points);
     }
-    static picas(value: number): Length {
+
+    static getPicas(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Picas);
     }
-    static em(value: number): Length {
+
+    static getEm(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Em);
     }
-    static ex(value: number): Length {
+
+    static getEx(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Ex);
     }
-    static ch(value: number): Length {
+
+    static getCh(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Ch);
     }
-    static rem(value: number): Length {
+
+    static getRem(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Rem);
     }
-    static vw(value: number): Length {
+
+    static getVw(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Vw);
     }
-    static vh(value: number): Length {
+
+    static getVh(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Vh);
     }
-    static vmin(value: number): Length {
+
+    static getVmin(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Vmin);
     }
-    static vmax(value: number): Length {
+
+    static getVmax(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Vmax);
     }
-    static percent(value: number): Length {
+
+    static getPercent(value: number): Length {
         assertParams({ value }, [Number]);
 
         return new Length(value, LengthUnit.Percent);
@@ -96,31 +113,45 @@ export class Length {
     }
 
     toCentimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Centimeters)!; }
+
     toMillimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Millimeters)!; }
+
     toInches(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Inches)!; }
+
     toPixels(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Pixels)!; }
+
     toPoints(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Points)!; }
+
     toPicas(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Picas)!; }
+
     toEm(element: Element): number {
         assertParams({ element }, [Element]);
 
         return UnitConversion.convert(this.amount, this.unit, LengthUnit.Em, element)!;
     }
+
     toEx(element: Element): number {
         assertParams({ element }, [Element]);
 
         return UnitConversion.convert(this.amount, this.unit, LengthUnit.Ex, element)!;
     }
+
     toCh(element: Element): number {
         assertParams({ element }, [Element]);
 
         return UnitConversion.convert(this.amount, this.unit, LengthUnit.Ch, element)!;
     }
+
     toRem(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Rem)!; }
+
     toVw(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vw)!; }
+
     toVh(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vh)!; }
+
     toVmin(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmin)!; }
+
     toVmax(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmax)!; }
+
     toPercent(element: Element, orientation: number): number {
         assertParams({ element }, [Element]);
         Orientation.assertFlag(orientation);
@@ -151,4 +182,5 @@ export class Length {
 }
 
 const ZERO = new Length(0);
+
 const AUTO = new Length(0, LengthUnit.None, true);
