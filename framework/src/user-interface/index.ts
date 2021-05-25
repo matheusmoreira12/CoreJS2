@@ -46,5 +46,8 @@ export { Controls };
 import * as Coordinates from "./coordinates/index.js";
 export { Coordinates };
 
+import * as UserInteractions from "./user-interactions/index.js";
+export { UserInteractions };
+
 import * as Xaml from "./xaml/index.js";
 export { Xaml };
