@@ -1,3 +1,5 @@
+import { NameOf, NameOfMap } from "./types";
+
 function normalizeCase(value: string) {
     return value.replace(/\w[A-Z]/g, m => m[0] + " " + m[1]).toLowerCase().replace(/_/g, " ").replace(/-/g, " ");
 }
@@ -77,6 +79,10 @@ export namespace StringUtils {
     export function toCammelCase(value: string) {
         const normalized = normalizeCase(value);
         return normalized.replace(/ \w/g, m => m[1].toUpperCase());
+    }
+
+    export function nameOf<TNameOfMap extends NameOfMap>(map: TNameOfMap): NameOf<TNameOfMap> {
+        return Object.keys(map)[0];
     }
 
     export const NUMERIC_CHARS = [...getCharRange("0", "9")];
