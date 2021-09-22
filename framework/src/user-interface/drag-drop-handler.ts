@@ -1,4 +1,4 @@
-﻿import { Enumeration } from "../standard/enumeration.js";
+﻿import { Enumeration } from "../standard/enumerations/enumeration.js";
 import { Timer } from "../standard/timing/index.js";
 import { BroadcastEvent, FrameworkEvent, FrameworkEventArgs } from "../standard/events/index.js";
 import DragEmulator from "./drag-emulator.js";

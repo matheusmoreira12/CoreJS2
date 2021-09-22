@@ -1,4 +1,4 @@
-import { Enumeration } from "../enumeration.js";
+import { Enumeration } from "../enumerations/enumeration.js";
 
 export const MemberType = Enumeration.create({
     Constructor: 0b000001,

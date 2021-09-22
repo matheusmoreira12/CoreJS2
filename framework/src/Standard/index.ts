@@ -1,7 +1,7 @@
 export * from "./context-selection-flags.js";
 export * from "./date-time.js";
 export * from "./destructible.js";
-export * from "./enumeration.js";
+export * from "./enumerations/enumeration.js";
 export * from "./math-x.js";
 export * from "./tokens.js";
 

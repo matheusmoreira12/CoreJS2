@@ -1,5 +1,5 @@
 import { Dictionary } from "./dictionary.js";
-import { Enumeration } from "../enumeration.js";
+import { Enumeration } from "../enumerations/enumeration.js";
 import { FrameworkEvent } from "../events/framework-event.js";
 import { FrameworkEventArgs } from "../events/index.js";
 
