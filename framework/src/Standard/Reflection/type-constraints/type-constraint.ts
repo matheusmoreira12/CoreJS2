@@ -2,9 +2,7 @@ import { assertEachParams } from "../../../validation/index.js";
 import { InvalidOperationException } from "../../exceptions/index.js";
 import { Enumeration } from "../../index.js";
 import { Interface } from "../../interfaces/index.js";
-import { Type } from "../index.js";
-
-export type TypeConstraintBaseType = Type | Interface | TypeConstraint;
+import { Type, TypeMatchingConstraint } from "../index.js"
 
 export const TypeConstraintType = Enumeration.create({
     Or: 0,
@@ -12,7 +10,7 @@ export const TypeConstraintType = Enumeration.create({
 });
 
 export abstract class TypeConstraint {
-    constructor(type: number, baseTypes: TypeConstraintBaseType[]) {
+    constructor(type: number, baseTypes: TypeMatchingConstraint[]) {
         if (new.target === TypeConstraint)
             throw new InvalidOperationException("Invalid Constructor.");
 
@@ -23,8 +21,8 @@ export abstract class TypeConstraint {
     }
 
     protected __type: number;
-    protected __baseTypes: TypeConstraintBaseType[];
+    protected __baseTypes: TypeMatchingConstraint[];
 
     get type(): number { return this.__type; }
-    get baseTypes(): TypeConstraintBaseType[] { return this.__baseTypes; }
+    get baseTypes(): TypeMatchingConstraint[] { return this.__baseTypes; }
 }
