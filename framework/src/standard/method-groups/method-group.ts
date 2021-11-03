@@ -1,9 +1,9 @@
 import { Method } from "../reflection/types"
 import { InvalidOperationException } from "../exceptions/framework-exception.js";
 
-type TArgs<_TOverides> = any[];
-type TResult<_TOverides> = any;
-type TThisArg<_TOverides> = any;
+type Args<TOverrides extends Method<any[], any, any>[]> = Parameters<TOverrides[number]>;
+type Result<TOverrides extends Method<any[], any, any>[]> = ReturnType<TOverrides[number]>;
+type ThisArg<TOverrides extends Method<any[], any, any>[]> = ThisParameterType<TOverrides[number]>;
 
 function MethodGroup_factory(...overrides: Function[]): Function {
     return function MethodGroup(...args: any[]) {
@@ -12,8 +12,10 @@ function MethodGroup_factory(...overrides: Function[]): Function {
 
 const $overrides = Symbol("overrides");
 
-class MethodGroupBase<TOverrides extends Method[]> extends Function {
-    static create<TOverrides extends Method[]>(...overrides: TOverrides): MethodGroupBase<TOverrides> {
+interface MethodGroupBase<TOverrides extends Method<any[], any, any>[]> extends Function, Method<Args<TOverrides>, Result<TOverrides>, ThisArg<TOverrides>>{}
+
+class MethodGroupBase<TOverrides extends Method<any[], any, any>[]> extends Function {
+    static create<TOverrides extends Method<any[], any, any>[]>(...overrides: TOverrides): MethodGroupBase<TOverrides> {
         const MethodGroup = MethodGroup_factory(...overrides);
         Object.setPrototypeOf(MethodGroup, new MethodGroupBase());
         return <MethodGroupBase<TOverrides>>MethodGroup;
@@ -28,15 +30,15 @@ class MethodGroupBase<TOverrides extends Method[]> extends Function {
         this[$overrides] = overrides;
     }
 
-    ["apply"]: (thisArg: TThisArg<TOverrides>, argArray: TArgs<TOverrides>) => TResult<TOverrides>;
+    ["apply"]: (thisArg: ThisArg<TOverrides>, argArray: Args<TOverrides>) => Result<TOverrides>;
 
-    ["call"]: (thisArg: TThisArg<TOverrides>, ...argArray: TArgs<TOverrides>) => TResult<TOverrides>;
+    ["call"]: (thisArg: ThisArg<TOverrides>, ...argArray: Args<TOverrides>) => Result<TOverrides>;
 
-    ["bind"]: (thisArg: TThisArg<TOverrides>, argArray: TArgs<TOverrides>) => Method<TArgs<TOverrides>, TResult<TOverrides>, TThisArg<TOverrides>>;
+    ["bind"]: (thisArg: ThisArg<TOverrides>, argArray: Args<TOverrides>) => Method<Args<TOverrides>, Result<TOverrides>, ThisArg<TOverrides>>;
 
     get overrides(): TOverrides{  return this[$overrides]; }
 
     private [$overrides]: TOverrides;
 }
 
-export abstract class MethodGroup<TOverrides extends Method[]> extends MethodGroupBase<TOverrides> {};
+export abstract class MethodGroup<TOverrides extends Method<any[], any, any>[]> extends MethodGroupBase<TOverrides> {};
