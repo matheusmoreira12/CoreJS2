@@ -1,7 +1,6 @@
 import { ArgumentTypeException, InvalidOperationException } from "../exceptions/index.js"
 import { Interface } from "../interfaces/index.js";
-import { ClassOf } from "./types.js";
-import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, FunctionInfo } from "./index.js";
+import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, FunctionInfo, TypeMatchingConstraint, PrimitiveOrComplex } from "./index.js";
 import { Enumeration } from "../index.js";
 import { FieldInfo } from "./field-info.js";
 import { PropertyInfo } from "./property-info.js";
@@ -9,10 +8,8 @@ import { FieldInfoBase } from "./field-info-base.js";
 import { TypeConstraint, TypeConstraintType } from "./type-constraints/type-constraint.js";
 import { assertParams } from "../../validation-standalone/index.js";
 
-export type TypeMatchingConstraint = Type | Interface | TypeConstraint;
-
-export class Type {
-    static get(ctor: Function): Type {
+export class Type<_TFrom extends PrimitiveOrComplex = any> {
+    static get<TConstructor extends Function>(ctor: TConstructor): Type<TConstructor> {
         assertParams({ ctor }, [Function])
 
         const name = ctor.name;
@@ -24,7 +21,7 @@ export class Type {
         return result;
     }
 
-    static of(reference: any): Type {
+    static of<TReference extends PrimitiveOrComplex>(reference: TReference): Type<TReference> {
         let name: string = "";
         let ctor: NewableFunction | null = null;
         let hasCtor: boolean = false;
