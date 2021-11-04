@@ -1,11 +1,15 @@
+import { ValueType } from "./types";
+
 import { assertParams } from "../../validation/index.js";
 import { InvalidOperationException } from "../exceptions/index.js";
 import { ClassOf } from "../reflection/index.js";
-import { DependencyPropertyKey, PropertyMetadata } from "./index.js";
+import { DependencyObject, DependencyPropertyKey, PropertyMetadata } from "./index.js";
 
 import { _Registry } from "./_registry.js";
 
-function assertAttachedProperty(target: ClassOf<any>, name: string, isReadonly: boolean) {
+type InferValueType<TMetadata> = TMetadata extends PropertyMetadata<infer U> ? U : never;
+
+function assertAttachedProperty(target: Function, name: string, isReadonly: boolean) {
     const descriptor = Object.getOwnPropertyDescriptor(target.prototype, name);
     if (!descriptor)
         throw new InvalidOperationException(`Cannot register dependency property. Missing property ${name} in ${target.name}.`)
@@ -18,8 +22,8 @@ function assertAttachedProperty(target: ClassOf<any>, name: string, isReadonly: 
 /**
  * Eases the integration between user-defined properties and framework features.
  */
-export class DependencyProperty {
-    static registerAttached(target: ClassOf<any>, name: string, metadata: PropertyMetadata): DependencyProperty {
+export class DependencyProperty<TTarget extends ClassOf<DependencyObject> = any, TName extends string = any, TMetadata extends PropertyMetadata = any> {
+    static registerAttached<TTarget extends ClassOf<DependencyObject>, TName extends string, TMetadata extends PropertyMetadata>(target: TTarget, name: TName, metadata: TMetadata): DependencyProperty<TTarget, TName, TMetadata> {
         assertParams({ target }, [Function]);
         assertParams({ metadata }, [PropertyMetadata]);
 
@@ -30,7 +34,7 @@ export class DependencyProperty {
         return property;
     }
 
-    static registerReadonly(target: ClassOf<any>, name: string, metadata: PropertyMetadata): DependencyPropertyKey {
+    static registerReadonly<TTarget extends ClassOf<DependencyObject>, TName extends string, TMetadata extends PropertyMetadata>(target: TTarget, name: TName, metadata: TMetadata): DependencyPropertyKey<DependencyProperty<TTarget, TName, TMetadata>> {
         assertParams({ target }, [Function]);
         assertParams({ options: metadata }, [PropertyMetadata]);
         assertAttachedProperty(target, name, true);
@@ -42,7 +46,7 @@ export class DependencyProperty {
         return propertyKey;
     }
 
-    static register(target: ClassOf<any>, name: string, metadata: PropertyMetadata): DependencyProperty {
+    static register<TTarget extends ClassOf<DependencyObject>, TName extends string, TMetadata extends PropertyMetadata>(target: TTarget, name: TName, metadata: PropertyMetadata<InferValueType<TMetadata>>): DependencyProperty<TTarget, TName, TMetadata> {
         assertParams({ target }, [Function]);
         assertParams({ metadata }, [PropertyMetadata]);
 
@@ -51,17 +55,17 @@ export class DependencyProperty {
         return property;
     }
 
-    static getMetadata(property: DependencyProperty): PropertyMetadata {
+    static getMetadata<TTarget extends ClassOf<DependencyObject>, TMetadata extends PropertyMetadata>(property: DependencyProperty<TTarget, any, TMetadata>): TMetadata {
         assertParams({ property }, [DependencyProperty]);
 
         const metadata = _Registry.getPropertyMetadata(property);
         if (metadata)
-            return metadata;
+            return metadata as TMetadata;
         else
             throw new InvalidOperationException("Cannot get metadata. Invalid dependency property.")
     }
 
-    static getAll(target: ClassOf<any>): IterableIterator<DependencyProperty> {
+    static getAll(target: ClassOf<DependencyObject>): IterableIterator<DependencyProperty> {
         assertParams({ target }, [Function]);
 
         return _Registry.getAllProperties(target);

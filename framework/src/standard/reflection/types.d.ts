@@ -4,7 +4,7 @@ import { TypeConstraint } from "./type-constraints/index.js";
 
 export type Primitive = null | undefined | boolean | number | string | symbol;
 
-export type PrimitiveOrComplex = Primitive | object;
+type PrimitiveOrComplex = Primitive | object;
 
 export type ConstructorOf<T extends Object> = T["constructor"];
 
