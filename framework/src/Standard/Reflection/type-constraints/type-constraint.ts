@@ -1,13 +1,7 @@
 import { assertEachParams } from "../../../validation/index.js";
 import { InvalidOperationException } from "../../exceptions/index.js";
-import { Enumeration } from "../../index.js";
 import { Interface } from "../../interfaces/index.js";
 import { Type, TypeMatchingConstraint } from "../index.js"
-
-export const TypeConstraintType = Enumeration.create({
-    Or: 0,
-    And: null
-});
 
 export abstract class TypeConstraint {
     constructor(type: number, baseTypes: TypeMatchingConstraint[]) {

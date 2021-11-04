@@ -5,8 +5,8 @@ import { Enumeration } from "../index.js";
 import { FieldInfo } from "./field-info.js";
 import { PropertyInfo } from "./property-info.js";
 import { FieldInfoBase } from "./field-info-base.js";
-import { TypeConstraint, TypeConstraintType } from "./type-constraints/type-constraint.js";
 import { assertParams } from "../../validation-standalone/index.js";
+import { TypeConstraint, TypeConstraintType } from "./type-constraints/index.js";
 
 export class Type<_TFrom extends PrimitiveOrComplex = any> {
     static get<TConstructor extends Function>(ctor: TConstructor): Type<TConstructor> {
