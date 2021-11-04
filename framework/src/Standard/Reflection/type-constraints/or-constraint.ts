@@ -1,8 +1,8 @@
-import { TypeConstraint } from "./index.js";
-import { TypeConstraintBaseType, TypeConstraintType } from "./type-constraint.js";
+import { TypeMatchingConstraint } from "../index.js";
+import { TypeConstraint, TypeConstraintType } from "./index.js";
 
 export class OrConstraint extends TypeConstraint {
-    constructor(types: TypeConstraintBaseType[]) {
+    constructor(types: TypeMatchingConstraint[]) {
         super(TypeConstraintType.Or, types);
     }
 }
