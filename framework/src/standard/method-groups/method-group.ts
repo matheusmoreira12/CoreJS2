@@ -1,44 +1,44 @@
 import { Method } from "../reflection/types"
 import { InvalidOperationException } from "../exceptions/framework-exception.js";
 
-type Args<TOverrides extends Method<any[], any, any>[]> = Parameters<TOverrides[number]>;
-type Result<TOverrides extends Method<any[], any, any>[]> = ReturnType<TOverrides[number]>;
-type ThisArg<TOverrides extends Method<any[], any, any>[]> = ThisParameterType<TOverrides[number]>;
+type Args<TOverloads extends Method<any[], any, any>[]> = Parameters<TOverloads[number]>;
+type Result<TOverloads extends Method<any[], any, any>[]> = ReturnType<TOverloads[number]>;
+type ThisArg<TOverloads extends Method<any[], any, any>[]> = ThisParameterType<TOverloads[number]>;
 
-function MethodGroup_factory(...overrides: Function[]): Function {
+function MethodGroup_factory(...overloads: Function[]): Function {
     return function MethodGroup(...args: any[]) {
     }
 }
 
-const $overrides = Symbol("overrides");
+const $overloads = Symbol("overloads");
 
-interface MethodGroupBase<TOverrides extends Method<any[], any, any>[]> extends Function, Method<Args<TOverrides>, Result<TOverrides>, ThisArg<TOverrides>>{}
+interface MethodGroupBase<TOverloads extends Method<any[], any, any>[]> extends Function, Method<Args<TOverloads>, Result<TOverloads>, ThisArg<TOverloads>>{}
 
-class MethodGroupBase<TOverrides extends Method<any[], any, any>[]> extends Function {
-    static create<TOverrides extends Method<any[], any, any>[]>(...overrides: TOverrides): MethodGroupBase<TOverrides> {
-        const MethodGroup = MethodGroup_factory(...overrides);
+class MethodGroupBase<TOverloads extends Method<any[], any, any>[]> extends Function {
+    static create<TOverloads extends Method<any[], any, any>[]>(...overloads: TOverloads): MethodGroupBase<TOverloads> {
+        const MethodGroup = MethodGroup_factory(...overloads);
         Object.setPrototypeOf(MethodGroup, new MethodGroupBase());
-        return <MethodGroupBase<TOverrides>>MethodGroup;
+        return <MethodGroupBase<TOverloads>>MethodGroup;
     }
 
-    constructor(...overrides: TOverrides) {
+    constructor(...overloads: TOverloads) {
         super();
 
         if (new.target == MethodGroup)
             throw new InvalidOperationException("Invalid Constructor.");
         
-        this[$overrides] = overrides;
+        this[$overloads] = overloads;
     }
 
-    ["apply"]: (thisArg: ThisArg<TOverrides>, argArray: Args<TOverrides>) => Result<TOverrides>;
+    ["apply"]: (thisArg: ThisArg<TOverloads>, argArray: Args<TOverloads>) => Result<TOverloads>;
 
-    ["call"]: (thisArg: ThisArg<TOverrides>, ...argArray: Args<TOverrides>) => Result<TOverrides>;
+    ["call"]: (thisArg: ThisArg<TOverloads>, ...argArray: Args<TOverloads>) => Result<TOverloads>;
 
-    ["bind"]: (thisArg: ThisArg<TOverrides>, argArray: Args<TOverrides>) => Method<Args<TOverrides>, Result<TOverrides>, ThisArg<TOverrides>>;
+    ["bind"]: (thisArg: ThisArg<TOverloads>, argArray: Args<TOverloads>) => Method<Args<TOverloads>, Result<TOverloads>, ThisArg<TOverloads>>;
 
-    get overrides(): TOverrides{  return this[$overrides]; }
+    get overloads(): TOverloads{  return this[$overloads]; }
 
-    private [$overrides]: TOverrides;
+    private [$overloads]: TOverloads;
 }
 
-export abstract class MethodGroup<TOverrides extends Method<any[], any, any>[]> extends MethodGroupBase<TOverrides> {};
+export abstract class MethodGroup<TOverloads extends Method<any[], any, any>[]> extends MethodGroupBase<TOverloads> {};

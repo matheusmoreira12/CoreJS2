@@ -3,7 +3,7 @@ import { TypeMatchingConstraint } from "../reflection/type.js";
 
 const $acceptedType = Symbol("acceptedType");
 
-export class MethodOverrideParam {
+export class MethodOverloadParam {
     constructor(accecptedType: TypeMatchingConstraint) {
         this[$acceptedType] = accecptedType;
     }
