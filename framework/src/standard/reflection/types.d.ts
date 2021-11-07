@@ -12,11 +12,9 @@ type GenericClass<TInstance = any> = { "constructor": Function, "prototype": TIn
 
 type GenericInstance<TClass = any> = { "constructor": NewableFunction & TClass }
 
-export type ConstructorOf<T extends GenericClass | GenericInstance | null | undefined> = T extends (null | undefined) ? never : T extends (GenericClass | GenericInstance) ? T["constructor"] : never;
-
 type ClassOfPrimitive<TPrimitive extends Primitive> = TPrimitive extends null ? null : TPrimitive extends typeof undefined ? undefined : TPrimitive extends boolean ? typeof Boolean : TPrimitive extends number ? typeof Number : TPrimitive extends string ? typeof String : TPrimitive extends symbol ? TPrimitive extends bigint ? typeof BigInt : typeof Symbol : never;
 
-export type ClassOf<TInstance extends GenericInstance | Primitive> = TInstance extends Primitive ? ClassOfPrimitive<TInstance> : TInstance extends GenericInstance ? ConstructorOf<TInstance> : never;
+export type ClassOf<TInstance extends GenericInstance | Primitive> = TInstance extends Primitive ? ClassOfPrimitive<TInstance> : TInstance extends GenericInstance ? TInstance["constructor"] : never;
 
 type PrimitiveOfClass<TClass extends ClassOfPrimitive<Primitive>> = TClass extends null ? null : TClass extends typeof undefined ? undefined : TClass extends typeof Boolean ? boolean : TClass extends typeof Number ? number : TClass extends typeof String ? string : TClass extends typeof BigInt ? bigint : TClass extends typeof Symbol ? symbol : never;
 
