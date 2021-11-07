@@ -1,6 +1,7 @@
 import { DependencyObject, DependencyProperty, PropertyChangeEventArgs, PropertyMetadata } from "../../../standard/dependency-objects/index.js";
 import { Control } from "../control.js";
 import { StringUtils } from "../../../core-base/utils/index.js";
+import { Type } from "../../../standard/reflection/index.js";
 
 export class ControlStyle extends DependencyObject {
     constructor(targetControl: Control) {
@@ -81,7 +82,7 @@ export class ControlStyle extends DependencyObject {
     get animationName(): string { return this.get(ControlStyle.animationNameProperty); }
     set animationName(value: string) { this.set(ControlStyle.animationNameProperty, value); }
 
-    static animationPlayStateProperty = DependencyProperty.registerAttached(ControlStyle, "animationPlayState", new PropertyMetadata(null));
+    static animationPlayStateProperty = DependencyProperty.registerAttached(ControlStyle, "animationPlayState", new PropertyMetadata(Type.get(String)));
     get animationPlayState(): string { return this.get(ControlStyle.animationPlayStateProperty); }
     set animationPlayState(value: string) { this.set(ControlStyle.animationPlayStateProperty, value); }
 

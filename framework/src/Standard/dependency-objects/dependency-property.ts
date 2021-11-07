@@ -1,13 +1,11 @@
-import { ValueType } from "./types";
 
+import { ValueTypeFromMetadata } from "./types";
 import { assertParams } from "../../validation/index.js";
 import { InvalidOperationException } from "../exceptions/index.js";
 import { ClassOf } from "../reflection/index.js";
 import { DependencyObject, DependencyPropertyKey, PropertyMetadata } from "./index.js";
 
 import { _Registry } from "./_registry.js";
-
-type InferValueType<TMetadata> = TMetadata extends PropertyMetadata<infer U> ? U : never;
 
 function assertAttachedProperty(target: Function, name: string, isReadonly: boolean) {
     const descriptor = Object.getOwnPropertyDescriptor(target.prototype, name);
@@ -46,7 +44,7 @@ export class DependencyProperty<TTarget extends ClassOf<DependencyObject> = any,
         return propertyKey;
     }
 
-    static register<TTarget extends ClassOf<DependencyObject>, TName extends string, TMetadata extends PropertyMetadata>(target: TTarget, name: TName, metadata: PropertyMetadata<InferValueType<TMetadata>>): DependencyProperty<TTarget, TName, TMetadata> {
+    static register<TTarget extends ClassOf<DependencyObject>, TName extends string, TMetadata extends PropertyMetadata>(target: TTarget, name: TName, metadata: PropertyMetadata<ValueTypeFromMetadata<TMetadata>>): DependencyProperty<TTarget, TName, TMetadata> {
         assertParams({ target }, [Function]);
         assertParams({ metadata }, [PropertyMetadata]);
 
