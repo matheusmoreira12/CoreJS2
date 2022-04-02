@@ -1,11 +1,12 @@
-import { ArgumentTypeException, InvalidOperationException } from "../exceptions/index.js"
-import { Interface } from "../interfaces/index.js";
-import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, FunctionInfo, TypeMatchingConstraint, PrimitiveOrComplex, ClassOf } from "./index.js";
-import { Enumeration } from "../index.js";
-import { FieldInfo } from "./field-info.js";
-import { PropertyInfo } from "./property-info.js";
-import { FieldInfoBase } from "./field-info-base.js";
 import { assertParams } from "../../validation-standalone/index.js";
+import { ArgumentTypeException, InvalidOperationException } from "../exceptions/index.js"
+import { Enumeration } from "../index.js";
+import { Interface } from "../interfaces/index.js";
+import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, FunctionInfo } from "./index.js";
+import { FieldInfo } from "./field-info.js";
+import { FieldInfoBase } from "./field-info-base.js";
+import { PropertyInfo } from "./property-info.js";
+import { ClassOf, PrimitiveOrComplex, TypeMatchingConstraint } from "./types";
 import { TypeConstraint, TypeConstraintType } from "./type-constraints/index.js";
 
 export class Type<_TFrom extends ClassOf<PrimitiveOrComplex> = any> {

@@ -1,4 +1,4 @@
-import { TypeMatchingConstraint } from "../reflection/index.js";
+import { TypeMatchingConstraint } from "../reflection/types";
 
 const $acceptedType = Symbol("acceptedType");
 

@@ -1,7 +1,7 @@
-import { AccessContext } from "./access-context.js";
-import { TryOutput } from "../reflection/types.js";
-import { ContextStorage } from "./context-storage.js";
 import { InvalidOperationException } from "../exceptions/index.js"
+import { TryOutput } from "../reflection/types";
+import { AccessContext } from "./access-context.js";
+import { ContextStorage } from "./context-storage.js";
 
 export namespace AccessContexts {
     export function getPrivate<TTarget extends object>(target: TTarget): AccessContext<TTarget> {

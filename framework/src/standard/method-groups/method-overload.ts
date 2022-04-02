@@ -1,4 +1,4 @@
-import { Method } from "../reflection/index.js";
+import { Method } from "../reflection/types";
 import { MethodOverloadParam } from "./method-overload-param.js";
 
 const $params = Symbol("params");

@@ -1,9 +1,7 @@
-import { ArgumentOutOfRangeException, FormatException } from "../../standard/exceptions/index.js";
 import { MathX } from "../../standard/index.js";
-import { TryOutput } from "../../standard/reflection/index.js";
-import { assertParams } from "../../validation/index.js";
 import { Color } from "./index.js";
 import _ColorConversion from "./_color-conversion.js";
+
 export class ColorHSL extends Color {
     constructor(h: number, s: number, l: number) {
         const rgb = _ColorConversion.convertHSLtoRGB(h, s, l);

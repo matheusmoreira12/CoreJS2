@@ -1,10 +1,8 @@
-
-import { ValueTypeFromMetadata } from "./types";
 import { assertParams } from "../../validation/index.js";
 import { InvalidOperationException } from "../exceptions/index.js";
-import { ClassOf } from "../reflection/index.js";
+import { ClassOf } from "../reflection/types";
 import { DependencyObject, DependencyPropertyKey, PropertyMetadata } from "./index.js";
-
+import { ValueTypeFromMetadata } from "./types";
 import { _Registry } from "./_registry.js";
 
 function assertAttachedProperty(target: Function, name: string, isReadonly: boolean) {

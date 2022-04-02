@@ -1,5 +1,5 @@
 import { NotSupportedException } from "../../standard/exceptions/index.js"
-import { DeepReadonly, DeepClone } from "./types.js";
+import { DeepReadonly, DeepClone } from "./types";
 
 export namespace ObjectUtils {
     export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {

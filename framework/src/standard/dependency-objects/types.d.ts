@@ -1,6 +1,5 @@
-import { Interface } from "../interfaces/index";
-import { ClassOf, InstanceOf, Type, TypeMatchingConstraint } from "../reflection/index";
-import { TypeConstraint } from "../reflection/type-constraints/type-constraint";
+import { Type } from "../reflection/index";
+import { InstanceOf, TypeMatchingConstraint } from "../reflection/types";
 import { DependencyProperty, PropertyMetadata } from "./index";
 
 export type ValueType = TypeMatchingConstraint | null;

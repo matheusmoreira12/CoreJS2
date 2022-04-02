@@ -1,6 +1,6 @@
-import { BlendedInstanceInfo } from "./blended-instance-info.js";
-import { ClassOf, TryOutput } from "../reflection/types.js";
 import { Destructible } from "../destructible.js";
+import { ClassOf, TryOutput } from "../reflection/types";
+import { BlendedInstanceInfo } from "./blended-instance-info.js";
 
 export namespace Storage {
     const allBlendedInstances: BlendedInstanceInfo<any, any>[] = [];

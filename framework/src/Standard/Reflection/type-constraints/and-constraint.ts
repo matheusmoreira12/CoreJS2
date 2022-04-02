@@ -1,4 +1,4 @@
-import { TypeMatchingConstraint } from "../index.js";
+import { TypeMatchingConstraint } from "../types";
 import { TypeConstraint, TypeConstraintType } from "./index.js";
 
 export class AndConstraint extends TypeConstraint {

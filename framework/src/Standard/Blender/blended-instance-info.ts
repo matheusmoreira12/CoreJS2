@@ -1,4 +1,4 @@
-﻿import { ClassOf } from "../reflection/types.js";
+﻿import { ClassOf } from "../reflection/types";
 
 export type BlendedInstanceInfo<TTarget, TBlend> = {
     blendClass: ClassOf<any>;

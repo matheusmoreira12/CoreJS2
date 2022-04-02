@@ -1,8 +1,5 @@
 export * from "./member-selection-options.js"
-export * from "./types.js";
-
 export * from "./metadata/index.js";
-
 export * from "./member-type.js"
 export * from "./member-info.js";
 export * from "./field-info-base.js";

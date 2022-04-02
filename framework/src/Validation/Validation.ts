@@ -1,8 +1,8 @@
-import { Type } from "../standard/reflection/type.js";
-import { Interface } from "../standard/interfaces/index.js";
-import { TypeDesignator } from "./types.js";
 import { NotSupportedException, ArgumentTypeException, InvalidTypeException, FrameworkException } from "../standard/exceptions/index.js"
-import { TypeValidationMode } from "./type-validation-mode.js";
+import { Interface } from "../standard/interfaces/index.js";
+import { Type } from "../standard/reflection/index.js";
+import { TypeValidationMode } from "./index.js";
+import { TypeDesignator } from "./types";
 
 function* resolveTypes(typeDesignators: Iterable<TypeDesignator>): Iterable<Type | Interface> {
     for (let type of typeDesignators) {
