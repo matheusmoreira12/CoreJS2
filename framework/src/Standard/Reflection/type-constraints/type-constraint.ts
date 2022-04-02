@@ -4,8 +4,8 @@ import { Interface } from "../../interfaces/index.js";
 import { Type } from "../index.js"
 import { TypeMatchingConstraint } from "../types";
 
-export abstract class TypeConstraint {
-    constructor(type: number, baseTypes: TypeMatchingConstraint[]) {
+export abstract class TypeConstraint<TBase extends TypeMatchingConstraint[] = any[]> {
+    constructor(type: number, baseTypes: TBase) {
         if (new.target === TypeConstraint)
             throw new InvalidOperationException("Invalid Constructor.");
 
@@ -16,8 +16,8 @@ export abstract class TypeConstraint {
     }
 
     protected __type: number;
-    protected __baseTypes: TypeMatchingConstraint[];
+    protected __baseTypes: TBase;
 
     get type(): number { return this.__type; }
-    get baseTypes(): TypeMatchingConstraint[] { return this.__baseTypes; }
+    get baseTypes(): TBase { return this.__baseTypes; }
 }
