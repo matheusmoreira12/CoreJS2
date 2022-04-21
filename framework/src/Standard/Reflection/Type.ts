@@ -2,7 +2,7 @@ import { assertParams } from "../../validation-standalone/index.js";
 import { ArgumentTypeException, InvalidOperationException } from "../exceptions/index.js"
 import { Enumeration } from "../index.js";
 import { Interface } from "../interfaces/index.js";
-import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, FunctionInfo } from "./index.js";
+import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, MethodInfo } from "./index.js";
 import { FieldInfo } from "./field-info.js";
 import { FieldInfoBase } from "./field-info-base.js";
 import { PropertyInfo } from "./property-info.js";
@@ -69,7 +69,7 @@ export class Type<_TFrom extends ClassOf<PrimitiveOrComplex> = any> {
                         if (isConstructor && !isStatic)
                             return new ConstructorInfo(name, declaringType, []);
                         else
-                            return new FunctionInfo(name, declaringType, [], isStatic);
+                            return new MethodInfo(name, declaringType, [], isStatic);
                     }
                     else {
                         const type = Type.of(descriptor.value);

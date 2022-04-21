@@ -2,9 +2,9 @@ import { ParameterInfo, Type } from "./index.js";
 import { InvalidTypeException, InvalidOperationException } from "../exceptions/index.js";
 import { FieldInfoBase } from "./field-info-base.js";
 
-export class FunctionInfoBase extends FieldInfoBase {
+export class MethodInfoBase extends FieldInfoBase {
     constructor(memberType: number, name: string, declaringType: Type, parameters: ParameterInfo[], isStatic: boolean = false) {
-        if (new.target === FunctionInfoBase)
+        if (new.target === MethodInfoBase)
             throw new InvalidOperationException("Invalid constructor.");
 
         super(memberType, name, declaringType, isStatic);

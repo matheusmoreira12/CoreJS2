@@ -5,18 +5,13 @@ type Args<TOverloads extends Method<any[], any, any>[]> = Parameters<TOverloads[
 type Result<TOverloads extends Method<any[], any, any>[]> = ReturnType<TOverloads[number]>;
 type ThisArg<TOverloads extends Method<any[], any, any>[]> = ThisParameterType<TOverloads[number]>;
 
-function MethodGroup_factory(...overloads: Function[]): Function {
-    return function MethodGroup(...args: any[]) {
-    }
-}
-
 const $overloads = Symbol("overloads");
 
 interface MethodGroupBase<TOverloads extends Method<any[], any, any>[]> extends Function, Method<Args<TOverloads>, Result<TOverloads>, ThisArg<TOverloads>>{}
 
 class MethodGroupBase<TOverloads extends Method<any[], any, any>[]> extends Function {
     static create<TOverloads extends Method<any[], any, any>[]>(...overloads: TOverloads): MethodGroupBase<TOverloads> {
-        const MethodGroup = MethodGroup_factory(...overloads);
+        const MethodGroup = MethodGroupBody_factory(...overloads);
         Object.setPrototypeOf(MethodGroup, new MethodGroupBase());
         return <MethodGroupBase<TOverloads>>MethodGroup;
     }
@@ -36,9 +31,17 @@ class MethodGroupBase<TOverloads extends Method<any[], any, any>[]> extends Func
 
     ["bind"]: (thisArg: ThisArg<TOverloads>, argArray: Args<TOverloads>) => Method<Args<TOverloads>, Result<TOverloads>, ThisArg<TOverloads>>;
 
-    get overloads(): TOverloads{  return this[$overloads]; }
+    get overloads(): TOverloads{ return this[$overloads]; }
 
     private [$overloads]: TOverloads;
+}
+
+function MethodGroupBody_factory(...overloads: Function[]): Function {
+    return function MethodGroupBody(...args: any[]) {
+        for (let overload of overloads) {
+            let arguments = overload.arguments;
+        }
+    }
 }
 
 export abstract class MethodGroup<TOverloads extends Method<any[], any, any>[]> extends MethodGroupBase<TOverloads> {};
