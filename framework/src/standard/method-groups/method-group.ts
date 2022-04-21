@@ -38,9 +38,6 @@ class MethodGroupBase<TOverloads extends Method<any[], any, any>[]> extends Func
 
 function MethodGroupBody_factory(...overloads: Function[]): Function {
     return function MethodGroupBody(...args: any[]) {
-        for (let overload of overloads) {
-            let arguments = overload.arguments;
-        }
     }
 }
 

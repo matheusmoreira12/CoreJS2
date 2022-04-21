@@ -22,4 +22,4 @@ export type InstanceOf<TClass extends GenericClass<any> | ClassOfPrimitive<Primi
 
 export type TryOutput<TResult> = { result?: TResult };
 
-export type TypeMatchingConstraint = Type<any> | Interface | TypeConstraint;
+export type TypeMatchingConstraint = Type | Interface | TypeConstraint;

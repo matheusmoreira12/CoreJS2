@@ -9,8 +9,8 @@ import { PropertyInfo } from "./property-info.js";
 import { ClassOf, PrimitiveOrComplex, TypeMatchingConstraint } from "./types";
 import { TypeConstraint, TypeConstraintType } from "./type-constraints/index.js";
 
-export class Type<_TFrom extends ClassOf<PrimitiveOrComplex> = any> {
-    static get<TConstructor extends Function>(ctor: TConstructor): Type<TConstructor> {
+export class Type {
+    static get<TConstructor extends Function>(ctor: TConstructor): Type {
         assertParams({ ctor }, [Function])
 
         const name = ctor.name;
@@ -22,7 +22,7 @@ export class Type<_TFrom extends ClassOf<PrimitiveOrComplex> = any> {
         return result;
     }
 
-    static of<TReference extends PrimitiveOrComplex>(reference: TReference): Type<ClassOf<TReference>> {
+    static of<TReference extends PrimitiveOrComplex>(reference: TReference): Type {
         let name: string = "";
         let ctor: NewableFunction | null = null;
         let hasCtor: boolean = false;
@@ -258,7 +258,7 @@ export class Type<_TFrom extends ClassOf<PrimitiveOrComplex> = any> {
 
     get name() { return this._name; }
 
-    protected _ctor: NewableFunction | null;
+    protected _ctor: Function | null;
     protected _hasCtor: boolean;
     protected _name: string;
     protected _reference: any;
