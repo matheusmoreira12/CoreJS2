@@ -1,11 +1,4 @@
 export * from "./animations.js";
-export * from "./auto-scroller.js";
-export * from "./drag-drop-handler.js";
-export * from "./drag-emulator.js";
-export * from "./animations.js";
-export * from "./auto-scroller.js";
-export * from "./drag-drop-handler.js";
-export * from "./drag-emulator.js";
 
 import * as DOMUtils from "./domutils.js";
 export { DOMUtils };
