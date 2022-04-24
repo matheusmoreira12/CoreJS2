@@ -12,7 +12,7 @@ export class ZippedEnumerator<TSourceEnumerators extends IEnumerator[]> extends 
         const results = this._sourceEnumerators.map(enumerator => enumerator.next());
         return {
             value: results.map(result => result.value),
-            done: results.every(result => result.done)
+            done: results.some(result => result.done)
         };
     }
 
