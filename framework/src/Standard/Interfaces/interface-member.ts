@@ -1,9 +1,9 @@
-import { InterfaceMemberKey } from "./index.js";
 import { InvalidOperationException } from "../exceptions/index.js"
 import { assertParams } from "../../validation/index.js";
+import { InterfaceMemberKey } from "./interface-member-key.js";
 
 export abstract class InterfaceMember {
-    constructor(name: string, memberType: number) {
+    constructor(name: InterfaceMemberKey, memberType: number) {
         if (new.target === InterfaceMember)
             throw new InvalidOperationException("Invalid constructor.");
 

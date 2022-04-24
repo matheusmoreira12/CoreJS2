@@ -1,9 +1,10 @@
 import { assertParams } from "../../validation/index.js";
 import { MemberType, Type } from "../reflection/index.js";
 import { Interface, InterfaceMember } from "./index.js";
+import { InterfaceMemberKey } from "./interface-member-key.js";
 
 export class InterfaceField extends InterfaceMember {
-    constructor(name: string, valueType: Type | Interface | null) {
+    constructor(name: InterfaceMemberKey, valueType: Type | Interface | null) {
         super(name, MemberType.Field);
 
         assertParams({ valueType }, [Type, Interface, Type.of(null)]);

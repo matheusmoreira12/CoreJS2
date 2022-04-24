@@ -7,4 +7,3 @@ export const InterfaceDifferenceKind = Enumeration.create({
     InvalidFieldType: null
 });
 
-export type InterfaceMemberKey = string | number | symbol;
