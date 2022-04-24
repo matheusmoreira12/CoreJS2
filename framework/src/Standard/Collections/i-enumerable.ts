@@ -5,6 +5,6 @@ export interface IEnumerable<T = any> extends Iterable<T> {
     getEnumerator(): IEnumerator<T>;
 }
 
-export const IEnumerable = new Interface(
-    new InterfaceFunction("getEnumerator")
-);
+// export const IEnumerable = new Interface(
+//     new InterfaceFunction("getEnumerator")
+// );
