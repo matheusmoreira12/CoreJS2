@@ -16,7 +16,7 @@ export class ControlStyle extends DependencyObject {
         const styleElement = document.createElement("style");
         document.head.appendChild(styleElement);
         const styleSheet = styleElement.sheet;
-        styleSheet?.addRule(`#control-${this.__targetControl!.uniqueId}`);
+        styleSheet?.insertRule(`#control-${this.__targetControl!.uniqueId}`);
         const styleRule = styleSheet?.cssRules[0];
         const styleDeclaration = (styleRule as CSSStyleRule).style;
         this.__styleElement = styleElement;        

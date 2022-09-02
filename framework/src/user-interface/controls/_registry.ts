@@ -1,6 +1,7 @@
 import { Collection } from "../../standard/collections/index.js";
 import { Control } from "./index.js";
 import { ClassOf, TryOutput } from "../../standard/reflection/types.js";
+import { NotImplementedException } from "../../standard/exceptions/framework-exception.js";
 
 const registeredControls = new Collection<ControlInfo>();
 
@@ -18,11 +19,11 @@ interface ControlInstanceInfo {
 }
 
 export function tryInitializeInstance(): boolean {
-
+    throw new NotImplementedException();
 }
 
 export function tryFinalizeInstance(): boolean {
-    
+    throw new NotImplementedException();
 }
 
 export function tryCreateInstance(ctor: ClassOf<Control>, output: TryOutput<Control>): boolean {
