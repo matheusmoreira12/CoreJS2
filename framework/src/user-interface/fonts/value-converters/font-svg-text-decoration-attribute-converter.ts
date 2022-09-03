@@ -6,8 +6,8 @@ export class FontSVGTextDecorationAttributeConverter {
     convert(value: Font | null): string | null {
         if (value === null)
             return null;
-        else
-            return new TextDecorationSVGAttributeConverter().convert(value.textDecoration);
+
+        return new TextDecorationSVGAttributeConverter().convert(value.textDecoration);
     }
 
     convertBack(): Font | null {

@@ -6,8 +6,8 @@ export class FontSVGFontWeightAttributeConverter {
     convert(value: Font | null): string | null {
         if (value === null)
             return null;
-        else
-            return new FontWeightSVGAttributeConverter().convert(value.weight);
+
+        return new FontWeightSVGAttributeConverter().convert(value.weight);
     }
 
     convertBack(): number | null {

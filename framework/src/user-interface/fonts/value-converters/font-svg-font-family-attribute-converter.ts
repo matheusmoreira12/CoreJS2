@@ -6,8 +6,8 @@ export class FontSVGFontFamilyAttributeConverter implements IValueConverter {
     convert(value: Font | null): string | null {
         if (value === null)
             return null;
-        else
-            return value.family;
+
+        return value.family;
     }
 
     convertBack(value: string | null): any {

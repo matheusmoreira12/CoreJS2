@@ -6,8 +6,8 @@ export class FontSVGFontStyleAttributeConverter {
     convert(value: Font | null): string | null {
         if (value === null)
             return null;
-        else
-            return new FontStyleSVGAttributeConverter().convert(value.style);
+
+        return new FontStyleSVGAttributeConverter().convert(value.style);
     }
 
     convertBack(): Font | null {
