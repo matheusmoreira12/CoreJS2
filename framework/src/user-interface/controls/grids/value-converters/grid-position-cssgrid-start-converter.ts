@@ -3,6 +3,9 @@ import { NotSupportedException } from "../../../../standard/exceptions/index.js"
 
 export class GridPositionCSSGridStartConverter implements IValueConverter {
     convert(value: number | null): string | null {
+        if (value == null)
+            return null;
+
         return `${value}`;
     }
 

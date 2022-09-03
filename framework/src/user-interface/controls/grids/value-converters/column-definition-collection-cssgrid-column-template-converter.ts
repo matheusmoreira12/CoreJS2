@@ -7,8 +7,9 @@ export class ColumnDefinitionCollectionCSSGridColumnTemplateConverter implements
     convert(value: ColumnDefinition[] | null): string | null {
         if (value === null)
             return null;
-        else
-            return value.map(c => new LengthCSSPropertyConverter().convert(c.width)).join(" ");
+
+        const lengthConverter = new LengthCSSPropertyConverter();
+        return value.map(c => lengthConverter.convert(c.width)).join(" ");
     }
 
     convertBack(value: string | null): ColumnDefinition[] | null {

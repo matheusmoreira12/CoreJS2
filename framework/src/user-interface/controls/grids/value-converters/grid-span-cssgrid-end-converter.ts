@@ -5,8 +5,8 @@ export class GridSpanCSSGridEndConverter implements IValueConverter {
     convert(value: number | number): string | null {
         if (value === null)
             return null;
-        else
-            return `span ${value}`;
+
+        return `span ${value}`;
     }
 
     convertBack(value: string | null): number | null {
