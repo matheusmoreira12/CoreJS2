@@ -37,7 +37,7 @@ export function assert(map: object, typeDesignators: Iterable<TypeDesignator>, v
     for (let key of Object.getOwnPropertyNames(map)) {
         const value: any = map[<keyof typeof map>key];
         if (!tryAssert(value, typeDesignators, validationMode))
-            throw new ArgumentTypeException(key, value, [...typeDesignators]);
+            throw new InvalidTypeException(key, value, typeDesignators);
     }
 }
 
@@ -45,7 +45,7 @@ export function assertParams(parameterMap: object, typeDesignators: Iterable<Typ
     for (let key of Object.getOwnPropertyNames(parameterMap)) {
         const value: any = parameterMap[<keyof typeof parameterMap>key];
         if (!tryAssert(value, typeDesignators, validationMode))
-            throw new ArgumentTypeException(key, value, [...typeDesignators]);
+            throw new ArgumentTypeException(key, value, typeDesignators);
     }
 }
 
@@ -56,7 +56,7 @@ function assertCollection(collectionName: string, collection: any[], itemTypes: 
     for (let i = 0; i < collection.length; i++) {
         const item = collection[i];
         if (!tryAssert(item, itemTypes, itemValidationMode))
-            throw new itemExceptionCtor(`${collectionName}[${i}]`);
+            throw new itemExceptionCtor(`${collectionName}[${i}]`, item, itemTypes);
     }
 }
 
