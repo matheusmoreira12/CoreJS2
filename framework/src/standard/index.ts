@@ -14,11 +14,11 @@ export { AccessContexts };
 import * as APIs from "./apis/index.js";
 export { APIs };
 
-import * as Blender from "./blender/index.js";
-export { Blender };
-
 import * as Collections from "./collections/index.js";
 export { Collections };
+
+import * as Composition from "./composition/index.js";
+export { Composition };
 
 import * as Events from "./events/index.js";
 export { Events };
