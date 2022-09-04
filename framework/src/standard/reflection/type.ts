@@ -6,8 +6,8 @@ import { MemberType, MemberInfo, MemberSelectionOptions, ConstructorInfo, Method
 import { FieldInfo } from "./field-info.js";
 import { FieldInfoBase } from "./field-info-base.js";
 import { PropertyInfo } from "./property-info.js";
-import { ClassOf, PrimitiveOrComplex, TypeMatchingConstraint } from "./types";
-import { TypeConstraint, TypeConstraintType } from "./type-constraints/index.js";
+import { PrimitiveOrComplex, TypeMatchingConstraint } from "./types";
+import { TypeConstraint, TypeConstraintKind } from "./type-constraints/index.js";
 
 export class Type {
     static get<TConstructor extends Function>(ctor: TConstructor): Type {
@@ -162,9 +162,9 @@ export class Type {
     obeysConstraint(constraint: TypeConstraint): boolean {
         assertParams({ other: constraint }, [TypeConstraint]);
 
-        if (constraint.type === TypeConstraintType.Or)
+        if (constraint.type === TypeConstraintKind.Or)
             return this.matchesAny(...constraint.baseTypes);
-        if (constraint.type === TypeConstraintType.And)
+        if (constraint.type === TypeConstraintKind.And)
             return this.matchesAll(...constraint.baseTypes);
         return false;
     }
@@ -193,6 +193,10 @@ export class Type {
             baseType = baseType.baseType;
         }
         return false;
+    }
+
+    directlyExtends(other: Type): boolean {
+        return this.baseType?.equals(other) ?? false;
     }
 
     matches(other: TypeMatchingConstraint): boolean {
