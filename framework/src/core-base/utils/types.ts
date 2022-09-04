@@ -14,6 +14,6 @@ export type MixinBase = {
 
 export type CompareSelectPredicate<T, U, TResult> = (a: T, b: U, quit: () => void, skip: () => void) => TResult;
 
-export type NameOfMap = { [P: string]: string };
+export type NameOfMap = { [P: string]: any };
 
-export type NameOf<TNameMap extends NameOfMap> = keyof TNameMap;
+export type NameOf<TNameMap extends NameOfMap> = keyof TNameMap & string;

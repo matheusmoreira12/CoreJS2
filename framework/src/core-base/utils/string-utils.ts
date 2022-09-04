@@ -82,7 +82,7 @@ export namespace StringUtils {
     }
 
     export function nameOf<TNameOfMap extends NameOfMap>(map: TNameOfMap): NameOf<TNameOfMap> {
-        return Object.keys(map)[0];
+        return String(Object.keys(map)[0]);
     }
 
     export const NUMERIC_CHARS = [...getCharRange("0", "9")];
