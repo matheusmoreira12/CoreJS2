@@ -32,7 +32,7 @@ export class ResourceDictionary extends DependencyObject {
 
     tryGetResource(key: string, output: TryOutput<any>): boolean {
         for (let resource of this.getAllResources()) {
-            const resourceKey = resource.get(ResourceDictionary.resource_keyProperty);
+            const resourceKey = resource.get(ResourceDictionary.keyProperty);
             if (resourceKey == key) {
                 output.result = resource;
                 return true;
@@ -57,9 +57,7 @@ export class ResourceDictionary extends DependencyObject {
     get resources(): Collection<DependencyObject> { return this.get(ResourceDictionary.resourcesProperty); }
     set resources(value: Collection<DependencyObject>) { this.set(ResourceDictionary.resourcesProperty, value); }
 
-    static keyProperty = DependencyProperty.registerAttached(ResourceDictionary, "key", new PropertyMetadata(Type.get(String)));
+    static keyProperty = DependencyProperty.register(ResourceDictionary, "key", new PropertyMetadata(Type.get(String)));
     get key(): string { return this.get(ResourceDictionary.keyProperty); }
     set key(value: string) { this.set(ResourceDictionary.keyProperty, value); }
-
-    static resource_keyProperty = DependencyProperty.registerAttached(ResourceDictionary, "key", new PropertyMetadata(Type.get(String)));
 }
