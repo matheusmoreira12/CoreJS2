@@ -58,4 +58,17 @@ export namespace ArrayUtils {
             r = ArrayUtils.exclude(r, ev);
         yield* r;
     }
+
+    export function* select<T, TResult>(value: Iterable<T>, predicate: (item: T) => TResult): IterableIterator<TResult> {
+        for (let item of value)
+            yield predicate(item);
+    }
+
+    export function selectSet<T, TResult>(value: Iterable<T>, predicate: (item: T) => TResult): Set<TResult> {
+        return new Set<TResult>(select(value, predicate));
+    }
+
+    export function* selectMap<T, TResultKey, TResultValue>(value: Iterable<T>, predicate: (item: T) => [TResultKey, TResultValue]): IterableIterator<Map<TResultKey, TResultValue>> {
+        return new Map<TResultKey, TResultValue>(select(value, predicate));
+    }
 }
