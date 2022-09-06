@@ -29,8 +29,10 @@ export abstract class Destructible {
 
 function callDestructorsRecursively(self: Destructible) {
     while (self) {
-        self = Object.getPrototypeOf(self) as Destructible;
-        self["destructor"].call(self);
+        const proto = Object.getPrototypeOf(self);
+        if (proto instanceof Destructible)
+            proto["destructor"].call(self);
+        self = proto;
     }
 }
 
@@ -54,3 +56,5 @@ function window_beforeunload() {
             destructible.destruct();
     }
 }
+
+window.allDestructibles = allDestructibles;
