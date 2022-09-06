@@ -35,7 +35,5 @@ export class FrameworkCustomEvent<TArgs extends FrameworkEventArgs> extends Fram
 
     destructor() {
         this.__target.removeEventListener(this.__eventName, this.__target_customEvent_handler);
-
-        super.destructor();
     }
 }

@@ -70,7 +70,5 @@ export class BroadcastEvent<TArgs extends FrameworkEventArgs> extends FrameworkE
 
     destrutor() {
         BroadcastEvent.__EventBroadcastEvent.detach(this.__onEventBroadcast);
-
-        super.destructor();
     }
 }

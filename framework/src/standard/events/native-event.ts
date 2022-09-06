@@ -33,7 +33,5 @@ export class NativeEvent extends FrameworkEvent<NativeEventArgs> {
 
     destructor() {
         this.__target.removeEventListener(this.__nativeEventName, this.__target_nativeEvent_handler);
-
-        super.destructor();
     }
 }

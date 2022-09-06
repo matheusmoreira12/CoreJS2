@@ -1896,7 +1896,5 @@ export class ControlStyle extends DependencyObject {
         this.__styleDeclaration = null;
         this.__styleElement?.remove();
         this.__targetControl = null;
-
-        super.destructor();
     }
 }
