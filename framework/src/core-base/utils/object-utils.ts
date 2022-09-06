@@ -2,17 +2,16 @@ import { NotSupportedException } from "../../standard/exceptions/index.js"
 import { DeepReadonly, DeepClone } from "./types";
 
 export namespace ObjectUtils {
-    export function getOwnPropertyKeys<T>(obj: T): (keyof T)[] {
-        return <(keyof T)[]>[...Object.getOwnPropertyNames(obj), ...Object.getOwnPropertySymbols(obj)];
+    export function* getOwnPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
+        yield* Object.getOwnPropertyNames(obj) as (keyof T)[];
+        yield* Object.getOwnPropertySymbols(obj) as (keyof T)[];
     }
 
-    export function getAllPropertyKeys<T>(obj: T): (keyof T)[] {
-        const keys: (keyof T)[] = [];
+    export function* getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
         while (obj) {
-            keys.push(...getOwnPropertyKeys(obj));
+            yield* getOwnPropertyKeys(obj) as Iterable<keyof T>;
             obj = Object.getPrototypeOf(obj);
         }
-        return keys;
     }
 
     export function getAnyPropertyDescriptor<T>(obj: T, key: keyof T): PropertyDescriptor | undefined {
