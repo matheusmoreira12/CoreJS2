@@ -1,3 +1,4 @@
+import { ObjectUtils } from "../core-base/utils/index.js";
 import { InvalidOperationException } from "./exceptions/index.js";
 
 const allDestructibles: Destructible[] = [];
@@ -16,7 +17,8 @@ export abstract class Destructible {
         if (this.__isDestructed)
             throw new InvalidOperationException("Object has already been destructed.");
 
-        this.destructor();
+        callDestructorsRecursively(this);
+        destructAllDestructibleProperties(this);
 
         this.__isDestructed = true;
     }
@@ -24,6 +26,25 @@ export abstract class Destructible {
     get isDestructed(): boolean { return this.__isDestructed; }
     private __isDestructed: boolean = false;
 }
+
+function callDestructorsRecursively(self: Destructible) {
+    while (self) {
+        self = Object.getPrototypeOf(self) as Destructible;
+        self["destructor"].call(self);
+    }
+}
+
+function destructAllDestructibleProperties(self: Destructible) {
+    for (let prop of ObjectUtils.getOwnPropertyKeys(self)) {
+        const value = self[prop];
+        if (value instanceof Destructible) {
+            if (!value.isDestructed)
+                value.destruct();
+        }
+    }
+}
+
+window.addEventListener("beforeunload", window_beforeunload);
 
 function window_beforeunload() {
     window.removeEventListener("beforeunload", window_beforeunload);
@@ -33,4 +54,3 @@ function window_beforeunload() {
             destructible.destruct();
     }
 }
-window.addEventListener("beforeunload", window_beforeunload);
