@@ -53,15 +53,16 @@ export function tryFinalizeInstance(instance: Control): boolean {
 }
 
 export function tryBeginControlInstanceLifecycle(instance: Control): boolean {
-    if (!tryInitializeInstance(instance))
-        return false;
-
     const tryCreateDOMElementOutput: TryOutput<Element> = {};
     if (!tryCreateDOMElement(instance, tryCreateDOMElementOutput))
         return false;
 
     const domElement = tryCreateDOMElementOutput.result!;
     controlInstances.set(instance, ControlInstanceData.create(domElement));
+
+    if (!tryInitializeInstance(instance))
+        return false;
+
     return true;
 }
 
@@ -89,15 +90,6 @@ export function tryEndControlInstanceLifecycle(instance: Control): boolean {
         return false;
     instance.destruct();
     controlInstances.delete(instance);
-    return true;
-}
-
-export function tryGetDOMElement(instance: Control, output: TryOutput<Element>): boolean {
-    const tryGetControlInstanceDataOutput: TryOutput<ControlInstanceData> = {};
-    if (!tryGetControlInstanceData(instance, tryGetControlInstanceDataOutput))
-        return false;
-    const instanceData = tryGetControlInstanceDataOutput.result!;
-    output.result = instanceData.domElement;
     return true;
 }
 
