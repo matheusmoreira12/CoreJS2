@@ -3,7 +3,7 @@ import { Control } from "./index.js";
 import { TryOutput } from "../../standard/reflection/types.js";
 import { NotImplementedException } from "../../standard/exceptions/framework-exception.js";
 
-import { ControlConstructor } from "./types";
+import { ControlConstructor } from "./control-constructor";
 import * as __Activator from "./__activator.js"
 
 const registeredControls: Map<ControlConstructor, ControlData> = new Map();

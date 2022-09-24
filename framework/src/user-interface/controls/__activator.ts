@@ -1,7 +1,7 @@
 import { TryOutput } from "../../standard/reflection/types";
 import { Control } from "./index.js";
 
-import { ControlConstructor } from "./types";
+import { ControlConstructor } from "./control-constructor";
 import * as __Registry from "./__registry.js";
 
 const controlInstances: Map<Control, ControlInstanceData> = new Map();
