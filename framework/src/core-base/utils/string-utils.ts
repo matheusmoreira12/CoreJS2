@@ -1,4 +1,5 @@
-import { NameOf, NameOfMap } from "./types";
+import { NameOf } from "./name-of";
+import { NameOfMap } from "./name-of-map";
 
 function normalizeCase(value: string) {
     return value.replace(/\w[A-Z]/g, m => m[0] + " " + m[1]).toLowerCase().replace(/_/g, " ").replace(/-/g, " ");

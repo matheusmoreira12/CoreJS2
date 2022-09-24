@@ -1,5 +1,6 @@
 import { NotSupportedException } from "../../standard/exceptions/index.js"
-import { DeepReadonly, DeepClone } from "./types";
+import { DeepClone } from "./deep-clone";
+import { DeepReadonly } from "./deep-readonly";
 
 export namespace ObjectUtils {
     export function* getOwnPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
@@ -10,6 +11,13 @@ export namespace ObjectUtils {
     export function* getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
         while (obj) {
             yield* getOwnPropertyKeys(obj) as Iterable<keyof T>;
+            obj = Object.getPrototypeOf(obj);
+        }
+    }
+
+    export function* getAllPropertyNames<T>(obj: T): IterableIterator<keyof T & string> {
+        while (obj) {
+            yield* Object.getOwnPropertyNames(obj) as Iterable<keyof T & string>;
             obj = Object.getPrototypeOf(obj);
         }
     }
