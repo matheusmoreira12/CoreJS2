@@ -1,6 +1,6 @@
 import { Collection } from "../../standard/collections/index.js";
 import { Control } from "./index.js";
-import { TryOutput } from "../../standard/reflection/types.js";
+import { OutputArgument } from "../../standard/reflection/types.js";
 import { NotImplementedException } from "../../standard/exceptions/framework-exception.js";
 
 import { ControlConstructor } from "./control-constructor";
@@ -47,29 +47,29 @@ export function isRegistered(ctor: ControlConstructor): boolean {
     return registeredControls.has(ctor);
 }
 
-export function tryGetDOMElementName(ctor: ControlConstructor, output: TryOutput<string>): boolean {
-    const tryGetControlDataOutput: TryOutput<ControlData> = {};
+export function tryGetDOMElementName(ctor: ControlConstructor, output: OutputArgument<string>): boolean {
+    const tryGetControlDataOutput: OutputArgument<ControlData> = {};
     if (!tryGetControlData(ctor, tryGetControlDataOutput))
         return false;
 
-    output.result = tryGetControlDataOutput.result!.elementName;
+    output.value = tryGetControlDataOutput.value!.elementName;
     return true;
 }
 
-export function tryGetDOMElementNamespaceURI(ctor: ControlConstructor, output: TryOutput<string>): boolean {
-    const tryGetControlDataOutput: TryOutput<ControlData> = {};
+export function tryGetDOMElementNamespaceURI(ctor: ControlConstructor, output: OutputArgument<string>): boolean {
+    const tryGetControlDataOutput: OutputArgument<ControlData> = {};
     if (!tryGetControlData(ctor, tryGetControlDataOutput))
         return false;
 
-    output.result = tryGetControlDataOutput.result!.elementNamespaceURI;
+    output.value = tryGetControlDataOutput.value!.elementNamespaceURI;
     return true;
 }
 
-function tryGetControlData(ctor: ControlConstructor, output: TryOutput<ControlData> = {}): boolean {
+function tryGetControlData(ctor: ControlConstructor, output: OutputArgument<ControlData> = {}): boolean {
     const controlData = registeredControls.get(ctor);
     if (controlData === undefined)
         return false;
 
-    output.result = controlData;
+    output.value = controlData;
     return true;
 }

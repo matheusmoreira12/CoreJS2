@@ -1,15 +1,13 @@
-import { HTML_MAPPED_TAG_NAMES_AND_CONSTRUCTORS } from "./html-mapped-tag-names-and-constructors.js";
-import { MATH_ML_MAPPED_TAG_NAMES_AND_CONSTRUCTORS } from "./math-ml-mapped-tag-names-and-constructors.js";
-import { SVG_MAPPED_TAG_NAMES_AND_CONSTRUCTORS } from "./svg-mapped-tag-names-and-constructors.js";
+import { HTML_ELEMENT_DATA_TUPLES } from "./html-element-data-tuples.js";
+import { MATH_ML_ELEMENT_DATA_TUPLES } from "./math-ml-element-data-tuples.js";
+import { SVG_ELEMENT_DATA_TUPLES } from "./svg-element-data-tuples.js";
 import { __Generator } from "./__generator.js";
-import { HTMLNativeControls } from "./html-native-controls";
-import { SVGNativeControls } from "./svg-native-controls";
-import { MathMLNativeControls } from "./math-ml-native-controls";
+import { NativeControls } from "./native-controls";
 
 export * from "./native-control-base.js";
 
-export const HTML = __Generator.generateNativeControls(HTML_MAPPED_TAG_NAMES_AND_CONSTRUCTORS) as HTMLNativeControls;
+export const HTML = __Generator.generateNativeControls(HTML_ELEMENT_DATA_TUPLES) as NativeControls<typeof HTML_ELEMENT_DATA_TUPLES>;
 
-export const SVG = __Generator.generateNativeControls(SVG_MAPPED_TAG_NAMES_AND_CONSTRUCTORS) as SVGNativeControls;
+export const SVG = __Generator.generateNativeControls(SVG_ELEMENT_DATA_TUPLES) as NativeControls<typeof SVG_ELEMENT_DATA_TUPLES>;
 
-export const MathML = __Generator.generateNativeControls(MATH_ML_MAPPED_TAG_NAMES_AND_CONSTRUCTORS) as MathMLNativeControls;
+export const MathML = __Generator.generateNativeControls(MATH_ML_ELEMENT_DATA_TUPLES) as NativeControls<typeof MATH_ML_ELEMENT_DATA_TUPLES>;

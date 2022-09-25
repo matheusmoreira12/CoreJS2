@@ -1,6 +1,5 @@
-import { Control } from "../index.js";
+import { NativeControlBase } from "./native-control-base";
+import { NativeEvents } from "./native-events";
 import { Properties } from "./properties";
 
-export type NativeControlPrototype<T extends typeof Element> = Control & {
-    [K in Properties<T>]: T["prototype"][K];
-};
+export type NativeControlPrototype<T extends typeof Element> = Properties<T> & NativeEvents<T> & NativeControlBase;
