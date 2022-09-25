@@ -1,4 +1,5 @@
 import { NotSupportedException } from "../../standard/exceptions/index.js"
+import { ArrayUtils } from "./array-utils.js";
 import { DeepClone } from "./deep-clone";
 import { DeepReadonly } from "./deep-readonly";
 
@@ -8,17 +9,25 @@ export namespace ObjectUtils {
         yield* Object.getOwnPropertySymbols(obj) as (keyof T)[];
     }
 
-    export function* getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
-        while (obj) {
-            yield* getOwnPropertyKeys(obj) as Iterable<keyof T>;
-            obj = Object.getPrototypeOf(obj);
+    export function getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
+        return ArrayUtils.excludeDuplicates(getIncludingDuplicates()) as IterableIterator<keyof T>;
+
+        function* getIncludingDuplicates() {
+            while (obj) {
+                yield* getOwnPropertyKeys(obj);
+                obj = Object.getPrototypeOf(obj);
+            }
         }
     }
 
-    export function* getAllPropertyNames<T>(obj: T): IterableIterator<keyof T & string> {
-        while (obj) {
-            yield* Object.getOwnPropertyNames(obj) as Iterable<keyof T & string>;
-            obj = Object.getPrototypeOf(obj);
+    export function getAllPropertyNames<T>(obj: T): IterableIterator<keyof T & string> {
+        return ArrayUtils.excludeDuplicates(getIncludingDuplicates()) as IterableIterator<keyof T & string>;
+
+        function* getIncludingDuplicates() {
+            while (obj) {
+                yield* Object.getOwnPropertyNames(obj);
+                obj = Object.getPrototypeOf(obj);
+            }
         }
     }
 
