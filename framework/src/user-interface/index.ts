@@ -1,7 +1,6 @@
 export * from "./animations.js";
 
-import * as DOMUtils from "./domutils.js";
-export { DOMUtils };
+export * from "./domutils.js";
 
 import * as DataContexts from "./xaml/contexts/index.js";
 export { DataContexts };
