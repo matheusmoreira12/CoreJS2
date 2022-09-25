@@ -1,16 +1,17 @@
 import { BindingDirection } from "./index.js";
 import { InvalidOperationException } from "../../standard/exceptions/index.js"
 import { assertParams } from "../../validation/index.js";
-import { DependencyObject, DependencyProperty, DependencyPropertyKey, PropertyMetadata } from "../../standard/dependency-objects/index.js";
+import { DependencyProperty, DependencyPropertyKey, PropertyMetadata } from "../../standard/dependency-objects/index.js";
 import { IValueConverter } from "../value-converters/index.js";
 import { OrConstraint } from "../../standard/reflection/type-constraints/index.js";
 import { Type } from "../../standard/reflection/index.js";
+import { Destructible } from "../../standard/index.js";
 
 /**
  * Binding base class
  */
-export abstract class Binding extends DependencyObject {
-    constructor(direction: number = BindingDirection.Both, valueConverter: IValueConverter | undefined) {
+export abstract class Binding extends Destructible {
+    constructor(direction: number = BindingDirection.Both, valueConverter: IValueConverter | null = null) {
         if (new.target === Binding)
             throw new InvalidOperationException("Invalid constructor.");
 
@@ -19,15 +20,13 @@ export abstract class Binding extends DependencyObject {
         BindingDirection.assertFlag(BindingDirection.Both);
         assertParams({ valueConverter }, [IValueConverter, undefined]);
 
-        this.set(Binding.__directionPropertyKey, direction);
-        this.set(Binding.__valueConverterPropertyKey, valueConverter);
+        this.__direction = direction;
+        this.__valueConverter = valueConverter;
     }
 
-    static __directionPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Binding, "direction", new PropertyMetadata(Type.get(Number)));
-    static directionProperty: DependencyProperty = Binding.__directionPropertyKey.property;
-    get direction(): number { return this.get(Binding.directionProperty); }
+    get direction(): number { return this.__direction; }
+    private __direction: number;
 
-    static __valueConverterPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Binding, "valueConverter", new PropertyMetadata(new OrConstraint([IValueConverter, Type.of(null)])));
-    static valueConverterProperty = Binding.__valueConverterPropertyKey.property;
-    get valueConverter(): IValueConverter | null { return this.get(Binding.valueConverterProperty); }
+    get valueConverter(): IValueConverter | null { return this.__valueConverter; }
+    private __valueConverter: IValueConverter | null;
 }

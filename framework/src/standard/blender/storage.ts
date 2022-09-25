@@ -1,5 +1,5 @@
 import { Destructible } from "../destructible.js";
-import { ClassOf, TryOutput } from "../reflection/types";
+import { ClassOf, OutputArgument } from "../reflection/types";
 import { BlendedInstanceInfo } from "./blended-instance-info.js";
 
 export namespace Storage {
@@ -20,9 +20,9 @@ export namespace Storage {
     }
 
     export function tryDiscard<TBlend extends object, TTarget extends object>(baseClass: ClassOf<TBlend>, targetObj: TTarget): boolean {
-        const tryGetOutput: TryOutput<BlendedInstanceInfo<TTarget, TBlend>> = {};
+        const tryGetOutput: OutputArgument<BlendedInstanceInfo<TTarget, TBlend>> = {};
         if (tryGet(baseClass, targetObj, {})) {
-            const info = <BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.result;
+            const info = <BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.value;
             if (info.blend) {
                 const blend = <TBlend>info.blend;
                 const isInstanceIntitialized = !!blend;
@@ -34,7 +34,7 @@ export namespace Storage {
                 }
                 return true;
             }
-            removeInstance(<BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.result);
+            removeInstance(<BlendedInstanceInfo<TTarget, TBlend>>tryGetOutput.value);
             return true;
         }
         else
@@ -45,12 +45,12 @@ export namespace Storage {
         return allBlendedInstances.find(bi => bi.targetObj === sourceObj && bi.blendClass === blendClass) || null
     }
 
-    export function tryGet<TBlend extends object, TSource extends object>(blendClass: ClassOf<TBlend>, sourceObj: TSource, output?: TryOutput<BlendedInstanceInfo<TSource, TBlend>>): boolean {
+    export function tryGet<TBlend extends object, TSource extends object>(blendClass: ClassOf<TBlend>, sourceObj: TSource, output?: OutputArgument<BlendedInstanceInfo<TSource, TBlend>>): boolean {
         output = output || {};
 
         const instance = <BlendedInstanceInfo<TSource, TBlend>>getInstance(blendClass, sourceObj);
         if (instance) {
-            output.result = instance;
+            output.value = instance;
             return true;
         }
         else

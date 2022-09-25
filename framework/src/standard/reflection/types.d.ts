@@ -20,6 +20,6 @@ type PrimitiveOfClass<TClass extends ClassOfPrimitive<Primitive>> = TClass exten
 
 export type InstanceOf<TClass extends GenericClass<any> | ClassOfPrimitive<Primitive>> = TClass extends ClassOfPrimitive<Primitive> ? PrimitiveOfClass<TClass> : TClass extends GenericClass<any> ? TClass["prototype"] : never;
 
-export type TryOutput<TResult> = { result?: TResult };
+export type OutputArgument<TResult> = { value?: TResult };
 
 export type TypeMatchingConstraint = Type | Interface | TypeConstraint;

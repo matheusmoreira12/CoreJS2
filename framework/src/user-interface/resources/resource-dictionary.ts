@@ -1,5 +1,5 @@
 import { DependencyProperty, DependencyObject, PropertyMetadata } from "../../standard/dependency-objects/index.js";
-import { TryOutput } from "../../standard/reflection/types.js";
+import { OutputArgument } from "../../standard/reflection/types.js";
 import { InvalidOperationException } from "../../standard/exceptions/index.js"
 import * as Storage from "./storage.js";
 import { Type } from "../../standard/reflection/type.js";
@@ -7,9 +7,9 @@ import { Collection } from "../../standard/collections/index.js";
 
 export class ResourceDictionary extends DependencyObject {
     static get(key: string): ResourceDictionary {
-        const storageTryGetOutput: TryOutput<ResourceDictionary> = {};
+        const storageTryGetOutput: OutputArgument<ResourceDictionary> = {};
         if (Storage.tryGet(key, storageTryGetOutput))
-            return <ResourceDictionary>storageTryGetOutput.result;
+            return <ResourceDictionary>storageTryGetOutput.value;
         else
             throw new InvalidOperationException("Cannot get resource dictionary. No resource dictionary matches the specified key.");
     }
@@ -30,11 +30,11 @@ export class ResourceDictionary extends DependencyObject {
             yield * nestedDictionary.resources;
     }
 
-    tryGetResource(key: string, output: TryOutput<any>): boolean {
+    tryGetResource(key: string, output: OutputArgument<any>): boolean {
         for (let resource of this.getAllResources()) {
             const resourceKey = resource.get(ResourceDictionary.resource_keyProperty);
             if (resourceKey == key) {
-                output.result = resource;
+                output.value = resource;
                 return true;
             }
         }
@@ -42,9 +42,9 @@ export class ResourceDictionary extends DependencyObject {
     }
 
     getResource(key: string): any {
-        const tryGetResourceOutput: TryOutput<any> = {};
+        const tryGetResourceOutput: OutputArgument<any> = {};
         if (this.tryGetResource(key, tryGetResourceOutput))
-            return tryGetResourceOutput.result!;
+            return tryGetResourceOutput.value!;
         else
             throw new InvalidOperationException("Cannot get resource. No resource matches the specified key.");
     }

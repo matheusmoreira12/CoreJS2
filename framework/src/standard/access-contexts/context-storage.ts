@@ -1,5 +1,5 @@
 import { AccessContext } from "./access-context.js";
-import { TryOutput } from "../reflection/types.js";
+import { OutputArgument } from "../reflection/types.js";
 
 function objExtends(obj: Function, objCtor: Function): boolean {
     while (obj instanceof Function) {
@@ -40,40 +40,40 @@ export namespace ContextStorage {
     const protectedContexts: AccessContext<object>[] = [];
     const privateContexts: AccessContext<object>[] = [];
 
-    export function definePrivate<TTarget extends object>(target: TTarget, instance: object | Function, output: TryOutput<AccessContext<TTarget>> = {}): boolean {
+    export function definePrivate<TTarget extends object>(target: TTarget, instance: object | Function, output: OutputArgument<AccessContext<TTarget>> = {}): boolean {
         if (tryGetPrivate(target, instance))
             return false;
         else {
             const context = AccessContext.createFor(target);
-            output.result = context;
+            output.value = context;
             return true;
         }
     }
 
-    export function tryGetPrivate<TTarget extends object>(target: TTarget, instance: object | Function, output: TryOutput<AccessContext<TTarget>> = {}): boolean {
+    export function tryGetPrivate<TTarget extends object>(target: TTarget, instance: object | Function, output: OutputArgument<AccessContext<TTarget>> = {}): boolean {
         const context = privateContexts.find(pc => privateContextMatches(target, pc, instance));
         if (context) {
-            output.result = <AccessContext<TTarget>>context;
+            output.value = <AccessContext<TTarget>>context;
             return true;
         }
         else
             return false;
     }
 
-    export function defineProtected<TTarget extends object>(target: TTarget, instance: object | Function, output: TryOutput<AccessContext<TTarget>>): boolean {
+    export function defineProtected<TTarget extends object>(target: TTarget, instance: object | Function, output: OutputArgument<AccessContext<TTarget>>): boolean {
         if (tryGetProtected(target, instance))
             return false;
         else {
             const context = AccessContext.createFor(target);
-            output.result = context;
+            output.value = context;
             return true;
         }
     }
 
-    export function tryGetProtected<TTarget extends object>(target: TTarget, instance: object | Function, output: TryOutput<AccessContext<TTarget>> = {}): boolean {
+    export function tryGetProtected<TTarget extends object>(target: TTarget, instance: object | Function, output: OutputArgument<AccessContext<TTarget>> = {}): boolean {
         const context = protectedContexts.find(pc => protectedContextMatches(target, pc, instance));
         if (context) {
-            output.result = <AccessContext<TTarget>>context;
+            output.value = <AccessContext<TTarget>>context;
             return true;
         }
         else

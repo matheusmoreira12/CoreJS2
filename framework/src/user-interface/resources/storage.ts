@@ -1,12 +1,12 @@
-import { TryOutput } from "../../standard/reflection/types.js";
+import { OutputArgument } from "../../standard/reflection/types.js";
 import { ResourceDictionary } from "./resource-dictionary.js";
 
 const allDictionaries: ResourceDictionary[] = [];
 
-export function tryGet(key: string, output: TryOutput<ResourceDictionary> = {}) {
+export function tryGet(key: string, output: OutputArgument<ResourceDictionary> = {}) {
     const resourceDictionary = allDictionaries.find(rd => rd.key == key);
     if (resourceDictionary) {
-        output.result = resourceDictionary;
+        output.value = resourceDictionary;
         return true;
     }
     else

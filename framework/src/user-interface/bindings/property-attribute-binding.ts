@@ -5,7 +5,7 @@ import { FrameworkEvent } from "../../standard/events/index.js";
 import { Enumeration } from "../../standard/index.js";
 import { IValueConverter } from "../value-converters/index.js";
 import { Type } from "../../standard/reflection/index.js";
-import { _Storage } from "../../standard/dependency-objects/_storage.js";
+import { __Storage } from "../../standard/dependency-objects/__storage.js";
 
 /**
  * PropertyAttributeBinding class
@@ -21,16 +21,16 @@ export class PropertyAttributeBinding extends Binding {
         assertParams({ targetAttributeName }, [String]);
         assertParams({ targetAttributeNamespace }, [String, null]);
 
-        this.set(PropertyAttributeBinding.__sourcePropertyKey, source);
-        this.set(PropertyAttributeBinding.__sourcePropertyPropertyKey, sourceProperty);
-        this.set(PropertyAttributeBinding.__targetElementPropertyKey, targetElement);
-        this.set(PropertyAttributeBinding.__targetAttributeNamePropertyKey, targetAttributeName);
-        this.set(PropertyAttributeBinding.__targetAttributeNamespacePropertyKey, targetAttributeNamespace);
+        this.__source = source;
+        this.__sourceProperty = sourceProperty;
+        this.__targetElement = targetElement;
+        this.__targetAttributeName = targetAttributeName;
+        this.__targetAttributeNamespace = targetAttributeNamespace;
 
         this.__source_PropertyChangeEvent = new FrameworkEvent(this.__source_onPropertyChange, this);
         source.PropertyChangeEvent.attach(this.__source_PropertyChangeEvent);
 
-        this.__targetElement_attributeMutationObserver = new MutationObserver(this.__targetElement_attributeChange_handler.bind(this));
+        this.__targetElement_attributeMutationObserver = new MutationObserver(this.__targetElement_attributeMutationObserver_handler.bind(this));
         this.__targetElement_attributeMutationObserver.observe(targetElement, { attributes: true });
 
         this.__doInitialUpdate();
@@ -68,7 +68,7 @@ export class PropertyAttributeBinding extends Binding {
             else
                 propertyValue = attributeValue;
 
-            _Storage.setValue(this, this.source, this.sourceProperty, propertyValue);
+            __Storage.trySetValue(this, this.source, this.sourceProperty, propertyValue);
         }
     }
 
@@ -79,40 +79,37 @@ export class PropertyAttributeBinding extends Binding {
             this.__updateSourceProperty(attributeValue);
         }
 
-        const propertyValue = _Storage.getValue(this.source, this.sourceProperty);
+        const propertyValue = this.source.get(this.sourceProperty);
         if (propertyValue !== null)
             this.__updateTargetAttribute(propertyValue);
     }
 
-    private __targetElement_attributeChange_handler(mutations: MutationRecord[]) {
+    private __targetElement_attributeMutationObserver_handler(mutations: MutationRecord[]) {
         for (let mutation of mutations) {
-            const isTargetAttribute = mutation.type == "attributes" && mutation.attributeName == this.targetAttributeName && mutation.attributeNamespace == this.targetAttributeNamespace;
-            if (isTargetAttribute)
-                this.__updateSourceProperty(this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName));
+            if (mutation.type != "attributes" ||
+                mutation.attributeName != this.targetAttributeName ||
+                mutation.attributeNamespace != this.targetAttributeNamespace)
+                continue;
+            this.__updateSourceProperty(this.targetElement.getAttributeNS(this.targetAttributeNamespace, this.targetAttributeName));
         }
     }
 
     private __targetElement_attributeMutationObserver: MutationObserver;
 
-    static __sourcePropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(PropertyAttributeBinding, "source", new PropertyMetadata(Type.get(DependencyObject)));
-    static sourceProperty: DependencyProperty = PropertyAttributeBinding.__sourcePropertyKey.property;
-    get source(): DependencyObject { return this.get(PropertyAttributeBinding.sourceProperty); }
+    get source(): DependencyObject { return this.__source; }
+    private __source: DependencyObject;
 
-    static __sourcePropertyPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(PropertyAttributeBinding, "sourceProperty", new PropertyMetadata(Type.get(DependencyProperty)));
-    static sourcePropertyProperty: DependencyProperty = PropertyAttributeBinding.__sourcePropertyPropertyKey.property;
-    get sourceProperty(): DependencyProperty { return this.get(PropertyAttributeBinding.sourcePropertyProperty); }
+    get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
+    private __sourceProperty: DependencyProperty;
 
-    static __targetElementPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetElement", new PropertyMetadata(Type.get(Element)));
-    static targetElementProperty: DependencyProperty = PropertyAttributeBinding.__targetElementPropertyKey.property;
-    get targetElement(): Element { return this.get(PropertyAttributeBinding.targetElementProperty); }
+    get targetElement(): Element { return this.__targetElement; }
+    private __targetElement: Element;
 
-    static __targetAttributeNamePropertyKey = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetAttributeName", new PropertyMetadata(Type.get(String)));
-    static targetAttributeNameProperty = PropertyAttributeBinding.__targetAttributeNamePropertyKey.property;
-    get targetAttributeName(): string { return this.get(PropertyAttributeBinding.targetAttributeNameProperty); }
+    get targetAttributeName(): string { return this.__targetAttributeName; }
+    private __targetAttributeName: string;
 
-    static __targetAttributeNamespacePropertyKey = DependencyProperty.registerReadonly(PropertyAttributeBinding, "targetAttributeNamespace", new PropertyMetadata(null));
-    static targetAttributeNamespaceProperty = PropertyAttributeBinding.__targetAttributeNamespacePropertyKey.property;
-    get targetAttributeNamespace(): string | null { return this.get(PropertyAttributeBinding.targetAttributeNamespaceProperty); }
+    get targetAttributeNamespace(): string | null { return this.__targetAttributeNamespace; }
+    private __targetAttributeNamespace: string | null;
 
     protected destructor(): void {
         this.__source_PropertyChangeEvent.destruct();

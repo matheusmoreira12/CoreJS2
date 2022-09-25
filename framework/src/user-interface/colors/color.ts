@@ -5,7 +5,7 @@ import { ColorRGB } from "./index.js";
 import { ColorHSL } from "./index.js";
 import { ColorHSLA } from "./index.js";
 
-import { TryOutput } from "../../standard/reflection/types.js";
+import { OutputArgument } from "../../standard/reflection/types.js";
 import { BlendMode, BlendModes } from "./blending/index.js";
 import { assertParams } from "../../validation/index.js";
 import _ColorConversion from "./_color-conversion.js";

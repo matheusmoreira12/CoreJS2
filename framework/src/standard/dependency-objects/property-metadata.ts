@@ -2,10 +2,11 @@ import { assertParams } from "../../validation/index.js";
 import { Interface } from "../interfaces/interface.js";
 import { Type } from "../reflection/index.js";
 import { TypeConstraint } from "../reflection/type-constraints/index.js";
+import { TypeMatchingConstraint } from "../reflection/types";
 import { ValueType } from "./types";
 
-export class PropertyMetadata<TValue extends ValueType = any> {
-    constructor(valueType: TValue, defaultValue: any = null) {
+export class PropertyMetadata {
+    constructor(valueType: ValueType, defaultValue: any = null) {
         assertParams({ valueType }, [Type, Interface, TypeConstraint, null]);
 
         this.__valueType = valueType;
