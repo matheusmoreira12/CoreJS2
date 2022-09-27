@@ -3,11 +3,16 @@ import { StringUtils } from "../../core-base/utils/string-utils.js";
 import { assertParams } from "../../validation/index.js";
 import { ArgumentException, FormatException } from "../exceptions/framework-exception.js";
 import { OutputArgument } from "../reflection/types.js";
+import { __Generator } from "./__generator.js";
 import { __StringConverter } from "./__string-converter.js";
 
 export class Guid {
+    static createUnique(): Guid {
+        return __Generator.createUnique();
+    }
+
     static create(): Guid {
-        return new Guid(crypto.getRandomValues(new Uint8Array(16)));
+        return __Generator.create();
     }
 
     static tryParse(str: string, outGuid: OutputArgument<Guid>): boolean {
