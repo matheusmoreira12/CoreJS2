@@ -1,7 +1,7 @@
 export namespace ArrayUtils {
     export function remove<T>(array: T[], item: T): void {
         let i = array.indexOf(item);
-        if (i === -1)
+        if (i == -1)
             return;
         array.splice(i, 1);
     }
@@ -11,55 +11,56 @@ export namespace ArrayUtils {
             remove(array, v);
     }
 
-    export function removeWhere<T>(array: T[], predicate: (item: T, i: number) => boolean): void {
+    export function removeWhere<T>(array: T[], predicate: (item: T) => boolean): void {
         removeMany(array, where(array, predicate));
     }
 
-    export function* compareSelect<T, U, TResult>(a: Iterable<T>, b: Iterable<U>, predicate: (a: T, b: U, i: number) => TResult) {
-        const ia = a[Symbol.iterator]();
-        const ib = b[Symbol.iterator]();
-        let iar: IteratorResult<T>;
-        let ibr: IteratorResult<U>;
-        let i = 0;
-        do {
-            iar = ia.next();
-            ibr = ib.next();
-            const pr = predicate(iar.value, iar.value, i);
-            yield pr;
-            i++;
+    type ZipIterables<T extends any[]> = Iterable<unknown>[] & { [I in number]: Iterable<T[number]> };
+
+    export function* zip<T extends any[], TResult>(predicate: (...items: T) => TResult, ...iterables: ZipIterables<T>): Iterable<TResult> {
+        const is = iterables.map(i => i[Symbol.iterator]());
+        while (true) {
+            let q = false;
+            const vs: T[number][] = [];
+            for (let i of is) {
+                const ir = i.next();
+                if (ir.done) {
+                    q = true;
+                    break;
+                }
+                vs.push(ir.value);
+            }
+            if (q)
+                break;
+            yield predicate(...(vs as T));
         }
-        while (!iar.done && !ibr.done);
-        if (ia.return)
-            ia.return();
-        if (ib.return)
-            ib.return();
     }
 
     export function getFirst<T>(iterable: Iterable<T>): T | undefined {
-        const it = iterable[Symbol.iterator]();
-        const ir = it.next();
-        if (it.return)
-            it.return();
+        const i = iterable[Symbol.iterator]();
+        const ir = i.next();
+        if (i.return)
+            i.return();
         return ir.value;
     }
 
     export function getLast<T>(iterable: Iterable<T>): T | undefined {
-        const it = iterable[Symbol.iterator]();
-        let ir = it.next();
+        const i = iterable[Symbol.iterator]();
+        let v: T | undefined = undefined;
         while (true) {
-            const nir = it.next();
-            if (nir.done)
+            const ir = i.next();
+            if (ir.done)
                 break;
-            ir = nir;
+            v = ir.value;
         }
-        if (it.return)
-            it.return();
-        return ir.value;
+        if (i.return)
+            i.return();
+        return v;
     }
 
     export function* exclude<T>(iterable: Iterable<T>, excludeItem: T): IterableIterator<T> {
         for (let v of iterable) {
-            if (v == excludeItem)
+            if (v === excludeItem)
                 continue;
             yield v;
         }
@@ -73,38 +74,73 @@ export namespace ArrayUtils {
     }
 
     export function* excludeDuplicates<T>(iterable: Iterable<T>): IterableIterator<T> {
-        const rv: T[] = [];
+        const us: T[] = [];
         for (let v of iterable) {
-            if (rv.includes(v))
+            if (us.includes(v))
                 continue;
-            rv.push(v);
+            us.push(v);
             yield v;
         }
     }
 
-    export function* select<T, TResult>(iterable: Iterable<T>, predicate: (item: T, i: number) => TResult): IterableIterator<TResult> {
-        let i = 0;
-        for (let v of iterable) {
-            yield predicate(v, i);
-            i++;
-        }
+    export function* select<T, TResult>(iterable: Iterable<T>, predicate: (item: T) => TResult): IterableIterator<TResult> {
+        for (let v of iterable)
+            yield predicate(v);
     }
 
-    export function selectSet<T, TResult>(iterable: Iterable<T>, predicate: (item: T, i: number) => TResult): Set<TResult> {
+    export function* chunkSelect<T, TResult>(iterable: Iterable<T>, chunkLength: number, predicate: (chunk: T[]) => TResult): IterableIterator<TResult> {
+        const it = iterable[Symbol.iterator]();
+        let c: T[] = [];
+        for (let i = 0; ; i++) {
+            const ir = it.next();
+            if (ir.done)
+                break;
+            const j = i % chunkLength;
+            if (j == 0)
+                c = [];
+            c.push(ir.value);
+            if (j == chunkLength - 1) {
+                yield predicate(c);
+            }
+        }
+        if (it.return)
+            it.return();
+    }
+
+    export function selectSet<T, TResult>(iterable: Iterable<T>, predicate: (item: T) => TResult): Set<TResult> {
         return new Set<TResult>(select(iterable, predicate));
     }
 
-    export function selectMap<T, TResultKey, TResultValue>(iterable: Iterable<T>, predicate: (item: T, i: number) => [TResultKey, TResultValue]): Map<TResultKey, TResultValue> {
+    export function selectMap<T, TResultKey, TResultValue>(iterable: Iterable<T>, predicate: (item: T) => [TResultKey, TResultValue]): Map<TResultKey, TResultValue> {
         return new Map<TResultKey, TResultValue>(select(iterable, predicate));
     }
 
-    export function* where<T>(iterable: Iterable<T>, predicate: (value: T, i: number) => boolean): IterableIterator<T> {
-        let i = 0;
+    export function* where<T>(iterable: Iterable<T>, predicate: (value: T) => boolean): IterableIterator<T> {
         for (let v of iterable) {
-            if (!predicate(v, i))
+            if (!predicate(v))
                 continue;
             yield v;
-            i++;
         }
+    }
+
+    export function sequenceEqual<T>(a: Iterable<T>, b: Iterable<T>): boolean {
+        const ia = a[Symbol.iterator]();
+        const ib = b[Symbol.iterator]();
+        while (true) {
+            const iar = ia.next();
+            const ibr = ib.next();
+            if (iar.done || ibr.done) {
+                if (!iar.done || !ibr.done)
+                    return false;
+                break;
+            }
+            if (iar.value !== ibr.value)
+                return false;
+        }
+        if (ia.return)
+            ia.return();
+        if (ib.return)
+            ib.return();
+        return true;
     }
 }

@@ -1,1 +1,1 @@
-export type NameOfMap = { [P: string]: string; };
+export type NameOfMap = { [P: string]: any; };
