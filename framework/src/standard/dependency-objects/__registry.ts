@@ -1,4 +1,4 @@
-import { ClassOf, OutputArgument } from "../reflection/types.js";
+import { OutputArgument } from "../reflection/types.js";
 import { DependencyProperty, DependencyPropertyKey, PropertyMetadata } from "./index.js";
 import { DependencyObjectClass } from "./dependency-object-class";
 import { MapUtils } from "../../core-base/utils/map-utils.js";

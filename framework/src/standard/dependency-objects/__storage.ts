@@ -32,11 +32,11 @@ export namespace __Storage {
             const outIsReadonly: OutputArgument<boolean> = {};
             if (!__Registry.tryGetIsReadonly(propertyOrPropertyKey, outIsReadonly))
                 return false;
-            if (outIsReadonly!.value)
+            if (outIsReadonly.value!)
                 return false;
             return doTrySetValue(propertyOrPropertyKey);
         }
-        return doTrySetValue((propertyOrPropertyKey as DependencyPropertyKey).property);
+        return doTrySetValue(propertyOrPropertyKey.property);
 
         function doTrySetValue(property: DependencyProperty): boolean {
             const outOldValue: OutputArgument<any> = {};
