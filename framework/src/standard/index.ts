@@ -38,5 +38,9 @@ export { URLs };
 import * as Timing from "./timing/index.js";
 export { Timing };
 
+
+import * as Guids from "./guids/index.js";
+export { Guids };
+
 import * as DependencyObjects from "./dependency-objects/index.js";
 export { DependencyObjects };
