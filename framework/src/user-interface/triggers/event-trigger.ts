@@ -45,11 +45,11 @@ export class EventTrigger extends Trigger {
         this.__executeAllActions(data);
     }
 
-    static __targetEventPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(EventTrigger, "targetEvent", new PropertyMetadata(Type.get(FrameworkEvent)))
+    static __targetEventPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Type.get(EventTrigger), "targetEvent", new PropertyMetadata(Type.get(FrameworkEvent)))
     static targetEventProperty: DependencyProperty = EventTrigger.__targetEventPropertyKey.property;
     get targetEvent(): FrameworkEvent { return this.get(EventTrigger.targetEventProperty); }
 
-    static __actionsPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(EventTrigger, "actions", new PropertyMetadata(Type.get(Collection)))
+    static __actionsPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Type.get(EventTrigger), "actions", new PropertyMetadata(Type.get(Collection)))
     static actionsProperty: DependencyProperty = EventTrigger.__actionsPropertyKey.property;
     get actions(): Collection<Action> { return this.get(EventTrigger.actionsProperty); }
 

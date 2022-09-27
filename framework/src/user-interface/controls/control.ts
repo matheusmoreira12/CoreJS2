@@ -36,19 +36,19 @@ export abstract class Control extends DependencyObject {
             throw new InvalidOperationException("Cannot finalize control. Control has not been initialized.");
     }
 
-    static __isInitializedPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Control, "isInitialized", new PropertyMetadata(Type.get(Boolean), false ));
+    static __isInitializedPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Type.get(Control), "isInitialized", new PropertyMetadata(Type.get(Boolean), false ));
     static isInitializedProperty: DependencyProperty = Control.__isInitializedPropertyKey.property;
     get isInitialized(): boolean { return this.get(Control.isInitializedProperty); }
 
-    static __domElementPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Control, "domElement", new PropertyMetadata(new OrConstraint([Type.get(Element), Type.of(null)]), null));
+    static __domElementPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Type.get(Control), "domElement", new PropertyMetadata(new OrConstraint([Type.get(Element), Type.of(null)]), null));
     static domElementProperty: DependencyProperty = Control.__domElementPropertyKey.property;
     get domElement(): Element | null { return this.get(Control.domElementProperty); }
 
-    static __uniqueIdPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Control, "uniqueId", new PropertyMetadata(Type.get(String)));
+    static __uniqueIdPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Type.get(Control), "uniqueId", new PropertyMetadata(Type.get(String)));
     static uniqueIdProperty: DependencyProperty = Control.__uniqueIdPropertyKey.property;
     get uniqueId(): string { return this.get(Control.uniqueIdProperty); }
 
-    static __stylePropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Control, "style", new PropertyMetadata(Type.get(ControlStyle)));
+    static __stylePropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Type.get(Control), "style", new PropertyMetadata(Type.get(ControlStyle)));
     static styleProperty: DependencyProperty = Control.__stylePropertyKey.property;
     get style(): ControlStyle { return this.get(Control.styleProperty); }
 }

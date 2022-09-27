@@ -23,19 +23,19 @@ export class PropertyTrigger extends Trigger {
         this.set(PropertyTrigger.settersProperty, new Collection(...setters));
     }
 
-    static __targetPropertyKey = DependencyProperty.registerReadonly(PropertyTrigger, "target", new PropertyMetadata(Type.get(DependencyObject)));
+    static __targetPropertyKey = DependencyProperty.registerReadonly(Type.get(PropertyTrigger), "target", new PropertyMetadata(Type.get(DependencyObject)));
     static targetProperty = PropertyTrigger.__targetPropertyKey.property;
     get target(): object { return this.get(PropertyTrigger.targetProperty); }
 
-    static __propertyPropertyKey = DependencyProperty.registerReadonly(PropertyTrigger, "property", new PropertyMetadata(Type.get(DependencyProperty)));
+    static __propertyPropertyKey = DependencyProperty.registerReadonly(Type.get(PropertyTrigger), "property", new PropertyMetadata(Type.get(DependencyProperty)));
     static propertyProperty = PropertyTrigger.__propertyPropertyKey.property;
     get property(): DependencyProperty { return this.get(PropertyTrigger.propertyProperty); }
 
-    static __valuePropertyKey = DependencyProperty.registerReadonly(PropertyTrigger, "value", new PropertyMetadata(null));
+    static __valuePropertyKey = DependencyProperty.registerReadonly(Type.get(PropertyTrigger), "value", new PropertyMetadata(null));
     static valueProperty = PropertyTrigger.__valuePropertyKey.property;
     get value(): any { return this.get(PropertyTrigger.valueProperty); }
 
-    static __settersPropertyKey = DependencyProperty.registerReadonly(PropertyTrigger, "setters", new PropertyMetadata(Type.get(Collection)));
+    static __settersPropertyKey = DependencyProperty.registerReadonly(Type.get(PropertyTrigger), "setters", new PropertyMetadata(Type.get(Collection)));
     static settersProperty = PropertyTrigger.__settersPropertyKey.property;
     get setters(): Collection<Setter> { return this.get(PropertyTrigger.settersProperty); }
 

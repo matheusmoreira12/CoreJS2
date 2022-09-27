@@ -18,15 +18,15 @@ export class Setter extends DependencyObject {
         this.set(Setter.__valuePropertyKey, value);
     }
 
-    static __targetPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Setter, "target", new PropertyMetadata(Type.get(DependencyObject)));
+    static __targetPropertyKey: DependencyPropertyKey = DependencyProperty.registerReadonly(Type.get(Setter), "target", new PropertyMetadata(Type.get(DependencyObject)));
     static targetProperty: DependencyProperty = Setter.__targetPropertyKey.property;
     get target(): DependencyObject { return this.get(Setter.targetProperty); }
 
-    static __propertyPropertyKey = DependencyProperty.registerReadonly(Setter, "property", new PropertyMetadata(Type.get(DependencyProperty)));
+    static __propertyPropertyKey = DependencyProperty.registerReadonly(Type.get(Setter), "property", new PropertyMetadata(Type.get(DependencyProperty)));
     static propertyProperty = Setter.__propertyPropertyKey.property;
     get property(): DependencyProperty { return this.get(Setter.propertyProperty); }
 
-    static __valuePropertyKey = DependencyProperty.registerReadonly(Setter, "value", new PropertyMetadata(null));
+    static __valuePropertyKey = DependencyProperty.registerReadonly(Type.get(Setter), "value", new PropertyMetadata(null));
     static valueProperty = Setter.__valuePropertyKey.property;
     get value(): any { return this.get(Setter.valueProperty); }
 }
