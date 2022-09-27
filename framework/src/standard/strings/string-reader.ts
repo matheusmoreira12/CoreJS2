@@ -1,3 +1,4 @@
+import { OutputArgument } from "../reflection/types";
 
 export class StringReader {
     constructor(content: string) {
@@ -5,65 +6,65 @@ export class StringReader {
         this.__index = 0;
     }
 
-    peek(): string {
-        const peekedChars: string[] = [];
-        if (this.copyBlock(peekedChars, 0, 1) > 0)
-            return peekedChars[0];
-        else
-            return "";
+    peek(outChar: OutputArgument<string>): number {
+        const cs: string[] = new Array(1);
+        const l = this.peekBlock(cs, 0, 1);
+        if (l > 0)
+            outChar.value = cs[0];
+        return l;
     }
 
-    read(): string {
-        const readChars: string[] = [];
-        if (this.readBlock(readChars, 0, 1) > 0)
-            return readChars[0];
-        else
-            return "";
+    read(outChar: OutputArgument<string>): number {
+        const cs: string[] = new Array(1);
+        const l = this.readBlock(cs, 0, 1);
+        if (l > 0)
+            outChar.value = cs[0];
+        return l;
     }
 
-    copyBlock(buffer: string[], index: number, count: number): number {
-        const start = this.__index,
-            endOfFile = this.__content.length,
-            endOfBlock = this.__index + count,
-            end = Math.min(endOfFile, endOfBlock),
-            copyCount = end - start;
-
-        if (copyCount > 0) {
-            const readChars: string[] = [...this.__content.slice(start, end)];
-            buffer.splice(index, copyCount, ...readChars);
+    peekBlock(buffer: string[], index: number, count: number): number {
+        const i = this.__index;
+        const er = this.__index + count;
+        const ef = this.__content.length;
+        const eb = i + buffer.length;
+        const e = eb < ef ? eb < er ? eb : er : ef;
+        const l = e - i;
+        if (l > 0) {
+            const cs = Array.from(this.__content).slice(i, e);
+            buffer.splice(index, l, ...cs);
         }
-
-        return copyCount;
+        return l;
     }
 
     readBlock(buffer: string[], index: number, count: number): number {
-        const readCount = this.copyBlock(buffer, index, count);
-        this.__index += readCount;
-        return readCount;
+        const l = this.peekBlock(buffer, index, count);
+        this.__index += l;
+        return l;
     }
 
     readLine(): string {
         const readChars: string[] = [],
-            lineEnd = findLineEnd(this.__content, this.__index);
+            lineEnd = this.getEndOfLine();
         this.readBlock(readChars, 0, lineEnd - this.__index);
         return readChars.join("");
     }
 
-    readToEnd(): string {
-        const readChars: string[] = [],
-            endOfFile = this.__content.length - 1;
-        this.readBlock(readChars, 0, endOfFile - this.__index);
-        return readChars.join("");
+    getEndOfLine(): number {
+        let el = this.__content.indexOf("\n", this.__index);
+        if (el == -1)
+            return this.__content.length;
+        return el;
+    }
+
+    readRest(buffer: string[]): number {
+        const ef = this.__content.length - 1;
+        return this.readBlock(buffer, 0, ef - this.__index);
+    }
+
+    get isEOF(): boolean {
+        return this.__index >= this.__content.length;
     }
 
     private __content: string;
     private __index: number;
-}
-
-function findLineEnd(content: string, offset: number): number {
-    let i = content.indexOf("\n", offset);
-    if (i == -1)
-        return content.length - 1;
-    else
-        return i;
 }
