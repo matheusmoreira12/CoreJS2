@@ -1,44 +1,35 @@
 import { NotSupportedException } from "../../standard/exceptions/index.js"
-import { ArrayUtils } from "./array-utils.js";
 import { DeepClone } from "./deep-clone";
 import { DeepReadonly } from "./deep-readonly";
+import { ArrayUtils } from "./index.js";
 
 export namespace ObjectUtils {
+    export function getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
+        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => getOwnPropertyKeys(o)));
+    }
+
     export function* getOwnPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
         yield* Object.getOwnPropertyNames(obj) as (keyof T)[];
         yield* Object.getOwnPropertySymbols(obj) as (keyof T)[];
     }
 
-    export function getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
-        return ArrayUtils.excludeDuplicates(getIncludingDuplicates()) as IterableIterator<keyof T>;
-
-        function* getIncludingDuplicates() {
-            while (obj) {
-                yield* getOwnPropertyKeys(obj);
-                obj = Object.getPrototypeOf(obj);
-            }
-        }
+    export function getAllPropertySymbols<T>(obj: T): IterableIterator<keyof T & symbol> {
+        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertySymbols(o))) as IterableIterator<keyof T & symbol>;
     }
 
     export function getAllPropertyNames<T>(obj: T): IterableIterator<keyof T & string> {
-        return ArrayUtils.excludeDuplicates(getIncludingDuplicates()) as IterableIterator<keyof T & string>;
-
-        function* getIncludingDuplicates() {
-            while (obj) {
-                yield* Object.getOwnPropertyNames(obj);
-                obj = Object.getPrototypeOf(obj);
-            }
-        }
+        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertyNames(o))) as IterableIterator<keyof T & string>;
     }
 
     export function getAnyPropertyDescriptor<T>(obj: T, key: keyof T): PropertyDescriptor | undefined {
+        return ArrayUtils.first(ArrayUtils.select(getPrototypeTree(obj), o => Object.getOwnPropertyDescriptor(o, key)), d => !!d);
+    }
+
+    export function* getPrototypeTree<T>(obj: T): IterableIterator<T> {
         while (obj) {
-            const desc = Object.getOwnPropertyDescriptor(obj, key);
-            if (desc)
-                return desc;
+            yield obj;
             obj = Object.getPrototypeOf(obj);
         }
-        return undefined;
     }
 
     export function copyProperty<T, U>(src: T, dest: U, key: keyof T, overwrite: boolean = true, bind: boolean = false): boolean {
