@@ -5,12 +5,14 @@ import { DependencyProperty, DependencyPropertyKey, PropertyChangeEventArgs } fr
 import { __Storage } from "./__storage.js";
 import { InvalidOperationException } from "../exceptions/index.js";
 import { OutputArgument } from "../reflection/types";
+import { Guid } from "../guids/index.js";
 
 export abstract class DependencyObject extends Destructible {
     constructor() {
         super();
 
         this.__PropertyChangeEvent = new FrameworkEvent(this.__onPropertyChange, this);
+        this.__id = Guid.create();
     }
 
     protected __onPropertyChange(_sender: any, _args: PropertyChangeEventArgs): void { }
@@ -34,6 +36,9 @@ export abstract class DependencyObject extends Destructible {
 
     get PropertyChangeEvent(): FrameworkEvent<PropertyChangeEventArgs> { return this.__PropertyChangeEvent; }
     private __PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
+
+    get id(): Guid { return this.__id; }
+    private __id: Guid;
 
     protected destructor() {
         this.__PropertyChangeEvent.destruct();

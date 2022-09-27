@@ -1,9 +1,11 @@
 import { assertParams } from "../../validation/index.js";
 import { InvalidOperationException } from "../exceptions/index.js";
+import { Guid } from "../guids/index.js";
 import { OutputArgument } from "../reflection/types";
 import { DependencyObjectClass } from "./dependency-object-class";
 import { DependencyPropertyKey, PropertyMetadata } from "./index.js";
 import { __Registry } from "./__registry.js";
+import { __Validation } from "./__validation.js";
 
 /**
  * Eases the integration between user-defined properties and framework features.
@@ -12,7 +14,7 @@ export class DependencyProperty {
     static registerAttached(target: DependencyObjectClass, name: string, metadata: PropertyMetadata): DependencyProperty {
         assertParams({ target }, [Function]);
         assertParams({ metadata }, [PropertyMetadata]);
-        assertAttachedProperty(target, name, false);
+        __Validation.assertAttachedProperty(target, name, false);
 
         const property = new DependencyProperty();
         if (__Registry.tryRegisterAttached(target, property, name, metadata))
@@ -23,7 +25,7 @@ export class DependencyProperty {
     static registerReadonly(target: DependencyObjectClass, name: string, metadata: PropertyMetadata): DependencyPropertyKey {
         assertParams({ target }, [Function]);
         assertParams({ options: metadata }, [PropertyMetadata]);
-        assertAttachedProperty(target, name, true);
+        __Validation.assertAttachedProperty(target, name, true);
 
         const property = new DependencyProperty();
         const propertyKey = new DependencyPropertyKey();
@@ -51,26 +53,13 @@ export class DependencyProperty {
         throw new InvalidOperationException("Cannot get metadata. Invalid dependency property.");
     }
 
-    static getAll(target: DependencyObjectClass): IterableIterator<DependencyProperty> {
-        assertParams({ target }, [Function]);
-
-        return __Registry.getAll(target);
-    }
-
     get name(): string {
         const tryGetPropertyNameOutput: OutputArgument<string> = {};
         if (__Registry.tryGetName(this, tryGetPropertyNameOutput))
             return tryGetPropertyNameOutput.value!;
         throw new InvalidOperationException("Cannot get name. Invalid dependency property.");
     }
-}
 
-function assertAttachedProperty(target: DependencyObjectClass, name: string, isReadonly: boolean) {
-    const descriptor = Object.getOwnPropertyDescriptor(target.prototype, name);
-    if (!descriptor)
-        throw new InvalidOperationException(`Cannot register dependency property. Missing property ${name} in ${target.name}.`)
-    else if (!descriptor.get)
-        throw new InvalidOperationException(`Cannot register dependency property. Missing getter for property ${name} in class ${target.name}.`);
-    else if (!descriptor.set && !isReadonly)
-        throw new InvalidOperationException(`Cannot register dependency property. Missing setter for property ${name} in class ${target.name}.`);
+    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid dependency property key.") })() }
+    __id: Guid | null = null;
 }
