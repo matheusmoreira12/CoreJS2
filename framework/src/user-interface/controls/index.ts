@@ -1,3 +1,5 @@
+export * from "./control-children-collection.js";
+
 export * from "./control.js";
 
 export * from "./autosize-mode.js";

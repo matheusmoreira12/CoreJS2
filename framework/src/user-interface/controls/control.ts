@@ -6,8 +6,9 @@ import * as __Activator from "./__activator.js";
 import { Type } from "../../standard/reflection/index.js";
 import { ObservableCollection, ObservableCollectionChangeAction, ObservableCollectionChangeArgs } from "../../standard/collections/index.js";
 import { OutputArgument } from "../../standard/reflection/types.js";
-import { ControlConstructor } from "./control-constructor";
+import { ControlConstructor } from "./control-constructor.js";
 import { DOMUtils } from "../index.js";
+import { ControlChildrenCollection } from "./index.js";
 
 export abstract class Control extends DependencyObject {
     static register(control: ControlConstructor, elementName: string, elementNamespaceURI: string) {
@@ -20,7 +21,7 @@ export abstract class Control extends DependencyObject {
             throw new InvalidOperationException("Invalid constructor.");
         if (!__Activator.tryBeginControlInstanceLifecycle(this))
             throw new InvalidOperationException("Cannot begin control instance lifecycle.");
-        this.children = new ObservableCollection();
+        this.set(Control.__childrenPropertyKey, new ObservableCollection());
         this.children.ChangeEvent.attach(this.__children_onChange, this);
     }
 
@@ -58,8 +59,7 @@ export abstract class Control extends DependencyObject {
 
     private __domElement?: Element;
 
-    get children(): ObservableCollection<Control> { return this.get(Control.childrenProperty); }
-    set children(value: ObservableCollection<Control>) { this.set(Control.childrenPropertyKey, value); }
-    private static childrenPropertyKey = DependencyProperty.registerReadonly(Control, "children", new PropertyMetadata(Type.get(ObservableCollection)));
-    static childrenProperty = Control.childrenPropertyKey.property;
+    get children(): ControlChildrenCollection { return this.get(Control.childrenProperty); }
+    private static __childrenPropertyKey = DependencyProperty.registerReadonly(Control, "children", new PropertyMetadata(Type.get(ControlChildrenCollection)));
+    static childrenProperty = Control.__childrenPropertyKey.property;
 }
