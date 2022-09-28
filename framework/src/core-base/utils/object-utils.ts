@@ -5,7 +5,9 @@ import { ArrayUtils } from "./index.js";
 
 export namespace ObjectUtils {
     export function getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
-        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => getOwnPropertyKeys(o)));
+        if (obj === null || obj === undefined)
+            return ArrayUtils.empty();
+        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj as T), o => getOwnPropertyKeys(o)));
     }
 
     export function* getOwnPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
@@ -13,19 +15,59 @@ export namespace ObjectUtils {
         yield* Object.getOwnPropertySymbols(obj) as (keyof T)[];
     }
 
-    export function getAllPropertySymbols<T>(obj: T): IterableIterator<keyof T & symbol> {
+    type SymbolOf<T> = keyof T & symbol;
+
+    export function getAllPropertySymbols<T>(obj: T): IterableIterator<SymbolOf<T>> {
+        if (obj === null || obj === undefined)
+            return ArrayUtils.empty();
         return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertySymbols(o))) as IterableIterator<keyof T & symbol>;
     }
 
     export function getAllPropertyNames<T>(obj: T): IterableIterator<keyof T & string> {
+        if (obj === null || obj === undefined)
+            return ArrayUtils.empty();
         return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertyNames(o))) as IterableIterator<keyof T & string>;
     }
 
+    type AllPropertyDescriptorsMap<T> = PropertyDescriptorMap & (T extends (null | undefined) ? {} : { [K in keyof T]: TypedPropertyDescriptor<T[K]> });
+
+    export function getAllPropertyDescriptors<T>(obj: T): AllPropertyDescriptorsMap<T> {
+        if (obj === null || obj === undefined)
+            return {} as AllPropertyDescriptorsMap<T>;
+        return detuplify(ArrayUtils.whereUnique(ArrayUtils.selectMany(getPrototypeTree(obj as T), o => tuplify(Object.getOwnPropertyDescriptors(o))), d => d[0])) as unknown as AllPropertyDescriptorsMap<T>;
+    }
+
+    type AllPropertyDescriptorsAsTuples<T> = T extends (null | undefined) ? IterableIterator<never> : IterableIterator<[T, keyof T, TypedPropertyDescriptor<T[keyof T]>]>;
+
+    export function getAllPropertyDescriptorsAsTuples<T>(obj: T): AllPropertyDescriptorsAsTuples<T> {
+        if (obj === null || obj === undefined)
+            return ArrayUtils.empty() as AllPropertyDescriptorsAsTuples<T>;
+        return ArrayUtils.whereUnique(ArrayUtils.selectMany(getPrototypeTree(obj), o => ArrayUtils.select(tuplify(Object.getOwnPropertyDescriptors(o)), t => [o, t[0], t[1]])), u => u[2]) as AllPropertyDescriptorsAsTuples<T>;
+    }
+
+    type Tuplified<T> = IterableIterator<[keyof T & string, T[keyof T & string]]>;
+
+    export function tuplify<T>(obj: T): Tuplified<T> {
+        if (obj === null || obj === undefined)
+            return ArrayUtils.empty();
+        return ArrayUtils.select(Object.getOwnPropertyNames(obj) as (keyof T & string)[], n => [n, obj[n]]);
+    }
+
+    type Detuplified<T> = T extends IterableIterator<[infer Ks, infer Vs]> ? { [K in Ks & string]: Vs } : {};
+
+    export function detuplify<T extends IterableIterator<[string, any]>>(tuples: T): Detuplified<T> {
+        return ArrayUtils.aggregate(tuples, (o, t) => o[t[0] as keyof Detuplified<T>] = o[t[1]], {} as Detuplified<T>);
+    }
+
     export function getAnyPropertyDescriptor<T>(obj: T, key: keyof T): PropertyDescriptor | undefined {
+        if (obj === null || obj === undefined)
+            return undefined;
         return ArrayUtils.first(ArrayUtils.select(getPrototypeTree(obj), o => Object.getOwnPropertyDescriptor(o, key)), d => !!d);
     }
 
     export function* getPrototypeTree<T>(obj: T): IterableIterator<T> {
+        if (obj === null || obj === undefined)
+            return;
         while (obj) {
             yield obj;
             obj = Object.getPrototypeOf(obj);
@@ -66,61 +108,50 @@ export namespace ObjectUtils {
     }
 
     export function deepEquals<T, U>(obj1: T, obj2: U) {
-        if (obj1 !== null && typeof obj1 === "object") {
-            //Check each property value
-            for (let prop of getOwnPropertyKeys(obj1))
-                if (!deepEquals(obj1[prop], obj2[<keyof U><unknown>prop])) return false;
-
+        if (obj1 && typeof obj1 === "object" && obj2 && typeof obj2 === "object") {
+            for (let k of getOwnPropertyKeys(obj1)) {
+                if (!deepEquals(obj1[k], obj2[k as unknown as keyof U]))
+                    return false;
+            }
             return true;
         }
-
-        if (<any>obj1 !== <any>obj2) return false;
-
-        return true;
+        return obj1 as unknown === obj2 as unknown
     }
 
     export function makeNamedFunction(name: string): Function {
-        const factory = new Function(`return function ${name}() {};`);
-        return factory();
+        return new Function(`return function ${name}() {};`)();
     }
 
     export function makeNamedClass(name: string): Function {
-        const factory = new Function(`return class ${name} {};`);
-        return factory();
+        return new Function(`return class ${name} {};`)();
     }
 
     export function getBlank(obj: any) {
-        let result: Function | Object | null = null;
-
+        let r: Function | Object | null = null;
         if (typeof obj == "function") {
             if (obj.toString().startsWith("class"))
-                result = makeNamedClass(obj.name);
+                r = makeNamedClass(obj.name);
             else
-                result = makeNamedFunction(obj.name);
+                r = makeNamedFunction(obj.name);
         }
         else if (typeof obj == "object")
-            result = {};
+            r = {};
         else
             return obj;
-
-        Object.setPrototypeOf(result, Object.getPrototypeOf(obj));
-        Object.setPrototypeOf(result.constructor, Object.getPrototypeOf(obj.constructor));
-
-        return result;
+        Object.setPrototypeOf(r, Object.getPrototypeOf(obj));
+        Object.setPrototypeOf(r.constructor, Object.getPrototypeOf(obj.constructor));
+        return r;
     }
 
     export function getDeepReadonly<T>(obj: T): DeepReadonly<T> {
         function getFrozen(obj: any): DeepReadonly<any> {
             if (obj === null || typeof obj !== "object")
                 return obj;
-
-            let frozenObj = getBlank(obj);
-            for (let key of getOwnPropertyKeys(obj))
-                frozenObj[key] = getFrozen(obj[key]);
-
-            return Object.freeze(frozenObj);
+            let f = getBlank(obj);
+            for (let k of getOwnPropertyKeys(obj))
+                f[k] = getFrozen(obj[k]);
+            return Object.freeze(f);
         }
-
         return getFrozen(obj);
     }
 
@@ -128,26 +159,21 @@ export namespace ObjectUtils {
         function getClone<U>(obj: U): DeepClone<U> {
             if (obj === null || typeof obj !== "object" || "isActiveClone" in obj)
                 return obj;
-
-            let clonedObj = getBlank(obj);
-            for (let key of getOwnPropertyKeys(obj))
-                clonedObj[key] = getClone(obj[<keyof U>key]);
-
-            return clonedObj;
+            let c = getBlank(obj);
+            for (let k of getOwnPropertyKeys(obj))
+                c[k] = getClone(obj[<keyof U>k]);
+            return c;
         }
-
         return <T>getClone(obj);
     }
 
     export function getBoundClone<T>(obj: T): T {
         if (obj === null || typeof obj !== "object")
             return obj;
-
-        let boundCloneObj = getBlank(obj);
-        for (let key of getOwnPropertyKeys(obj))
-            copyProperty(obj, boundCloneObj, <keyof T>key, true, true);
-
-        return boundCloneObj;
+        let c = getBlank(obj);
+        for (let k of getOwnPropertyKeys(obj))
+            copyProperty(obj, c, <keyof T>k, true, true);
+        return c;
     }
 
     export function getDefault(constructor: typeof String): string;

@@ -15,6 +15,10 @@ export namespace ArrayUtils {
         removeMany(array, where(array, predicate));
     }
 
+    export function* empty(): IterableIterator<never> {
+        return;
+    }
+
     export function* concat<T>(a: IterableIterator<T>, b: IterableIterator<T>): IterableIterator<T> {
         yield* a;
         yield* b;
@@ -65,12 +69,23 @@ export namespace ArrayUtils {
         yield* r;
     }
 
-    export function* unique<T>(iterable: Iterable<T>): IterableIterator<T> {
-        const us: T[] = [];
+    export function* whereUnique<T, U>(iterable: Iterable<T>, predicate: (item: T) => U): IterableIterator<T> {
+        const ub: U[] = [];
         for (let v of iterable) {
-            if (us.includes(v))
+            const pr = predicate(v);
+            if (ub.includes(pr))
                 continue;
-            us.push(v);
+            ub.push(pr);
+            yield v;
+        }
+    }
+
+    export function* unique<T>(iterable: Iterable<T>): IterableIterator<T> {
+        const ub: T[] = [];
+        for (let v of iterable) {
+            if (ub.includes(v))
+                continue;
+            ub.push(v);
             yield v;
         }
     }
@@ -141,13 +156,27 @@ export namespace ArrayUtils {
         return true;
     }
 
-    type ZipIterables<T extends any[]> = Iterable<unknown>[] & { [I in number]: Iterable<T[number]> };
+    export function aggregate<T, TResult>(iterable: Iterable<T>, predicate: (result: TResult, item: T) => TResult, initial: TResult): TResult {
+        const it = iterable[Symbol.iterator]();
+        let itr: IteratorResult<T>;
+        let r = initial;
+        do{
+            itr = it.next();
+            r = predicate(r, itr.value);
+        }
+        while (!itr.done)
+        if (it.return)
+            it.return();
+        return r;
+    }
 
-    export function* zip<T extends any[], TResult>(predicate: (...items: T) => TResult, ...iterables: ZipIterables<T>): Iterable<TResult> {
+    type ZipIterables<Ts> = Ts extends [infer T, ...infer TTail] ? [Iterable<T>, ZipIterables<TTail>] : [Ts];
+
+    export function* zip<Ts extends any[]>(...iterables: ZipIterables<Ts>): IterableIterator<[...Ts]> {
         const is = iterables.map(i => i[Symbol.iterator]());
         while (true) {
             let q = false;
-            const vs: T[number][] = [];
+            const vs: Ts = new Array() as Ts;
             for (let i of is) {
                 const ir = i.next();
                 if (ir.done) {
@@ -158,7 +187,7 @@ export namespace ArrayUtils {
             }
             if (q)
                 break;
-            yield predicate(...(vs as T));
+            yield vs;
         }
     }
 }
