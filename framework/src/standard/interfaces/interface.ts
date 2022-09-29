@@ -1,4 +1,4 @@
-﻿import { FieldInfo, MemberInfo, MemberSelectionOptions, MemberType, Type } from "../reflection/index.js";
+﻿import { FieldInfo, MemberInfo, MemberSelectionOptions, MemberKind, Type } from "../reflection/index.js";
 import { InterfaceDifference, InterfaceImplementationAnalysis } from "./analysis/index.js";
 import { InterfaceDifferenceKind, InterfaceField, InterfaceFunction, InterfaceMember, InterfaceProperty } from "./index.js";
 
@@ -9,17 +9,17 @@ export class Interface {
     static extract(type: any): Interface {
         function* generateInterfaceMembers(type: Type): Generator<InterfaceMember> {
             function generateInterfaceMember(member: MemberInfo): InterfaceMember | undefined {
-                switch (member.memberType) {
-                    case MemberType.Function:
+                switch (member.memberKind) {
+                    case MemberKind.Method:
                         return new InterfaceFunction(member.name);
-                    case MemberType.Property:
+                    case MemberKind.Property:
                         return new InterfaceProperty(member.name);
-                    case MemberType.Field:
+                    case MemberKind.Field:
                         return new InterfaceField(member.name, (member as FieldInfo).type)
                 }
             }
 
-            const instanceMembers: Iterable<MemberInfo> = type.getMembers(MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.Properties | MemberSelectionOptions.Functions);
+            const instanceMembers: Iterable<MemberInfo> = type.getMembers(MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.Properties | MemberSelectionOptions.Methods);
             for (let member of instanceMembers)
                 yield generateInterfaceMember(member)!;
         }
@@ -37,10 +37,10 @@ export class Interface {
             function getMemberDifferenceType(interfaceMember: InterfaceMember, typeMember: MemberInfo | undefined): number {
                 if (typeMember === undefined)
                     return InterfaceDifferenceKind.Missing;
-                if (typeMember.memberType != interfaceMember.memberType)
+                if (typeMember.memberKind != interfaceMember.memberType)
                     return InterfaceDifferenceKind.Invalid;
                     if ((interfaceMember as InterfaceField).type !== null) {
-                        if (typeMember.memberType === MemberType.Field) {
+                        if (typeMember.memberKind === MemberKind.Field) {
                             const typeMatches = (typeMember as FieldInfo).type.matches((interfaceMember as InterfaceField).type!);
                             if (!typeMatches)
                                 return InterfaceDifferenceKind.InvalidFieldType;

@@ -1,28 +1,38 @@
-import { MemberType } from "./member-type.js";
-import { ArgumentTypeException, InvalidOperationException } from "../exceptions/index.js";
+import { InvalidOperationException } from "../exceptions/index.js";
+import { Guid } from "../guids/index.js";
+import { Type } from "./index.js";
+import { OutputArgument } from "./types.js";
+import { __Registry } from "./__runtime/__registry.js";
 
 export class MemberInfo {
-    constructor(memberType: number, name: string) {
-        if (new.target === MemberInfo)
-            throw new InvalidOperationException("Invalid constructor.");
-
-        if (typeof memberType != "number")
-            throw new ArgumentTypeException("memberType");
-
-        MemberType.assertFlag(memberType);
+    get memberKind(): number {
+        const outMemberKind: OutputArgument<number> = {};
+        if (__Registry.tryGetMemberKind(this, outMemberKind))
+            return outMemberKind.value!;
+        throw new InvalidOperationException(`Cannot get memberType. Invalid instance.`)
+    }
     
-        this._memberType = memberType;
-        this._name = name;
-    }
-
-    protected _memberType: number;
-    protected _name: string;
-
-    get memberType(): number {
-        return this._memberType;
-    }
-
     get name(): string {
-        return this._name;
+        const outName: OutputArgument<string> = {};
+        if (__Registry.tryGetMemberName(this, outName))
+            return outName.value!;
+        throw new InvalidOperationException(`Cannot get name. Invalid instance.`)
     }
+
+    get declaringType(): Type {
+        const outDeclaringType: OutputArgument<Type> = {};
+        if (__Registry.tryGetMemberDeclaringType(this, outDeclaringType))
+            return outDeclaringType.value!;
+        throw new InvalidOperationException(`Cannot get declaringType. Invalid instance.`)
+    }
+
+    get isStatic(): boolean {
+        const outIsStatic: OutputArgument<boolean> = {};
+        if (__Registry.tryGetMemberIsStatic(this, outIsStatic))
+            return outIsStatic.value!;
+        throw new InvalidOperationException(`Cannot get isStatic. Invalid instance.`)
+    }
+
+    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid instance.") })() }
+    __id: Guid | null = null;
 }

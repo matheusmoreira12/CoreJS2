@@ -1,23 +1,13 @@
-import { ParameterInfo, Type } from "./index.js";
-import { InvalidTypeException, InvalidOperationException } from "../exceptions/index.js";
-import { FieldInfoBase } from "./field-info-base.js";
+import { InvalidOperationException } from "../exceptions/index.js";
+import { MemberInfo, ParameterInfo, Type } from "./index.js";
+import { OutputArgument } from "./types.js";
+import { __Registry } from "./__runtime/__registry.js";
 
-export class MethodInfoBase extends FieldInfoBase {
-    constructor(memberType: number, name: string, declaringType: Type, parameters: ParameterInfo[], isStatic: boolean = false) {
-        if (new.target === MethodInfoBase)
-            throw new InvalidOperationException("Invalid constructor.");
-
-        super(memberType, name, declaringType, isStatic);
-
-        if (!(parameters instanceof Array))
-            throw new InvalidTypeException("parameters");
-
-        this._parameters = parameters;
-    }
-
-    protected _parameters: ParameterInfo[];
-
+export class MethodInfoBase extends MemberInfo {
     get parameters(): ParameterInfo[] {
-        return this._parameters;
+        const outParameters: OutputArgument<ParameterInfo[]> = {};
+        if (__Registry.tryGetMethodParameters(this, outParameters))
+            return outParameters.value!;
+        throw new InvalidOperationException(`Cannot get memberType. Invalid ${MethodInfoBase.name} instance.`)
     }
 }
