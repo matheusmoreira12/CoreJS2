@@ -91,7 +91,7 @@ export namespace __StringConverter {
             }
 
             function stbs(s: string): number[] {
-                return Array.from(ArrayUtils.chunkSelect(s, 2, c => Number.parseInt(c.join(""), 16)));
+                return Array.from(ArrayUtils.selectChunks(s, 2, c => Number.parseInt(c.join(""), 16)));
             }
         }
     }

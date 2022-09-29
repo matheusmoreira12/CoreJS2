@@ -105,7 +105,7 @@ export namespace __Storage {
         const outStoredValues: OutputArgument<StoredValueInfo[]> = {};
         if (!tryGetOrCreateStoredValues(target, property, outStoredValues))
             return false;
-        const value = ArrayUtils.getLast(outStoredValues.value!);
+        const value = ArrayUtils.last(outStoredValues.value!);
         if (value === undefined) {
             outValue.value = outMetadata.value!.defaultValue;
             return true;
