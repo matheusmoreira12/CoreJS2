@@ -32,11 +32,9 @@ export namespace __StringConverter {
                 const msr = new StringReader(m);
                 const si = s[Symbol.iterator]();
                 while (!msr.isEOF) {
-                    const co: OutputArgument<string> = {};
-                    msr.read(co);
-                    const pco: OutputArgument<string> = {};
-                    if (co.value != "0" || msr.peek(pco) == 1 && pco.value == "x") {
-                        rs += co.value;
+                    const co = msr.read();
+                    if (co != "0" || msr.peek() == "x") {
+                        rs += co!;
                         continue;
                     }
                     const sir = si.next();
@@ -79,10 +77,8 @@ export namespace __StringConverter {
                     const sir = si.next();
                     if (sir.done)
                         return false;
-                    const co: OutputArgument<string> = {};
-                    msr.read(co);
-                    const pco: OutputArgument<string> = {};
-                    if (co.value != "0" || msr.peek(pco) == 1 && pco.value == "x")
+                    const co = msr.read();
+                    if (co != "0" || msr.peek() == "x")
                         continue;
                     if (!sir.value!.match(/[0-9a-f]/))
                         return false;

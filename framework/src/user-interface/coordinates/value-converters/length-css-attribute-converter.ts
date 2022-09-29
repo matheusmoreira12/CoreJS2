@@ -40,14 +40,14 @@ export class LengthCSSPropertyConverter implements IValueConverter {
     convertBack(value: string | null): Length | null {
         function readAmount(reader: StringReader): number {
             let s: string = "";
-            while (reader.peek().match(/\d/))
+            while (/\d/.test(reader.peek() ?? ""))
                 s += reader.read();
             return Number(s);
         }
 
         function readUnit(reader: StringReader): number | null {
             let s: string = "";
-            while (reader.peek().match(/[A-Za-z%]/))
+            while (/[A-Za-z%]/.test(reader.peek() ?? ""))
                 s += reader.read();
             const unit = MapUtils.invert(UNIT_SVG_UNIT_MAP).get(s);
             if (unit === undefined)
