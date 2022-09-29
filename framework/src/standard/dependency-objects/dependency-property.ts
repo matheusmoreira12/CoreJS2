@@ -1,8 +1,8 @@
 import { assertParams } from "../../validation/index.js";
 import { InvalidOperationException } from "../exceptions/index.js";
 import { Guid } from "../guids/index.js";
+import { Type } from "../reflection/index.js";
 import { OutputArgument } from "../reflection/types";
-import { DependencyObjectClass } from "./dependency-object-class";
 import { DependencyPropertyKey, PropertyMetadata } from "./index.js";
 import { __Registry } from "./__registry.js";
 import { __Validation } from "./__validation.js";
@@ -11,8 +11,8 @@ import { __Validation } from "./__validation.js";
  * Eases the integration between user-defined properties and framework features.
  */
 export class DependencyProperty {
-    static registerAttached(target: DependencyObjectClass, name: string, metadata: PropertyMetadata): DependencyProperty {
-        assertParams({ target }, [Function]);
+    static registerAttached(target: Type, name: string, metadata: PropertyMetadata): DependencyProperty {
+        assertParams({ target }, [Type]);
         assertParams({ metadata }, [PropertyMetadata]);
         __Validation.assertAttachedProperty(target, name, false);
 
@@ -22,8 +22,8 @@ export class DependencyProperty {
         throw new InvalidOperationException("Cannot register dependency property. Property may already be registered.");
     }
 
-    static registerReadonly(target: DependencyObjectClass, name: string, metadata: PropertyMetadata): DependencyPropertyKey {
-        assertParams({ target }, [Function]);
+    static registerReadonly(target: Type, name: string, metadata: PropertyMetadata): DependencyPropertyKey {
+        assertParams({ target }, [Type]);
         assertParams({ options: metadata }, [PropertyMetadata]);
         __Validation.assertAttachedProperty(target, name, true);
 
@@ -34,8 +34,8 @@ export class DependencyProperty {
         throw new InvalidOperationException("Cannot register dependency property. Property may already be registered.");
     }
 
-    static register(target: DependencyObjectClass, name: string, metadata: PropertyMetadata): DependencyProperty {
-        assertParams({ target }, [Function]);
+    static register(target: Type, name: string, metadata: PropertyMetadata): DependencyProperty {
+        assertParams({ target }, [Type]);
         assertParams({ metadata }, [PropertyMetadata]);
 
         const property = new DependencyProperty();
@@ -51,6 +51,12 @@ export class DependencyProperty {
         if (__Registry.tryGetMetadata(property, tryGetPropertyMetadataOutput))
             return tryGetPropertyMetadataOutput.value!;
         throw new InvalidOperationException("Cannot get metadata. Invalid dependency property.");
+    }
+
+    static getAll(targetType: Type) {
+        assertParams({ targetType }, [Type]);
+
+        return __Registry.getAll(targetType);
     }
 
     get name(): string {
