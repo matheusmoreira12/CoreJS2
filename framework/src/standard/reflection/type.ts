@@ -8,20 +8,21 @@ import { OutputArgument, TypeMatchingConstraint } from "./types";
 import { TypeConstraint, TypeConstraintKind } from "./type-constraints/index.js";
 import { ArrayUtils } from "../../core-base/utils/index.js";
 import { Guid } from "../guids/index.js";
+import { __Registry } from "./__runtime/__registry.js";
 
 export class Type {
     static get(clas: Function): Type {
         assertParams({ clas }, [Function])
 
         const outType: OutputArgument<Type> = {};
-        if (__Registry.tryGetTypeFromClass(this, outType))
+        if (__Registry.tryGetTypeFromClass(clas, outType))
             return outType.value!;
         throw new InvalidOperationException(`Cannot create type from class.`)
     }
 
-    static of(reference: any): Type {
+    static of(instance: any): Type {
         const outType: OutputArgument<Type> = {};
-        if (__Registry.tryGetTypeFromInstance(this, outType))
+        if (__Registry.tryGetTypeFromInstance(instance, outType))
             return outType.value!;
         throw new InvalidOperationException(`Cannot create type from instance.`)
     }
@@ -30,37 +31,34 @@ export class Type {
         return `Type(${this.name})`;
     }
 
-    get allMembers(): IterableIterator<MemberInfo> {
-        const outType: OutputArgument<IterableIterator<MemberInfo>> = {};
-        if (__Registry.tryGetAllTypeMembers(this, outType))
-            return outType.value!;
-        throw new InvalidOperationException(`Cannot get allMembers. Invalid instance.`)
+    get allMembers(): Iterable<MemberInfo> {
+        let outAllMembers: OutputArgument<IterableIterator<MemberInfo>> = {};
+        if (!__Registry.tryGetAllTypeMembers(this, outAllMembers))
+            throw new InvalidOperationException(`Cannot get allMembers. Invalid instance.`);
+        return outAllMembers.value!;
     }
 
-    *getMembers(options: number = MemberSelectionOptions.Any, name: string | null = null): IterableIterator<MemberInfo> {
+    getMembers(options: number = MemberSelectionOptions.Any, name: string | null = null): IterableIterator<MemberInfo> {
         if (typeof options != "number")
             throw new ArgumentTypeException("options");
         MemberSelectionOptions.assertFlag(options);
         if (name !== null && typeof name != "string")
             throw new ArgumentTypeException(name);
 
-        let allMembers = this.allMembers;
-        for (let member of allMembers) {
-            const isStatic = member.isStatic;
-            if (name !== null && name !== member.name)
-                continue;
-            else if (isStatic && Enumeration.contains(MemberSelectionOptions.InstanceOnly, options))
-                continue;
-            else if (!isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options))
-                continue;
-            else if (Enumeration.contains(MemberKind.Constructor, member.memberKind) && !Enumeration.contains(MemberSelectionOptions.Constructor, options))
-                continue;
-            else if (Enumeration.contains(MemberKind.Method, member.memberKind) && !Enumeration.contains(MemberSelectionOptions.Methods, options))
-                continue;
-            else if (Enumeration.contains(MemberKind.Property, member.memberKind) && !Enumeration.contains(MemberSelectionOptions.Properties, options))
-                continue;
-            else
-                yield member;
+        return ArrayUtils.where(this.allMembers, m => nameMatches(m) && staticityMatches(m) && kindMatches(m));
+
+        function nameMatches(m: MemberInfo) { return name !== null && name !== m.name; }
+
+        function staticityMatches(m: MemberInfo) {
+            const isStatic = m.isStatic;
+            return !(isStatic && Enumeration.contains(MemberSelectionOptions.InstanceOnly, options) ||
+                isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options));
+        }
+
+        function kindMatches(m: MemberInfo) {
+            return m.memberKind == MemberKind.Constructor && Enumeration.contains(MemberSelectionOptions.Constructor, options) ||
+                m.memberKind == MemberKind.Method && Enumeration.contains(MemberSelectionOptions.Methods, options) ||
+                m.memberKind == MemberKind.Property && Enumeration.contains(MemberSelectionOptions.Properties, options);
         }
     }
 
@@ -149,28 +147,37 @@ export class Type {
     }
 
     get baseType(): Type | null {
-        if (this._hasCtor) {
-            if (this._hasReference) {
-                const baseReference = Object.getPrototypeOf(this._reference);
-                if (baseReference === null)
-                    return null;
-                else
-                    return Type.of(baseReference);
-            }
-            else {
-                const baseCtor = Object.getPrototypeOf(this._ctor);
-                if (typeof baseCtor !== "function")
-                    return null;
-                else
-                    return Type.get(baseCtor);
-            }
-        }
-        else
-            return null;
+        const outBaseType: OutputArgument<Type | null> = {};
+        if (__Registry.tryGetTypeBaseType(this, outBaseType))
+            return outBaseType.value!;
+        throw new InvalidOperationException(`Cannot get base type. Invalid Type instance.`)
+        //     if (this._hasCtor) {
+        //         if (this._hasReference) {
+        //             const baseReference = Object.getPrototypeOf(this._reference);
+        //             if (baseReference === null)
+        //                 return null;
+        //             else
+        //                 return Type.of(baseReference);
+        //         }
+        //         else {
+        //             const baseCtor = Object.getPrototypeOf(this._ctor);
+        //             if (typeof baseCtor !== "function")
+        //                 return null;
+        //             else
+        //                 return Type.get(baseCtor);
+        //         }
+        //     }
+        //     else
+        //         return null;
     }
 
-    get name() { return this._name; }
+    get name(): string {
+        const outName: OutputArgument<string> = {};
+        if (__Registry.tryGetTypeName(this, outName))
+            return outName.value!;
+        throw new InvalidOperationException(`Cannot get name. Invalid Type instance.`)
+    }
 
-    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid instance.") })() }
+    get id(): Guid { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid Type instance.") })() }
     __id: Guid | null = null;
 }

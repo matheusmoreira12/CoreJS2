@@ -1,4 +1,4 @@
-import { MethodInfoBase, Type, ParameterInfo, MemberKind } from "./index.js";
+import { MethodInfoBase } from "./index.js";
 
 export class ConstructorInfo extends MethodInfoBase {
 }

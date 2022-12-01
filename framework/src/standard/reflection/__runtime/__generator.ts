@@ -1,129 +1,107 @@
+import { ArrayUtils, ObjectUtils } from "../../../core-base/utils/index.js";
+import { InvalidOperationException } from "../../exceptions/index.js";
 import { Guid } from "../../guids/index.js";
-import { StringReader } from "../../strings/string-reader.js";
 import { ConstructorInfo, MemberInfo, MethodInfo, ParameterInfo, PropertyInfo, Type } from "../index.js";
 import { OutputArgument } from "../types.js";
+import { __Factory } from "./__factory.js";
+import { __Parser } from "./__parser.js";
 import { __Registry } from "./__registry.js";
 
-export namespace __Generator {
-    export function tryCreateConstructor(target: any, declaringType: Type, outConstructor: OutputArgument<ConstructorInfo>): boolean {
+export module __Generator {
+    export function createAllTypeMembers(targetClass: Function, targetInstance: any, declaringType: Type): IterableIterator<MemberInfo> {
+        return ArrayUtils.concat(getStaticMembers(targetClass), getInstanceMembers(targetInstance)) as IterableIterator<MemberInfo>;
+
+        function getInstanceMembers(t: any) {
+            return ArrayUtils.select(getNamedPropertyDescriptorTuples(t), ([t, n, d]) => {
+                const outMember: OutputArgument<MemberInfo> = {};
+                if (!tryCreateTypeMember(t, declaringType, n as string, d, false, outMember))
+                    throw new InvalidOperationException(`Cannot get member ${n} from type ${t.name}`);
+                return outMember.value;
+            });
+        }
+
+        function getStaticMembers(t: Function) {
+            return ArrayUtils.select(getNamedPropertyDescriptorTuples(t), ([t, n, d]) => {
+                const outMember: OutputArgument<MemberInfo> = {};
+                if (!tryCreateTypeMember(t, declaringType, n as string, d, true, outMember))
+                    throw new InvalidOperationException(`Cannot get static member ${n} from type ${t.name}`);
+                return outMember.value;
+            })
+        }
+
+        function getNamedPropertyDescriptorTuples<T>(t: T) {
+            return ArrayUtils.where(ObjectUtils.getAllPropertyDescriptorsAsTuples(t), ([, k,]) => typeof k == "string") as IterableIterator<[T, keyof T & string, PropertyDescriptor]>;
+        }
+    }
+
+    function tryCreateTypeMember(target: any, declaringType: Type, name: string, descriptor: PropertyDescriptor, isStatic: boolean, outMember: OutputArgument<MemberInfo>): boolean {
+        const isProperty = "get" in descriptor || "set" in descriptor;
+        if (isProperty)
+            return tryCreateProperty(target, declaringType, name, descriptor.get, descriptor.set, isStatic, outMember as OutputArgument<PropertyInfo>);
+        const value = descriptor.value;
+        const isFunction = typeof value == "function";
+        if (isFunction) {
+            const isConstructor = name == "constructor";
+            if (isConstructor)
+                return tryCreateConstructor(target, declaringType, value, outMember as OutputArgument<ConstructorInfo>);
+            return tryCreateMethod(target, declaringType, name, value, isStatic, outMember as OutputArgument<MethodInfo>);
+        }
+        return tryCreatePropertyForField(target, declaringType, name, isStatic, outMember as OutputArgument<PropertyInfo>);
+    }
+
+    function tryCreateConstructor(target: any, declaringType: Type, body: Function, outConstructor: OutputArgument<ConstructorInfo>): boolean {
         const constructor = new ConstructorInfo();
         const outId: OutputArgument<Guid> = {};
         if (!__Registry.tryRegisterConstructor(constructor, target, declaringType, outId))
             return false;
         constructor.__id = outId.value!;
+        const outParameters: OutputArgument<ParameterInfo[]> = {};
+        if (!__Parser.tryParseMethodParameters(constructor, body.toString(), outParameters))
+            return false;
         outConstructor.value = constructor;
         return true;
     }
 
-    export function tryCreateMethod(target: any, declaringType: Type, name: string, body: Function, isStatic: boolean, outMethod: OutputArgument<ConstructorInfo>): boolean {
+    function tryCreateMethod(target: any, declaringType: Type, name: string, body: Function, isStatic: boolean, outMethod: OutputArgument<ConstructorInfo>): boolean {
         const method = new MethodInfo();
         const outId: OutputArgument<Guid> = {};
-        if (!__Registry.tryRegisterMethod(method, target, declaringType, name, body, isStatic, outId.value!))
+        if (!__Registry.tryRegisterMethod(method, target, declaringType, name, body, isStatic, outId))
             return false;
         method.__id = outId.value!;
         const outParameters: OutputArgument<ParameterInfo[]> = {};
-        if (!tryParseMethodParameters(method, body.toString(), outParameters))
+        if (!__Parser.tryParseMethodParameters(method, body.toString(), outParameters))
             return false;
         outMethod.value = method;
         return true;
     }
 
-    function tryParseMethodParameters(method: MethodInfo, bodyStr: string, outParameters: OutputArgument<ParameterInfo[]>): boolean {
-        return tryParseArrow(bodyStr, outParameters) ||
-            tryParseAnonymous(bodyStr, outParameters) ||
-            tryParseNamed(bodyStr, outParameters) ||
-            tryParseAsyncNamed(bodyStr, outParameters) ||
-            tryParseGeneratorNamed(bodyStr, outParameters) ||
-            tryParseAsyncGeneratorNamed(bodyStr, outParameters);
-
-        function tryParseArrow(bodyStr: string, outParameters: OutputArgument<ParameterInfo[]>) {
-            const reader = new StringReader(bodyStr);
-            skipBlankSpace(reader);
-            if (!tryReadString(reader, "("))
-                return false;
-            if (!tryReadParameters(reader, outParameters))
-                return false;
-            if (!tryReadString(reader, ")"))
-                return false;
-            skipBlankSpace(reader);
-            if (!tryReadString(reader, "=>"))
-                return false;
-        }
-
-        function tryParseAnonymous(bodyStr: string, outParameters: OutputArgument<ParameterInfo[]>) {
-            const reader = new StringReader(bodyStr);
-            if (!tryReadString(reader, "function"))
-                return false;
-            skipBlankSpace(reader);
-            if (!tryReadString(reader, "("))
-                return false;
-            if (!tryReadParameters(reader, outParameters))
-                return false;
-            if (!tryReadString(reader, ")"))
-                return false;
-            skipBlankSpace(reader);
-            if (!tryReadString(reader, "{"))
-                return false;
-        }
-
-        function tryParseNamed(bodyStr: string, outParameters: OutputArgument<ParameterInfo[]>) {
-            const reader = new StringReader(bodyStr);
-            if (!tryReadString(reader, "function"))
-                return false;
-            skipBlankSpace(reader);
-            if (!tryReadString(reader, "function"))
-                return false;
-            skipBlankSpace(reader);
-            if (!tryReadString(reader, "("))
-                return false;
-            if (!tryReadParameters(reader, outParameters))
-                return false;
-            if (!tryReadString(reader, ")"))
-                return false;
-            skipBlankSpace(reader);
-            if (!tryReadString(reader, "{"))
-                return false;
-        }
-
-        function tryReadString(reader: StringReader, str: string): boolean {
-            const rcs = new Array(str.length);
-            const l = str.length;
-            return reader.readBlock(rcs, 0, l) == l && rcs.join("") == str;
-        }
-
-        function tryReadIdentifier(reader: StringReader, outIdentifier: OutputArgument<string>): boolean {
-            
-        }
-
-        function skipBlankSpace(reader: StringReader) {
-            while (/\s/.test(reader.peek() ?? ""))
-                reader.skip();
-        }
-    }
-
-    export function tryCreatePropertyForField(target: any, declaringType: Type, name: string, isStatic: boolean, outProperty: OutputArgument<PropertyInfo>): boolean {
-        const getter = fieldGetterFactory(name);
-        const setter = fieldSetterFactory(name);
+    function tryCreatePropertyForField(target: any, declaringType: Type, name: string, isStatic: boolean, outProperty: OutputArgument<PropertyInfo>): boolean {
+        const getter = __Factory.createFieldGetter(name);
+        const setter = __Factory.createFieldSetter(name);
         return tryCreateProperty(target, declaringType, name, getter, setter, isStatic, outProperty);
     }
 
-    export function tryCreateProperty(target: any, declaringType: Type, name: string, getter: (() => any) | undefined, setter: ((value: any) => void) | undefined, outProperty: OutputArgument<PropertyInfo>): boolean {
-        let getterMethod = null;
-        if (getter)
-            tryCreateMethod(target, declaringType, `__get_${name}`, getter, isStatic);
-        let setterMethod = null;
-        if (setter)
-            tryCreateMethod(target, declaringType, `__set_${name}`, setter, isStatic);
-        const p = new PropertyInfo();
-        __Registry.registerProperty(p, target, declaringType, getterMethod, setterMethod, isStatic);
-        return p;
-    }
-
-    function fieldGetterFactory(name: string): () => any {
-        return new Function(`return function __get_${name}() { return this["${name}"]; };`) as () => any;
-    }
-
-    function fieldSetterFactory(name: string): (value: any) => void {
-        return new Function(`return function __set_${name}() { return this["${name}"]; };`) as (value: any) => void;
+    function tryCreateProperty(target: any, declaringType: Type, name: string, getter: (() => any) | undefined, setter: ((value: any) => void) | undefined, isStatic: boolean, outProperty: OutputArgument<PropertyInfo>): boolean {
+        let getterMethod: MethodInfo | null = null;
+        if (getter) {
+            const outGetterMethod: OutputArgument<MethodInfo> = {};
+            if (!tryCreateMethod(target, declaringType, `__get_${name}`, getter, isStatic, outGetterMethod))
+                return false;
+            getterMethod = outGetterMethod.value!;
+        }
+        let setterMethod: MethodInfo | null = null;
+        if (setter) {
+            const outGetterMethod: OutputArgument<MethodInfo> = {};
+            if (!tryCreateMethod(target, declaringType, `__set_${name}`, setter, isStatic, outGetterMethod))
+                return false;
+            setterMethod = outGetterMethod.value!;
+        }
+        const property = new PropertyInfo();
+        const outId: OutputArgument<Guid> = {};
+        if (!__Registry.tryRegisterProperty(property, target, declaringType, getterMethod, setterMethod, isStatic, outId))
+            return false;
+        property.__id = outId.value!;
+        outProperty.value = property;
+        return true;
     }
 }
