@@ -1,7 +1,6 @@
-import { ArrayUtils } from "../../core-base/utils/array-utils.js";
-import { StringUtils } from "../../core-base/utils/string-utils.js";
-import { assertParams } from "../../validation/index.js";
-import { ArgumentException, FormatException } from "../exceptions/framework-exception.js";
+import { ArrayUtils, StringUtils } from "../../core-base/utils/index.js";
+import { assertParams } from "../../validation-standalone/index.js";
+import { ArgumentException, FormatException } from "../exceptions/index.js";
 import { OutputArgument } from "../reflection/types.js";
 import { __Generator } from "./__generator.js";
 import { __StringConverter } from "./__string-converter.js";

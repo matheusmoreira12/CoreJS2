@@ -4,7 +4,7 @@ export namespace __Generator {
     const uniqueBacklog: Guid[] = [];
 
     export function create(): Guid {
-        const guid = new Guid(crypto.getRandomValues(new Uint8Array(16)));
+        const guid = doCreate();
         trySaveToUniqueBacklog(guid);
         return guid;
     }
@@ -12,14 +12,18 @@ export namespace __Generator {
     export function createUnique(): Guid {
         let guid: Guid | null = null;
         do
-            guid = create();
-        while (guid.equals(Guid.zero) || !trySaveToUniqueBacklog(guid))
+            guid = doCreate();
+        while (!trySaveToUniqueBacklog(guid))
         return guid;
     }
 
+    function doCreate() {
+        return new Guid(crypto.getRandomValues(new Uint8Array(16)));
+    }
+
     function trySaveToUniqueBacklog(guid: Guid): boolean {
-        const duplicate = uniqueBacklog.find(g => g.equals(guid));
-        if (duplicate !== undefined)
+        const isDuplicate = uniqueBacklog.some(g => g.equals(guid));
+        if (isDuplicate)
             return false;
         uniqueBacklog.push(guid);
         return true;
