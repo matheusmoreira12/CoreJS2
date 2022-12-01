@@ -38,27 +38,31 @@ export class Type {
         return outAllMembers.value!;
     }
 
-    getMembers(options: number = MemberSelectionOptions.Any, name: string | null = null): IterableIterator<MemberInfo> {
-        if (typeof options != "number")
-            throw new ArgumentTypeException("options");
-        MemberSelectionOptions.assertFlag(options);
-        if (name !== null && typeof name != "string")
-            throw new ArgumentTypeException(name);
+    getMembers(options: number = MemberSelectionOptions.Any, name: string | null = null): MemberInfo[] {
+        return [...generate.call(this)];
 
-        return ArrayUtils.where(this.allMembers, m => nameMatches(m) && staticityMatches(m) && kindMatches(m));
+        function generate(this: Type) {
+            if (typeof options != "number")
+                throw new ArgumentTypeException("options");
+            MemberSelectionOptions.assertFlag(options);
+            if (name !== null && typeof name != "string")
+                throw new ArgumentTypeException(name);
 
-        function nameMatches(m: MemberInfo) { return name !== null && name !== m.name; }
+            return ArrayUtils.where(this.allMembers, m => nameMatches(m) && staticityMatches(m) && kindMatches(m));
 
-        function staticityMatches(m: MemberInfo) {
-            const isStatic = m.isStatic;
-            return !(isStatic && Enumeration.contains(MemberSelectionOptions.InstanceOnly, options) ||
-                isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options));
-        }
+            function nameMatches(m: MemberInfo) { return name !== null && name !== m.name; }
 
-        function kindMatches(m: MemberInfo) {
-            return m.memberKind == MemberKind.Constructor && Enumeration.contains(MemberSelectionOptions.Constructor, options) ||
-                m.memberKind == MemberKind.Method && Enumeration.contains(MemberSelectionOptions.Methods, options) ||
-                m.memberKind == MemberKind.Property && Enumeration.contains(MemberSelectionOptions.Properties, options);
+            function staticityMatches(m: MemberInfo) {
+                const isStatic = m.isStatic;
+                return !(isStatic && Enumeration.contains(MemberSelectionOptions.InstanceOnly, options) ||
+                    isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options));
+            }
+
+            function kindMatches(m: MemberInfo) {
+                return m.memberKind == MemberKind.Constructor && Enumeration.contains(MemberSelectionOptions.Constructor, options) ||
+                    m.memberKind == MemberKind.Method && Enumeration.contains(MemberSelectionOptions.Methods, options) ||
+                    m.memberKind == MemberKind.Property && Enumeration.contains(MemberSelectionOptions.Properties, options);
+            }
         }
     }
 
