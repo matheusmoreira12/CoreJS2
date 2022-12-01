@@ -4,9 +4,9 @@ import { OutputArgument } from "./types.js";
 import { __Registry } from "./__runtime/__registry.js";
 
 export class MethodInfoBase extends MemberInfo {
-    invoke(parameters: any[]): any {
+    invoke(target: any, parameters: any[]): any {
         const outResult: OutputArgument<any> = {};
-        if (__Registry.tryMethodInfoBaseInvoke(this, parameters, outResult))
+        if (__Registry.tryMethodInfoBaseInvoke(this, target, parameters, outResult))
             return outResult.value!;
         throw new InvalidOperationException(`Cannot invoke.`)
     }
