@@ -1,9 +1,9 @@
 import { StringReader } from "../../strings/index.js";
-import { MethodInfo, ParameterInfo } from "../index.js";
+import { MethodInfoBase, ParameterInfo } from "../index.js";
 import { OutputArgument } from "../types.js";
 
 export module __Parser {
-    export function tryParseMethodParameters(method: MethodInfo, bodyStr: string, outParameters: OutputArgument<ParameterInfo[]>): boolean {
+    export function tryParseMethodParameters(method: MethodInfoBase, bodyStr: string, outParameters: OutputArgument<ParameterInfo[]>): boolean {
         return tryParseAsyncArrow() ||
             tryParseArrow() ||
             tryParseAsyncGeneratorNamed() ||

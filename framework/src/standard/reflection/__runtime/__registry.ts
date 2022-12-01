@@ -1,12 +1,8 @@
 import { Guid } from "../../guids/index.js";
 import { ConstructorInfo, MemberInfo, MemberKind, MethodInfo, MethodInfoBase, ParameterInfo, PropertyInfo, Type } from "../index.js";
 import { TypeConstraint } from "../type-constraints/index.js";
-import { OutputArgument } from "../types.js";
 import { __Generator } from "./__generator.js";
-
-type OnlyProperties<T> = {
-    [P in keyof T as P extends (symbol | `_${string}`) ? never : T[P] extends Function ? never : P]: T[P];
-}
+import type { OutputArgument } from "../types.js";
 
 export module __Registry {
     interface RegistryData {
@@ -19,52 +15,63 @@ export module __Registry {
         isParameterInfo: boolean;
     }
 
-    interface TypeData extends RegistryData, OnlyProperties<Type> {
-        id: Guid;
+    interface TypeData extends RegistryData {
         isType: true;
-        hasComputedBaseType: boolean;
-        hasComputedMembers: boolean;
-        instance: any;
-        hasInstance: boolean;
-        class: Function;
-        hasClass: boolean;
+        name: string;
+        baseType: null;
+        hasEvaluatedBaseType: boolean;
+        ref: any;
+        hasRef: boolean;
+        ctor: Function | null;
+        hasCtor: boolean;
+        allMembers: MemberInfo[] | null;
+        hasEvaluatedAllMembers: boolean;
     }
 
-    interface MemberInfoData extends RegistryData, OnlyProperties<MemberInfo> {
-        id: Guid;
+    interface MemberInfoData extends RegistryData {
         isMemberInfo: true;
+        declaringType: Type,
+        name: string;
+        memberKind: number;
+        isStatic: boolean;
     }
 
-    interface MethodInfoBaseData extends MemberInfoData, OnlyProperties<MethodInfoBase> {
-        id: Guid;
+    interface MethodInfoBaseData extends MemberInfoData {
         body: Function;
+        parameters: ParameterInfo[] | null;
+        hasEvaluatedParameters: boolean;
     }
 
-    interface ConstructorInfoData extends MethodInfoBaseData, OnlyProperties<ConstructorInfo> {
-        id: Guid;
-        body: Function;
+    interface ConstructorInfoData extends MethodInfoBaseData {
         isConstructorInfo: true;
     }
 
-    interface MethodInfoData extends MethodInfoBaseData, OnlyProperties<MethodInfo> {
-        id: Guid;
-        body: Function;
+    interface MethodInfoData extends MethodInfoBaseData {
         isMethodInfo: true;
+        returnType: TypeConstraint;
     }
 
-    interface PropertyInfoData extends MemberInfoData, OnlyProperties<PropertyInfo> {
-        id: Guid;
+    interface PropertyInfoData extends MemberInfoData {
         isPropertyInfo: true;
+        type: TypeConstraint;
+        getMethod: MethodInfo | null;
+        setMethod: MethodInfo | null;
     }
 
-    interface ParameterInfoData extends RegistryData, OnlyProperties<ParameterInfo> {
-        id: Guid;
+    interface ParameterInfoData extends RegistryData {
         isParameterInfo: true;
+        declaringMethod: MethodInfo;
+        position: number;
+        name: string;
+        type: TypeConstraint;
+        parameterKind: number;
+        isOptional: boolean;
     }
 
     const registeredData: RegistryData[] = [];
+
     namespace TypeData {
-        export function create(name: string, instance: any, hasInstance: boolean, clas: any, hasClass: boolean): TypeData {
+        export function create(name: string, ref: any, hasRef: boolean, ctor: any, hasCtor: boolean): TypeData {
             return {
                 id: Guid.createUnique(),
                 isType: true,
@@ -74,41 +81,43 @@ export module __Registry {
                 isPropertyInfo: false,
                 isParameterInfo: false,
                 baseType: null,
-                hasComputedBaseType: false,
-                allMembers: [],
-                hasComputedMembers: false,
+                hasEvaluatedBaseType: false,
                 name,
-                instance,
-                hasInstance,
-                class: clas,
-                hasClass
+                ref,
+                hasRef,
+                ctor,
+                hasCtor,
+                allMembers: null,
+                hasEvaluatedAllMembers: false,
             };
         }
 
-        export function tryRegister(data: TypeData): boolean {
+        export function tryRegister(type: Type, data: TypeData): boolean {
             const isAlreadyRegistered = registeredData.some(i => i.isType && classMatches(i as TypeData) || instanceMatches(i as TypeData));
             if (isAlreadyRegistered)
                 return false;
+            type.__id = data.id;
             registeredData.push(data);
             return true;
 
             function classMatches(t: TypeData) {
-                return !data.hasClass && !t.hasClass ||
-                    data.hasClass && t.hasClass && (t.class === data.class);
+                return !data.hasCtor && !t.hasCtor ||
+                    data.hasCtor && t.hasCtor && (t.ctor === data.ctor);
             }
 
             function instanceMatches(t: TypeData) {
-                return !data.hasInstance && !t.hasInstance ||
-                    data.hasInstance && t.hasInstance && (t.instance === data.instance);
+                return !data.hasRef && !t.hasRef ||
+                    data.hasRef && t.hasRef && (t.ref === data.ref);
             }
         }
     }
 
     namespace MemberInfoData {
-        export function tryRegister(data: MemberInfoData): boolean {
+        export function tryRegister(member: MemberInfo, data: MemberInfoData): boolean {
             const isAlreadyRegistered = registeredData.some(i => i.isMemberInfo && staticityMatches(i as MemberInfoData) && nameMatches(i as MemberInfoData) && declaringTypeMatches(i as MemberInfoData));
             if (isAlreadyRegistered)
                 return false;
+            member.__id = data.id;
             registeredData.push(data);
             return true;
 
@@ -122,13 +131,13 @@ export module __Registry {
 
             function declaringTypeMatches(m: MemberInfoData) {
                 return !data.declaringType && !m.declaringType ||
-                    data.declaringType && m.declaringType && m.declaringType.equals(data.declaringType);
+                    data.declaringType && m.declaringType && m.declaringType.id.equals(data.declaringType.id);
             }
         }
     }
 
     namespace ConstructorInfoData {
-        export function create(declaringType: Type, name: string, parameters: ParameterInfo[], body: Function, isStatic: boolean): ConstructorInfoData {
+        export function create(declaringType: Type, name: string, body: Function, isStatic: boolean): ConstructorInfoData {
             return {
                 id: Guid.createUnique(),
                 isType: false,
@@ -140,19 +149,20 @@ export module __Registry {
                 memberKind: MemberKind.Constructor,
                 declaringType,
                 name,
-                parameters,
                 body,
                 isStatic,
+                parameters: null,
+                hasEvaluatedParameters: false,
             };
         }
 
-        export function tryRegister(data: ConstructorInfoData): boolean {
-            return MemberInfoData.tryRegister(data);
+        export function tryRegister(ref: ConstructorInfo, data: ConstructorInfoData): boolean {
+            return MemberInfoData.tryRegister(ref, data);
         }
     }
 
     namespace MethodInfoData {
-        export function create(declaringType: Type, name: string, parameters: ParameterInfo[], returnType: TypeConstraint, body: Function, isStatic: boolean): MethodInfoData {
+        export function create(declaringType: Type, name: string, returnType: TypeConstraint, body: Function, isStatic: boolean): MethodInfoData {
             return {
                 id: Guid.createUnique(),
                 isType: false,
@@ -164,15 +174,16 @@ export module __Registry {
                 memberKind: MemberKind.Method,
                 declaringType,
                 name,
-                parameters,
                 returnType,
                 body,
                 isStatic,
+                parameters: null,
+                hasEvaluatedParameters: false,
             };
         }
 
-        export function tryRegister(data: MethodInfoData): boolean {
-            return MemberInfoData.tryRegister(data);
+        export function tryRegister(method: MethodInfo, data: MethodInfoData): boolean {
+            return MemberInfoData.tryRegister(method, data);
         }
     }
 
@@ -196,8 +207,8 @@ export module __Registry {
             };
         }
 
-        export function tryRegister(data: PropertyInfoData): boolean {
-            return MemberInfoData.tryRegister(data);
+        export function tryRegister(prop: PropertyInfo, data: PropertyInfoData): boolean {
+            return MemberInfoData.tryRegister(prop, data);
         }
     }
 
@@ -220,7 +231,7 @@ export module __Registry {
             };
         }
 
-        export function tryRegister(data: ParameterInfoData): boolean {
+        export function tryRegister(param: ParameterInfo, data: ParameterInfoData): boolean {
             const isAlreadyRegistered = registeredData.some(i => i.isMemberInfo && nameMatches(i as ParameterInfoData) && declaringMethodMatches(i as ParameterInfoData));
             if (isAlreadyRegistered)
                 return false;
@@ -228,7 +239,7 @@ export module __Registry {
             return true;
 
             function declaringMethodMatches(m: ParameterInfoData) {
-                return m.declaringMethod.equals(data.declaringMethod);
+                return m.declaringMethod.id.equals(data.declaringMethod.id);
             }
 
             function nameMatches(m: ParameterInfoData) {
@@ -237,72 +248,123 @@ export module __Registry {
         }
     }
 
-    export function tryRegisterConstructor(constructor: ConstructorInfo, instance: any, declaringType: Type, parameters: ParameterInfo[], body: Function, isStatic: boolean): boolean {
-        const data = ConstructorInfoData.create(declaringType, instance, parameters, body, isStatic);
-        if (!ConstructorInfoData.tryRegister(data))
+    export function tryRegisterConstructor(constructor: ConstructorInfo, declaringType: Type, body: Function, isStatic: boolean): boolean {
+        const data = ConstructorInfoData.create(declaringType, "constructor", body, isStatic);
+        if (!ConstructorInfoData.tryRegister(constructor, data))
             return false;
-        constructor.__id = data.id;
         return true;
     }
 
-    export function tryRegisterMethod(method: MethodInfo, declaringType: Type, name: string, parameters: ParameterInfo[], returnType: TypeConstraint, body: Function, isStatic: boolean): boolean {
-        const data = MethodInfoData.create(declaringType, name, parameters, returnType, body, isStatic);
-        if (!MethodInfoData.tryRegister(data))
+    export function tryRegisterMethod(method: MethodInfo, declaringType: Type, name: string, returnType: TypeConstraint, body: Function, isStatic: boolean): boolean {
+        const data = MethodInfoData.create(declaringType, name, returnType, body, isStatic);
+        if (!MethodInfoData.tryRegister(method, data))
             return false;
-        method.__id = data.id;
         return true;
     }
 
     export function tryRegisterProperty(property: PropertyInfo, declaringType: Type, name: string, type: TypeConstraint, getMethod: MethodInfo | null, setMethod: MethodInfo | null, isStatic: boolean): boolean {
         const data = PropertyInfoData.create(declaringType, name, type, isStatic, getMethod, setMethod);
-        if (!PropertyInfoData.tryRegister(data))
+        if (!PropertyInfoData.tryRegister(property, data))
             return false;
-        property.__id = data.id;
         return true;
     }
 
     export function tryRegisterParameter(parameter: ParameterInfo, declaringMethod: MethodInfo, position: number, name: string, parameterKind: number, type: TypeConstraint, isOptional: boolean): boolean {
         const data = ParameterInfoData.create(declaringMethod, position, name, parameterKind, type, isOptional);
-        if (!ParameterInfoData.tryRegister(data))
+        if (!ParameterInfoData.tryRegister(parameter, data))
             return false;
-        parameter.__id = data.id;
         return true;
     }
 
-    export function tryGetTypeFromClass(clas: Function, outType: OutputArgument<Type>): boolean {
-        const data = registeredData.find(d => d.isType && classMatches(d as TypeData));
-        if (!data)
-            return false;
-        const type = new Type();
-        type.__id = (data as TypeData).id;
-        outType.value = type;
-        return true;
+    export function tryGetTypeFromConstructor(ctor: Function, outType: OutputArgument<Type>): boolean {
+        return tryFind() || tryCreate();
 
-        function classMatches(t: TypeData) {
-            return t.hasClass && t.class === clas;
+        function tryFind() {
+            const data = registeredData.find(d => d.isType && constructorMatches(d as TypeData));
+            if (!data)
+                return false;
+            const type = new Type();
+            type.__id = (data as TypeData).id;
+            outType.value = type;
+            return true;
+
+            function constructorMatches(t: TypeData) {
+                return t.hasCtor && t.ctor === ctor;
+            }
+        }
+
+        function tryCreate() {
+            const name = ctor.name;
+            const ref = ctor.prototype;
+            const type = new Type();
+            const data = TypeData.create(name, ref, true, ctor, true);
+            if (!TypeData.tryRegister(type, data))
+                return false;
+            outType.value = type;
+            return true;
         }
     }
 
-    export function tryGetTypeFromInstance(instance: any, outType: OutputArgument<Type>): boolean {
-        const data = registeredData.find(d => d.isType && instanceMatches(d as TypeData));
-        if (!data)
-            return false;
-        const type = new Type();
-        type.__id = (data as TypeData).id;
-        outType.value = type;
-        return true;
+    export function tryGetTypeFromReference(ref: any, outType: OutputArgument<Type>): boolean {
+        return tryFind() || tryCreate();
 
-        function instanceMatches(t: TypeData) {
-            return t.hasInstance && t.instance === instance;
+        function tryFind() {
+            const data = registeredData.find(d => d.isType && referenceMatches(d as TypeData) || constructorMatches(d as TypeData));
+            if (!data)
+                return false;
+            const type = new Type();
+            type.__id = (data as TypeData).id;
+            outType.value = type;
+            return true;
+
+            function referenceMatches(t: TypeData) {
+                return t.hasRef && t.ref === ref;
+            }
+
+            function constructorMatches(t: TypeData) {
+                const hasCtor = ref !== undefined && ref !== null;
+                const ctor = hasCtor ? ref["constructor"] as Function : null;
+                return !hasCtor && !t.hasCtor || hasCtor && t.hasCtor && t.ctor === ctor;
+            }
+        }
+
+        function tryCreate() {
+            const hasCtor = ref !== undefined && ref !== null;
+            const ctor = hasCtor ? ref.constructor : null;
+            const name = hasCtor ? ctor.name : `${ref}`;
+            const type = new Type();
+            const data = TypeData.create(name, ref, true, ctor, hasCtor);
+            if (!TypeData.tryRegister(type, data))
+                return false;
+            outType.value = type;
+            return true;
         }
     }
 
-    export function tryGetAllTypeMembers(type: Type, outAllMembers: OutputArgument<MemberInfo[]>): boolean {
+    export function tryGetTypeAllMembers(type: Type, outAllMembers: OutputArgument<MemberInfo[]>): boolean {
         const outData: OutputArgument<RegistryData> = {};
         if (!tryGetRegistryData(type.id, outData))
             return false;
-        outAllMembers.value = [...(outData.value as TypeData)!.allMembers];
-        return true;
+        const typeData: TypeData = outData.value! as TypeData;
+        if (typeData.hasEvaluatedAllMembers) {
+            outAllMembers.value = [...typeData.allMembers!];
+            return true;
+        }
+        return tryEvaluate();
+
+        function tryEvaluate() {
+            const outMembers: OutputArgument<MemberInfo[]> = {};
+            if (!__Generator.tryCreateAllTypeMembers(type, typeData.ctor, typeData.hasCtor, typeData.ref, typeData.hasRef, outMembers))
+                return false;
+            const sortedMembers = outMembers.value!.sort((a, b) => compareNames(a as MemberInfo, b as MemberInfo));
+            typeData.allMembers = outAllMembers.value = sortedMembers;
+            typeData.hasEvaluatedAllMembers = true;
+            return true;
+
+            function compareNames(a: MemberInfo, b: MemberInfo) {
+                return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+            }
+        }
     }
 
     export function tryGetTypeBaseType(type: Type, outBaseType: OutputArgument<Type | null>): boolean {
@@ -357,8 +419,26 @@ export module __Registry {
         const outData: OutputArgument<RegistryData> = {};
         if (!tryGetRegistryData(method.id, outData))
             return false;
-        outParameters.value = (outData.value! as MethodInfoBaseData).parameters;
-        return true;
+        const methodData = outData.value! as MethodInfoData;
+        if (methodData.hasEvaluatedParameters) {
+            outParameters.value = [...methodData.parameters!];
+            return true;
+        }
+        return tryEvaluate();
+
+        function tryEvaluate() {
+            const outNewParameters: OutputArgument<ParameterInfo[]> = {};
+            if (!__Generator.tryCreateParameters(method, methodData.body, outNewParameters))
+                return false;
+            const sortedParameters = outNewParameters.value!.sort((a, b) => comparePositions(a as ParameterInfo, b as ParameterInfo));
+            methodData.parameters = outParameters.value = sortedParameters;
+            methodData.hasEvaluatedParameters = true;
+            return true;
+
+            function comparePositions(a: ParameterInfo, b: ParameterInfo) {
+                return a.position > b.position ? 1 : a.position < b.position ? -1 : 0;
+            }
+        }
     }
 
     export function tryGetMethodInfoBaseBody(method: MethodInfoBase, outBody: OutputArgument<Function>): boolean {
@@ -377,6 +457,34 @@ export module __Registry {
         return true;
     }
 
+    export function tryMethodInfoBaseInvoke(method: MethodInfoBase, target: any, parameters: any[], outResult: OutputArgument<any>): boolean {
+        const outMethodData: OutputArgument<MethodInfoData> = {};
+        if (!tryGetRegistryData(method.id, outMethodData))
+            return false;
+        const methodData = outMethodData.value!;
+        const body = methodData.body;
+        if (target === null)
+            return tryInvokeStatic();
+        return tryInvokeInstance();
+
+        function tryInvokeStatic() {
+            const outDeclaringTypeData: OutputArgument<TypeData> = {};
+            if (!tryGetRegistryData(methodData.declaringType.id, outDeclaringTypeData))
+                return false;
+            const declaringTypeData = outDeclaringTypeData.value!;
+            if (!declaringTypeData.hasCtor)
+                return false;
+            const declaringTypeCtor = declaringTypeData.ctor!;
+            body.apply(declaringTypeCtor, parameters);
+            return true;
+        }
+
+        function tryInvokeInstance() {
+            body.apply(target, parameters);
+            return true;
+        }
+    }
+
     export function tryGetPropertyInfoGetMethod(property: PropertyInfo, outGetMethod: OutputArgument<MethodInfo | null>): boolean {
         const outData: OutputArgument<RegistryData> = {};
         if (!tryGetRegistryData(property.id, outData))
@@ -391,6 +499,26 @@ export module __Registry {
             return false;
         outSetMethod.value = (outData.value! as PropertyInfoData).setMethod;
         return true;
+    }
+
+    export function tryPropertyInfoGetValue(property: PropertyInfo, target: any, outValue: OutputArgument<any>): boolean {
+        const outPropData: OutputArgument<PropertyInfoData> = {};
+        if (!tryGetRegistryData(property.id, outPropData))
+            return false;
+        const getMethod = outPropData.value!.getMethod;
+        if (!getMethod)
+            return false;
+        return tryMethodInfoBaseInvoke(getMethod, target, [], outValue);
+    }
+
+    export function tryPropertyInfoSetValue(property: PropertyInfo, target: any, value: any): boolean {
+        const outPropData: OutputArgument<PropertyInfoData> = {};
+        if (!tryGetRegistryData(property.id, outPropData))
+            return false;
+        const getMethod = outPropData.value!.getMethod;
+        if (!getMethod)
+            return false;
+        return tryMethodInfoBaseInvoke(getMethod, target, [value], {});
     }
 
     export function tryGetPropertyInfoType(property: PropertyInfo, outType: OutputArgument<TypeConstraint>): boolean {

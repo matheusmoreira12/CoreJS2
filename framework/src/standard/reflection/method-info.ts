@@ -9,6 +9,6 @@ export class MethodInfo extends MethodInfoBase {
         const outReturnType: OutputArgument<TypeConstraint> = {};
         if (__Registry.tryGetMethodInfoReturnType(this, outReturnType))
             return outReturnType.value!;
-        throw new InvalidOperationException(`Cannot get returnType. Invalid instance.`)
+        throw new InvalidOperationException(`Cannot get returnType.`)
     }
 }

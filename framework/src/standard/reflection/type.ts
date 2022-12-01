@@ -15,14 +15,14 @@ export class Type {
         assertParams({ clas }, [Function])
 
         const outType: OutputArgument<Type> = {};
-        if (__Registry.tryGetTypeFromClass(clas, outType))
+        if (__Registry.tryGetTypeFromConstructor(clas, outType))
             return outType.value!;
         throw new InvalidOperationException(`Cannot create type from class.`)
     }
 
-    static of(instance: any): Type {
+    static of(ref: any): Type {
         const outType: OutputArgument<Type> = {};
-        if (__Registry.tryGetTypeFromInstance(instance, outType))
+        if (__Registry.tryGetTypeFromReference(ref, outType))
             return outType.value!;
         throw new InvalidOperationException(`Cannot create type from instance.`)
     }
@@ -31,10 +31,10 @@ export class Type {
         return `Type(${this.name})`;
     }
 
-    get allMembers(): Iterable<MemberInfo> {
-        let outAllMembers: OutputArgument<IterableIterator<MemberInfo>> = {};
-        if (!__Registry.tryGetAllTypeMembers(this, outAllMembers))
-            throw new InvalidOperationException(`Cannot get allMembers. Invalid instance.`);
+    get allMembers(): MemberInfo[] {
+        let outAllMembers: OutputArgument<MemberInfo[]> = {};
+        if (!__Registry.tryGetTypeAllMembers(this, outAllMembers))
+            throw new InvalidOperationException(`Cannot get allMembers.`);
         return outAllMembers.value!;
     }
 
@@ -81,6 +81,8 @@ export class Type {
     obeysConstraint(constraint: TypeConstraint): boolean {
         assertParams({ other: constraint }, [TypeConstraint]);
 
+        if (constraint.type === TypeConstraintKind.Any)
+            return true;
         if (constraint.type === TypeConstraintKind.Or)
             return this.matchesAny(...constraint.baseTypes);
         if (constraint.type === TypeConstraintKind.And)
@@ -150,7 +152,7 @@ export class Type {
         const outBaseType: OutputArgument<Type | null> = {};
         if (__Registry.tryGetTypeBaseType(this, outBaseType))
             return outBaseType.value!;
-        throw new InvalidOperationException(`Cannot get base type. Invalid Type instance.`)
+        throw new InvalidOperationException(`Cannot get base type.`)
         //     if (this._hasCtor) {
         //         if (this._hasReference) {
         //             const baseReference = Object.getPrototypeOf(this._reference);
@@ -175,7 +177,7 @@ export class Type {
         const outName: OutputArgument<string> = {};
         if (__Registry.tryGetTypeName(this, outName))
             return outName.value!;
-        throw new InvalidOperationException(`Cannot get name. Invalid Type instance.`)
+        throw new InvalidOperationException(`Cannot get name.`)
     }
 
     get id(): Guid { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid Type instance.") })() }

@@ -16,30 +16,30 @@ export class MemberInfo {
         const outMemberKind: OutputArgument<number> = {};
         if (__Registry.tryGetMemberInfoMemberKind(this, outMemberKind))
             return outMemberKind.value!;
-        throw new InvalidOperationException(`Cannot get memberType. Invalid instance.`)
+        throw new InvalidOperationException(`Cannot get memberType.`)
     }
     
     get name(): string {
         const outName: OutputArgument<string> = {};
         if (__Registry.tryGetMemberInfoName(this, outName))
             return outName.value!;
-        throw new InvalidOperationException(`Cannot get name. Invalid instance.`)
+        throw new InvalidOperationException(`Cannot get name.`)
     }
 
     get declaringType(): Type | null {
         const outDeclaringType: OutputArgument<Type | null> = {};
         if (__Registry.tryGetMemberInfoDeclaringType(this, outDeclaringType))
             return outDeclaringType.value!;
-        throw new InvalidOperationException(`Cannot get declaringType. Invalid instance.`)
+        throw new InvalidOperationException(`Cannot get declaringType.`)
     }
 
     get isStatic(): boolean {
         const outIsStatic: OutputArgument<boolean> = {};
         if (__Registry.tryGetMemberInfoIsStatic(this, outIsStatic))
             return outIsStatic.value!;
-        throw new InvalidOperationException(`Cannot get isStatic. Invalid instance.`)
+        throw new InvalidOperationException(`Cannot get isStatic.`)
     }
 
-    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid instance.") })() }
+    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid MemberInfo instance.") })() }
     __id: Guid | null = null;
 }

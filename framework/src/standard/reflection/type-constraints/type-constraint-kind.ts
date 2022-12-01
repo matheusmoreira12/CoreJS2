@@ -1,6 +1,7 @@
 import { Enumeration } from "../../index.js";
 
 export const TypeConstraintKind = Enumeration.create({
-    Or: 0,
-    And: null
+    Any: 0,
+    Or: null,
+    And: null,
 });

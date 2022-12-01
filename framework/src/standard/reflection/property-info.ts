@@ -10,20 +10,33 @@ export class PropertyInfo extends MemberInfo {
         const outGetMethod: OutputArgument<MethodInfo> = {};
         if (__Registry.tryGetPropertyInfoGetMethod(this, outGetMethod))
             return outGetMethod.value!;
-        throw new InvalidOperationException(`Cannot get getMethod. Invalid PropertyInfo instance.`);
+        throw new InvalidOperationException(`Cannot get getMethod.`);
     }
 
     get setMethod(): MethodInfo | null {
         const outGetMethod: OutputArgument<MethodInfo> = {};
         if (__Registry.tryGetPropertyInfoSetMethod(this, outGetMethod))
             return outGetMethod.value!;
-        throw new InvalidOperationException(`Cannot get setMethod. Invalid PropertyInfo instance.`);
+        throw new InvalidOperationException(`Cannot get setMethod.`);
+    }
+
+    getValue(target: any): any {
+        const outGetValue: OutputArgument<MethodInfo> = {};
+        if (__Registry.tryPropertyInfoGetValue(this, target, outGetValue))
+            return outGetValue.value!;
+        throw new InvalidOperationException(`Cannot get value.`);
+    }
+
+    setValue(target: any, value: any) {
+        if (__Registry.tryPropertyInfoSetValue(this, target, value))
+            return;
+        throw new InvalidOperationException(`Cannot set value.`);
     }
 
     get type(): TypeConstraint {
         const outType: OutputArgument<TypeConstraint> = {};
         if (__Registry.tryGetPropertyInfoType(this, outType))
             return outType.value!;
-        throw new InvalidOperationException(`Cannot get type. Invalid PropertyInfo instance.`);
+        throw new InvalidOperationException(`Cannot get type.`);
     }
 }
