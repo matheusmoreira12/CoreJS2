@@ -33,7 +33,6 @@ export namespace __Registry {
     }
 
     const registered: RegisteredPropertyInfo[] = [];
-    console.log(registered);
 
     export function tryRegisterAttached(targetType: Type, property: DependencyProperty, name: string, metadata: PropertyMetadata): boolean {
         const outInfo = {};
