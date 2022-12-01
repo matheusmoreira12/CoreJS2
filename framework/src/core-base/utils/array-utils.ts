@@ -138,22 +138,19 @@ export namespace ArrayUtils {
     export function sequenceEqual<T>(a: Iterable<T>, b: Iterable<T>): boolean {
         const ia = a[Symbol.iterator]();
         const ib = b[Symbol.iterator]();
-        while (true) {
-            const iar = ia.next();
-            const ibr = ib.next();
-            if (iar.done || ibr.done) {
-                if (!iar.done || !ibr.done)
-                    return false;
-                break;
-            }
+        let iar, ibr;
+        do {
+            iar = ia.next();
+            ibr = ib.next();
             if (iar.value !== ibr.value)
-                return false;
-        }
+                break;
+        } while (!iar.done && !ibr.done)
+        let result = !!iar.done && !!ibr.done;
         if (ia.return)
             ia.return();
         if (ib.return)
             ib.return();
-        return true;
+        return result;
     }
 
     export function aggregate<T, TResult>(iterable: Iterable<T>, predicate: (result: TResult, item: T) => TResult, initial: TResult): TResult {
