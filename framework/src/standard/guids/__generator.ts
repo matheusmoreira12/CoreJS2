@@ -11,13 +11,13 @@ export namespace __Generator {
 
     export function createUnique(): Guid {
         let guid: Guid | null = null;
-        // do
+        do
             guid = create();
-        // while (!trySaveToUniqueBacklog(guid))
+        while (guid.equals(Guid.zero) || !trySaveToUniqueBacklog(guid))
         return guid;
     }
 
-    function trySaveToUniqueBacklog(guid: Guid) {
+    function trySaveToUniqueBacklog(guid: Guid): boolean {
         const duplicate = uniqueBacklog.find(g => g.equals(guid));
         if (duplicate !== undefined)
             return false;

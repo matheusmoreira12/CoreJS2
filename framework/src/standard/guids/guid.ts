@@ -30,6 +30,8 @@ export class Guid {
         throw new FormatException();
     }
 
+    static get zero(): Guid { return GUID_ZERO };
+
     constructor(buffer: Uint8Array) {
         assertParams({ buffer }, [Uint8Array]);
         assertBufferLength(buffer);
@@ -54,6 +56,8 @@ export class Guid {
     get buffer(): Uint8Array { return this.__buffer; }
     private __buffer: Uint8Array;
 }
+
+const GUID_ZERO = new Guid(new Uint8Array(16));
 
 function assertBufferLength(buffer: Uint8Array) {
     if (buffer.length != 16)
