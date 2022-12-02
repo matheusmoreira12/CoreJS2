@@ -1,125 +1,204 @@
 import { StringReader } from "../../strings/index.js";
-import { MethodInfoBase, ParameterInfo } from "../index.js";
+import { ConstructorInfo, MethodInfo, MethodInfoBase, ParameterInfo } from "../index.js";
 import { OutputArgument } from "../types.js";
 
 export module __Parser {
-    export function tryParseMethodParameters(method: MethodInfoBase, bodyStr: string, outParameters: OutputArgument<ParameterInfo[]>): boolean {
+    export function tryParseConstructorParameters(bodyStr: string, declaringCtor: ConstructorInfo, outParameters: OutputArgument<ParameterInfo[]>): boolean {
+        const r = new StringReader(bodyStr);
+        return skipBlankSpace(r) &&
+            tryReadString(r, "class") &&
+            tryReadBlankSpace(r) &&
+            tryReadIdentifier(r, {}) &&
+            skipBlankSpace(r) &&
+            skipExtends(r) &&
+            skipBlankSpace(r) &&
+            tryReadString(r, "{") &&
+            tryFindAndReadCtorParameters();
+
+        function skipExtends(r: StringReader) {
+            tryReadString(r, "extends") && skipBlankSpace(r) && tryReadIdentifier(r, {});
+            return true;
+        }
+
+        function tryFindAndReadCtorParameters() {
+            while (!r.isEOF) {
+                if (tryReadCtorParameters())
+                    return true;
+                r.skip();
+            }
+            return false;
+
+            function tryReadCtorParameters() {
+                const r1 = new StringReader(r);
+                return tryReadString(r1, "constructor") &&
+                    skipBlankSpace(r1) &&
+                    tryReadParameters(r1, declaringCtor, outParameters);
+            }
+        }
+    }
+
+    export function tryParseMethodParameters(bodyStr: string, declaringMethod: MethodInfo, outParameters: OutputArgument<ParameterInfo[]>): boolean {
+        const r = new StringReader(bodyStr);
         return tryParseAsyncArrow() ||
             tryParseArrow() ||
             tryParseAsyncGeneratorNamed() ||
             tryParseGeneratorNamed() ||
             tryParseAsyncNamed() ||
             tryParseNamed() ||
-            tryParseAnonymous();
+            tryParseAnonymous() ||
+            tryParseGetter() ||
+            tryParseSetter();
 
         function tryParseAsyncArrow(): boolean {
-            const reader = new StringReader(bodyStr);
-            return tryReadString(reader, "async") &&
-                skipBlankSpace(reader) &&
-                tryReadArrow(reader, outParameters);
+            const r1 = new StringReader(r);
+            return tryReadString(r1, "async") &&
+                skipBlankSpace(r1) &&
+                tryReadArrow(r1);
         }
 
         function tryParseArrow(): boolean {
-            const reader = new StringReader(bodyStr);
-            return tryReadArrow(reader, outParameters);
+            const r1 = new StringReader(r);
+            return tryReadArrow(r1);
         }
 
-        function tryReadArrow(reader: StringReader, outParameters: OutputArgument<ParameterInfo[]>): boolean {
-            return tryReadParameters(reader, outParameters) &&
-                skipBlankSpace(reader) &&
-                tryReadString(reader, "=>");
+        function tryReadArrow(r: StringReader): boolean {
+            return tryReadParameters(r, declaringMethod, outParameters) &&
+                skipBlankSpace(r) &&
+                tryReadString(r, "=>");
         }
 
         function tryParseAsyncGeneratorNamed(): boolean {
-            const reader = new StringReader(bodyStr);
-            return tryReadString(reader, "async") &&
-                tryReadBlankSpace(reader) &&
-                tryReadGeneratorNamed(reader, outParameters);
+            const r1 = new StringReader(r);
+            return tryReadString(r1, "async") &&
+                tryReadBlankSpace(r1) &&
+                tryReadGeneratorNamed(r1);
         }
 
         function tryParseGeneratorNamed(): boolean {
-            const reader = new StringReader(bodyStr);
-            return tryReadGeneratorNamed(reader, outParameters);
+            const r1 = new StringReader(r);
+            return tryReadGeneratorNamed(r1);
         }
 
-        function tryReadGeneratorNamed(reader: StringReader, outParameters: OutputArgument<ParameterInfo[]>): boolean {
-            return tryReadString(reader, "function") &&
-                skipBlankSpace(reader) &&
-                tryReadString(reader, "*") &&
-                skipBlankSpace(reader) &&
-                tryReadIdentifier(reader) &&
-                skipBlankSpace(reader) &&
-                tryReadParameters(reader, outParameters) &&
-                skipBlankSpace(reader) &&
-                tryReadString(reader, "{");
+        function tryReadGeneratorNamed(r: StringReader): boolean {
+            return tryReadString(r, "function") &&
+                skipBlankSpace(r) &&
+                tryReadString(r, "*") &&
+                skipBlankSpace(r) &&
+                tryReadIdentifier(r, {}) &&
+                skipBlankSpace(r) &&
+                tryReadParameters(r, declaringMethod, outParameters) &&
+                skipBlankSpace(r) &&
+                tryReadString(r, "{");
         }
 
         function tryParseAsyncNamed(): boolean {
-            const reader = new StringReader(bodyStr);
-            return tryReadString(reader, "async") &&
-                tryReadBlankSpace(reader) &&
-                tryReadNamed(reader, outParameters);
+            const r1 = new StringReader(r);
+            return tryReadString(r1, "async") &&
+                tryReadBlankSpace(r1) &&
+                tryReadNamed(r1);
         }
 
         function tryParseNamed(): boolean {
-            const reader = new StringReader(bodyStr);
-            return tryReadNamed(reader, outParameters);
+            const r1 = new StringReader(r);
+            return tryReadNamed(r1);
         }
 
-        function tryReadNamed(reader: StringReader, outParameters: OutputArgument<ParameterInfo[]>): boolean {
-            return tryReadString(reader, "function") &&
-                tryReadBlankSpace(reader) &&
-                tryReadIdentifier(reader) &&
-                skipBlankSpace(reader) &&
-                tryReadParameters(reader, outParameters) &&
-                skipBlankSpace(reader) &&
-                tryReadString(reader, "{");
+        function tryReadNamed(r: StringReader): boolean {
+            return tryReadString(r, "function") &&
+                tryReadBlankSpace(r) &&
+                tryReadIdentifier(r, {}) &&
+                skipBlankSpace(r) &&
+                tryReadParameters(r, declaringMethod, outParameters) &&
+                skipBlankSpace(r) &&
+                tryReadString(r, "{");
         }
 
         function tryParseAnonymous(): boolean {
-            const reader = new StringReader(bodyStr);
-            return tryReadString(reader, "function") &&
-                skipBlankSpace(reader) &&
-                tryReadParameters(reader, outParameters) &&
-                skipBlankSpace(reader) &&
-                tryReadString(reader, "{");
+            const r1 = new StringReader(r);
+            return tryReadString(r1, "function") &&
+                skipBlankSpace(r1) &&
+                tryReadParameters(r1, declaringMethod, outParameters) &&
+                skipBlankSpace(r1) &&
+                tryReadString(r1, "{");
         }
 
-        function tryReadString(reader: StringReader, str: string): boolean {
-            const rcs = new Array(str.length);
-            const l = str.length;
-            return reader.readBlock(rcs, 0, l) == l && rcs.join("") == str;
+        function tryParseGetter(): boolean {
+            const r1 = new StringReader(r);
+            return tryReadString(r1, "get") &&
+                tryReadBlankSpace(r1) &&
+                tryReadIdentifier(r1, {}) &&
+                skipBlankSpace(r1) &&
+                tryReadParameters(r1, declaringMethod, outParameters) &&
+                skipBlankSpace(r1) &&
+                tryReadString(r1, "{");
         }
 
-        function tryReadIdentifier(reader: StringReader, outIdentifier: OutputArgument<string> = {}): boolean {
-            let r = "";
-            while (/[a-zA-Z$]/.test(reader.peek() ?? ""))
-                reader.skip();
-            return r != "";
+        function tryParseSetter(): boolean {
+            const r1 = new StringReader(r);
+            return tryReadString(r1, "set") &&
+                tryReadBlankSpace(r1) &&
+                tryReadIdentifier(r1, {}) &&
+                skipBlankSpace(r1) &&
+                tryReadParameters(r1, declaringMethod, outParameters) &&
+                skipBlankSpace(r1) &&
+                tryReadString(r1, "{");
         }
+    }
 
-        function skipBlankSpace(reader: StringReader) {
-            tryReadBlankSpace(reader);
+    function tryReadParameters(r: StringReader, declaringMethod: MethodInfoBase, op: OutputArgument<ParameterInfo[]>): boolean {
+        return tryReadString(r, "(") &&
+            tryReadList() &&
+            tryReadString(r, ")");
+
+        function tryReadList(): boolean {
+            ///TODO: actually read the parameters
+            while (r.peek() != ")")
+                r.skip();
+            op.value = [];
             return true;
         }
+    }
 
-        function tryReadBlankSpace(reader: StringReader): boolean {
-            const start = reader.position;
-            while (/\s/.test(reader.peek() ?? ""))
-                reader.skip();
-            return reader.position > start;
+    function tryReadString(r: StringReader, str: string): boolean {
+        const r1 = new StringReader(r);
+        const l = str.length;
+        const rcs = new Array(str.length);
+        if (r1.readBlock(rcs, 0, l) == l && rcs.join("") == str) {
+            r.seek(r1.position);
+            return true;
         }
+        return false;
+    }
 
-        function tryReadParameters(reader: StringReader, outParameters: OutputArgument<ParameterInfo[]> = {}): boolean {
-            return tryReadString(reader, "(") &&
-                tryReadList() &&
-                tryReadString(reader, ")");
-
-            function tryReadList(): boolean {
-                ///TODO: read the parameters
-                outParameters.value = [];
-                return true;
-            }
+    function tryReadIdentifier(r: StringReader, oi: OutputArgument<string>): boolean {
+        const sp = r.position;
+        const r1 = new StringReader(r);
+        while (/[a-zA-Z_\$]/.test(r1.peek() ?? ""))
+            r1.skip();
+        if (r1.position > sp) {
+            const l = r1.position - sp;
+            const id: string[] = new Array(l);
+            r.readBlock(id, 0, l);
+            oi.value = id.join("");
+            return true;
         }
+        return false;
+    }
+
+    function skipBlankSpace(r: StringReader) {
+        tryReadBlankSpace(r);
+        return true;
+    }
+
+    function tryReadBlankSpace(r: StringReader): boolean {
+        const r1 = new StringReader(r);
+        while (/\s/.test(r1.peek() ?? ""))
+            r1.skip();
+        const sp = r.position;
+        if (r1.position > sp) {
+            r.seek(r1.position);
+            return true;
+        }
+        return false;
     }
 }

@@ -157,24 +157,6 @@ export class Type {
         if (__Registry.tryGetTypeBaseType(this, outBaseType))
             return outBaseType.value!;
         throw new InvalidOperationException(`Cannot get base type.`)
-        //     if (this._hasCtor) {
-        //         if (this._hasReference) {
-        //             const baseReference = Object.getPrototypeOf(this._reference);
-        //             if (baseReference === null)
-        //                 return null;
-        //             else
-        //                 return Type.of(baseReference);
-        //         }
-        //         else {
-        //             const baseCtor = Object.getPrototypeOf(this._ctor);
-        //             if (typeof baseCtor !== "function")
-        //                 return null;
-        //             else
-        //                 return Type.get(baseCtor);
-        //         }
-        //     }
-        //     else
-        //         return null;
     }
 
     get name(): string {

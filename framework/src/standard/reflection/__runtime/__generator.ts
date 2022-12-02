@@ -1,5 +1,4 @@
 import { ArrayUtils, ObjectUtils } from "../../../core-base/utils/index.js";
-import { Guid } from "../../guids/index.js";
 import { ConstructorInfo, MemberInfo, MethodInfo, MethodInfoBase, ParameterInfo, PropertyInfo, Type } from "../index.js";
 import { AnyConstraint } from "../type-constraints/any-constraint.js";
 import { OutputArgument } from "../types.js";
@@ -8,48 +7,48 @@ import { __Parser } from "./__parser.js";
 import { __Registry } from "./__registry.js";
 
 export module __Generator {
-    export function tryCreateAllTypeMembers(declaringType: Type, ctor: Function | null, hasCtor: boolean, ref: any, hasRef: boolean, outMembers: OutputArgument<MemberInfo[]>) {
-        let hasFailed = false;
-        const members = generate();
-        if (hasFailed)
+    export function tryCreateAllTypeMembers(declaringType: Type, ctor: Function | null | undefined, outMembers: OutputArgument<MemberInfo[]>) {
+        const members = [...generate()];
+        console.log(members);
+        const hasAnyFailed = ArrayUtils.any(members, m => m === null);
+        if (hasAnyFailed)
             return false;
-        outMembers.value = [...members];
+        outMembers.value = members as MemberInfo[];
         return true;
 
-        function generate() {
-            return ArrayUtils.concat(getStaticMembers(), getInstanceMembers());
+        function* generate() {
+            yield* getStaticMembers();
+            yield* getInstanceMembers();
 
-            function* getInstanceMembers() {
-                if (!hasRef)
-                    return;
-
-                yield* ArrayUtils.select(getNamedPropertyDescriptorTuples(ref), ([, n, d]) => {
+            function getInstanceMembers() {
+                if (ctor === undefined || ctor === null)
+                    return ArrayUtils.empty();
+                return ArrayUtils.select(getNamedPropertyDescriptorTuples(ctor.prototype), ([n, d]) => {
                     const outMember: OutputArgument<MemberInfo> = {};
                     if (!tryCreateTypeMember(declaringType, n as string, d, false, outMember))
-                        hasFailed = true;
+                        return null;
                     return outMember.value!;
                 });
             }
 
-            function* getStaticMembers() {
-                if (!hasCtor)
-                    return;
-
-                yield* ArrayUtils.select(getNamedPropertyDescriptorTuples(ctor), ([, n, d]) => {
+            function getStaticMembers() {
+                if (ctor === undefined || ctor === null)
+                    return ArrayUtils.empty();
+                return ArrayUtils.select(getNamedPropertyDescriptorTuples(ctor), ([n, d]) => {
                     const outMember: OutputArgument<MemberInfo> = {};
                     if (!tryCreateTypeMember(declaringType, n as string, d, true, outMember))
-                        hasFailed = true;
+                        return null;
                     return outMember.value!;
                 })
             }
 
             function getNamedPropertyDescriptorTuples<T>(t: T) {
-                return ArrayUtils.where(ObjectUtils.getAllPropertyDescriptorsAsTuples(t), ([, k,]) => typeof k == "string") as IterableIterator<[T, keyof T & string, PropertyDescriptor]>;
+                return ArrayUtils.where(ObjectUtils.getOwnPropertyDescriptorsAsTuples(t), ([k,]) => typeof k == "string") as IterableIterator<[keyof T & string, PropertyDescriptor]>;
             }
         }
     }
 
-    function tryCreateTypeMember(declaringType: Type, name: string, descriptor: PropertyDescriptor, isStatic: boolean, outMember: OutputArgument<MemberInfo>): boolean {
+    export function tryCreateTypeMember(declaringType: Type, name: string, descriptor: PropertyDescriptor, isStatic: boolean, outMember: OutputArgument<MemberInfo>): boolean {
         const isProperty = "get" in descriptor || "set" in descriptor;
         if (isProperty)
             return tryCreateProperty(declaringType, name, descriptor.get, descriptor.set, isStatic, outMember as OutputArgument<PropertyInfo>);
@@ -68,19 +67,14 @@ export module __Generator {
         const constructor = new ConstructorInfo();
         if (!__Registry.tryRegisterConstructor(constructor, declaringType, body, false))
             return false;
-        const outParameters: OutputArgument<ParameterInfo[]> = {};
-        if (!__Parser.tryParseMethodParameters(constructor, body.toString(), outParameters))
-            return false;
         outConstructor.value = constructor;
         return true;
     }
 
     function tryCreateMethod(declaringType: Type, name: string, body: Function, isStatic: boolean, outMethod: OutputArgument<ConstructorInfo>): boolean {
         const method = new MethodInfo();
-        const outId: OutputArgument<Guid> = {};
         if (!__Registry.tryRegisterMethod(method, declaringType, name, new AnyConstraint(), body, isStatic))
             return false;
-        method.__id = outId.value!;
         outMethod.value = method;
         return true;
     }
@@ -107,15 +101,9 @@ export module __Generator {
             setterMethod = outGetterMethod.value!;
         }
         const property = new PropertyInfo();
-        const outId: OutputArgument<Guid> = {};
         if (!__Registry.tryRegisterProperty(property, declaringType, name, new AnyConstraint(), getterMethod, setterMethod, isStatic))
             return false;
-        property.__id = outId.value!;
         outProperty.value = property;
         return true;
-    }
-
-    export function tryCreateParameters(declaringMethod: MethodInfoBase, body: Function, outParams: OutputArgument<ParameterInfo[]>) {
-        return __Parser.tryParseMethodParameters(declaringMethod, body.toString(), outParams);
     }
 }
