@@ -9,108 +9,105 @@ export namespace __StringConverter {
         const bytes: number[] = Array.from(guid.buffer);
         switch (format) {
             case "N":
-                return bstfs(bytes, N_MASK);
+                return convertBytesToFormattedString(bytes, N_MASK);
             case null:
             case "":
             case "D":
-                return bstfs(bytes, D_MASK);
+                return convertBytesToFormattedString(bytes, D_MASK);
             case "B":
-                return bstfs(bytes, B_MASK);
+                return convertBytesToFormattedString(bytes, B_MASK);
             case "P":
-                return bstfs(bytes, P_MASK);
+                return convertBytesToFormattedString(bytes, P_MASK);
             case "X":
-                return bstfs(bytes, X_MASK);
+                return convertBytesToFormattedString(bytes, X_MASK);
             default:
                 throw new FormatException("N, D, B, P, X");
         }
 
-        function bstfs(bs: number[], m: string): string {
-            return fs(bsts(bs), m);
+        function convertBytesToFormattedString(bytes: number[], mask: string): string {
+            return maskString(bytesToString(bytes), mask);
 
-            function fs(s: string, m: string) {
-                let rs = "";
-                const msr = new StringReader(m);
-                const si = s[Symbol.iterator]();
-                while (!msr.isEOF) {
-                    const co = msr.read();
-                    if (co != "0" || msr.peek() == "x") {
-                        rs += co!;
+            function maskString(str: string, mask: string) {
+                let maskedString = "";
+                const maskStringReader = new StringReader(mask);
+                const stringIterator = str[Symbol.iterator]();
+                while (!maskStringReader.isEOF) {
+                    const co = maskStringReader.read();
+                    if (co != "0" || maskStringReader.peek() == "x") {
+                        maskedString += co!;
                         continue;
                     }
-                    const sir = si.next();
-                    rs += sir.value;
+                    const sir = stringIterator.next();
+                    maskedString += sir.value;
                 }
-                if(si.return)
-                    si.return();
-                return rs;
+                if(stringIterator.return)
+                    stringIterator.return();
+                return maskedString;
             }
 
-            function bsts(bs: number[]): string {
-                return bs.flatMap(b => otw(b)).map(w => wts(w)).join("");
+            function bytesToString(bytes: number[]): string {
+                return bytes.flatMap(b => byteToNibbles(b)).map(n => nibbleToChar(n)).join("");
             }
 
-            function otw(b: number) {
-                const ab = Math.abs(b);
-                return [(ab >> 4) & 0xF, ab & 0xF];
+            function byteToNibbles(byte: number) {
+                return [(byte >> 4) & 0xF, byte & 0xF];
             }
 
-            function wts(w: number) {
-                return w.toString(16);
+            function nibbleToChar(nibble: number) {
+                return nibble.toString(16);
             }
         }
     }
 
     export function tryConvertStringToGuid(str: string, outGuid: OutputArgument<Guid>): boolean {
-        const obs: OutputArgument<number[]> = {};
-        if (!tfstbs(str, N_MASK, obs) &&
-            !tfstbs(str, D_MASK, obs) &&
-            !tfstbs(str, P_MASK, obs) &&
-            !tfstbs(str, B_MASK, obs) &&
-            !tfstbs(str, X_MASK, obs))
+        const outBytes: OutputArgument<number[]> = {};
+        if (!tryConvertFormattedStringToBytes(N_MASK) &&
+            !tryConvertFormattedStringToBytes(D_MASK) &&
+            !tryConvertFormattedStringToBytes(P_MASK) &&
+            !tryConvertFormattedStringToBytes(B_MASK) &&
+            !tryConvertFormattedStringToBytes(X_MASK))
             return false;
-        outGuid.value = new Guid(new Uint8Array(obs.value!));
+        outGuid.value = new Guid(new Uint8Array(outBytes.value!));
         return true;
 
-        function tfstbs(s: string, m: string, ob: OutputArgument<number[]>): boolean {
-            const ous: OutputArgument<string> = {};
-            if (!tus(s, m, ous))
+        function tryConvertFormattedStringToBytes(mask: string): boolean {
+            const outUnmaskedString: OutputArgument<string> = {};
+            if (!tryUnmaskString(outUnmaskedString))
                 return false;
-            ob.value = stbs(ous.value!);
+            outBytes.value = stringToBytes(outUnmaskedString.value!);
             return true;
 
-            function tus(s: string, m: string, ous: OutputArgument<string>): boolean {
-                let us = "";
-                const msr = new StringReader(m);
-                const si = s[Symbol.iterator]();
-                while (!msr.isEOF) {
-                    const sir = si.next();
-                    if (sir.done)
+            function tryUnmaskString(outUnmaskedString: OutputArgument<string>): boolean {
+                let unmaskedString = "";
+                const maskStrReader = new StringReader(mask);
+                const strIterator = str[Symbol.iterator]();
+                while (!maskStrReader.isEOF) {
+                    const stringIteratorResult = strIterator.next();
+                    if (stringIteratorResult.done)
                         return false;
-                    const co = msr.read();
-                    if (co != "0" || msr.peek() == "x")
+                    const maskChar = maskStrReader.read();
+                    if (maskChar != "0" || maskStrReader.peek() == "x")
                         continue;
-                    if (!sir.value!.match(/[0-9a-f]/))
+                    if (!stringIteratorResult.value!.match(/[0-9a-f]/))
                         return false;
-                    us += sir.value;
+                    unmaskedString += stringIteratorResult.value;
                 }
-                if (si.return)
-                    si.return();
-                ous.value = us;
+                if (strIterator.return)
+                    strIterator.return();
+                outUnmaskedString.value = unmaskedString;
                 return true;
             }
 
-            function stbs(s: string): number[] {
-                return Array.from(ArrayUtils.selectChunks(ArrayUtils.select(s, c => ctw(c)), 2, ws => wstb(ws)));
+            function stringToBytes(str: string): number[] {
+                return Array.from(ArrayUtils.selectChunks(ArrayUtils.select(str, c => charToNibble(c)), 2, ws => nibblesToByte(ws)));
             }
 
-            function ctw(c: string) {
-                return Number.parseInt(c, 16);
+            function charToNibble(char: string) {
+                return Number.parseInt(char, 16);
             }
 
-            function wstb(ws: number[]) {
-                const aw0 = Math.abs(ws[0]);
-                const aw1 = Math.abs(ws[1]);
-                return aw0 << 4 | aw1;
+            function nibblesToByte(nibbles: number[]) {
+                return nibbles[0] << 4 | nibbles[1];
             }
         }
     }
