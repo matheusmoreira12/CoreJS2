@@ -2,6 +2,7 @@ import { NotSupportedException } from "../../standard/exceptions/index.js"
 import { DeepClone } from "./deep-clone";
 import { DeepReadonly } from "./deep-readonly";
 import { ArrayUtils } from "./index.js";
+import { AllPropertyDescriptorsAsTuples, AllPropertyDescriptorsMap, Detuplified, OwnPropertyDescriptorsAsTuples, PropertyName, PropertySymbol, Tuplified } from "./types.js";
 
 export namespace ObjectUtils {
     export function getAllPropertyKeys<T>(obj: T): IterableIterator<keyof T> {
@@ -15,21 +16,17 @@ export namespace ObjectUtils {
         yield* Object.getOwnPropertySymbols(obj) as (keyof T)[];
     }
 
-    type SymbolOf<T> = keyof T & symbol;
-
-    export function getAllPropertySymbols<T>(obj: T): IterableIterator<SymbolOf<T>> {
+    export function getAllPropertySymbols<T>(obj: T): IterableIterator<PropertySymbol<T>> {
         if (obj === null || obj === undefined)
             return ArrayUtils.empty();
-        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertySymbols(o))) as IterableIterator<keyof T & symbol>;
+        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertySymbols(o))) as IterableIterator<PropertySymbol<T>>;
     }
 
-    export function getAllPropertyNames<T>(obj: T): IterableIterator<keyof T & string> {
+    export function getAllPropertyNames<T>(obj: T): IterableIterator<PropertyName<T>> {
         if (obj === null || obj === undefined)
             return ArrayUtils.empty();
-        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertyNames(o))) as IterableIterator<keyof T & string>;
+        return ArrayUtils.unique(ArrayUtils.selectMany(getPrototypeTree(obj), o => Object.getOwnPropertyNames(o))) as IterableIterator<PropertyName<T>>;
     }
-
-    type AllPropertyDescriptorsMap<T> = PropertyDescriptorMap & (T extends (null | undefined) ? {} : { [K in keyof T]: TypedPropertyDescriptor<T[K]> });
 
     export function getAllPropertyDescriptors<T>(obj: T): AllPropertyDescriptorsMap<T> {
         if (obj === null || obj === undefined)
@@ -37,23 +34,23 @@ export namespace ObjectUtils {
         return detuplify(ArrayUtils.whereUnique(ArrayUtils.selectMany(getPrototypeTree(obj as T), o => tuplify(Object.getOwnPropertyDescriptors(o))), d => d[0])) as unknown as AllPropertyDescriptorsMap<T>;
     }
 
-    type AllPropertyDescriptorsAsTuples<T> = T extends (null | undefined) ? IterableIterator<never> : IterableIterator<[T, keyof T, TypedPropertyDescriptor<T[keyof T]>]>;
-
     export function getAllPropertyDescriptorsAsTuples<T>(obj: T): AllPropertyDescriptorsAsTuples<T> {
         if (obj === null || obj === undefined)
             return ArrayUtils.empty() as AllPropertyDescriptorsAsTuples<T>;
         return ArrayUtils.whereUnique(ArrayUtils.selectMany(getPrototypeTree(obj), o => ArrayUtils.select(tuplify(Object.getOwnPropertyDescriptors(o)), t => [o, t[0], t[1]])), u => u[2]) as AllPropertyDescriptorsAsTuples<T>;
     }
 
-    type Tuplified<T> = IterableIterator<[keyof T & string, T[keyof T & string]]>;
+    export function getOwnPropertyDescriptorsAsTuples<T>(obj: T): OwnPropertyDescriptorsAsTuples<T> {
+        if (obj === null || obj === undefined)
+            return ArrayUtils.empty() as OwnPropertyDescriptorsAsTuples<T>;
+        return ArrayUtils.select(tuplify(Object.getOwnPropertyDescriptors(obj)), t => [t[0], t[1]]) as OwnPropertyDescriptorsAsTuples<T>;
+    }
 
     export function tuplify<T>(obj: T): Tuplified<T> {
         if (obj === null || obj === undefined)
             return ArrayUtils.empty();
-        return ArrayUtils.select(Object.getOwnPropertyNames(obj) as (keyof T & string)[], n => [n, obj[n]]);
+        return ArrayUtils.select(Object.getOwnPropertyNames(obj) as PropertyName<T>[], n => [n, obj[n]]);
     }
-
-    type Detuplified<T> = T extends IterableIterator<[infer Ks, infer Vs]> ? { [K in Ks & string]: Vs } : {};
 
     export function detuplify<T extends IterableIterator<[string, any]>>(tuples: T): Detuplified<T> {
         return ArrayUtils.aggregate(tuples, (o, t) => o[t[0] as keyof Detuplified<T>] = o[t[1]], {} as Detuplified<T>);

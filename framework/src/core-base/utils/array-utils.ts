@@ -54,6 +54,14 @@ export namespace ArrayUtils {
         return v;
     }
 
+    export function any<T>(iterable: Iterable<T>, predicate: (item: T) => boolean) : boolean {
+        for (let v of iterable) {
+            if (predicate(v))
+                return true;
+        }
+        return false;
+    }
+
     export function* exclude<T>(iterable: Iterable<T>, excludeItem: T): IterableIterator<T> {
         for (let v of iterable) {
             if (v === excludeItem)
