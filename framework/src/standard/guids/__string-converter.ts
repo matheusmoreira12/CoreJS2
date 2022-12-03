@@ -46,7 +46,16 @@ export namespace __StringConverter {
             }
 
             function bsts(bs: number[]): string {
-                return bs.map(b => b.toString(16).padStart(2, "0")).join("");
+                return bs.flatMap(b => otw(b)).map(w => wts(w)).join("");
+            }
+
+            function otw(b: number) {
+                const ab = Math.abs(b);
+                return [(ab >> 4) & 0xF, ab & 0xF];
+            }
+
+            function wts(w: number) {
+                return w.toString(16);
             }
         }
     }
@@ -91,7 +100,17 @@ export namespace __StringConverter {
             }
 
             function stbs(s: string): number[] {
-                return Array.from(ArrayUtils.selectChunks(s, 2, c => Number.parseInt(c.join(""), 16)));
+                return Array.from(ArrayUtils.selectChunks(ArrayUtils.select(s, c => ctw(c)), 2, ws => wstb(ws)));
+            }
+
+            function ctw(c: string) {
+                return Number.parseInt(c, 16);
+            }
+
+            function wstb(ws: number[]) {
+                const aw0 = Math.abs(ws[0]);
+                const aw1 = Math.abs(ws[1]);
+                return aw0 << 4 | aw1;
             }
         }
     }
