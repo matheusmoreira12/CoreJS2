@@ -61,5 +61,5 @@ export class ResourceDictionary extends DependencyObject {
     get key(): string { return this.get(ResourceDictionary.keyProperty); }
     set key(value: string) { this.set(ResourceDictionary.keyProperty, value); }
 
-    static resource_keyProperty = DependencyProperty.registerAttached(Type.get(ResourceDictionary), "key", new PropertyMetadata(Type.get(String)));
+    static resource_keyProperty = DependencyProperty.register(Type.get(ResourceDictionary), "key", new PropertyMetadata(Type.get(String)));
 }
