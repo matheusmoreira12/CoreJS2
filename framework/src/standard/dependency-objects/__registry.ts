@@ -112,7 +112,6 @@ export namespace __Registry {
     }
 
     const registeredData: RegistryData[] = [];
-    window.registeredDepPropsData = registeredData;
 
     export function tryRegisterAttached(targetType: Type, property: DependencyProperty, name: string, metadata: PropertyMetadata): boolean {
         const data = DependencyPropertyData.create(name, targetType, metadata, true, false);
