@@ -1,6 +1,6 @@
 import { ArrayUtils, ObjectUtils } from "../../../core-base/utils/index.js";
-import { ConstructorInfo, MemberInfo, MethodInfo, MethodInfoBase, ParameterInfo, PropertyInfo, Type } from "../index.js";
-import { AnyConstraint } from "../type-constraints/any-constraint.js";
+import { ConstructorInfo, MemberInfo, MethodInfo, PropertyInfo, Type } from "../index.js";
+import { AnyConstraint } from "../type-constraints/index.js";
 import { OutputArgument } from "../types.js";
 import { __Factory } from "./__factory.js";
 import { __Parser } from "./__parser.js";
@@ -9,7 +9,6 @@ import { __Registry } from "./__registry.js";
 export module __Generator {
     export function tryCreateAllTypeMembers(declaringType: Type, ctor: Function | null | undefined, outMembers: OutputArgument<MemberInfo[]>) {
         const members = [...generate()];
-        console.log(members);
         const hasAnyFailed = ArrayUtils.any(members, m => m === null);
         if (hasAnyFailed)
             return false;

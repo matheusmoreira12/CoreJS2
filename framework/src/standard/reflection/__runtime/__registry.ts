@@ -16,6 +16,16 @@ export module __Registry {
         isParameterInfo: boolean;
     }
 
+    namespace RegistryData {
+        export function tryGet(id: Guid, outData: OutputArgument<RegistryData>): boolean {
+            const data = registeredData.find(d => d.id.equals(id));
+            if (!data)
+                return false;
+            outData.value = data;
+            return true;
+        }
+    }
+
     interface TypeData extends RegistryData {
         isType: true;
         name: string;
@@ -25,48 +35,6 @@ export module __Registry {
         allMembers: MemberInfo[] | null;
         hasEvaluatedAllMembers: boolean;
     }
-
-    interface MemberInfoData extends RegistryData {
-        isMemberInfo: true;
-        declaringType: Type,
-        name: string;
-        memberKind: number;
-        isStatic: boolean;
-    }
-
-    interface MethodInfoBaseData extends MemberInfoData {
-        body: Function;
-        parameters: ParameterInfo[] | null;
-        hasEvaluatedParameters: boolean;
-    }
-
-    interface ConstructorInfoData extends MethodInfoBaseData {
-        isConstructorInfo: true;
-    }
-
-    interface MethodInfoData extends MethodInfoBaseData {
-        isMethodInfo: true;
-        returnType: TypeConstraint;
-    }
-
-    interface PropertyInfoData extends MemberInfoData {
-        isPropertyInfo: true;
-        type: TypeConstraint;
-        getMethod: MethodInfo | null;
-        setMethod: MethodInfo | null;
-    }
-
-    interface ParameterInfoData extends RegistryData {
-        isParameterInfo: true;
-        declaringMethod: MethodInfo;
-        position: number;
-        name: string;
-        type: TypeConstraint;
-        parameterKind: number;
-        isOptional: boolean;
-    }
-
-    const registeredData: RegistryData[] = [];
 
     namespace TypeData {
         export function create(name: string, ctor: any): TypeData {
@@ -101,6 +69,14 @@ export module __Registry {
         }
     }
 
+    interface MemberInfoData extends RegistryData {
+        isMemberInfo: true;
+        declaringType: Type,
+        name: string;
+        memberKind: number;
+        isStatic: boolean;
+    }
+
     namespace MemberInfoData {
         export function tryRegister(member: MemberInfo, data: MemberInfoData): boolean {
             const isAlreadyRegistered = registeredData.some(i => i.isMemberInfo && staticityMatches(i as MemberInfoData) && nameMatches(i as MemberInfoData) && declaringTypeMatches(i as MemberInfoData));
@@ -123,6 +99,16 @@ export module __Registry {
                     data.declaringType && m.declaringType && m.declaringType.id.equals(data.declaringType.id);
             }
         }
+    }
+
+    interface MethodInfoBaseData extends MemberInfoData {
+        body: Function;
+        parameters: ParameterInfo[] | null;
+        hasEvaluatedParameters: boolean;
+    }
+
+    interface ConstructorInfoData extends MethodInfoBaseData {
+        isConstructorInfo: true;
     }
 
     namespace ConstructorInfoData {
@@ -148,6 +134,11 @@ export module __Registry {
         export function tryRegister(ctor: ConstructorInfo, data: ConstructorInfoData): boolean {
             return MemberInfoData.tryRegister(ctor, data);
         }
+    }
+
+    interface MethodInfoData extends MethodInfoBaseData {
+        isMethodInfo: true;
+        returnType: TypeConstraint;
     }
 
     namespace MethodInfoData {
@@ -176,6 +167,13 @@ export module __Registry {
         }
     }
 
+    interface PropertyInfoData extends MemberInfoData {
+        isPropertyInfo: true;
+        type: TypeConstraint;
+        getMethod: MethodInfo | null;
+        setMethod: MethodInfo | null;
+    }
+
     namespace PropertyInfoData {
         export function create(declaringType: Type, name: string, type: TypeConstraint, isStatic: boolean, getMethod: MethodInfo | null, setMethod: MethodInfo | null): PropertyInfoData {
             return {
@@ -186,7 +184,7 @@ export module __Registry {
                 isMethodInfo: false,
                 isPropertyInfo: true,
                 isParameterInfo: false,
-                memberKind: MemberKind.Method,
+                memberKind: MemberKind.Property,
                 declaringType,
                 name,
                 type,
@@ -199,6 +197,16 @@ export module __Registry {
         export function tryRegister(prop: PropertyInfo, data: PropertyInfoData): boolean {
             return MemberInfoData.tryRegister(prop, data);
         }
+    }
+
+    interface ParameterInfoData extends RegistryData {
+        isParameterInfo: true;
+        declaringMethod: MethodInfo;
+        position: number;
+        name: string;
+        type: TypeConstraint;
+        parameterKind: number;
+        isOptional: boolean;
     }
 
     namespace ParameterInfoData {
@@ -237,6 +245,8 @@ export module __Registry {
             }
         }
     }
+
+    const registeredData: RegistryData[] = [];
 
     export function tryRegisterConstructor(constructor: ConstructorInfo, declaringType: Type, body: Function, isStatic: boolean): boolean {
         const data = ConstructorInfoData.create(declaringType, "constructor", body, isStatic);
@@ -284,7 +294,7 @@ export module __Registry {
         }
 
         function tryCreate() {
-            const name = ctor.name;
+            const name = ctor === undefined || ctor === null ? `${ctor}` : ctor.name;
             const type = new Type();
             const data = TypeData.create(name, ctor);
             if (!TypeData.tryRegister(type, data))
@@ -328,7 +338,7 @@ export module __Registry {
 
     export function tryGetTypeAllMembers(type: Type, outAllMembers: OutputArgument<MemberInfo[]>): boolean {
         const outData: OutputArgument<RegistryData> = {};
-        if (!tryGetRegistryData(type.id, outData))
+        if (!RegistryData.tryGet(type.id, outData))
             return false;
         const typeData: TypeData = outData.value! as TypeData;
         if (typeData.hasEvaluatedAllMembers) {
@@ -353,16 +363,30 @@ export module __Registry {
     }
 
     export function tryGetTypeBaseType(type: Type, outBaseType: OutputArgument<Type | null>): boolean {
-        const outData: OutputArgument<TypeData> = {};
-        if (!tryGetRegistryData(type.id, outData))
+        const outTypeData: OutputArgument<TypeData> = {};
+        if (!RegistryData.tryGet(type.id, outTypeData))
             return false;
-        outBaseType.value = outData.value!.baseType;
-        return true;
+        const typeData = outTypeData.value!;
+        if (typeData.hasEvaluatedBaseType) {
+            outBaseType.value = typeData.baseType;
+            return true;
+        }
+        return tryEvaluate();
+
+        function tryEvaluate() {
+            const ctor = typeData.ctor;
+            if (ctor === undefined || ctor === null) {
+                outBaseType.value = null;
+                return true;
+            }
+            const baseCtor = Object.getPrototypeOf(ctor);
+            return tryGetTypeFromConstructor(baseCtor, outBaseType as OutputArgument<Type>);
+        }
     }
 
     export function tryGetTypeName(type: Type, outName: OutputArgument<string>): boolean {
         const outData: OutputArgument<TypeData> = {};
-        if (!tryGetRegistryData(type.id, outData))
+        if (!RegistryData.tryGet(type.id, outData))
             return false;
         outName.value = outData.value!.name;
         return true;
@@ -370,7 +394,7 @@ export module __Registry {
 
     export function tryGetMemberInfoMemberKind(member: MemberInfo, outMemberKind: OutputArgument<number>): boolean {
         const outData: OutputArgument<MemberInfoData> = {};
-        if (!tryGetRegistryData(member.id, outData))
+        if (!RegistryData.tryGet(member.id, outData))
             return false;
         outMemberKind.value = outData.value!.memberKind;
         return true;
@@ -378,7 +402,7 @@ export module __Registry {
 
     export function tryGetMemberInfoName(member: MemberInfo, outName: OutputArgument<string>): boolean {
         const outData: OutputArgument<MemberInfoData> = {};
-        if (!tryGetRegistryData(member.id, outData))
+        if (!RegistryData.tryGet(member.id, outData))
             return false;
         outName.value = outData.value!.name;
         return true;
@@ -386,7 +410,7 @@ export module __Registry {
 
     export function tryGetMemberInfoDeclaringType(member: MemberInfo, outDeclaringType: OutputArgument<Type | null>): boolean {
         const outData: OutputArgument<MemberInfoData> = {};
-        if (!tryGetRegistryData(member.id, outData))
+        if (!RegistryData.tryGet(member.id, outData))
             return false;
         outDeclaringType.value = outData.value!.declaringType;
         return true;
@@ -394,7 +418,7 @@ export module __Registry {
 
     export function tryGetMemberInfoIsStatic(member: MemberInfo, outIsStatic: OutputArgument<boolean>): boolean {
         const outData: OutputArgument<MemberInfoData> = {};
-        if (!tryGetRegistryData(member.id, outData))
+        if (!RegistryData.tryGet(member.id, outData))
             return false;
         outIsStatic.value = outData.value!.isStatic;
         return true;
@@ -402,7 +426,7 @@ export module __Registry {
 
     export function tryGetMethodInfoBaseParameters(method: MethodInfoBase, outParameters: OutputArgument<ParameterInfo[]>): boolean {
         const outData: OutputArgument<MethodInfoBaseData> = {};
-        if (!tryGetRegistryData(method.id, outData))
+        if (!RegistryData.tryGet(method.id, outData))
             return false;
         const methodData = outData.value!;
         if (methodData.hasEvaluatedParameters) {
@@ -430,7 +454,7 @@ export module __Registry {
 
     export function tryGetMethodInfoBaseBody(method: MethodInfoBase, outBody: OutputArgument<Function>): boolean {
         const outData: OutputArgument<MethodInfoBaseData> = {};
-        if (!tryGetRegistryData(method.id, outData))
+        if (!RegistryData.tryGet(method.id, outData))
             return false;
         outBody.value = outData.value!.body;
         return true;
@@ -438,7 +462,7 @@ export module __Registry {
 
     export function tryMethodInfoBaseInvoke(method: MethodInfoBase, target: any, parameters: any[], outResult: OutputArgument<any>): boolean {
         const outMethodData: OutputArgument<MethodInfoData> = {};
-        if (!tryGetRegistryData(method.id, outMethodData))
+        if (!RegistryData.tryGet(method.id, outMethodData))
             return false;
         const methodData = outMethodData.value!;
         const body = methodData.body;
@@ -448,7 +472,7 @@ export module __Registry {
 
         function tryInvokeStatic() {
             const outDeclaringTypeData: OutputArgument<TypeData> = {};
-            if (!tryGetRegistryData(methodData.declaringType.id, outDeclaringTypeData))
+            if (!RegistryData.tryGet(methodData.declaringType.id, outDeclaringTypeData))
                 return false;
             const declaringTypeData = outDeclaringTypeData.value!;
             const declaringTypeCtor = declaringTypeData.ctor!;
@@ -466,7 +490,7 @@ export module __Registry {
 
     export function tryGetMethodInfoReturnType(method: MethodInfo, outReturnType: OutputArgument<TypeConstraint>): boolean {
         const outData: OutputArgument<MethodInfoData> = {};
-        if (!tryGetRegistryData(method.id, outData))
+        if (!RegistryData.tryGet(method.id, outData))
             return false;
         outReturnType.value = outData.value!.returnType;
         return true;
@@ -474,7 +498,7 @@ export module __Registry {
 
     export function tryGetPropertyInfoGetMethod(property: PropertyInfo, outGetMethod: OutputArgument<MethodInfo | null>): boolean {
         const outData: OutputArgument<PropertyInfoData> = {};
-        if (!tryGetRegistryData(property.id, outData))
+        if (!RegistryData.tryGet(property.id, outData))
             return false;
         outGetMethod.value = outData.value!.getMethod;
         return true;
@@ -482,7 +506,7 @@ export module __Registry {
 
     export function tryGetPropertyInfoSetMethod(property: PropertyInfo, outSetMethod: OutputArgument<MethodInfo | null>): boolean {
         const outData: OutputArgument<PropertyInfoData> = {};
-        if (!tryGetRegistryData(property.id, outData))
+        if (!RegistryData.tryGet(property.id, outData))
             return false;
         outSetMethod.value = outData.value!.setMethod;
         return true;
@@ -490,7 +514,7 @@ export module __Registry {
 
     export function tryPropertyInfoGetValue(property: PropertyInfo, target: any, outValue: OutputArgument<any>): boolean {
         const outPropData: OutputArgument<PropertyInfoData> = {};
-        if (!tryGetRegistryData(property.id, outPropData))
+        if (!RegistryData.tryGet(property.id, outPropData))
             return false;
         const getMethod = outPropData.value!.getMethod;
         if (!getMethod)
@@ -500,7 +524,7 @@ export module __Registry {
 
     export function tryPropertyInfoSetValue(property: PropertyInfo, target: any, value: any): boolean {
         const outPropData: OutputArgument<PropertyInfoData> = {};
-        if (!tryGetRegistryData(property.id, outPropData))
+        if (!RegistryData.tryGet(property.id, outPropData))
             return false;
         const getMethod = outPropData.value!.getMethod;
         if (!getMethod)
@@ -510,7 +534,7 @@ export module __Registry {
 
     export function tryGetPropertyInfoType(property: PropertyInfo, outType: OutputArgument<TypeConstraint>): boolean {
         const outData: OutputArgument<PropertyInfoData> = {};
-        if (!tryGetRegistryData(property.id, outData))
+        if (!RegistryData.tryGet(property.id, outData))
             return false;
         outType.value = outData.value!.type;
         return true;
@@ -518,7 +542,7 @@ export module __Registry {
 
     export function tryGetParameterInfoDeclaringMethod(parameter: ParameterInfo, outDeclaringMethod: OutputArgument<MethodInfo>): boolean {
         const outData: OutputArgument<ParameterInfoData> = {};
-        if (!tryGetRegistryData(parameter.id, outData))
+        if (!RegistryData.tryGet(parameter.id, outData))
             return false;
         outDeclaringMethod.value = outData.value!.declaringMethod;
         return true;
@@ -526,7 +550,7 @@ export module __Registry {
 
     export function tryGetParameterInfoPosition(parameter: ParameterInfo, outPosition: OutputArgument<number>): boolean {
         const outData: OutputArgument<ParameterInfoData> = {};
-        if (!tryGetRegistryData(parameter.id, outData))
+        if (!RegistryData.tryGet(parameter.id, outData))
             return false;
         outPosition.value = outData.value!.position;
         return true;
@@ -534,7 +558,7 @@ export module __Registry {
 
     export function tryGetParameterInfoName(parameter: ParameterInfo, outName: OutputArgument<string>): boolean {
         const outData: OutputArgument<ParameterInfoData> = {};
-        if (!tryGetRegistryData(parameter.id, outData))
+        if (!RegistryData.tryGet(parameter.id, outData))
             return false;
         outName.value = outData.value!.name;
         return true;
@@ -542,7 +566,7 @@ export module __Registry {
 
     export function tryGetParameterInfoParameterKind(parameter: ParameterInfo, outParameterKind: OutputArgument<number>): boolean {
         const outData: OutputArgument<ParameterInfoData> = {};
-        if (!tryGetRegistryData(parameter.id, outData))
+        if (!RegistryData.tryGet(parameter.id, outData))
             return false;
         outParameterKind.value = outData.value!.parameterKind;
         return true;
@@ -550,7 +574,7 @@ export module __Registry {
 
     export function tryGetParameterInfoType(parameter: ParameterInfo, outType: OutputArgument<TypeConstraint>): boolean {
         const outData: OutputArgument<ParameterInfoData> = {};
-        if (!tryGetRegistryData(parameter.id, outData))
+        if (!RegistryData.tryGet(parameter.id, outData))
             return false;
         outType.value = outData.value!.type;
         return true;
@@ -558,17 +582,9 @@ export module __Registry {
 
     export function tryGetParameterInfoIsOptional(parameter: ParameterInfo, outIsOptional: OutputArgument<boolean>): boolean {
         const outData: OutputArgument<ParameterInfoData> = {};
-        if (!tryGetRegistryData(parameter.id, outData))
+        if (!RegistryData.tryGet(parameter.id, outData))
             return false;
         outIsOptional.value = outData.value!.isOptional;
-        return true;
-    }
-
-    function tryGetRegistryData(id: Guid, outData: OutputArgument<RegistryData>): boolean {
-        const data = registeredData.find(d => d.id.equals(id));
-        if (!data)
-            return false;
-        outData.value = data;
         return true;
     }
 }

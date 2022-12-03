@@ -44,18 +44,17 @@ export class Type {
         function generate(this: Type) {
             if (typeof options != "number")
                 throw new ArgumentTypeException("options");
-            MemberSelectionOptions.assertFlag(options);
             if (name !== null && typeof name != "string")
                 throw new ArgumentTypeException(name);
 
             return ArrayUtils.where(this.allMembers, m => nameMatches(m) && staticityMatches(m) && kindMatches(m));
 
-            function nameMatches(m: MemberInfo) { return name !== null && name !== m.name; }
+            function nameMatches(m: MemberInfo) { return name == null || name == m.name; }
 
             function staticityMatches(m: MemberInfo) {
                 const isStatic = m.isStatic;
                 return !(isStatic && Enumeration.contains(MemberSelectionOptions.InstanceOnly, options) ||
-                    isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options));
+                    !isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options));
             }
 
             function kindMatches(m: MemberInfo) {
@@ -66,20 +65,23 @@ export class Type {
         }
     }
 
-    getMember(options: number = MemberSelectionOptions.Any, name: string): MemberInfo | null {
+    getMember(name: string, options: number = MemberSelectionOptions.Any): MemberInfo | null {
         return ArrayUtils.first(this.getMembers(options, name)) ?? null;
     }
 
-    getProperty(name: string): PropertyInfo | null {
-        return this.getMember(MemberSelectionOptions.Properties, name) as PropertyInfo | null;
+    getProperty(name: string, options: number = MemberSelectionOptions.Any): PropertyInfo | null {
+        const o = options// & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
+        return this.getMember(name, MemberSelectionOptions.Properties | o) as PropertyInfo | null;
     }
 
-    getMethod(name: string): MethodInfo | null {
-        return this.getMember(MemberSelectionOptions.Methods, name) as MethodInfo | null;
+    getMethod(name: string, options: number = MemberSelectionOptions.Any): MethodInfo | null {
+        const o = options// & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
+        return this.getMember(name, MemberSelectionOptions.Methods | o) as MethodInfo | null;
     }
 
-    getContructor(name: string): ConstructorInfo | null {
-        return this.getMember(MemberSelectionOptions.Constructor, name) as ConstructorInfo | null;
+    getContructor(options: number = MemberSelectionOptions.Any, name: string): ConstructorInfo | null {
+        const o = options// & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
+        return this.getMember(name, MemberSelectionOptions.Constructor | o) as ConstructorInfo | null;
     }
 
     obeysConstraint(constraint: TypeConstraint): boolean {
