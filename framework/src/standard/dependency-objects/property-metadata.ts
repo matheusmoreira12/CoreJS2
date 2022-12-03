@@ -1,19 +1,20 @@
 import { assertParams } from "../../validation/index.js";
+import { Interface } from "../interfaces/index.js";
 import { Type } from "../reflection/index.js";
 import { TypeConstraint } from "../reflection/type-constraints/index.js";
 import { TypeMatchingConstraint } from "../reflection/types.js";
 
 export class PropertyMetadata {
-    constructor(valueType: TypeMatchingConstraint | null, defaultValue: any = null) {
-        assertParams({ valueType }, [Type, TypeConstraint, null]);
+    constructor(valueType: TypeMatchingConstraint, defaultValue: any = null) {
+        assertParams({ valueType }, [Type, Interface, TypeConstraint]);
 
-        this.__valueType = valueType;
-        this.__defaultValue = defaultValue;
+        this.#valueType = valueType;
+        this.#defaultValue = defaultValue;
     }
 
-    private __valueType: TypeMatchingConstraint | null;
-    private __defaultValue?: any;
+    #valueType: TypeMatchingConstraint | null;
+    #defaultValue?: any;
 
-    get valueType(): TypeMatchingConstraint | null { return this.__valueType; }
-    get defaultValue(): any { return this.__defaultValue; }
+    get valueType(): TypeMatchingConstraint | null { return this.#valueType; }
+    get defaultValue(): any { return this.#defaultValue; }
 }

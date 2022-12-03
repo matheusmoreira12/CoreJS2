@@ -66,6 +66,6 @@ export class DependencyProperty {
         throw new InvalidOperationException("Cannot get name. Invalid dependency property.");
     }
 
-    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid dependency property key.") })() }
+    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid DependencyProperty instance.") })() }
     __id: Guid | null = null;
 }

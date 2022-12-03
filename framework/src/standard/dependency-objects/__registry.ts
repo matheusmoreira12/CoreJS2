@@ -4,126 +4,177 @@ import { Type } from "../reflection/index.js";
 import { Guid } from "../guids/guid.js";
 
 export namespace __Registry {
-    interface RegisteredPropertyInfo {
-        id: Guid,
-        property: DependencyProperty,
-        name: string,
-        targetType: Type,
-        keyId: Guid | null,
-        key: DependencyPropertyKey | null,
-        metadata: PropertyMetadata,
-        isAttached: boolean,
-        isReadonly: boolean
+    interface RegistryData {
+        id: Guid;
+        isDependencyProperty: boolean;
+        isDependencyPropertyKey: boolean;
     }
 
-    namespace RegisteredPropertyInfo {
-        export function create(id: Guid, property: DependencyProperty, name: string, targetType: Type, metadata: PropertyMetadata, isAttached: boolean = false, isReadonly: boolean = false, keyId: Guid | null = null, key: DependencyPropertyKey | null): RegisteredPropertyInfo {
-            return {
-                id,
-                property,
-                name,
-                targetType,
-                keyId,
-                key,
-                metadata,
-                isAttached,
-                isReadonly
-            };
+    namespace RegistryData {
+        export function tryGet(id: Guid, outData: OutputArgument<RegistryData>) {
+            const data = registeredData.find(d => d.id.equals(id));
+            if (!data)
+                return false;
+            outData.value = data;
+            return true;
         }
     }
 
-    const registered: RegisteredPropertyInfo[] = [];
+    interface DependencyPropertyData extends RegistryData {
+        isDependencyProperty: true;
+        name: string;
+        targetType: Type;
+        metadata: PropertyMetadata;
+        isAttached: boolean;
+        isReadonly: boolean;
+    }
+
+    namespace DependencyPropertyData {
+        export function create(name: string, targetType: Type, metadata: PropertyMetadata, isAttached: boolean = false, isReadonly: boolean = false): DependencyPropertyData {
+            return {
+                isDependencyProperty: true,
+                isDependencyPropertyKey: false,
+                id: Guid.createUnique(),
+                name,
+                targetType,
+                metadata,
+                isAttached,
+                isReadonly,
+            };
+        }
+
+        export function tryRegister(prop: DependencyProperty, data: DependencyPropertyData): boolean {
+            const isAlreadyRegistered = registeredData.some(d => d.isDependencyProperty && nameMatches(d as DependencyPropertyData) && attachmentMatches(d as DependencyPropertyData) && targetTypeMatches(d as DependencyPropertyData));
+            if (isAlreadyRegistered)
+                return false;
+            prop.__id = data.id;
+            registeredData.push(data);
+            return true;
+
+            function nameMatches(p: DependencyPropertyData) {
+                return p.name == data.name;
+            }
+
+            function attachmentMatches(p: DependencyPropertyData) {
+                return p.isAttached == data.isAttached;
+            }
+
+            function targetTypeMatches(p: DependencyPropertyData) {
+                return p.targetType.equals(data.targetType);
+            }
+        }
+
+        export function tryGetIdByKeyId(keyId: Guid, outId: OutputArgument<Guid>) {
+            const outKeyData: OutputArgument<DependencyPropertyKeyData> = {};
+            if (!RegistryData.tryGet(keyId, outKeyData))
+                return false;
+            const keyData = outKeyData.value!;
+            outId.value = keyData.propertyId;
+            return true;
+        }
+
+        export function getAllPropIdsForTargetType(targetType: Type) {
+            return registeredData.filter(d => d.isDependencyProperty && targetTypeMatches(d as DependencyPropertyData)).map(d => d.id);
+
+            function targetTypeMatches(p: DependencyPropertyData) {
+                return targetType.extends(p.targetType);
+            }
+        }
+    }
+
+    interface DependencyPropertyKeyData extends RegistryData {
+        isDependencyPropertyKey: true;
+        propertyId: Guid;
+    }
+
+    namespace DependencyPropertyKeyData {
+        export function create(propertyId: Guid): DependencyPropertyKeyData {
+            return {
+                isDependencyProperty: false,
+                isDependencyPropertyKey: true,
+                id: Guid.createUnique(),
+                propertyId,
+            };
+        }
+
+        export function tryRegister(propKey: DependencyPropertyKey, data: DependencyPropertyKeyData): boolean {
+            const isAlreadyRegistered = registeredData.some(d => d.isDependencyPropertyKey && propIdMatches(d as DependencyPropertyKeyData));
+            if (isAlreadyRegistered)
+                return false;
+            propKey.__id = data.id;
+            registeredData.push(data);
+            return true;
+
+            function propIdMatches(k: DependencyPropertyKeyData) {
+                return k.propertyId == data.propertyId;
+            }
+        }
+    }
+
+    const registeredData: RegistryData[] = [];
+    window.registeredDepPropsData = registeredData;
 
     export function tryRegisterAttached(targetType: Type, property: DependencyProperty, name: string, metadata: PropertyMetadata): boolean {
-        const outInfo = {};
-        if (tryGetInfo(property, outInfo))
-            return false;
-
-        addRegisteredProperty(targetType, property, name, metadata, true, false, null);
-        return true;
+        const data = DependencyPropertyData.create(name, targetType, metadata, true, false);
+        return DependencyPropertyData.tryRegister(property, data);
     }
 
     export function tryRegisterReadonly(targetType: Type, property: DependencyProperty, name: string, key: DependencyPropertyKey, metadata: PropertyMetadata) {
-        const outInfo = {};
-        if (tryGetInfo(property, outInfo))
+        const data = DependencyPropertyData.create(name, targetType, metadata, true, true);
+        if (!DependencyPropertyData.tryRegister(property, data))
             return false;
-        if (tryGetInfoByKey(key, outInfo))
-            return false;
-
-        addRegisteredProperty(targetType, property, name, metadata, true, true, key);
-        return true;
+        const propertyId = data.id;
+        const keyData = DependencyPropertyKeyData.create(propertyId);
+        return DependencyPropertyKeyData.tryRegister(key, keyData);
     }
 
     export function tryRegister(targetType: Type, property: DependencyProperty, name: string, metadata: PropertyMetadata) {
-        const outInfo = {};
-        if (tryGetInfo(property, outInfo))
-            return false;
-
-        addRegisteredProperty(targetType, property, name, metadata, false, false, null);
-        return true;
-    }
-
-    function addRegisteredProperty(targetType: Type, property: DependencyProperty, name: string, metadata: PropertyMetadata, isAttached: boolean, isReadonly: boolean, key: DependencyPropertyKey | null): void {
-        const id = Guid.createUnique();
-        property.__id = id;
-        let keyId: Guid | null = null;
-        if (isReadonly) {
-            keyId = Guid.createUnique();
-            key!.__id = keyId;
-        }
-        const info = RegisteredPropertyInfo.create(id, property, name, targetType, metadata, isAttached, isReadonly, keyId, key);
-        registered.push(info);
+        const data = DependencyPropertyData.create(name, targetType, metadata, false, false);
+        return DependencyPropertyData.tryRegister(property, data);
     }
 
     export function tryGetMetadata(property: DependencyProperty, outMetadata: OutputArgument<PropertyMetadata>): boolean {
-        const outInfo: OutputArgument<RegisteredPropertyInfo> = {};
-        if (!tryGetInfo(property, outInfo))
+        const outData: OutputArgument<DependencyPropertyData> = {};
+        if (!RegistryData.tryGet(property.id, outData))
             return false;
-        outMetadata.value = outInfo.value!.metadata;
+        outMetadata.value = outData.value!.metadata;
         return true;
     }
 
     export function tryGetName(property: DependencyProperty, outName: OutputArgument<string>): boolean {
-        const outInfo: OutputArgument<RegisteredPropertyInfo> = {};
-        if (!tryGetInfo(property, outInfo))
+        const outData: OutputArgument<DependencyPropertyData> = {};
+        if (!RegistryData.tryGet(property.id, outData))
             return false;
-        outName.value = outInfo.value!.name;
+        outName.value = outData.value!.name;
         return true;
     }
 
     export function tryGetIsReadonly(property: DependencyProperty, outIsReadonly: OutputArgument<boolean>): boolean {
-        const outInfo: OutputArgument<RegisteredPropertyInfo> = {};
-        if (!tryGetInfo(property, outInfo))
+        const outData: OutputArgument<DependencyPropertyData> = {};
+        if (!RegistryData.tryGet(property.id, outData))
             return false;
-        outIsReadonly.value = outInfo.value!.isReadonly;
+        outIsReadonly.value = outData.value!.isReadonly;
         return true;
     }
 
-    function tryGetInfo(property: DependencyProperty, outInfo: OutputArgument<RegisteredPropertyInfo>): boolean {
-        const info = registered.find(i => i.id.equals(property.id));
-        if (info === undefined)
+    export function tryGetPropertyByPropertyKey(key: DependencyPropertyKey, outProperty: OutputArgument<DependencyProperty>): boolean {
+        const outPropertyId: OutputArgument<Guid> = {};
+        if (!DependencyPropertyData.tryGetIdByKeyId(key.id, outPropertyId))
             return false;
-        outInfo.value = info;
-        return true;
-    }
-
-    export function tryGetByKey(key: DependencyPropertyKey, outProperty: OutputArgument<DependencyProperty>): boolean {
-        const outInfo: OutputArgument<RegisteredPropertyInfo> = {};
-        if (!tryGetInfoByKey(key, outInfo))
-            return false;
-        outProperty.value = outInfo.value!.property;
-        return true;
-    }
-
-    function tryGetInfoByKey(key: DependencyPropertyKey, outInfo: OutputArgument<RegisteredPropertyInfo>): boolean {
-        const info = registered.find(i => i.keyId?.equals(key.id));
-        if (info === undefined)
-            return false;
-        outInfo.value = info;
+        const id = outPropertyId.value!
+        const property = new DependencyProperty();
+        property.__id = id;
+        outProperty.value = property;
         return true;
     }
 
     export function getAll(targetType: Type): DependencyProperty[] {
-        return registered.filter(i => targetType.extends(i.targetType)).map(i => i.property);
+        return DependencyPropertyData.getAllPropIdsForTargetType(targetType).map(id => createProperty(id));
+
+        function createProperty(id: Guid) {
+            const prop = new DependencyProperty();
+            prop.__id = id;
+            return prop;
+        }
     }
 }

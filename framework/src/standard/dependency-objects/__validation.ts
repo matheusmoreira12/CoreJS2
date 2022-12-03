@@ -1,11 +1,14 @@
 import { InvalidOperationException } from "../exceptions/index.js";
-import { MemberSelectionOptions, PropertyInfo, Type } from "../reflection/index.js";
+import { MemberSelectionOptions, Type } from "../reflection/index.js";
 import { DependencyObject } from "./index.js";
 
 export namespace __Validation {
     export function assertAttachedProperty(targetType: Type, name: string, isReadonly: boolean) {
-        const prototypeProperty = (targetType.getMembers(MemberSelectionOptions.Properties | MemberSelectionOptions.StaticOnly, "prototype")[0] as PropertyInfo).getValue(null) as DependencyObject;
-        const descriptor = Object.getOwnPropertyDescriptor(prototypeProperty, name);
+        const prototypeProperty = targetType.getProperty("prototype", MemberSelectionOptions.StaticOnly);
+        if (prototypeProperty === null)
+            throw new InvalidOperationException(`Cannot register dependency property. Property ["prototype"] is missing.`);
+        const prototype = prototypeProperty.getValue(null) as DependencyObject;
+        const descriptor = Object.getOwnPropertyDescriptor(prototype, name);
         if (!descriptor)
             throw new InvalidOperationException(`Cannot register dependency property. Missing property ${name} in ${targetType.name}.`)
         else if (!descriptor.get)
