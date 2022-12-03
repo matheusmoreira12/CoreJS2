@@ -4,6 +4,7 @@ import { Setter } from "../setters/index.js";
 import { assertParams, assertEachParams, TypeValidationMode } from "../../validation/index.js";
 import { Type } from "../../standard/reflection/type.js";
 import { Collection } from "../../standard/collections/index.js";
+import { AnyConstraint } from "../../standard/reflection/type-constraints/index.js";
 
 /**
  * PropertyTrigger class
@@ -31,7 +32,7 @@ export class PropertyTrigger extends Trigger {
     static propertyProperty = PropertyTrigger.__propertyPropertyKey.property;
     get property(): DependencyProperty { return this.get(PropertyTrigger.propertyProperty); }
 
-    static __valuePropertyKey = DependencyProperty.registerReadonly(Type.get(PropertyTrigger), "value", new PropertyMetadata(null));
+    static __valuePropertyKey = DependencyProperty.registerReadonly(Type.get(PropertyTrigger), "value", new PropertyMetadata(new AnyConstraint()));
     static valueProperty = PropertyTrigger.__valuePropertyKey.property;
     get value(): any { return this.get(PropertyTrigger.valueProperty); }
 

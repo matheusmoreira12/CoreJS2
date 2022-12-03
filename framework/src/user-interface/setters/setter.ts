@@ -2,6 +2,7 @@ import { DependencyProperty, DependencyPropertyKey, PropertyMetadata } from "../
 import { assertParams } from "../../validation/index.js";
 import { DependencyObject } from "../../standard/dependency-objects/dependency-object.js";
 import { Type } from "../../standard/reflection/index.js";
+import { AnyConstraint } from "../../standard/reflection/type-constraints/index.js";
 
 /**
  * Sets the value of the specified property on the specified target to the specified value whenever the trigger's condition is met.
@@ -26,7 +27,7 @@ export class Setter extends DependencyObject {
     static propertyProperty = Setter.__propertyPropertyKey.property;
     get property(): DependencyProperty { return this.get(Setter.propertyProperty); }
 
-    static __valuePropertyKey = DependencyProperty.registerReadonly(Type.get(Setter), "value", new PropertyMetadata(null));
+    static __valuePropertyKey = DependencyProperty.registerReadonly(Type.get(Setter), "value", new PropertyMetadata(new AnyConstraint()));
     static valueProperty = Setter.__valuePropertyKey.property;
     get value(): any { return this.get(Setter.valueProperty); }
 }
