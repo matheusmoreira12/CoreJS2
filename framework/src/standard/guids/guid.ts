@@ -6,10 +6,6 @@ import { __Generator } from "./__generator.js";
 import { __StringConverter } from "./__string-converter.js";
 
 export class Guid {
-    static createUnique(): Guid {
-        return __Generator.createUnique();
-    }
-
     static create(): Guid {
         return __Generator.create();
     }
@@ -30,7 +26,7 @@ export class Guid {
         throw new FormatException();
     }
 
-    static get zero(): Guid { return GUID_ZERO };
+    static get nil(): Guid { return NIL_GUID };
 
     constructor(buffer: Uint8Array) {
         assertParams({ buffer }, [Uint8Array]);
@@ -59,7 +55,7 @@ export class Guid {
     private __buffer: Uint8Array;
 }
 
-const GUID_ZERO = new Guid(new Uint8Array(16));
+const NIL_GUID = new Guid(new Uint8Array(16));
 
 function assertBufferLength(buffer: Uint8Array) {
     if (buffer.length != 16)

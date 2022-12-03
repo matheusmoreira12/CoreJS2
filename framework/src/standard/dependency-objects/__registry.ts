@@ -34,7 +34,7 @@ export namespace __Registry {
             return {
                 isDependencyProperty: true,
                 isDependencyPropertyKey: false,
-                id: Guid.createUnique(),
+                id: Guid.create(),
                 name,
                 targetType,
                 metadata,
@@ -92,7 +92,7 @@ export namespace __Registry {
             return {
                 isDependencyProperty: false,
                 isDependencyPropertyKey: true,
-                id: Guid.createUnique(),
+                id: Guid.create(),
                 propertyId,
             };
         }

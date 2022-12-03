@@ -39,7 +39,7 @@ export module __Registry {
     namespace TypeData {
         export function create(name: string, ctor: any): TypeData {
             return {
-                id: Guid.createUnique(),
+                id: Guid.create(),
                 isType: true,
                 isMemberInfo: false,
                 isConstructorInfo: false,
@@ -114,7 +114,7 @@ export module __Registry {
     namespace ConstructorInfoData {
         export function create(declaringType: Type, name: string, body: Function, isStatic: boolean): ConstructorInfoData {
             return {
-                id: Guid.createUnique(),
+                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: true,
@@ -144,7 +144,7 @@ export module __Registry {
     namespace MethodInfoData {
         export function create(declaringType: Type, name: string, returnType: TypeConstraint, body: Function, isStatic: boolean): MethodInfoData {
             return {
-                id: Guid.createUnique(),
+                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: false,
@@ -177,7 +177,7 @@ export module __Registry {
     namespace PropertyInfoData {
         export function create(declaringType: Type, name: string, type: TypeConstraint, isStatic: boolean, getMethod: MethodInfo | null, setMethod: MethodInfo | null): PropertyInfoData {
             return {
-                id: Guid.createUnique(),
+                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: false,
@@ -212,7 +212,7 @@ export module __Registry {
     namespace ParameterInfoData {
         export function create(declaringMethod: MethodInfo, position: number, name: string, parameterKind: number, type: TypeConstraint, isOptional: boolean): ParameterInfoData {
             return {
-                id: Guid.createUnique(),
+                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: false,
