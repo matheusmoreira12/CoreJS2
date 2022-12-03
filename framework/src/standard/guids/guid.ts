@@ -16,6 +16,7 @@ export class Guid {
 
     static tryParse(str: string, outGuid: OutputArgument<Guid>): boolean {
         assertParams({ str }, [String, null]);
+        assertParams({ outGuid }, [Object]);
 
         return __StringConverter.tryConvertStringToGuid(str, outGuid);
     }
@@ -45,10 +46,12 @@ export class Guid {
     }
 
     [Symbol.toStringTag](): string {
-        return `${this.toString}`;
+        return `Guid(${this.toString})`;
     }
 
     toString(format = "D"): string {
+        assertParams({ format }, [String]);
+
         return __StringConverter.convertGuidToString(this, format);
     }
 
