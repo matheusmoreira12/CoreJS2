@@ -1,9 +1,19 @@
-import { OutputArgument } from "../reflection/types";
+import { assertParams } from "../../validation-standalone/index.js";
 
 export class StringReader {
-    constructor(content: string) {
-        this.#content = content;
-        this.#position = 0;
+    constructor(content: string);
+    constructor(reader: StringReader);
+    constructor(contentOrReader: string | StringReader) {
+        assertParams({ contentOrReader }, [String, StringReader]);
+
+        if (contentOrReader instanceof StringReader) {
+            this.#content = contentOrReader.#content;
+            this.#position = contentOrReader.#position
+        }
+        else {
+            this.#content = contentOrReader;
+            this.#position = 0;
+        }
     }
 
     peek(): string | null {
@@ -30,6 +40,8 @@ export class StringReader {
     }
 
     jump(count: number): number {
+        assertParams({ count }, [Number]);
+
         const l = this.length;
         const i = this.position;
         const fc = count <= l - i ? count : l - i;
@@ -38,6 +50,8 @@ export class StringReader {
     }
 
     seek(position: number): number {
+        assertParams({ position }, [Number]);
+
         const l = this.length;
         const fp = position >= 0 ? position <= l ? position : l : 0;
         this.#position = fp;
@@ -45,6 +59,9 @@ export class StringReader {
     }
 
     peekBlock(buffer: string[], index: number, count: number): number {
+        assertParams({ buffer }, [Array]);
+        assertParams({ index, count }, [Number]);
+
         const i = this.#position;
         const er = this.#position + count;
         const ef = this.#content.length;
@@ -59,6 +76,9 @@ export class StringReader {
     }
 
     readBlock(buffer: string[], index: number, count: number): number {
+        assertParams({ buffer }, [Array]);
+        assertParams({ index, count }, [Number]);
+
         const l = this.peekBlock(buffer, index, count);
         this.jump(l);
         return l;
@@ -79,6 +99,8 @@ export class StringReader {
     }
 
     readRest(buffer: string[]): number {
+        assertParams({ buffer }, [Array]);
+
         const ef = this.#content.length - 1;
         return this.readBlock(buffer, 0, ef - this.#position);
     }
@@ -95,6 +117,6 @@ export class StringReader {
     get length(): number {
         return this.#content.length;
     }
-    
+
     #content: string;
 }
