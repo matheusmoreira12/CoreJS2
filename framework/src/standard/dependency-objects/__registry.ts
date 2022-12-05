@@ -77,7 +77,7 @@ export namespace __Registry {
             return registeredData.filter(d => d.isDependencyProperty && targetTypeMatches(d as DependencyPropertyData)).map(d => d.id);
 
             function targetTypeMatches(p: DependencyPropertyData) {
-                return targetType.extends(p.targetType);
+                return p.targetType.equals(targetType) || targetType.extends(p.targetType);
             }
         }
     }
