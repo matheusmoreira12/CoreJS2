@@ -4,7 +4,7 @@ import { Control } from "./index.js";
 
 export class ControlChildrenCollection extends ObservableCollection<Control> {
     override push(...items: Control[]): number {
-        const unique = ArrayUtils.excludeMany(ArrayUtils.excludeDuplicates(items), this);
+        const unique = ArrayUtils.excludeMany(ArrayUtils.unique(items), this);
         return super.push(...unique);
     }
 }
