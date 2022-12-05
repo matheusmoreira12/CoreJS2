@@ -6,11 +6,14 @@ import { ObjectUtils } from "../../../core-base/utils/index.js";
 import { ControlConstructor } from "../control-constructor";
 import { NativeControl } from "./native-control";
 import { InvalidOperationException } from "../../../standard/exceptions/framework-exception.js";
+import { Type } from "../../../standard/reflection/index.js";
+import { AnyConstraint } from "../../../standard/reflection/type-constraints/index.js";
+import { EXCLUDED_PROPERTIES } from "./excluded-properties.js";
 
 export namespace __Generator {
-    export function generateNativeControls(elemDataTuples: readonly(readonly [string, string, string])[]): { readonly [K: string]: NativeControl<any> } {
+    export function generateNativeControls(elemDataTuples: readonly (readonly [string, string, string])[]): { readonly [K: string]: NativeControl<any> } {
         const result = {};
-        for (let [elementName, namespaceUri, elemCtorName] of elemDataTuples){
+        for (let [elementName, namespaceUri, elemCtorName] of elemDataTuples) {
             const elemCtor = globalThis[elemCtorName as keyof typeof globalThis] as typeof Element;
             if (elemCtor === undefined) {
                 defineUnsuportedNativeControl(elementName);
@@ -43,15 +46,11 @@ export namespace __Generator {
 
         function defineDependencyProperties(nativeControl: ControlConstructor, elemProto: Element) {
             for (let propName of getPropertyNames(elemProto)) {
-                if (propName == "constructor" ||
-                    propName == "name" ||
-                    propName == "toString")
-                    continue;
                 Object.defineProperty(nativeControl.prototype, propName, {
                     get() { return this.get(prop); },
                     set(value: any) { return this.set(prop, value); }
                 });
-                const prop = DependencyProperty.registerAttached(nativeControl, propName, new PropertyMetadata(null, null));
+                const prop = DependencyProperty.registerAttached(Type.get(nativeControl), propName, new PropertyMetadata(new AnyConstraint(), null));
                 Object.defineProperty(nativeControl, `${propName}Property`, {
                     get() { return prop; }
                 });
@@ -64,7 +63,7 @@ export namespace __Generator {
             });
             function initializeControl(this: Control, elem: Element) {
                 defineEvents(this, elem);
-                
+
                 function defineEvents(control: Control, elem: Element) {
                     for (let eventName of getEventNames(elem)) {
                         let event: NativeEvent | undefined;
@@ -84,10 +83,22 @@ export namespace __Generator {
     }
 
     function getEventNames(elemProto: Element): string[] {
-        return Array.from(ObjectUtils.getAllPropertyNames(elemProto)).map(p => p.match(/^on(\w+)/)).filter(m => m).map(m => m![1]);
+        return Array.from(ObjectUtils.getAllPropertyNames(elemProto)).filter(prop => isEventName(prop)).map(prop => getEventNameFromProp(prop));
+
+        function getEventNameFromProp(prop: string) {
+            return prop.substring(2);
+        }
     }
 
     function getPropertyNames(elemProto: Element): string[] {
-        return Array.from(ObjectUtils.getAllPropertyNames(elemProto)).filter(p => !p.startsWith("on"));
+        return Array.from(ObjectUtils.getAllPropertyNames(elemProto)).filter(prop => !isEventName(prop) && !isExcludedProp(prop));
+    }
+
+    function isEventName(prop: string) {
+        return prop.startsWith("on");
+    }
+
+    function isExcludedProp(prop: string) {
+        return EXCLUDED_PROPERTIES.includes(prop as typeof EXCLUDED_PROPERTIES[0]);
     }
 }

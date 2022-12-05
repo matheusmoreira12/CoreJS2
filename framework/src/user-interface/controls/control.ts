@@ -12,7 +12,9 @@ import { ControlChildrenCollection } from "./index.js";
 
 export abstract class Control extends DependencyObject {
     static register(control: ControlConstructor, elementName: string, elementNamespaceURI: string) {
-        __Registry.tryRegister(control, elementName, elementNamespaceURI);
+        if (__Registry.tryRegister(control, elementName, elementNamespaceURI))
+            return;
+        throw new InvalidOperationException("Cannot register control. Control might already be registered.");
     }
 
     constructor() {
@@ -60,6 +62,6 @@ export abstract class Control extends DependencyObject {
     private __domElement?: Element;
 
     get children(): ControlChildrenCollection { return this.get(Control.childrenProperty); }
-    private static __childrenPropertyKey = DependencyProperty.registerReadonly(Control, "children", new PropertyMetadata(Type.get(ControlChildrenCollection)));
+    private static __childrenPropertyKey = DependencyProperty.registerReadonly(Type.get(Control), "children", new PropertyMetadata(Type.get(ControlChildrenCollection)));
     static childrenProperty = Control.__childrenPropertyKey.property;
 }
