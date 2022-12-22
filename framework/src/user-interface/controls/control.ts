@@ -23,7 +23,7 @@ export abstract class Control extends DependencyObject {
             throw new InvalidOperationException("Invalid constructor.");
         if (!__Activator.tryBeginControlInstanceLifecycle(this))
             throw new InvalidOperationException("Cannot begin control instance lifecycle.");
-        this.set(Control.__childrenPropertyKey, new ObservableCollection());
+        this.set(Control.__childrenPropertyKey, new ControlChildrenCollection());
         this.children.ChangeEvent.attach(this.__children_onChange, this);
     }
 
