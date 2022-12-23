@@ -1,6 +1,5 @@
 import { assertParams } from "../../validation/index.js";
 import { InvalidOperationException } from "../exceptions/index.js";
-import { Guid } from "../guids/index.js";
 import { Type } from "../reflection/index.js";
 import { OutputArgument } from "../reflection/types";
 import { DependencyPropertyKey, PropertyMetadata } from "./index.js";
@@ -67,5 +66,5 @@ export class DependencyProperty {
     }
 
     get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid DependencyProperty instance.") })() }
-    __id: Guid | null = null;
+    __id: bigint | null = null;
 }

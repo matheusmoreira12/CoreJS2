@@ -4,10 +4,10 @@ import { DependencyObject, DependencyProperty, DependencyPropertyKey, PropertyCh
 import { ArrayUtils } from "../../core-base/utils/array-utils.js";
 
 export namespace __Storage {
-    const stored: Map<DependencyProperty, PropertyStorageInfo> = new Map();
+    const stored: Map<bigint, PropertyStorageInfo> = new Map();
 
     interface PropertyStorageInfo {
-        storedValues: Map<DependencyObject, StoredValueInfo[]>;
+        storedValues: Map<bigint, StoredValueInfo[]>;
     }
 
     namespace PropertyStorageInfo {
@@ -17,8 +17,8 @@ export namespace __Storage {
     }
 
     interface StoredValueInfo {
-        source: object,
-        value: any
+        source: object;
+        value: any;
     };
 
     namespace StoredValueInfo {
@@ -36,6 +36,9 @@ export namespace __Storage {
                 return false;
             return doTrySetValue(propertyOrPropertyKey);
         }
+        const outProperty: OutputArgument<DependencyProperty> = {};
+        if (!__Registry.tryGetPropertyByPropertyKey(propertyOrPropertyKey, outProperty))
+            return false;
         return doTrySetValue(propertyOrPropertyKey.property);
 
         function doTrySetValue(property: DependencyProperty): boolean {
@@ -77,19 +80,15 @@ export namespace __Storage {
     }
 
     function tryRemoveStoredValue(source: object, target: DependencyObject, property: DependencyProperty): boolean {
-        const outStoredValues: OutputArgument<StoredValueInfo[]> = {};
-        if (!tryGetOrCreateStoredValues(target, property, outStoredValues))
-            return false;
-        ArrayUtils.removeWhere(outStoredValues.value!, v => v.source === source);
+        const storedValues = getOrCreateStoredValues(target, property);
+        ArrayUtils.removeWhere(storedValues, v => v.source === source);
         return true;
     }
 
     function tryAddStoredValue(source: object, target: DependencyObject, property: DependencyProperty, value: any): boolean {
-        const outStoredValues: OutputArgument<StoredValueInfo[]> = {};
-        if (!tryGetOrCreateStoredValues(target, property, outStoredValues))
-            return false;
-        const newSetter = StoredValueInfo.create(source, value);
-        outStoredValues.value!.push(newSetter);
+        const storedValues = getOrCreateStoredValues(target, property);
+        const newStoredValue = StoredValueInfo.create(source, value);
+        storedValues.push(newStoredValue);
         return true;
     }
 
@@ -102,32 +101,27 @@ export namespace __Storage {
         const outMetadata: OutputArgument<PropertyMetadata> = {};
         if (!__Registry.tryGetMetadata(property, outMetadata))
             return false;
-        const outStoredValues: OutputArgument<StoredValueInfo[]> = {};
-        if (!tryGetOrCreateStoredValues(target, property, outStoredValues))
-            return false;
-        const value = ArrayUtils.last(outStoredValues.value!);
-        if (value === undefined) {
-            outValue.value = outMetadata.value!.defaultValue;
-            return true;
-        }
-        outValue.value = value!.value;
+        const storedValues = getOrCreateStoredValues(target, property);
+        outValue.value = ArrayUtils.last(storedValues)?.value ?? outMetadata.value!.defaultValue;
         return true;
     }
 
-    function tryGetOrCreateStoredValues(target: DependencyObject, property: DependencyProperty, outStoredValues: OutputArgument<StoredValueInfo[]>): boolean {
-        const propertyStorage = stored.get(property) ?? createPropertyStorage();
-        outStoredValues.value = propertyStorage.storedValues.get(target) ?? createStoredValues();
-        return true;
+    function getOrCreateStoredValues(target: DependencyObject, property: DependencyProperty): StoredValueInfo[] {
+        const propertyId = property.id;
+        const propertyStorage = stored.has(propertyId) ? stored.get(propertyId)! : createPropertyStorage();
+        const storedValues = propertyStorage.storedValues;
+        const targetId = target.id;
+        return storedValues.has(targetId) ? storedValues.get(targetId)! : createStoredValues();
 
         function createPropertyStorage(): PropertyStorageInfo {
             const propertyStorage = PropertyStorageInfo.create();
-            stored.set(property, propertyStorage);
+            stored.set(propertyId, propertyStorage);
             return propertyStorage;
         }
 
         function createStoredValues(): StoredValueInfo[] {
             const storedValues: StoredValueInfo[] = [];
-            propertyStorage.storedValues.set(target, storedValues)
+            propertyStorage.storedValues.set(targetId, storedValues);
             return storedValues;
         }
     }

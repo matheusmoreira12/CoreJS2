@@ -2,7 +2,6 @@ import { OutputArgument } from "../reflection/types";
 import { InvalidOperationException } from "../exceptions/index.js";
 import { DependencyProperty } from "./index.js";
 import { __Registry } from "./__registry.js";
-import { Guid } from "../guids/index.js";
 
 export class DependencyPropertyKey {
     get property(): DependencyProperty {
@@ -15,5 +14,5 @@ export class DependencyPropertyKey {
     get id() {
         return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid DependencyPropertyKey.") })();
     }
-    __id: Guid | null = null;
+    __id: bigint | null = null;
 }

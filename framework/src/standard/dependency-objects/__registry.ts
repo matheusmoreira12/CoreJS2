@@ -1,18 +1,24 @@
 import { OutputArgument } from "../reflection/types.js";
 import { DependencyProperty, DependencyPropertyKey, PropertyMetadata } from "./index.js";
 import { Type } from "../reflection/index.js";
-import { Guid } from "../guids/guid.js";
+import { IdentifierGenerator } from "../../core-base/index.js";
+import { ArrayUtils, MapUtils } from "../../core-base/utils/index.js";
 
 export namespace __Registry {
     interface RegistryData {
-        id: Guid;
         isDependencyProperty: boolean;
         isDependencyPropertyKey: boolean;
     }
 
     namespace RegistryData {
-        export function tryGet(id: Guid, outData: OutputArgument<RegistryData>) {
-            const data = registeredData.find(d => d.id.equals(id));
+        export function register(data: RegistryData): bigint {
+            const id = idGen.generate();
+            registeredData.set(id, data);
+            return id;
+        }
+
+        export function tryGet(id: bigint, outData: OutputArgument<RegistryData>) {
+            const data = registeredData.get(id);
             if (!data)
                 return false;
             outData.value = data;
@@ -34,7 +40,6 @@ export namespace __Registry {
             return {
                 isDependencyProperty: true,
                 isDependencyPropertyKey: false,
-                id: Guid.create(),
                 name,
                 targetType,
                 metadata,
@@ -43,12 +48,11 @@ export namespace __Registry {
             };
         }
 
-        export function tryRegister(prop: DependencyProperty, data: DependencyPropertyData): boolean {
-            const isAlreadyRegistered = registeredData.some(d => d.isDependencyProperty && nameMatches(d as DependencyPropertyData) && attachmentMatches(d as DependencyPropertyData) && targetTypeMatches(d as DependencyPropertyData));
+        export function tryRegister(prop: DependencyProperty, data: DependencyPropertyData, outId: OutputArgument<bigint>): boolean {
+            const isAlreadyRegistered = ArrayUtils.any(MapUtils.select(registeredData, (_, v) => v), d => d.isDependencyProperty && nameMatches(d as DependencyPropertyData) && attachmentMatches(d as DependencyPropertyData) && targetTypeMatches(d as DependencyPropertyData));
             if (isAlreadyRegistered)
                 return false;
-            prop.__id = data.id;
-            registeredData.push(data);
+            outId.value = prop.__id = RegistryData.register(data);
             return true;
 
             function nameMatches(p: DependencyPropertyData) {
@@ -64,7 +68,7 @@ export namespace __Registry {
             }
         }
 
-        export function tryGetIdByKeyId(keyId: Guid, outId: OutputArgument<Guid>) {
+        export function tryGetPropIdByKeyId(keyId: bigint, outId: OutputArgument<bigint>) {
             const outKeyData: OutputArgument<DependencyPropertyKeyData> = {};
             if (!RegistryData.tryGet(keyId, outKeyData))
                 return false;
@@ -74,7 +78,7 @@ export namespace __Registry {
         }
 
         export function getAllPropIdsForTargetType(targetType: Type) {
-            return registeredData.filter(d => d.isDependencyProperty && targetTypeMatches(d as DependencyPropertyData)).map(d => d.id);
+            return ArrayUtils.select(ArrayUtils.where(MapUtils.select(registeredData, (id, d) => [id, d] as const), ([, d]) => d.isDependencyProperty && targetTypeMatches(d as DependencyPropertyData)), ([k,]) => k);
 
             function targetTypeMatches(p: DependencyPropertyData) {
                 return p.targetType.equals(targetType) || targetType.extends(p.targetType);
@@ -84,25 +88,24 @@ export namespace __Registry {
 
     interface DependencyPropertyKeyData extends RegistryData {
         isDependencyPropertyKey: true;
-        propertyId: Guid;
+        propertyId: bigint;
     }
 
     namespace DependencyPropertyKeyData {
-        export function create(propertyId: Guid): DependencyPropertyKeyData {
+        export function create(propertyId: bigint): DependencyPropertyKeyData {
             return {
                 isDependencyProperty: false,
                 isDependencyPropertyKey: true,
-                id: Guid.create(),
                 propertyId,
             };
         }
 
         export function tryRegister(propKey: DependencyPropertyKey, data: DependencyPropertyKeyData): boolean {
-            const isAlreadyRegistered = registeredData.some(d => d.isDependencyPropertyKey && propIdMatches(d as DependencyPropertyKeyData));
+            const isAlreadyRegistered = ArrayUtils.any(MapUtils.select(registeredData, (_, v) => v), d => d.isDependencyPropertyKey && propIdMatches(d as DependencyPropertyKeyData));
             if (isAlreadyRegistered)
                 return false;
-            propKey.__id = data.id;
-            registeredData.push(data);
+            const id = RegistryData.register(data);
+            propKey.__id = id;
             return true;
 
             function propIdMatches(k: DependencyPropertyKeyData) {
@@ -111,25 +114,28 @@ export namespace __Registry {
         }
     }
 
-    const registeredData: RegistryData[] = [];
+    const idGen = new IdentifierGenerator();
+
+    const registeredData: Map<bigint, RegistryData> = new Map();
 
     export function tryRegisterAttached(targetType: Type, property: DependencyProperty, name: string, metadata: PropertyMetadata): boolean {
         const data = DependencyPropertyData.create(name, targetType, metadata, true, false);
-        return DependencyPropertyData.tryRegister(property, data);
+        return DependencyPropertyData.tryRegister(property, data, {});
     }
 
     export function tryRegisterReadonly(targetType: Type, property: DependencyProperty, name: string, key: DependencyPropertyKey, metadata: PropertyMetadata) {
         const data = DependencyPropertyData.create(name, targetType, metadata, true, true);
-        if (!DependencyPropertyData.tryRegister(property, data))
+        const outPropertyId: OutputArgument<bigint> = {};
+        if (!DependencyPropertyData.tryRegister(property, data, outPropertyId))
             return false;
-        const propertyId = data.id;
+        const propertyId = outPropertyId.value!;
         const keyData = DependencyPropertyKeyData.create(propertyId);
         return DependencyPropertyKeyData.tryRegister(key, keyData);
     }
 
     export function tryRegister(targetType: Type, property: DependencyProperty, name: string, metadata: PropertyMetadata) {
         const data = DependencyPropertyData.create(name, targetType, metadata, false, false);
-        return DependencyPropertyData.tryRegister(property, data);
+        return DependencyPropertyData.tryRegister(property, data, {});
     }
 
     export function tryGetMetadata(property: DependencyProperty, outMetadata: OutputArgument<PropertyMetadata>): boolean {
@@ -157,8 +163,8 @@ export namespace __Registry {
     }
 
     export function tryGetPropertyByPropertyKey(key: DependencyPropertyKey, outProperty: OutputArgument<DependencyProperty>): boolean {
-        const outPropertyId: OutputArgument<Guid> = {};
-        if (!DependencyPropertyData.tryGetIdByKeyId(key.id, outPropertyId))
+        const outPropertyId: OutputArgument<bigint> = {};
+        if (!DependencyPropertyData.tryGetPropIdByKeyId(key.id, outPropertyId))
             return false;
         const id = outPropertyId.value!
         const property = new DependencyProperty();
@@ -168,9 +174,9 @@ export namespace __Registry {
     }
 
     export function getAll(targetType: Type): DependencyProperty[] {
-        return DependencyPropertyData.getAllPropIdsForTargetType(targetType).map(id => createProperty(id));
+        return Array.from(ArrayUtils.select(DependencyPropertyData.getAllPropIdsForTargetType(targetType), id => createProperty(id)));
 
-        function createProperty(id: Guid) {
+        function createProperty(id: bigint) {
             const prop = new DependencyProperty();
             prop.__id = id;
             return prop;

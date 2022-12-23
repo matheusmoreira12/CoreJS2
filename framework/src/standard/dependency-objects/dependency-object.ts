@@ -1,18 +1,20 @@
 import { Destructible } from "../index.js";
 import { FrameworkEvent } from "../events/index.js";
-import { assertParams } from "../../validation/index.js";
 import { DependencyProperty, DependencyPropertyKey, PropertyChangeEventArgs } from "./index.js";
 import { __Storage } from "./__storage.js";
 import { InvalidOperationException } from "../exceptions/index.js";
 import { OutputArgument } from "../reflection/types";
-import { Guid } from "../guids/index.js";
+import { IdentifierGenerator } from "../../core-base/index.js";
+import { assertParams } from "../../validation-standalone/index.js";
+
+const idGen = new IdentifierGenerator();
 
 export abstract class DependencyObject extends Destructible {
     constructor() {
         super();
 
         this.__PropertyChangeEvent = new FrameworkEvent(this.__onPropertyChange, this);
-        this.__id = Guid.create();
+        this.__id = idGen.generate();
     }
 
     protected __onPropertyChange(_sender: any, _args: PropertyChangeEventArgs): void { }
@@ -37,8 +39,8 @@ export abstract class DependencyObject extends Destructible {
     get PropertyChangeEvent(): FrameworkEvent<PropertyChangeEventArgs> { return this.__PropertyChangeEvent; }
     private __PropertyChangeEvent: FrameworkEvent<PropertyChangeEventArgs>;
 
-    get id(): Guid { return this.__id; }
-    private __id: Guid;
+    get id(): bigint { return this.__id; }
+    private __id: bigint;
 
     protected destructor() {
         this.__PropertyChangeEvent.destruct();
