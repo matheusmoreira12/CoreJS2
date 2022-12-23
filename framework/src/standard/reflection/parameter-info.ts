@@ -55,6 +55,6 @@ export class ParameterInfo {
         throw new InvalidOperationException(`Cannot get isOptional.`)
     }
 
-    get id(): Guid { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid ParameterInfo instance.") })() }
-    __id: Guid | null = null;
+    get id(): bigint { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid ParameterInfo instance.") })() }
+    __id: bigint | null = null;
 }

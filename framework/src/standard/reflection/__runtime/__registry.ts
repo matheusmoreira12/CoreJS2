@@ -1,13 +1,14 @@
-import { Guid } from "../../guids/index.js";
 import { ConstructorInfo, MemberInfo, MemberKind, MethodInfo, MethodInfoBase, ParameterInfo, PropertyInfo, Type } from "../index.js";
 import { TypeConstraint } from "../type-constraints/index.js";
-import { __Generator } from "./__generator.js";
 import type { OutputArgument } from "../types.js";
-import { __Parser } from "./__parser.js";
+import { IdentifierGenerator } from "../../../core-base/identifier-generator.js";
+import { __Generator, __Parser } from "./__index.js";
+import { ArrayUtils, MapUtils } from "../../../core-base/utils/index.js";
 
 export module __Registry {
+    const idGen = new IdentifierGenerator();
+
     interface RegistryData {
-        id: Guid;
         isType: boolean;
         isMemberInfo: boolean;
         isConstructorInfo: boolean;
@@ -17,8 +18,14 @@ export module __Registry {
     }
 
     namespace RegistryData {
-        export function tryGet(id: Guid, outData: OutputArgument<RegistryData>): boolean {
-            const data = registeredData.find(d => d.id.equals(id));
+        export function register(data: RegistryData): bigint {
+            const id = idGen.generate();
+            registeredData.set(id, data);
+            return id;
+        }
+
+        export function tryGet(id: bigint, outData: OutputArgument<RegistryData>): boolean {
+            const data = registeredData.get(id);
             if (!data)
                 return false;
             outData.value = data;
@@ -39,7 +46,6 @@ export module __Registry {
     namespace TypeData {
         export function create(name: string, ctor: any): TypeData {
             return {
-                id: Guid.create(),
                 isType: true,
                 isMemberInfo: false,
                 isConstructorInfo: false,
@@ -56,11 +62,11 @@ export module __Registry {
         }
 
         export function tryRegister(type: Type, data: TypeData): boolean {
-            const isAlreadyRegistered = registeredData.some(i => i.isType && ctorMatches(i as TypeData));
+            const isAlreadyRegistered = ArrayUtils.any(MapUtils.select(registeredData, (_, d) => d), d => d.isType && ctorMatches(d as TypeData));
             if (isAlreadyRegistered)
                 return false;
-            type.__id = data.id;
-            registeredData.push(data);
+            const id = RegistryData.register(data);
+            type.__id = id;
             return true;
 
             function ctorMatches(t: TypeData) {
@@ -79,11 +85,11 @@ export module __Registry {
 
     namespace MemberInfoData {
         export function tryRegister(member: MemberInfo, data: MemberInfoData): boolean {
-            const isAlreadyRegistered = registeredData.some(i => i.isMemberInfo && staticityMatches(i as MemberInfoData) && nameMatches(i as MemberInfoData) && declaringTypeMatches(i as MemberInfoData));
+            const isAlreadyRegistered = ArrayUtils.any(MapUtils.select(registeredData, (_, d) => d), d => d.isMemberInfo && staticityMatches(d as MemberInfoData) && nameMatches(d as MemberInfoData) && declaringTypeMatches(d as MemberInfoData));
             if (isAlreadyRegistered)
                 return false;
-            member.__id = data.id;
-            registeredData.push(data);
+            const id = RegistryData.register(data);
+            member.__id = id;
             return true;
 
             function staticityMatches(m: MemberInfoData) {
@@ -96,7 +102,7 @@ export module __Registry {
 
             function declaringTypeMatches(m: MemberInfoData) {
                 return !data.declaringType && !m.declaringType ||
-                    data.declaringType && m.declaringType && m.declaringType.id.equals(data.declaringType.id);
+                    data.declaringType && m.declaringType && m.declaringType.id == data.declaringType.id;
             }
         }
     }
@@ -114,7 +120,6 @@ export module __Registry {
     namespace ConstructorInfoData {
         export function create(declaringType: Type, name: string, body: Function, isStatic: boolean): ConstructorInfoData {
             return {
-                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: true,
@@ -144,7 +149,6 @@ export module __Registry {
     namespace MethodInfoData {
         export function create(declaringType: Type, name: string, returnType: TypeConstraint, body: Function, isStatic: boolean): MethodInfoData {
             return {
-                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: false,
@@ -177,7 +181,6 @@ export module __Registry {
     namespace PropertyInfoData {
         export function create(declaringType: Type, name: string, type: TypeConstraint, isStatic: boolean, getMethod: MethodInfo | null, setMethod: MethodInfo | null): PropertyInfoData {
             return {
-                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: false,
@@ -212,7 +215,6 @@ export module __Registry {
     namespace ParameterInfoData {
         export function create(declaringMethod: MethodInfo, position: number, name: string, parameterKind: number, type: TypeConstraint, isOptional: boolean): ParameterInfoData {
             return {
-                id: Guid.create(),
                 isType: false,
                 isMemberInfo: true,
                 isConstructorInfo: false,
@@ -229,15 +231,15 @@ export module __Registry {
         }
 
         export function tryRegister(param: ParameterInfo, data: ParameterInfoData): boolean {
-            const isAlreadyRegistered = registeredData.some(i => i.isMemberInfo && nameMatches(i as ParameterInfoData) && declaringMethodMatches(i as ParameterInfoData));
+            const isAlreadyRegistered = ArrayUtils.any(MapUtils.select(registeredData, (_, d) => d), d => d.isMemberInfo && nameMatches(d as ParameterInfoData) && declaringMethodMatches(d as ParameterInfoData));
             if (isAlreadyRegistered)
                 return false;
-            param.__id = data.id;
-            registeredData.push(data);
+            const id = RegistryData.register(data);
+            param.__id = id;
             return true;
 
             function declaringMethodMatches(m: ParameterInfoData) {
-                return m.declaringMethod.id.equals(data.declaringMethod.id);
+                return m.declaringMethod.id == data.declaringMethod.id;
             }
 
             function nameMatches(m: ParameterInfoData) {
@@ -246,7 +248,7 @@ export module __Registry {
         }
     }
 
-    const registeredData: RegistryData[] = [];
+    const registeredData: Map<bigint, RegistryData> = new Map();
 
     export function tryRegisterConstructor(constructor: ConstructorInfo, declaringType: Type, body: Function, isStatic: boolean): boolean {
         const data = ConstructorInfoData.create(declaringType, "constructor", body, isStatic);
@@ -280,11 +282,11 @@ export module __Registry {
         return tryFind() || tryCreate();
 
         function tryFind() {
-            const data = registeredData.find(d => d.isType && ctorMatches(d as TypeData));
-            if (!data)
+            const typeId = ArrayUtils.first(MapUtils.keysWhere(registeredData, (_, d) => d.isType && ctorMatches(d as TypeData)));
+            if (!typeId)
                 return false;
             const type = new Type();
-            type.__id = (data as TypeData).id;
+            type.__id = typeId;
             outType.value = type;
             return true;
 
@@ -308,11 +310,11 @@ export module __Registry {
         return tryFind() || tryCreate();
 
         function tryFind() {
-            const typeData = registeredData.find(d => d.isType && ctorMatches(d as TypeData)) as TypeData | undefined;
-            if (!typeData)
+            const typeId = ArrayUtils.first(MapUtils.keysWhere(registeredData, (_, d) => d.isType && ctorMatches(d as TypeData)));
+            if (!typeId)
                 return false;
             const type = new Type();
-            type.__id = (typeData as TypeData).id;
+            type.__id = typeId;
             outType.value = type;
             return true;
 

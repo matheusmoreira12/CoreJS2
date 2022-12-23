@@ -1,6 +1,5 @@
 import { assert } from "../../validation-standalone/index.js";
 import { InvalidOperationException } from "../exceptions/index.js";
-import { Guid } from "../guids/index.js";
 import { Type } from "./index.js";
 import { OutputArgument } from "./types.js";
 import { __Registry } from "./__runtime/__registry.js";
@@ -40,6 +39,6 @@ export class MemberInfo {
         throw new InvalidOperationException(`Cannot get isStatic.`)
     }
 
-    get id() { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid MemberInfo instance.") })() }
-    __id: Guid | null = null;
+    get id(): bigint { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid MemberInfo instance.") })() }
+    __id: bigint | null = null;
 }

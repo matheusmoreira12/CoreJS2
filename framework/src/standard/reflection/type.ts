@@ -7,7 +7,6 @@ import { PropertyInfo } from "./property-info.js";
 import { OutputArgument, TypeMatchingConstraint } from "./types";
 import { TypeConstraint, TypeConstraintKind } from "./type-constraints/index.js";
 import { ArrayUtils } from "../../core-base/utils/index.js";
-import { Guid } from "../guids/index.js";
 import { __Registry } from "./__runtime/__registry.js";
 
 export class Type {
@@ -99,7 +98,7 @@ export class Type {
     equals(other: Type): boolean {
         assertParams({ other }, [Type]);
 
-        return this.id.equals(other.id);
+        return this.id == other.id;
     }
 
     extends(other: Type): boolean {
@@ -168,6 +167,6 @@ export class Type {
         throw new InvalidOperationException(`Cannot get name.`)
     }
 
-    get id(): Guid { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid Type instance.") })() }
-    __id: Guid | null = null;
+    get id(): bigint { return this.__id ?? (() => { throw new InvalidOperationException("Cannot get id. Invalid Type instance.") })() }
+    __id: bigint | null = null;
 }

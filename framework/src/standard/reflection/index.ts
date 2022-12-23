@@ -1,3 +1,5 @@
+import "./__runtime/__index.js";
+
 export * from "./member-selection-options.js"
 export * from "./metadata/index.js";
 export * from "./member-kind.js"

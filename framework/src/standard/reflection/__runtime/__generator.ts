@@ -2,9 +2,7 @@ import { ArrayUtils, ObjectUtils } from "../../../core-base/utils/index.js";
 import { ConstructorInfo, MemberInfo, MethodInfo, PropertyInfo, Type } from "../index.js";
 import { AnyConstraint } from "../type-constraints/index.js";
 import { OutputArgument } from "../types.js";
-import { __Factory } from "./__factory.js";
-import { __Parser } from "./__parser.js";
-import { __Registry } from "./__registry.js";
+import { __Factory, __Parser, __Registry } from "./__index.js";
 
 export module __Generator {
     export function tryCreateAllTypeMembers(declaringType: Type, ctor: Function | null | undefined, outMembers: OutputArgument<MemberInfo[]>) {
