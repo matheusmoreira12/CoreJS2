@@ -52,8 +52,7 @@ export class Timer extends Destructible {
     get TickEvent(): FrameworkEvent { return this.__TickEvent; }
     private __TickEvent: FrameworkEvent;
 
-    destructor() {
+    protected override _destructor() {
         this.__stop();
-        this.TickEvent.destruct();
     }
 }

@@ -13,5 +13,5 @@ export abstract class Trigger extends DependencyObject {
         super();
     }
 
-    protected abstract destructor(): void;
+    protected abstract _destructor(): void;
 }

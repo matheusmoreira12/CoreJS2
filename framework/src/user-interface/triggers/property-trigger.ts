@@ -40,9 +40,7 @@ export class PropertyTrigger extends Trigger {
     static settersProperty = PropertyTrigger.__settersPropertyKey.property;
     get setters(): Collection<Setter> { return this.get(PropertyTrigger.settersProperty); }
 
-    protected destructor() {
+    protected override _destructor() {
         this.setters.clear();
-
-        super.destruct();
     }
 }

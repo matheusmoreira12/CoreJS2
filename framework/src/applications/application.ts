@@ -48,12 +48,9 @@ export abstract class Application extends DependencyObject {
     get isInitialized(): boolean { return this.__isInitialized; }
     private __isInitialized: boolean = false;
 
-    protected destructor() {
+    protected override _destructor() {
         if (this.isInitialized)
             this.finalize();
-
-        if (!this.resources.isDestructed)
-            this.resources.destruct();
     }
 
     static __resourcesPropertyKey = DependencyProperty.registerReadonly(Type.get(Application), "resources", new PropertyMetadata(Type.get(ResourceDictionary)));

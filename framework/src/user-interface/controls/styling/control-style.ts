@@ -20,7 +20,7 @@ export class ControlStyle extends DependencyObject {
         styleSheet?.insertRule(`#control-${this.__targetControl!.uniqueId}`);
         const styleRule = styleSheet?.cssRules[0];
         const styleDeclaration = (styleRule as CSSStyleRule).style;
-        this.__styleElement = styleElement;        
+        this.__styleElement = styleElement;
         this.__styleDeclaration = styleDeclaration;
     }
 
@@ -1893,9 +1893,7 @@ export class ControlStyle extends DependencyObject {
 
     private __targetControl: Control | null;
 
-    protected destructor() {
-        this.__styleDeclaration = null;
+    protected override _destructor() {
         this.__styleElement?.remove();
-        this.__targetControl = null;
     }
 }

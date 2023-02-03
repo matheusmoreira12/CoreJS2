@@ -25,7 +25,7 @@ export class DeferredTask<TArgs extends any[] = undefined[]> extends Destructibl
     private __taskCallback: Function;
     private __immediateHandle: number = -1;
 
-    destructor() {
+    protected override _destructor() {
         this.__cancel();
     }
 }

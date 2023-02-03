@@ -33,7 +33,7 @@ export class FrameworkCustomEvent<TArgs extends FrameworkEventArgs> extends Fram
     get eventName(): string { return this.__eventName; }
     private __eventName: string;
 
-    destructor() {
+    protected override _destructor() {
         this.__target.removeEventListener(this.__eventName, this.__target_customEvent_handler);
     }
 }

@@ -13,8 +13,8 @@ export class PeriodicUpdater extends Destructible {
         super();
     }
 
-    protected destructor(): void {
-        
+    protected override _destructor(): void {
+
     }
 }
 

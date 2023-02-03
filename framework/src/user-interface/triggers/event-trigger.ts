@@ -53,9 +53,7 @@ export class EventTrigger extends Trigger {
     static actionsProperty: DependencyProperty = EventTrigger.__actionsPropertyKey.property;
     get actions(): Collection<Action> { return this.get(EventTrigger.actionsProperty); }
 
-    protected destructor() {
+    protected override _destructor() {
         this.actions.clear();
-
-        super.destruct();
     }
 }

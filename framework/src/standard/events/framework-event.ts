@@ -90,7 +90,7 @@ export class FrameworkEvent<TArgs extends FrameworkEventArgs = FrameworkEventArg
 
     __listeners = new Dictionary<FrameworkEventListener<TArgs> | FrameworkEvent<TArgs>, FrameworkEventListenerData>();
 
-    destructor() {
+    protected override _destructor() {
         this.__detachAll();
     }
 }

@@ -31,7 +31,7 @@ export class NativeEvent extends FrameworkEvent<NativeEventArgs> {
     get defaultListener() { return this.__defaultListener; }
     private __defaultListener: NativeEventListener | undefined;
 
-    destructor() {
+    protected override _destructor() {
         this.__target.removeEventListener(this.__nativeEventName, this.__target_nativeEvent_handler);
     }
 }

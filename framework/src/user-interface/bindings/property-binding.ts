@@ -81,7 +81,7 @@ export class PropertyBinding extends Binding {
 
     get source(): DependencyObject { return this.__source; }
     private __source: DependencyObject;
- 
+
     get sourceProperty(): DependencyProperty { return this.__sourceProperty; }
     private __sourceProperty: DependencyProperty;
 
@@ -90,9 +90,4 @@ export class PropertyBinding extends Binding {
 
     get targetProperty(): DependencyProperty { return this.__targetProperty; }
     private __targetProperty: DependencyProperty;
-
-    protected destructor(): void {
-        this.__source_PropertyChangeEvent.destruct();
-        this.__target_PropertyChangeEvent.destruct();
-    }
 }

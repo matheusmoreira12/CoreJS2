@@ -1,4 +1,5 @@
 import { ObjectUtils } from "../core-base/utils/index.js";
+import { assert } from "../validation-standalone/index.js";
 import { InvalidOperationException } from "./exceptions/index.js";
 
 const allDestructibles: Destructible[] = [];
@@ -11,7 +12,7 @@ export abstract class Destructible {
         allDestructibles.push(this);
     }
 
-    protected abstract destructor(): void;
+    protected _destructor(): void { }
 
     destruct() {
         if (this.__isDestructed)
@@ -28,11 +29,11 @@ export abstract class Destructible {
 }
 
 function callDestructorsRecursively(self: Destructible) {
-    while (self) {
-        const proto = Object.getPrototypeOf(self);
-        if (proto instanceof Destructible)
-            proto["destructor"].call(self);
-        self = proto;
+    for (let proto of ObjectUtils.getPrototypeTree(self)) {
+        if (proto instanceof Destructible) {
+            assert({ "self._destructor": self["_destructor"] }, [Function]);
+            proto["_destructor"].call(self);
+        }
     }
 }
 
@@ -56,5 +57,3 @@ function window_beforeunload() {
             destructible.destruct();
     }
 }
-
-window.allDestructibles = allDestructibles;

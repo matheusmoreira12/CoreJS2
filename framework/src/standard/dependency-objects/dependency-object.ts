@@ -41,8 +41,4 @@ export abstract class DependencyObject extends Destructible {
 
     get id(): bigint { return this.__id; }
     private __id: bigint;
-
-    protected destructor() {
-        this.__PropertyChangeEvent.destruct();
-    }
 }

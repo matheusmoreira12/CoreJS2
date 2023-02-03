@@ -111,8 +111,7 @@ export class PropertyAttributeBinding extends Binding {
     get targetAttributeNamespace(): string | null { return this.__targetAttributeNamespace; }
     private __targetAttributeNamespace: string | null;
 
-    protected destructor(): void {
-        this.__source_PropertyChangeEvent.destruct();
+    protected override _destructor(): void {
         this.__targetElement_attributeMutationObserver.disconnect();
     }
 }

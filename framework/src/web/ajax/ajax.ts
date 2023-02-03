@@ -203,7 +203,7 @@ export class Ajax extends Destructible {
     get loaded(): Promise<Response> { return this.__loaded; }
     private __loaded: Promise<Response>;
 
-    protected destructor() {
+    protected override _destructor() {
         if (this.__xhr.status == 0)
             this.__xhr.abort();
 
@@ -215,22 +215,5 @@ export class Ajax extends Destructible {
         this.__xhr.removeEventListener("progress", this.__request_onprogress_handler);
         this.__xhr.removeEventListener("readystatechange", this.__request_onReadyStateChange_handler);
         this.__xhr.addEventListener("timeout", this.__request_ontimeout_handler);
-
-        if (!this.AbortEvent.isDestructed)
-            this.AbortEvent.destruct();
-        if (!this.ErrorEvent.isDestructed)
-            this.ErrorEvent.destruct();
-        if (!this.LoadEvent.isDestructed)
-            this.LoadEvent.destruct();
-        if (!this.LoadEndEvent.isDestructed)
-            this.LoadEndEvent.destruct();
-        if (!this.LoadStartEvent.isDestructed)
-            this.LoadStartEvent.destruct();
-        if (!this.ProgressEvent.isDestructed)
-            this.ProgressEvent.destruct();
-        if (!this.ReadyStateChangeEvent.isDestructed)
-            this.ReadyStateChangeEvent.destruct();
-        if (!this.TimeoutEvent.isDestructed)
-            this.TimeoutEvent.destruct();
     }
 };
