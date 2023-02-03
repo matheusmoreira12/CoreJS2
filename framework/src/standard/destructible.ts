@@ -16,8 +16,14 @@ export abstract class Destructible {
 }
 
 function destructAlive() {
-    for (let destructible of aliveDestructibles)
-        callDestructorsRecursively(destructible);
+    for (let destructible of aliveDestructibles) {
+        try {
+            callDestructorsRecursively(destructible);
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
 
     for (let destructible of aliveDestructibles)
         destructProperties(destructible);
