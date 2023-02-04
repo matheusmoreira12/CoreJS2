@@ -1,12 +1,10 @@
-﻿import { WebColors } from "./index.js";
-import { ArgumentOutOfRangeException, InvalidOperationException } from "../../standard/exceptions/index.js";
+﻿import { InvalidOperationException } from "../../standard/exceptions/index.js";
 import { ColorRGBA } from "./index.js";
 import { ColorRGB } from "./index.js";
 import { ColorHSL } from "./index.js";
 import { ColorHSLA } from "./index.js";
 
-import { OutputArgument } from "../../standard/reflection/types.js";
-import { BlendMode, BlendModes } from "./blending/index.js";
+import { BlendMode } from "./blending/index.js";
 import { assertParams } from "../../validation/index.js";
 import _ColorConversion from "./_color-conversion.js";
 
@@ -17,24 +15,26 @@ export abstract class Color extends Number {
     }
 
     static fromRGBHex(value: number): ColorRGB {
-        const { r, g, b } = _ColorConversion.convertToRGB(value);
+        const valueRGBA = (value << 8) | 0xFF;
+        const { r, g, b } = _ColorConversion.convertToRGBA(valueRGBA);
         return new ColorRGB(r, g, b);
     }
 
-    static fromShortenedRGBHex(value: number): ColorRGBA {
-        const valueHex = (value & 0xF) * 0x11 | // Opacity channel
+    static fromShortenedRGBAHex(value: number): ColorRGBA {
+        const valueFull = (value & 0xF) * 0x11 | // Opacity channel
             ((value & 0xF0) >> 4) * 0x1100 | // Blue channel
             ((value & 0xF00) >> 8) * 0x110000 | // Green channel
             ((value & 0xF000) >> 12) * 0x11000000; // Red channel
-        const { r, g, b, a } = _ColorConversion.convertToRGBA(valueHex);
+        const { r, g, b, a } = _ColorConversion.convertToRGBA(valueFull);
         return new ColorRGBA(r, g, b, a);
     }
 
-    static fromShortenedRGBAHex(value: number): ColorRGB {
-        const valueHex = (value & 0xF) * 0x11 | // Blue channel
-            ((value & 0xF0) >> 4) * 0x1100 | // Green channel
-            ((value & 0xF00) >> 8) * 0x110000; // Red channel
-        const { r, g, b } = _ColorConversion.convertToRGB(valueHex);
+    static fromShortenedRGBHex(value: number): ColorRGB {
+        const valueFullRGBA = 0xFF | // Opacity channel
+            (value & 0xF) * 0x1100 | // Blue channel
+            ((value & 0xF0) >> 4) * 0x110000 | // Green channel
+            ((value & 0xF00) >> 8) * 0x11000000; // Red channel
+        const { r, g, b } = _ColorConversion.convertToRGBA(valueFullRGBA);
         return new ColorRGB(r, g, b);
     }
 
@@ -46,21 +46,18 @@ export abstract class Color extends Number {
     }
 
     toRGBA(): ColorRGBA {
-        const value = Number(this);
-        const { r, g, b, a } = _ColorConversion.convertToRGBA(value);
+        const { r, g, b, a } = _ColorConversion.convertToRGBA(Number(this));
         return new ColorRGBA(r, g, b, a);
     }
 
     toRGB(): ColorRGB {
-        const value = Number(this);
-        const { r, g, b } = _ColorConversion.convertToRGB(value);
+        const { r, g, b } = _ColorConversion.convertToRGBA(Number(this));
         return new ColorRGB(r, g, b);
     }
 
     toHSL(): ColorHSL {
-        const value = Number(this);
-        const rgb = _ColorConversion.convertToRGB(value);
-        const { h, s, l } = _ColorConversion.convertRGBtoHSL(rgb.r, rgb.g, rgb.b);
+        const { r, g, b } = _ColorConversion.convertToRGBA(Number(this));
+        const { h, s, l } = _ColorConversion.convertRGBtoHSL(r, g, b);
         return new ColorHSL(h, s, l);
     }
 
@@ -72,8 +69,8 @@ export abstract class Color extends Number {
     }
 
     blend(foreground: Color, blendMode: BlendMode): Color {
-        //assertParams(foreground, [Color]);
-        //assertParams(blendMode, [BlendMode]);
+        assertParams(foreground, [Color]);
+        assertParams(blendMode, [BlendMode]);
 
         return blendMode.blend(this, foreground);
     }
@@ -81,17 +78,23 @@ export abstract class Color extends Number {
     changeAlpha(newAlpha: number): ColorRGBA {
         assertParams({ newAlpha }, [Number]);
 
-        const rgb = _ColorConversion.convertToRGB(Number(this));
-        return new ColorRGBA(rgb.r, rgb.g, rgb.b, newAlpha);
+        const { r, g, b } = _ColorConversion.convertToRGBA(Number(this));
+        return new ColorRGBA(r, g, b, newAlpha);
     }
 
-    lighten(amount: number = .5): Color {
-        const foreground = WebColors.White.changeAlpha(amount);
-        return this.blend(foreground, BlendModes.Normal);
+    lighten(amount: number = .5): ColorRGBA {
+        const { r, g, b, a } = _ColorConversion.convertToRGBA(Number(this));
+        return new ColorRGBA(r * (1 - amount) + amount,
+            g * (1 - amount) + amount,
+            b * (1 - amount) + amount,
+            a);
     }
 
-    darken(amount: number = .5): Color {
-        const foreground = WebColors.Black.changeAlpha(amount);
-        return this.blend(foreground, BlendModes.Normal);
+    darken(amount: number = .5): ColorRGBA {
+        const { r, g, b, a } = _ColorConversion.convertToRGBA(Number(this));
+        return new ColorRGBA(r * (1 - amount),
+            g * (1 - amount),
+            b * (1 - amount),
+            a);
     }
 }

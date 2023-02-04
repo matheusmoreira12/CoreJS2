@@ -16,8 +16,8 @@ export class SeparableBlendMode extends BlendMode {
     public blend(cb: Color, cs: Color): Color {
         assertParams({ cb, cs }, [Color]);
 
-        const cbRGB = _ColorConversion.convertToRGB(Number(cb)), //Convert base color to RGB
-            csRGB = _ColorConversion.convertToRGB(Number(cs)); //Convert source color to RGB
+        const cbRGB = _ColorConversion.convertToRGBA(Number(cb)), //Convert base color to RGB
+            csRGB = _ColorConversion.convertToRGBA(Number(cs)); //Convert source color to RGB
         return new ColorRGB(this.b(cbRGB.r, csRGB.r), // Blend red channel
             this.b(cbRGB.g, csRGB.g), // Blend green channel
             this.b(cbRGB.b, csRGB.b)); // Blend blue channel

@@ -13,11 +13,6 @@ const _ColorConversion = {
         };
     },
 
-    convertToRGB(value: number): { r: number, g: number, b: number } {
-        const { a, ...rgb } = this.convertToRGBA(value);
-        return rgb;
-    },
-
     convertFromRGBA(r: number, g: number, b: number, a: number): number {
         const byteR = Math.round(r * 255),
             byteG = Math.round(g * 255),
@@ -25,10 +20,6 @@ const _ColorConversion = {
             byteA = Math.round(a * 255);
 
         return Number(BigInt(byteR) << 24n | BigInt(byteG) << 16n | BigInt(byteB) << 8n | BigInt(byteA));
-    },
-
-    convertFromRGB(r: number, g: number, b: number): number {
-        return this.convertFromRGBA(r, g, b, 1);
     },
 
     convertRGBtoHSL(r: number, g: number, b: number): { h: number, s: number, l: number } {
