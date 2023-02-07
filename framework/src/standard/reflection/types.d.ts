@@ -6,7 +6,7 @@ export type Primitive = null | undefined | boolean | number | string | bigint | 
 
 type PrimitiveOrComplex = Primitive | object;
 
-export type Method<TArgs extends any[] = [], TResult = void, TThisArg = void> = (this: TThisArg, ...args: TArgs) => TResult;
+export type Method<TArgs extends any[] = [], TResult = void, TThisArg = undefined> = (this: TThisArg, ...args: TArgs) => TResult;
 
 type GenericClass<TInstance = any> = { "constructor": Function, "prototype": TInstance };
 
