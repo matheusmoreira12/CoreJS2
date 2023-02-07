@@ -26,22 +26,24 @@ export class DeferredTask<TArgs extends unknown[] = [], TResult extends unknown 
         this.#immediateHandle = setTimeout(() => {
             const result = this.#taskCallback.apply(undefined, this.#args!);
             this.#promiseResolve!(result);
+            this.#clearState();
         }, 0);
     }
 
     abort() {
         if (!this.#isTriggered)
             return;
-        this.#doAbort();
+        this.#promiseReject!(null);
+        this.#clearState();
+    }
+
+    #clearState() {
+        clearTimeout(this.#immediateHandle!);
+        this.#immediateHandle = null;
         this.#promiseReject = null;
         this.#promiseResolve = null;
         this.#args = null;
         this.#isTriggered = false;
-    }
-
-    #doAbort() {
-        clearTimeout(this.#immediateHandle!);
-        this.#promiseReject!(null);
     }
 
     #taskCallback: Method<TArgs, TResult>;
