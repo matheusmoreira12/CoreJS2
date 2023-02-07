@@ -78,7 +78,7 @@ export class Type {
         return this.getMember(name, MemberSelectionOptions.Methods | o) as MethodInfo | null;
     }
 
-    getContructor(options: number = MemberSelectionOptions.Any, name: string): ConstructorInfo | null {
+    getConstructor(options: number = MemberSelectionOptions.Any, name: string): ConstructorInfo | null {
         const o = options// & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
         return this.getMember(name, MemberSelectionOptions.Constructor | o) as ConstructorInfo | null;
     }
