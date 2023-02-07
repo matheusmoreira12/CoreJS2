@@ -49,7 +49,9 @@ export namespace __Storage {
                 return false;
             if (!tryAddStoredValue(source, target, property, value))
                 return false;
-            notifyValueChange(source, target, property, outOldValue.value!, value);
+            const oldValue = outOldValue.value!;
+            if (value !== oldValue)
+                notifyValueChange(source, target, property, oldValue, value);
             return true;
         }
     }
@@ -74,7 +76,10 @@ export namespace __Storage {
             const outNewValue: OutputArgument<any> = {};
             if (!tryGetValue(target, property, outNewValue))
                 return false;
-            notifyValueChange(source, target, property, outNewValue.value!, outNewValue.value!);
+            const oldValue = outOldValue.value!;
+            const newValue = outNewValue.value!;
+            if (newValue !== oldValue)
+                notifyValueChange(source, target, property, oldValue, newValue);
             return true;
         }
     }
