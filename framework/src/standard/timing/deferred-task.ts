@@ -23,7 +23,7 @@ export class DeferredTask<TArgs extends unknown[] = [], TResult extends unknown 
     }
 
     #doTrigger() {
-        this.#immediateHandle = setTimeout(() => {
+        this.#timeoutHandle = setTimeout(() => {
             const result = this.#taskCallback.apply(undefined, this.#args!);
             this.#promiseResolve!(result);
             this.#clearState();
@@ -38,8 +38,8 @@ export class DeferredTask<TArgs extends unknown[] = [], TResult extends unknown 
     }
 
     #clearState() {
-        clearTimeout(this.#immediateHandle!);
-        this.#immediateHandle = null;
+        clearTimeout(this.#timeoutHandle!);
+        this.#timeoutHandle = -1;
         this.#promiseReject = null;
         this.#promiseResolve = null;
         this.#args = null;
@@ -50,7 +50,7 @@ export class DeferredTask<TArgs extends unknown[] = [], TResult extends unknown 
     #promiseReject: ((reason?: any) => void) | null = null;
     #promiseResolve: ((result: TResult | PromiseLike<TResult>) => void) | null = null;
     #args: TArgs | null = null;
-    #immediateHandle: number | null = 0;
+    #timeoutHandle: number = -1;
 
     get isTriggered() { return this.#isTriggered; }
     #isTriggered: boolean = false;
