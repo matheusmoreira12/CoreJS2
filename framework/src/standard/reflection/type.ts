@@ -52,8 +52,8 @@ export class Type {
 
             function staticityMatches(m: MemberInfo) {
                 const isStatic = m.isStatic;
-                return !(isStatic && Enumeration.contains(MemberSelectionOptions.InstanceOnly, options) ||
-                    !isStatic && Enumeration.contains(MemberSelectionOptions.StaticOnly, options));
+                return isStatic && !Enumeration.contains(MemberSelectionOptions.InstanceOnly, options) ||
+                    !isStatic && !Enumeration.contains(MemberSelectionOptions.StaticOnly, options);
             }
 
             function kindMatches(m: MemberInfo) {
