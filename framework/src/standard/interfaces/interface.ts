@@ -39,17 +39,11 @@ export class Interface {
                     return InterfaceDifferenceKind.Missing;
                 if (typeMember.memberKind != interfaceMember.memberType)
                     return InterfaceDifferenceKind.Invalid;
-                    if ((interfaceMember as InterfaceField).type !== null) {
-                        if (typeMember.memberKind === MemberKind.Field) {
-                            const typeMatches = (typeMember as FieldInfo).type.matches((interfaceMember as InterfaceField).type!);
-                            if (!typeMatches)
-                                return InterfaceDifferenceKind.InvalidFieldType;
-                        }
-                    }
+                /// TODO: Compare property type
                 return InterfaceDifferenceKind.None;
             }
 
-            let typeMembers = [...type.getMembers(MemberSelectionOptions.InstanceOnly)];
+            let typeMembers = [...type.getMembers(MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.Methods | MemberSelectionOptions.Properties)];
             for (let interfaceMember of _interface.members) {
                 let typeMember = typeMembers.find(m => m.name === interfaceMember.name);
 
