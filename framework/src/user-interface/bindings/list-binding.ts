@@ -9,8 +9,10 @@ import { BindingDirection } from "./index.js";
 export class ListBinding {
     constructor(direction: number = BindingDirection.Both, source: DependencyObject, sourceListProperty: DependencyProperty, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, converter: IMultiConverter) {
         assertParams({ direction }, [Number]);
-        assertParams({ source, target }, [DependencyObject]);
+        assertParams({ source }, [DependencyObject]);
         assertParams({ sourceListProperty, sourceProperty }, [DependencyProperty]);
+        assertParams({ target }, [DependencyObject]);
+        assertParams({ targetProperty }, [DependencyProperty]);
         assertParams({ converter }, [IMultiConverter]);
 
         this.#direction = direction;
