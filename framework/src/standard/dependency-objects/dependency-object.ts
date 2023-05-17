@@ -33,7 +33,7 @@ export abstract class DependencyObject extends Destructible {
 
         if (__Storage.trySetValue(this, this, propertyOrPropertyKey, value))
             return;
-        throw new InvalidOperationException("Cannot set value.");
+        throw new InvalidOperationException("Cannot set value. Property is readonly or the value type is incorrect.");
     }
 
     get PropertyChangeEvent(): FrameworkEvent<PropertyChangeEventArgs> { return this.__PropertyChangeEvent; }

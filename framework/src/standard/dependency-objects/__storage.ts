@@ -2,6 +2,7 @@ import { __Registry } from "./__registry.js";
 import { OutputArgument } from "../reflection/types";
 import { DependencyObject, DependencyProperty, DependencyPropertyKey, PropertyChangeEventArgs, PropertyMetadata } from "./index.js";
 import { ArrayUtils } from "../../core-base/utils/array-utils.js";
+import { Type } from "../reflection/index.js";
 
 export namespace __Storage {
     const stored: Map<bigint, PropertyStorageInfo> = new Map();
@@ -42,6 +43,14 @@ export namespace __Storage {
         return doTrySetValue(propertyOrPropertyKey.property);
 
         function doTrySetValue(property: DependencyProperty): boolean {
+            const outMetadata: OutputArgument<PropertyMetadata> = {};
+            if (!__Registry.tryGetMetadata(property, outMetadata))
+                return false;
+            const valueType = outMetadata.value?.valueType;
+            if (valueType !== null &&
+                valueType !== undefined &&
+                !Type.of(value).matches(valueType))
+                return false;
             const outOldValue: OutputArgument<any> = {};
             if (!tryGetValue(target, property, outOldValue))
                 return false;
