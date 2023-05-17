@@ -1,0 +1,84 @@
+<body>
+    <script type="module">
+        import { Application } from "../../framework/dist/applications/index.js";
+        import { DeferredTask } from "../../framework/dist/standard/timing/index.js";
+        import { ObservableCollection, ObservableCollectionChangeAction } from "../../framework/dist/standard/collections/index.js";
+        import { Type } from "../../framework/dist/standard/reflection/index.js";
+        import { DependencyObject, DependencyProperty, PropertyMetadata } from "../../framework/dist/standard/dependency-objects/index.js";
+        import { ListBinding, BindingDirection } from "../../framework/dist/user-interface/bindings/index.js";
+
+        class TestApplication extends Application {
+            initializer() {
+                console.log("init");
+            }
+
+            finalizer() {
+                console.log("fin");
+            }
+        }
+
+        const testApplication = new TestApplication();
+
+        class DataContext extends DependencyObject {
+            derive(contextType, connectCallback = null) {
+                const ctor = contextType.getConstructor();
+                const child = new ctor.body();
+                child.#parent = this;
+                if (connectCallback !== null)
+                    connectCallback(this, child);
+                return child;
+            }
+
+            get parent() { return this.#parent; }
+            #parent = null;
+        }
+
+        class ParcelamentoContext extends DataContext {
+            constructor() {
+                super();
+
+                this.set(ParcelamentoContext.#parcelasPropertyKey, new ObservableCollection());
+            }
+
+            static totalProperty = DependencyProperty.registerAttached(Type.get(ParcelamentoContext), "total", new PropertyMetadata(Type.get(Number), 0));
+            get total() { return this.get(ParcelamentoContext.totalProperty); }
+            set total(value) { return this.set(ParcelamentoContext.totalProperty, value); }
+
+            static #parcelasPropertyKey = DependencyProperty.registerReadonly(Type.get(ParcelamentoContext), "parcelas", new PropertyMetadata(Type.get(ObservableCollection)));
+            static parcelasProperty = ParcelamentoContext.#parcelasPropertyKey.property;
+            get parcelas() { return this.get(ParcelamentoContext.parcelasProperty); }
+        }
+
+        class ParcelaContext extends DataContext {
+            static valorProperty = DependencyProperty.registerAttached(Type.get(ParcelaContext), "valor", new PropertyMetadata(Type.get(Number), 0));
+            get valor() { return this.get(ParcelaContext.valorProperty); }
+            set valor(value) { return this.set(ParcelaContext.valorProperty, value); }
+        }
+
+        class SumConverter {
+            convert(values) {
+                return values.reduce((a, b) => a + b, 0);
+            }
+
+            convertBack(value) {
+                throw new Error();
+            }
+        }
+
+        const parcelamentoContext = new ParcelamentoContext();
+
+        function* generateParcelaConstexts() {
+            for (let i = 0; i < 12; i++) {
+                const parcelaContext = parcelamentoContext.derive(Type.get(ParcelaContext));
+                parcelaContext.valor = 10;
+                yield parcelaContext;
+            }
+        }
+
+        parcelamentoContext.parcelas.addRange(generateParcelaConstexts());
+
+        const parcelamentoParcelaSumBinding = new ListBinding(BindingDirection.ToTarget, parcelamentoContext, ParcelamentoContext.parcelasProperty, ParcelaContext.valorProperty, parcelamentoContext, ParcelamentoContext.totalProperty, new SumConverter());
+
+        window.parcelamentoContext = parcelamentoContext;
+    </script>
+</body>
