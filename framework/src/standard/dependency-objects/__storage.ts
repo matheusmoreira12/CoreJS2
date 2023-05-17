@@ -46,9 +46,8 @@ export namespace __Storage {
             const outMetadata: OutputArgument<PropertyMetadata> = {};
             if (!__Registry.tryGetMetadata(property, outMetadata))
                 return false;
-            const valueType = outMetadata.value?.valueType;
+            const valueType = outMetadata.value!.valueType;
             if (valueType !== null &&
-                valueType !== undefined &&
                 !Type.of(value).matches(valueType))
                 return false;
             const outOldValue: OutputArgument<any> = {};
