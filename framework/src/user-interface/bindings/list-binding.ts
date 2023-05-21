@@ -91,7 +91,7 @@ export class ListBinding {
     #updateTarget = () => {
         const sourceList = this.#sourceList;
         const inputValues = sourceList.map(item => item.get(this.#sourceProperty));
-        const outputValue = this.transformer.convert(inputValues);
+        const outputValue = this.converter.convert(inputValues);
         this.target.set(this.targetProperty, outputValue);
     }
 
@@ -139,7 +139,7 @@ export class ListBinding {
     get targetProperty(): DependencyProperty { return this.#targetProperty; }
     #targetProperty: DependencyProperty;
 
-    get transformer(): IMultiConverter { return this.#converter; }
+    get converter(): IMultiConverter { return this.#converter; }
     #converter: IMultiConverter;
 
     #updateTarget_deferredTask = new DeferredTask(this.#updateTarget);
