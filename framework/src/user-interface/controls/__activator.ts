@@ -23,11 +23,11 @@ namespace ControlInstanceData {
 }
 
 export function tryInitializeInstance(instance: Control): boolean {
-    const tryGetControlInstanceDataOutput: OutputArgument<ControlInstanceData> = {};
-    if (!tryGetControlInstanceData(instance, tryGetControlInstanceDataOutput))
+    const outInstanceData: OutputArgument<ControlInstanceData> = {};
+    if (!tryGetControlInstanceData(instance, outInstanceData))
         return false;
 
-    const instanceData = tryGetControlInstanceDataOutput.value!;
+    const instanceData = outInstanceData.value!;
     if (instanceData.hasInitialized)
         return false;
 
@@ -39,10 +39,10 @@ export function tryInitializeInstance(instance: Control): boolean {
 }
 
 export function tryFinalizeInstance(instance: Control): boolean {
-    const tryGetControlInstanceDataOutput: OutputArgument<ControlInstanceData> = {};
-    if (!tryGetControlInstanceData(instance, tryGetControlInstanceDataOutput))
+    const outInstanceData: OutputArgument<ControlInstanceData> = {};
+    if (!tryGetControlInstanceData(instance, outInstanceData))
         return false;
-    const instanceData = tryGetControlInstanceDataOutput.value!;
+    const instanceData = outInstanceData.value!;
     if (!instanceData.hasInitialized)
         return false;
     if (instanceData.hasFinalized)
@@ -52,30 +52,30 @@ export function tryFinalizeInstance(instance: Control): boolean {
     return true;
 }
 
-export function tryGetControlInstanceDOMElement(instance: Control, output: OutputArgument<Element>) {
-    const tryGetControlInstanceDataOutput: OutputArgument<ControlInstanceData> = {};
-    if (!tryGetControlInstanceData(instance, tryGetControlInstanceDataOutput))
+export function tryGetControlInstanceDOMElement(instance: Control, outElement: OutputArgument<Element>) {
+    const outInstanceData: OutputArgument<ControlInstanceData> = {};
+    if (!tryGetControlInstanceData(instance, outInstanceData))
         return false;
-    const instanceData = tryGetControlInstanceDataOutput.value!;
-    output.value = instanceData.domElement;
+    const instanceData = outInstanceData.value!;
+    outElement.value = instanceData.domElement;
     return true;
 }
 
-function tryGetControlInstanceData(instance: Control, output: OutputArgument<ControlInstanceData> = {}) {
+function tryGetControlInstanceData(instance: Control, outData: OutputArgument<ControlInstanceData> = {}) {
     const instanceData = controlInstances.get(instance);
     if (instanceData === undefined)
         return false;
 
-    output.value = instanceData;
+    outData.value = instanceData;
     return true;
 }
 
 export function tryBeginControlInstanceLifecycle(instance: Control): boolean {
-    const tryCreateDOMElementOutput: OutputArgument<Element> = {};
-    if (!tryCreateDOMElement(instance, tryCreateDOMElementOutput))
+    const outDOMElement: OutputArgument<Element> = {};
+    if (!tryCreateDOMElement(instance, outDOMElement))
         return false;
 
-    const domElement = tryCreateDOMElementOutput.value!;
+    const domElement = outDOMElement.value!;
     controlInstances.set(instance, ControlInstanceData.create(domElement));
 
     if (!tryInitializeInstance(instance))
@@ -84,34 +84,31 @@ export function tryBeginControlInstanceLifecycle(instance: Control): boolean {
     return true;
 }
 
-function tryCreateDOMElement(instance: Control, output: OutputArgument<Element>) {
-    const tryGetDOMElementNameOutput: OutputArgument<string> = {};
-    if (!__Registry.tryGetDOMElementName(instance.constructor as ControlConstructor, tryGetDOMElementNameOutput))
+function tryCreateDOMElement(instance: Control, outElement: OutputArgument<Element>) {
+    const outName: OutputArgument<string> = {};
+    const outNamespaceURI: OutputArgument<string> = {};
+    if (!__Registry.tryGetDOMElementName(instance.constructor as ControlConstructor, outName, outNamespaceURI))
         return false;
 
-    const tryGetDOMElementNamespaceURIOutput: OutputArgument<string> = {};
-    if (!__Registry.tryGetDOMElementNamespaceURI(instance.constructor as ControlConstructor, tryGetDOMElementNamespaceURIOutput))
-        return false;
-
-    const name = tryGetDOMElementNameOutput.value!;
-    const namespaceURI = tryGetDOMElementNamespaceURIOutput.value!;
+    const name = outName.value!;
+    const namespaceURI = outNamespaceURI.value!;
     if (namespaceURI == "http://www.w3.org/1999/xhtml") {
         switch (name) {
             case "html":
-                output.value = document.documentElement;
+                outElement.value = document.documentElement;
                 return true;
             case "head":
-                output.value = document.head;
+                outElement.value = document.head;
                 return true;
             case "body":
-                output.value = document.body;
+                outElement.value = document.body;
                 return true;
         }
     }
 
     const is = instance.constructor.name;
     const domElement = document.createElementNS(namespaceURI, name, { is });
-    output.value = domElement;
+    outElement.value = domElement;
     return true;
 }
 

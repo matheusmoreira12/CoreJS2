@@ -44,21 +44,13 @@ export function isRegistered(ctor: ControlConstructor): boolean {
     return registeredControls.has(ctor);
 }
 
-export function tryGetDOMElementName(ctor: ControlConstructor, output: OutputArgument<string>): boolean {
+export function tryGetDOMElementName(ctor: ControlConstructor, outName: OutputArgument<string>, outNamespaceURI: OutputArgument<string>): boolean {
     const tryGetControlDataOutput: OutputArgument<ControlData> = {};
     if (!tryGetControlData(ctor, tryGetControlDataOutput))
         return false;
 
-    output.value = tryGetControlDataOutput.value!.elementName;
-    return true;
-}
-
-export function tryGetDOMElementNamespaceURI(ctor: ControlConstructor, output: OutputArgument<string>): boolean {
-    const tryGetControlDataOutput: OutputArgument<ControlData> = {};
-    if (!tryGetControlData(ctor, tryGetControlDataOutput))
-        return false;
-
-    output.value = tryGetControlDataOutput.value!.elementNamespaceURI;
+    outName.value = tryGetControlDataOutput.value!.elementName;
+    outNamespaceURI.value = tryGetControlDataOutput.value!.elementNamespaceURI;
     return true;
 }
 
