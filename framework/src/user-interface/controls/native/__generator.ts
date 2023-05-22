@@ -1,15 +1,16 @@
 import { Control } from "../index.js";
-import { DependencyObject, DependencyProperty, PropertyMetadata } from "../../../standard/dependency-objects/index.js";
+import { DependencyProperty, PropertyMetadata } from "../../../standard/dependency-objects/index.js";
 import { NativeControlBase } from "./native-control-base.js";
 import { NativeEvent } from "../../../standard/events/index.js";
-import { ObjectUtils } from "../../../core-base/utils/index.js";
+import { ArrayUtils, ObjectUtils } from "../../../core-base/utils/index.js";
 import { ControlConstructor } from "../control-constructor";
 import { NativeControl } from "./native-control";
 import { InvalidOperationException } from "../../../standard/exceptions/framework-exception.js";
 import { Type } from "../../../standard/reflection/index.js";
 import { AnyConstraint } from "../../../standard/reflection/type-constraints/index.js";
-import { EXCLUDED_PROPERTIES } from "./excluded-properties.js";
-import { SUBSTITUTED_PROPERTIES } from "./substituted-properties.js";
+import { getEventName, isEventName } from "./event-name.js";
+import { isExcludedProperty } from "./excluded-property.js";
+import { getSubstitutedPropertyNameOrNull } from "./substituted-property.js";
 
 export namespace __Generator {
     export function generateNativeControls(elemDataTuples: readonly (readonly [string, string, string])[]): { readonly [K: string]: NativeControl<any> } {
@@ -46,7 +47,7 @@ export namespace __Generator {
         }
 
         function defineDependencyProperties(nativeControl: ControlConstructor, elemProto: Element) {
-            for (let [propName, substPropName] of getPropertyNames(elemProto)) {
+            for (let [propName, substPropName] of getOriginalAndSubstitutedPropertyNames(elemProto)) {
                 const finalPropName = substPropName ?? propName;
                 Object.defineProperty(nativeControl.prototype, finalPropName, {
                     get() { return this.get(prop); },
@@ -84,23 +85,23 @@ export namespace __Generator {
         return new Function("NativeControlBase", `return class ${tagName}_NativeControl extends NativeControlBase {};`)(NativeControlBase)
     }
 
-    function getEventNames(elemProto: Element): string[] {
-        return Array.from(ObjectUtils.getAllPropertyNames(elemProto)).filter(prop => isEventName(prop)).map(prop => getEventNameFromProp(prop));
-
-        function getEventNameFromProp(prop: string) {
-            return prop.substring(2);
-        }
+    function getEventNames(elemProto: Element): IterableIterator<string> {
+        return ArrayUtils.select(
+            ArrayUtils.where(
+                ObjectUtils.getAllPropertyNames(elemProto),
+                prop => isEventName(prop)
+            ),
+            prop => getEventName(prop)
+        );
     }
 
-    function getPropertyNames(elemProto: Element): [string, string | null][] {
-        return Array.from(ObjectUtils.getAllPropertyNames(elemProto)).filter(prop => !isEventName(prop) && !isExcludedProp(prop)).map(prop => [prop, SUBSTITUTED_PROPERTIES[prop as keyof typeof SUBSTITUTED_PROPERTIES] ?? null]);
-    }
-
-    function isEventName(prop: string) {
-        return prop.startsWith("on");
-    }
-
-    function isExcludedProp(prop: string) {
-        return EXCLUDED_PROPERTIES.includes(prop as typeof EXCLUDED_PROPERTIES[0]);
+    function getOriginalAndSubstitutedPropertyNames(elemProto: Element): IterableIterator<[string, string | null]> {
+        return ArrayUtils.select(
+            ArrayUtils.where(
+                ObjectUtils.getAllPropertyNames(elemProto),
+                prop => !isEventName(prop) && !isExcludedProperty(prop)
+            ),
+            prop => [prop, getSubstitutedPropertyNameOrNull(prop)]
+        );
     }
 }
