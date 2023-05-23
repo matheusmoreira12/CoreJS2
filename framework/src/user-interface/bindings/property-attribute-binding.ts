@@ -1,10 +1,9 @@
 import { Binding, BindingDirection } from "./index.js";
-import { DependencyObject, DependencyProperty, DependencyPropertyKey, PropertyChangeEventArgs, PropertyMetadata } from "../../standard/dependency-objects/index.js";
+import { DependencyObject, DependencyProperty, PropertyChangeEventArgs } from "../../standard/dependency-objects/index.js";
 import { assertParams } from "../../validation/index.js";
 import { FrameworkEvent } from "../../standard/events/index.js";
 import { Enumeration } from "../../standard/index.js";
 import { IValueConverter } from "../value-converters/index.js";
-import { Type } from "../../standard/reflection/index.js";
 import { __Storage } from "../../standard/dependency-objects/__storage.js";
 
 /**
@@ -12,20 +11,22 @@ import { __Storage } from "../../standard/dependency-objects/__storage.js";
  * Allows the binding of an attribute to a framework property.
  */
 export class PropertyAttributeBinding extends Binding {
-    constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, targetAttributeNamespace: string | null = null, direction: number = BindingDirection.Both, valueConverter: IValueConverter) {
-        super(direction, valueConverter);
-
+    constructor(source: DependencyObject, sourceProperty: DependencyProperty, targetElement: Element, targetAttributeName: string, targetAttributeNamespace: string | null = null, direction: number = BindingDirection.Both, valueConverter: IValueConverter | null = null) {
         assertParams({ source }, [DependencyObject]);
         assertParams({ sourceProperty }, [DependencyProperty]);
         assertParams({ targetElement }, [Element]);
         assertParams({ targetAttributeName }, [String]);
         assertParams({ targetAttributeNamespace }, [String, null]);
 
+        super();
+
         this.__source = source;
         this.__sourceProperty = sourceProperty;
         this.__targetElement = targetElement;
         this.__targetAttributeName = targetAttributeName;
         this.__targetAttributeNamespace = targetAttributeNamespace;
+        this.__direction = direction;
+        this.__valueConverter = valueConverter;
 
         this.__source_PropertyChangeEvent = new FrameworkEvent(this.__source_onPropertyChange, this);
         source.PropertyChangeEvent.attach(this.__source_PropertyChangeEvent);
@@ -110,6 +111,12 @@ export class PropertyAttributeBinding extends Binding {
 
     get targetAttributeNamespace(): string | null { return this.__targetAttributeNamespace; }
     private __targetAttributeNamespace: string | null;
+
+    get direction(): number { return this.__direction; }
+    private __direction: number;
+
+    get valueConverter(): IValueConverter | null { return this.__valueConverter; }
+    private __valueConverter: IValueConverter | null;
 
     protected override _destructor(): void {
         this.__targetElement_attributeMutationObserver.disconnect();

@@ -4,9 +4,9 @@ import { Enumeration } from "../../standard/index.js";
 import { DeferredTask } from "../../standard/timing/index.js";
 import { assertParams } from "../../validation/index.js";
 import { IMultiConverter } from "../value-converters/index.js";
-import { BindingDirection } from "./index.js";
+import { Binding, BindingDirection } from "./index.js";
 
-export class ListBinding {
+export class ListBinding extends Binding {
     constructor(direction: number = BindingDirection.Both, source: DependencyObject, sourceListProperty: DependencyProperty, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, converter: IMultiConverter) {
         assertParams({ direction }, [Number]);
         assertParams({ source }, [DependencyObject]);
@@ -14,6 +14,8 @@ export class ListBinding {
         assertParams({ target }, [DependencyObject]);
         assertParams({ targetProperty }, [DependencyProperty]);
         assertParams({ converter }, [IMultiConverter]);
+
+        super();
 
         this.#direction = direction;
         this.#source = source;
