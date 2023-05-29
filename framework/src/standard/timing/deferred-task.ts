@@ -23,11 +23,13 @@ export class DeferredTask<TArgs extends unknown[] = [], TResult extends unknown 
     }
 
     #doTrigger() {
-        this.#timeoutHandle = setTimeout(() => {
-            const result = this.#taskCallback.apply(undefined, this.#args!);
-            this.#promiseResolve!(result);
-            this.#clearState();
-        }, 0);
+        this.#timeoutHandle = setTimeout(() => this.#callBack(), 0);
+    }
+
+    #callBack() {
+        const result = this.#taskCallback.apply(undefined, this.#args!);
+        this.#promiseResolve!(result);
+        this.#clearState();
     }
 
     abort() {
