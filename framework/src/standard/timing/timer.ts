@@ -1,58 +1,83 @@
-﻿import { Destructible } from "../index.js";
+import { assert } from "../../validation/index.js";
 import { FrameworkEvent, FrameworkEventArgs } from "../events/index.js";
+import { Destructible } from "../index.js";
 
 export class Timer extends Destructible {
-    constructor(delayMillis = 100, isPeriodic = true) {
+    constructor() {
         super();
 
-        this.__delayMillis = delayMillis;
-        this.__isPeriodic = isPeriodic;
-        this.__TickEvent = new FrameworkEvent();
+        this.#ElapsedEvent = new FrameworkEvent();
     }
 
-    __timeout_handler = (() => {
-        this.__TickEvent.invoke(this, new FrameworkEventArgs());
-
-        if (this.isPeriodic)
-            this.__reset();
-    }).bind(this);
-
-    private __timeout_handle: number = -1;
-
-    private __reset() {
-        this.__stop();
-
-        this.__timeout_handle = setTimeout(this.__timeout_handler, this.delayMillis);
-    }
-
-    private __stop() {
-        if (this.__timeout_handle != -1) {
-            clearTimeout(this.__timeout_handle);
-            this.__timeout_handle = -1;
-        }
-    }
-
-    get delayMillis(): number { return this.__delayMillis; }
-    private __delayMillis: number;
-
-    get isPeriodic(): boolean { return this.__isPeriodic; }
-    private __isPeriodic: boolean;
-
-    get isEnabled() { return this.__isEnabled; }
+    get isEnabled() { return this.#isEnabled; }
     set isEnabled(value) {
         if (value)
-            this.__reset();
+            this.#enable();
         else
-            this.__stop();
-
-        this.__isEnabled = value;
+            this.#disable();
     }
-    private __isEnabled: boolean = false;
+    #isEnabled: boolean = false;
 
-    get TickEvent(): FrameworkEvent { return this.__TickEvent; }
-    private __TickEvent: FrameworkEvent;
+    #enable() {
+        this.#isEnabled = true;
 
-    protected override _destructor() {
-        this.__stop();
+        this.#doClear();
+        this.#doSet();
+    }
+
+    #disable() {
+        this.#isEnabled = false;
+
+        this.#doClear();
+    }
+
+    #doClear() {
+        clearTimeout(this.#timeoutHandle);
+        this.#timeoutHandle = undefined;
+    }
+
+    #doSet() {
+        this.#timeoutHandle = setTimeout(this.#timeoutCallback, this.interval);
+    }
+
+    #timeoutCallback = () => {
+        this.#ElapsedEvent.invoke(this, new FrameworkEventArgs());
+
+        if (this.#autoReset) {
+            this.#doReset();
+            return;
+        }
+
+        this.#disable();
+    }
+
+    #doReset() {
+        this.#doClear();
+        this.#doSet();
+    }
+
+    get autoReset() { return this.#autoReset; }
+    set autoReset(value) {
+        assert({ value }, [Boolean]);
+
+        this.#autoReset = value;
+    }
+    #autoReset: boolean = false;
+
+    get interval() { return this.#interval; }
+    set interval(value) {
+        assert({ value }, [Number]);
+
+        this.#interval = value;
+    }
+    #interval: number = 0;
+
+    get ElapsedEvent() { return this.#ElapsedEvent; }
+    #ElapsedEvent: FrameworkEvent;
+
+    #timeoutHandle?: number;
+
+    protected _destructor(): void {
+        this.#doClear();
     }
 }
