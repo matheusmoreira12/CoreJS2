@@ -1,23 +1,10 @@
-import { IdentifierGenerator } from "../../core-base/index.js";
-import { StringUtils } from "../../core-base/utils/string-utils.js";
+import { StringUtils } from "../../core-base/utils/index.js";
+import { assert } from "../../validation/index.js";
 import { ArgumentOutOfRangeException } from "../exceptions/index.js";
 import { Method } from "../reflection/types.js";
-import { Timer } from "./index.js";
+import { DeferredQueueItem, Timer } from "./index.js";
 
-export class DeferredQueueItem<TArgs extends any[] = []> {
-    constructor(callback: Method<TArgs>, args: TArgs) {
-        this.#callback = callback;
-        this.#args = args;
-    }
-
-    get callback(): Method<TArgs, void, undefined> { return this.#callback; }
-    #callback: Method<TArgs, void, undefined>;
-
-    get args(): TArgs { return this.#args; }
-    #args: TArgs;
-}
-
-export class DeferredQueue<TArgs extends any[] = []> {
+export class DeferredQueue<TArgs extends any[] = [], TResult = void> {
     constructor() {
         this.#timer.ElapsedEvent.attach(this.#timer_onElapsed);
     }
@@ -27,39 +14,58 @@ export class DeferredQueue<TArgs extends any[] = []> {
     }
 
     #process() {
-        for (let [_id, item] of this.#items)
-            item.callback.apply(undefined, item.args);
+        for (let item of this.#items)
+            item._execute();
 
-        this.#items.clear();
+        this.#clearItems();
     }
 
-    enqueue(callback: Method<TArgs>, args: TArgs): bigint {
-        const id = this.#idGenerator.generate();
+    #clearItems() {
+        this.#items.splice(0, this.#items.length);
+    }
+
+    enqueue(callback: Method<TArgs, TResult>, ...args: TArgs): DeferredQueueItem<TArgs, TResult> {
+        assert({ callback }, [Function]);
+
+        return this.#doEnqueue(callback, args);
+    }
+
+    #doEnqueue(callback: Method<TArgs, TResult>, args: TArgs): DeferredQueueItem<TArgs, TResult> {
         const item = new DeferredQueueItem(callback, args);
-        this.#items.set(id, item);
+        this.#items.push(item);
 
         this.#resetTimer();
 
-        return id;
+        return item;
     }
 
-    dequeue(id: bigint): void {
-        if (!this.#items.has(id))
-            throw new ArgumentOutOfRangeException(StringUtils.nameOf({ id }));
+    dequeue(item: DeferredQueueItem<TArgs, TResult>): void {
+        assert({ item }, [DeferredQueueItem]);
 
-        this.#items.delete(id);
+        if (!this.#items.includes(item))
+            throw new ArgumentOutOfRangeException(StringUtils.nameOf({ item }));
 
+        this.#doDequeue(item);
+    }
+
+    #doDequeue(item: DeferredQueueItem<TArgs, TResult>): void {
+        item._abort();
+
+        this.#removeItem(item);
+        
         this.#resetTimer();
+    }
+
+    #removeItem(item: DeferredQueueItem<TArgs, TResult>) {
+        this.#items.splice(this.#items.indexOf(item), 1);
     }
 
     #resetTimer() {
         this.#timer.isEnabled = false;
         this.#timer.isEnabled = true;
     }
-    
-    #idGenerator = new IdentifierGenerator();
 
-    #items: Map<bigint, DeferredQueueItem<TArgs>> = new Map();
+    #items: DeferredQueueItem<TArgs, TResult>[] = [];
 
     #timer: Timer = new Timer();
 }
