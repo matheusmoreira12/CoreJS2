@@ -4,8 +4,6 @@ import { Method } from "../reflection/types";
 
 export class DeferredQueueItem<TArgs extends any[] = [], TResult = void> {
     constructor(callback: Method<TArgs, TResult>, args: TArgs) {
-        console.log(args);
-
         assert({ callback }, [Function]);
         assert({ args }, [Array]);
 
