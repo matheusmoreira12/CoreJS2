@@ -2,37 +2,42 @@ import { assert } from "../../validation/index.js";
 import { Method } from "../reflection/types";
 
 
-export class DeferredQueueItem<TArgs extends any[] = [], TResult = void> extends Promise<TResult> {
+export class DeferredQueueItem<TArgs extends any[] = [], TResult = void> {
     constructor(callback: Method<TArgs, TResult>, args: TArgs) {
+        console.log(args);
+
         assert({ callback }, [Function]);
         assert({ args }, [Array]);
 
-        let res: (value: TResult) => void;
-        let rej: (reason: null) => void;
-        super((resolve, reject) => {
-            res = resolve;
-            rej = reject;
-        });
-
-        this.#resolve = res!;
-        this.#reject = rej!;
         this.#callback = callback;
         this.#args = args;
+
+        let _resolve: (value: TResult) => void;
+        let _reject: (reason: null) => void;
+        this.#promise = new Promise((resolve, reject) => {
+            _resolve = resolve;
+            _reject = reject;
+        });
+        this.#promise_resolve = _resolve!;
+        this.#promise_reject = _reject!;
     }
 
     _execute() {
         const result = this.#callback.apply(undefined, this.#args);
-        this.#resolve(result);
+        this.#promise_resolve(result);
     }
 
     _abort() {
-        this.#reject(null);
+        this.#promise_reject(null);
     }
+
+    get done(): Promise<TResult> { return this.#promise; }
 
     #callback: Method<TArgs, TResult, undefined>;
 
     #args: TArgs;
 
-    #resolve: (value: TResult) => void;
-    #reject: (reason: null) => void;
+    #promise!: Promise<TResult>;
+    #promise_resolve!: (value: TResult) => void;
+    #promise_reject!: (reason: null) => void;
 }
