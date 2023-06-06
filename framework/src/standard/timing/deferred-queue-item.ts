@@ -1,5 +1,6 @@
 import { assert } from "../../validation/index.js";
-import { Method } from "../reflection/types";
+import { InvalidOperationException } from "../exceptions/index.js";
+import { Method } from "../reflection/types.js";
 
 
 export class DeferredQueueItem<TArgs extends any[] = [], TResult = void> {
@@ -20,12 +21,19 @@ export class DeferredQueueItem<TArgs extends any[] = [], TResult = void> {
         this.#promise_reject = _reject!;
     }
 
-    _execute() {
-        const result = this.#callback.apply(undefined, this.#args);
+    async _executeAsync() {
+        this.#isExecuting = true;
+
+        const result = await this.#callback.apply(undefined, this.#args);
         this.#promise_resolve(result);
+
+        this.#isExecuting = false;
     }
 
     _abort() {
+        if (this.#isExecuting)
+            throw new InvalidOperationException("Cannot abort queue item. Item is already in execution.");
+
         this.#promise_reject(null);
     }
 
@@ -35,7 +43,9 @@ export class DeferredQueueItem<TArgs extends any[] = [], TResult = void> {
 
     #args: TArgs;
 
-    #promise!: Promise<TResult>;
-    #promise_resolve!: (value: TResult) => void;
-    #promise_reject!: (reason: null) => void;
+    #promise: Promise<TResult>;
+    #promise_resolve: (value: TResult) => void;
+    #promise_reject: (reason: null) => void;
+
+    #isExecuting: boolean = false;
 }

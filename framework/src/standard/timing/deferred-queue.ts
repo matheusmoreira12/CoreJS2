@@ -10,12 +10,12 @@ export class DeferredQueue<TArgs extends any[] = [], TResult = void> {
     }
 
     #timer_onElapsed = () => {
-        this.#process();
+        this.#processAsync();
     }
 
-    #process() {
+    async #processAsync() {
         for (let item of this.#items)
-            item._execute();
+            await item._executeAsync();
 
         this.#clearItems();
     }
