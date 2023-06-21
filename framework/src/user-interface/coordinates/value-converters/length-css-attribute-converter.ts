@@ -27,10 +27,6 @@ export class LengthCSSPropertyConverter implements IValueConverter {
     convert(value: Length | null): string | null {
         if (value === null)
             return null;
-        else if (value.equals(Length.invalid))
-            return null;
-        else if (value.equals(Length.auto))
-            return "auto";
         else {
             const unitAttr = UNIT_SVG_UNIT_MAP.get(value.unit) || "";
             return `${value.amount}${unitAttr}`;
@@ -45,29 +41,21 @@ export class LengthCSSPropertyConverter implements IValueConverter {
             return Number(s);
         }
 
-        function readUnit(reader: StringReader): number | null {
+        function readUnit(reader: StringReader): number {
             let s: string = "";
             while (/[A-Za-z%]/.test(reader.peek() ?? ""))
                 s += reader.read();
-            const unit = MapUtils.invert(UNIT_SVG_UNIT_MAP).get(s);
-            if (unit === undefined)
-                return null;
-            else
-                return unit;
+            const unit = MapUtils.invert(UNIT_SVG_UNIT_MAP).get(s)!;
+            return unit;
         }
 
         if (value === null)
             return null;
-        else if (value == "auto")
-            return Length.auto;
         else {
             const reader = new StringReader(value);
             const amount = readAmount(reader);
             const unit = readUnit(reader);
-            if (unit === null)
-                return Length.invalid;
-            else
-                return new Length(amount, unit);
+            return new Length(amount, unit);
         }
     }
 }
