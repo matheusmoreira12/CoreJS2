@@ -1,14 +1,12 @@
-import { LengthUnit } from "./length-unit.js";
+import { InvalidOperationException } from "../../standard/exceptions/index.js";
 import { assertParams } from "../../validation/index.js";
-import { Orientation } from "./orientation.js";
+import { LengthUnit, Orientation } from "./index.js";
 import * as UnitConversion from "./unit-conversion.js";
 
 export class Length {
-    static get zero() { return ZERO; }
+    static get zero(): Length { return ZERO; }
 
-    static get auto() { return AUTO; }
-
-    static get invalid() { return new Length(0, LengthUnit.None, false, true); }
+    static get infinity(): Length { return INFINITY; }
 
     static getCentimeters(value: number): Length {
         assertParams({ value }, [Number]);
@@ -100,16 +98,12 @@ export class Length {
         return new Length(value, LengthUnit.Percent);
     }
 
-    constructor(value: number, unit: number = LengthUnit.None, isAuto: boolean = false, isInvalid: boolean = false) {
+    constructor(value: number, unit: number = LengthUnit.None) {
         assertParams({ value }, [Number]);
         LengthUnit.assertFlag(unit);
-        assertParams({ isAuto }, [Boolean]);
-        assertParams({ isInvalid }, [Boolean]);
 
-        this.__value = value;
-        this.__unit = unit;
-        this.__isAuto = isAuto;
-        this.__isInvalid = isInvalid;
+        this.#amount = value;
+        this.#unit = unit;
     }
 
     toCentimeters(): number { return UnitConversion.convert(this.amount, this.unit, LengthUnit.Centimeters)!; }
@@ -159,28 +153,45 @@ export class Length {
         return UnitConversion.convert(this.amount, this.unit, LengthUnit.Percent, element, orientation)!;
     }
 
-    equals(other: Length): boolean {
-        if (this.isInvalid)
-            return other.isInvalid;
-        else if (this.isAuto)
-            return other.isAuto;
-        else
-            return this.amount == other.amount && this.unit == other.unit;
+    convertImplicitly(unit: number) {
+        assertParams({ unit: unit }, [Number]);
+        LengthUnit.assertFlag(unit);
+
+        if (this.unit == unit)
+            return this;
+
+        if (UnitConversion.isUnitRelative(unit) ||
+            UnitConversion.isUnitRelative(this.unit))
+            throw new InvalidOperationException("Cannot convert length. Relative units are not implicitly convertible.");
+
+        return new Length(this.amount + UnitConversion.convert(this.amount, this.unit, unit)!, this.unit);
     }
 
-    get amount(): number { return this.__value; }
-    private __value: number;
+    add(length: Length) {
+        assertParams({ length }, [Length]);
 
-    get unit(): number { return this.__unit; }
-    private __unit: number;
+        return new Length(this.amount + length.convertImplicitly(this.unit).amount, this.unit);
+    }
 
-    get isAuto(): boolean { return this.__isAuto; }
-    private __isAuto: boolean;
+    subtract(length: Length) {
+        assertParams({ length }, [Length]);
 
-    get isInvalid(): boolean { return this.__isInvalid; }
-    private __isInvalid: boolean;
+        return new Length(this.amount - length.convertImplicitly(this.unit).amount, this.unit);
+    }
+
+    multiply(factor: number) {
+        assertParams({ length }, [Number]);
+
+        return new Length(this.amount * factor, this.unit);
+    }
+
+    get amount(): number { return this.#amount; }
+    #amount: number;
+
+    get unit(): number { return this.#unit; }
+    #unit: number;
 }
 
 const ZERO = new Length(0);
 
-const AUTO = new Length(0, LengthUnit.None, true);
+const INFINITY = new Length(Infinity);

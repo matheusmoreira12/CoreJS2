@@ -1,51 +1,63 @@
-import { Length } from "./length.js";
+import { Length, Offset } from "./index.js";
 import { assertParams } from "../../validation/index.js";
 
 export class Point {
     static get zero(): Point { return ZERO };
 
-    static getCentimeters(width: number, height: number): Point { return new Point(Length.getCentimeters(width), Length.getCentimeters(height)); }
+    static getCentimeters(x: number, y: number): Point { return new Point(Length.getCentimeters(x), Length.getCentimeters(y)); }
 
-    static getMillimeters(width: number, height: number): Point { return new Point(Length.getMillimeters(width), Length.getMillimeters(height)); }
+    static getMillimeters(x: number, y: number): Point { return new Point(Length.getMillimeters(x), Length.getMillimeters(y)); }
 
-    static getInches(width: number, height: number): Point { return new Point(Length.getInches(width), Length.getInches(height)); }
+    static getInches(x: number, y: number): Point { return new Point(Length.getInches(x), Length.getInches(y)); }
 
-    static getPixels(width: number, height: number): Point { return new Point(Length.getPixels(width), Length.getPixels(height)); }
+    static getPixels(x: number, y: number): Point { return new Point(Length.getPixels(x), Length.getPixels(y)); }
 
-    static getPoints(width: number, height: number): Point { return new Point(Length.getPoints(width), Length.getPoints(height)); }
+    static getPoints(x: number, y: number): Point { return new Point(Length.getPoints(x), Length.getPoints(y)); }
 
-    static getPicas(width: number, height: number): Point { return new Point(Length.getPicas(width), Length.getPicas(height)); }
+    static getPicas(x: number, y: number): Point { return new Point(Length.getPicas(x), Length.getPicas(y)); }
 
-    static getEm(width: number, height: number): Point { return new Point(Length.getEm(width), Length.getEm(height)); }
+    static getEm(x: number, y: number): Point { return new Point(Length.getEm(x), Length.getEm(y)); }
 
-    static getEx(width: number, height: number): Point { return new Point(Length.getEx(width), Length.getEx(height)); }
+    static getEx(x: number, y: number): Point { return new Point(Length.getEx(x), Length.getEx(y)); }
 
-    static getCh(width: number, height: number): Point { return new Point(Length.getCh(width), Length.getCh(height)); }
+    static getCh(x: number, y: number): Point { return new Point(Length.getCh(x), Length.getCh(y)); }
 
-    static getRem(width: number, height: number): Point { return new Point(Length.getRem(width), Length.getRem(height)); }
+    static getRem(x: number, y: number): Point { return new Point(Length.getRem(x), Length.getRem(y)); }
 
-    static getVw(width: number, height: number): Point { return new Point(Length.getVw(width), Length.getVw(height)); }
+    static getVw(x: number, y: number): Point { return new Point(Length.getVw(x), Length.getVw(y)); }
 
-    static getVh(width: number, height: number): Point { return new Point(Length.getVh(width), Length.getVh(height)); }
+    static getVh(x: number, y: number): Point { return new Point(Length.getVh(x), Length.getVh(y)); }
 
-    static getVmin(width: number, height: number): Point { return new Point(Length.getVmin(width), Length.getVmin(height)); }
+    static getVmin(x: number, y: number): Point { return new Point(Length.getVmin(x), Length.getVmin(y)); }
 
-    static getVmax(width: number, height: number): Point { return new Point(Length.getVmax(width), Length.getVmax(height)); }
+    static getVmax(x: number, y: number): Point { return new Point(Length.getVmax(x), Length.getVmax(y)); }
 
-    static getPercent(width: number, height: number): Point { return new Point(Length.getPercent(width), Length.getPercent(height)); }
+    static getPercent(x: number, y: number): Point { return new Point(Length.getPercent(x), Length.getPercent(y)); }
 
-    constructor(width: Length, height: Length) {
-        assertParams({ width, height }, [Length]);
+    constructor(x: Length, y: Length) {
+        assertParams({ x, y }, [Length]);
 
-        this.__width = width;
-        this.__height = height;
+        this.#x = x;
+        this.#y = y;
     }
 
-    get width(): Length { return this.__width; }
-    private __width: Length;
+    add(offset: Offset): Point {
+        assertParams({ offset }, [Offset]);
 
-    get height(): Length { return this.__height; }
-    private __height: Length;
+        return new Point(this.x.subtract(offset.x), this.y.subtract(offset.y));
+    }
+
+    subtract(point: Point): Offset {
+        assertParams({ point }, [Point]);
+
+        return new Offset(this.x.subtract(point.x), this.y.subtract(point.y));
+    }
+
+    get x(): Length { return this.#x; }
+    #x: Length;
+
+    get y(): Length { return this.#y; }
+    #y: Length;
 }
 
 const ZERO = new Point(Length.zero, Length.zero);
