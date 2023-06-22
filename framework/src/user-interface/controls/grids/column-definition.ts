@@ -11,7 +11,7 @@ export class ColumnDefinition extends DependencyObject {
     get maximumWidth(): Length { return this.get(ColumnDefinition.maximumWidthProperty); }
     set maximumWidth(value: Length) { this.set(ColumnDefinition.maximumWidthProperty, value); }
 
-    static minimumWidthProperty = DependencyProperty.registerAttached(Type.get(ColumnDefinition), "minimumWidth", new PropertyMetadata(Type.get(Length), Length.infinity));
+    static minimumWidthProperty = DependencyProperty.registerAttached(Type.get(ColumnDefinition), "minimumWidth", new PropertyMetadata(Type.get(Length), Length.positiveInfinity));
     get minimumWidth(): Length { return this.get(ColumnDefinition.minimumWidthProperty); }
     set minimumWidth(value: Length) { this.set(ColumnDefinition.minimumWidthProperty, value); }
 }

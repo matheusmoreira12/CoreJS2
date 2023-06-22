@@ -11,7 +11,7 @@ export class RowDefinition extends DependencyObject {
     get maximumHeight(): Length { return this.get(RowDefinition.maximumHeightProperty); }
     set maximumHeight(value: Length) { this.set(RowDefinition.maximumHeightProperty, value); }
 
-    static minimumHeightProperty = DependencyProperty.registerAttached(Type.get(RowDefinition), "minimumHeight", new PropertyMetadata(Type.get(Length), Length.infinity));
+    static minimumHeightProperty = DependencyProperty.registerAttached(Type.get(RowDefinition), "minimumHeight", new PropertyMetadata(Type.get(Length), Length.positiveInfinity));
     get minimumHeight(): Length { return this.get(RowDefinition.minimumHeightProperty); }
     set minimumHeight(value: Length) { this.set(RowDefinition.minimumHeightProperty, value); }
 }
