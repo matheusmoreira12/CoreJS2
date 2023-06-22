@@ -100,6 +100,24 @@ export class Length {
         return new Length(value, LengthUnit.Percent);
     }
 
+    static max(a: Length, b: Length) {
+        assertParams({ a, b }, [Length]);
+
+        return new Length(
+            Math.max(a.amount, b.convertImplicitly(a.unit).amount),
+            a.unit
+        );
+    }
+
+    static min(a: Length, b: Length) {
+        assertParams({ a, b }, [Length]);
+
+        return new Length(
+            Math.min(a.amount, b.convertImplicitly(a.unit).amount),
+            a.unit
+        );
+    }
+
     constructor(value: number, unit: number = LengthUnit.None) {
         assertParams({ value }, [Number]);
         LengthUnit.assertFlag(unit);
@@ -227,14 +245,44 @@ export class Length {
         assertParams({ unit }, [Number]);
         LengthUnit.assertFlag(unit);
 
-        if (this.unit == unit)
-            return this;
-
         if (__UnitConversion.isUnitRelative(unit) ||
             __UnitConversion.isUnitRelative(this.unit))
             throw new InvalidOperationException("Cannot convert length. Relative units are not implicitly convertible.");
 
+        if (this.unit == unit)
+            return this;
+
         return new Length(this.amount + __UnitConversion.convert(this.amount, this.unit, unit), this.unit);
+    }
+
+    equals(length: Length): boolean {
+        assertParams({ length }, [Length]);
+
+        return this.amount == length.convertImplicitly(this.unit).amount;
+    }
+
+    greaterThan(length: Length): boolean {
+        assertParams({ length }, [Length]);
+
+        return this.amount >= length.convertImplicitly(this.unit).amount;
+    }
+
+    lessThan(length: Length): boolean {
+        assertParams({ length }, [Length]);
+
+        return this.amount <= length.convertImplicitly(this.unit).amount;
+    }
+
+    greaterThanOrEquals(length: Length): boolean {
+        assertParams({ length }, [Length]);
+
+        return this.amount >= length.convertImplicitly(this.unit).amount;
+    }
+
+    lessThanOrEquals(length: Length): boolean {
+        assertParams({ length }, [Length]);
+
+        return this.amount <= length.convertImplicitly(this.unit).amount;
     }
 
     invert(): Length {
