@@ -5,7 +5,12 @@ import { Length, LengthUnit, Orientation, Point, Size, RectangularOffset } from 
 
 export class Rectangle {
     static get zero(): Rectangle {
-        return new Rectangle(Length.zero, Length.zero, Length.zero, Length.zero);
+        return new Rectangle(
+            Length.zero,
+            Length.zero,
+            Length.zero,
+            Length.zero
+        );
     }
 
     static getCentimeters(left: number, top: number, width: number, height: number): Rectangle {
@@ -157,161 +162,76 @@ export class Rectangle {
         this.#height = height;
     }
 
-    toCentimeters(): Rectangle {
-        return new Rectangle(
-            this.left.toCentimeters(),
-            this.top.toCentimeters(),
-            this.width.toCentimeters(),
-            this.height.toCentimeters()
-        );
+    toCentimeters(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Centimeters, element);
     }
 
-    toMillimeters(): Rectangle {
-        return new Rectangle(
-            this.left.toMillimeters(),
-            this.top.toMillimeters(),
-            this.width.toMillimeters(),
-            this.height.toMillimeters()
-        );
+    toMillimeters(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Millimeters, element);
     }
 
-    toInches(): Rectangle {
-        return new Rectangle(
-            this.left.toInches(),
-            this.top.toInches(),
-            this.width.toInches(),
-            this.height.toInches()
-        );
+    toInches(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Inches, element);
     }
 
-    toPixels(): Rectangle {
-        return new Rectangle(
-            this.left.toPixels(),
-            this.top.toPixels(),
-            this.width.toPixels(),
-            this.height.toPixels()
-        );
+    toPixels(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Pixels, element);
     }
 
-    toPoints(): Rectangle {
-        return new Rectangle(
-            this.left.toPoints(),
-            this.top.toPoints(),
-            this.width.toPoints(),
-            this.height.toPoints()
-        );
+    toPoints(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Points, element);
     }
 
-    toPicas(): Rectangle {
-        return new Rectangle(
-            this.left.toPicas(),
-            this.top.toPicas(),
-            this.width.toPicas(),
-            this.height.toPicas()
-        );
-
+    toPicas(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Picas, element);
     }
 
-    toEm(element: Element): Rectangle {
-        assertParams({ element }, [Element]);
-
-        return new Rectangle(
-            this.left.toEm(element),
-            this.top.toEm(element),
-            this.width.toEm(element),
-            this.height.toEm(element)
-        );
+    toEm(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Em, element);
     }
 
-    toEx(element: Element): Rectangle {
-        assertParams({ element }, [Element]);
-
-        return new Rectangle(
-            this.left.toEx(element),
-            this.top.toEx(element),
-            this.width.toEx(element),
-            this.height.toEx(element)
-        );
+    toEx(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Ex, element);
     }
 
-    toCh(element: Element): Rectangle {
-        assertParams({ element }, [Element]);
-
-        return new Rectangle(
-            this.left.toCh(element),
-            this.top.toCh(element),
-            this.width.toCh(element),
-            this.height.toCh(element)
-        );
+    toCh(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Ch, element);
     }
 
-    toRem(): Rectangle {
-        return new Rectangle(
-            this.left.toRem(),
-            this.top.toRem(),
-            this.width.toRem(),
-            this.height.toRem()
-        );
+    toRem(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Rem, element);
     }
 
-    toVw(): Rectangle {
-        return new Rectangle(
-            this.left.toVw(),
-            this.top.toVw(),
-            this.width.toVw(),
-            this.height.toVw()
-        );
+    toVw(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Vw, element);
     }
 
-    toVh(): Rectangle {
-        return new Rectangle(
-            this.left.toVh(),
-            this.top.toVh(),
-            this.width.toVh(),
-            this.height.toVh()
-        );
+    toVh(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Vh, element);
     }
 
-    toVmin(): Rectangle {
-        return new Rectangle(
-            this.left.toVmin(),
-            this.top.toVmin(),
-            this.width.toVmin(),
-            this.height.toVmin()
-        );
+    toVmin(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Vmin, element);
     }
 
-    toVmax(): Rectangle {
-        return new Rectangle(
-            this.left.toVmax(),
-            this.top.toVmax(),
-            this.width.toVmax(),
-            this.height.toVmax()
-        );
+    toVmax(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Vmax, element);
     }
 
-    toPercent(element: Element, orientation: number): Rectangle {
-        assertParams({ element }, [Element]);
-        Orientation.assertFlag(orientation);
-
-        return new Rectangle(
-            this.left.toPercent(element, Orientation.Horizontal),
-            this.top.toPercent(element, Orientation.Vertical),
-            this.width.toPercent(element, Orientation.Horizontal),
-            this.height.toPercent(element, Orientation.Vertical)
-        );
-
+    toPercent(element: Element | null = null): Rectangle {
+        return this.convert(LengthUnit.Percent, element);
     }
 
-    convertImplicitly(unit: number): Rectangle {
+    convert(unit: number, element: Element | null = null): Rectangle {
         assertParams({ unit }, [Number]);
         LengthUnit.assertFlag(unit);
+        assertParams({ element }, [Element, null]);
 
         return new Rectangle(
-            this.left.convertImplicitly(unit),
-            this.top.convertImplicitly(unit),
-            this.width.convertImplicitly(unit),
-            this.height.convertImplicitly(unit)
+            this.left.convert(unit, element, Orientation.Horizontal),
+            this.top.convert(unit, element, Orientation.Vertical),
+            this.width.convert(unit, element, Orientation.Horizontal),
+            this.height.convert(unit, element, Orientation.Vertical)
         );
     }
 

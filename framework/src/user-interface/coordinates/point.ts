@@ -2,7 +2,12 @@ import { Length, LengthUnit, Orientation } from "./index.js";
 import { assertParams } from "../../validation/index.js";
 
 export class Point {
-    static get zero(): Point { return ZERO };
+    static get zero(): Point {
+        return new Point(
+            Length.zero,
+            Length.zero
+        )
+    };
 
     static getCentimeters(x: number, y: number): Point {
         return new Point(
@@ -116,128 +121,74 @@ export class Point {
         this.#y = y;
     }
 
-    toCentimeters(): Point {
-        return new Point(
-            this.x.toCentimeters(),
-            this.y.toCentimeters(),
-        );
+    toCentimeters(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Centimeters, element);
     }
 
-    toMillimeters(): Point {
-        return new Point(
-            this.x.toMillimeters(),
-            this.y.toMillimeters(),
-        );
+    toMillimeters(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Millimeters, element);
     }
 
-    toInches(): Point {
-        return new Point(
-            this.x.toInches(),
-            this.y.toInches(),
-        );
+    toInches(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Inches, element);
     }
 
-    toPixels(): Point {
-        return new Point(
-            this.x.toPixels(),
-            this.y.toPixels(),
-        );
+    toPixels(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Pixels, element);
     }
 
-    toPoints(): Point {
-        return new Point(
-            this.x.toPoints(),
-            this.y.toPoints(),
-        );
+    toPoints(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Points, element);
     }
 
-    toPicas(): Point {
-        return new Point(
-            this.x.toPicas(),
-            this.y.toPicas(),
-        );
+    toPicas(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Picas, element);
     }
 
-    toEm(element: Element): Point {
-        assertParams({ element }, [Element]);
-
-        return new Point(
-            this.x.toEm(element),
-            this.y.toEm(element),
-        );
+    toEm(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Em, element);
     }
 
-    toEx(element: Element): Point {
-        assertParams({ element }, [Element]);
-
-        return new Point(
-            this.x.toEx(element),
-            this.y.toEx(element),
-        );
+    toEx(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Ex, element);
     }
 
-    toCh(element: Element): Point {
-        assertParams({ element }, [Element]);
-
-        return new Point(
-            this.x.toCh(element),
-            this.y.toCh(element),
-        );
+    toCh(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Ch, element);
     }
 
-    toRem(): Point {
-        return new Point(
-            this.x.toRem(),
-            this.y.toRem(),
-        );
+    toRem(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Rem, element);
     }
 
-    toVw(): Point {
-        return new Point(
-            this.x.toVw(),
-            this.y.toVw(),
-        );
+    toVw(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Vw, element);
     }
 
-    toVh(): Point {
-        return new Point(
-            this.x.toVh(),
-            this.y.toVh(),
-        );
+    toVh(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Vh, element);
     }
 
-    toVmin(): Point {
-        return new Point(
-            this.x.toVmin(),
-            this.y.toVmin(),
-        );
+    toVmin(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Vmin, element);
     }
 
-    toVmax(): Point {
-        return new Point(
-            this.x.toVmax(),
-            this.y.toVmax(),
-        );
+    toVmax(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Vmax, element);
     }
 
-    toPercent(element: Element, orientation: number): Point {
-        assertParams({ element }, [Element]);
-        Orientation.assertFlag(orientation);
-
-        return new Point(
-            this.x.toPercent(element, Orientation.Horizontal),
-            this.y.toPercent(element, Orientation.Vertical),
-        );
-
+    toPercent(element: Element | null = null): Point {
+        return this.convert(LengthUnit.Percent, element);
     }
 
-    convertImplicitly(unit: number): Point {
+    convert(unit: number, element: Element | null = null): Point {
         assertParams({ unit }, [Number]);
         LengthUnit.assertFlag(unit);
+        assertParams({ element }, [Element, null]);
 
         return new Point(
-            this.x.convertImplicitly(unit),
-            this.y.convertImplicitly(unit),
+            this.x.convert(unit),
+            this.y.convert(unit),
         );
     }
 
@@ -293,5 +244,3 @@ export class Point {
     get y(): Length { return this.#y; }
     #y: Length;
 }
-
-const ZERO = new Point(Length.zero, Length.zero);

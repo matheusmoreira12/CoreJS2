@@ -3,7 +3,21 @@ import { Length, LengthUnit, Orientation } from "./index.js";
 
 export class RectangularOffset {
     static get zero(): RectangularOffset {
-        return new RectangularOffset(Length.zero, Length.zero, Length.zero, Length.zero);
+        return new RectangularOffset(
+            Length.zero,
+            Length.zero,
+            Length.zero,
+            Length.zero
+        );
+    }
+
+    static getUniform(offset: Length) {
+        return new RectangularOffset(
+            offset,
+            offset,
+            offset,
+            offset
+        );
     }
 
     static getCentimeters(left: number, top: number, right: number, bottom: number): RectangularOffset { return new RectangularOffset(Length.getCentimeters(left), Length.getCentimeters(top), Length.getCentimeters(right), Length.getCentimeters(bottom)); }
@@ -43,160 +57,76 @@ export class RectangularOffset {
         this.#bottom = bottom;
     }
 
-    toCentimeters(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toCentimeters(),
-            this.top.toCentimeters(),
-            this.right.toCentimeters(),
-            this.bottom.toCentimeters(),
-        );
+    toCentimeters(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Centimeters, element);
     }
 
-    toMillimeters(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toMillimeters(),
-            this.top.toMillimeters(),
-            this.right.toMillimeters(),
-            this.bottom.toMillimeters(),
-        );
+    toMillimeters(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Millimeters, element);
     }
 
-    toInches(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toInches(),
-            this.top.toInches(),
-            this.right.toInches(),
-            this.bottom.toInches(),
-        );
+    toInches(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Inches, element);
     }
 
-    toPixels(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toPixels(),
-            this.top.toPixels(),
-            this.right.toPixels(),
-            this.bottom.toPixels(),
-        );
+    toPixels(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Pixels, element);
     }
 
-    toPoints(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toPoints(),
-            this.top.toPoints(),
-            this.right.toPoints(),
-            this.bottom.toPoints(),
-        );
+    toPoints(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Points, element);
     }
 
-    toPicas(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toPicas(),
-            this.top.toPicas(),
-            this.right.toPicas(),
-            this.bottom.toPicas(),
-        );
+    toPicas(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Picas, element);
     }
 
-    toEm(element: Element): RectangularOffset {
-        assertParams({ element }, [Element]);
-
-        return new RectangularOffset(
-            this.left.toEm(element),
-            this.top.toEm(element),
-            this.right.toEm(element),
-            this.bottom.toEm(element),
-        );
+    toEm(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Em, element);
     }
 
-    toEx(element: Element): RectangularOffset {
-        assertParams({ element }, [Element]);
-
-        return new RectangularOffset(
-            this.left.toEx(element),
-            this.top.toEx(element),
-            this.right.toEx(element),
-            this.bottom.toEx(element),
-        );
+    toEx(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Ex, element);
     }
 
-    toCh(element: Element): RectangularOffset {
-        assertParams({ element }, [Element]);
-
-        return new RectangularOffset(
-            this.left.toCh(element),
-            this.top.toCh(element),
-            this.right.toCh(element),
-            this.bottom.toCh(element),
-        );
+    toCh(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Ch, element);
     }
 
-    toRem(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toRem(),
-            this.top.toRem(),
-            this.right.toRem(),
-            this.bottom.toRem(),
-        );
+    toRem(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Rem, element);
     }
 
-    toVw(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toVw(),
-            this.top.toVw(),
-            this.right.toVw(),
-            this.bottom.toVw(),
-        );
+    toVw(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Vw, element);
     }
 
-    toVh(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toVh(),
-            this.top.toVh(),
-            this.right.toVh(),
-            this.bottom.toVh(),
-        );
+    toVh(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Vh, element);
     }
 
-    toVmin(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toVmin(),
-            this.top.toVmin(),
-            this.right.toVmin(),
-            this.bottom.toVmin(),
-        );
+    toVmin(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Vmin, element);
     }
 
-    toVmax(): RectangularOffset {
-        return new RectangularOffset(
-            this.left.toVmax(),
-            this.top.toVmax(),
-            this.right.toVmax(),
-            this.bottom.toVmax(),
-        );
+    toVmax(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Vmax, element);
     }
 
-    toPercent(element: Element, orientation: number): RectangularOffset {
-        assertParams({ element }, [Element]);
-        Orientation.assertFlag(orientation);
-
-        return new RectangularOffset(
-            this.left.toPercent(element, Orientation.Horizontal),
-            this.top.toPercent(element, Orientation.Vertical),
-            this.right.toPercent(element, Orientation.Horizontal),
-            this.bottom.toPercent(element, Orientation.Vertical),
-        );
-
+    toPercent(element: Element | null = null): RectangularOffset {
+        return this.convert(LengthUnit.Percent, element);
     }
 
-    convertImplicitly(unit: number): RectangularOffset {
+    convert(unit: number, element: Element | null = null): RectangularOffset {
         assertParams({ unit }, [Number]);
         LengthUnit.assertFlag(unit);
+        assertParams({ element }, [Element, null]);
 
         return new RectangularOffset(
-            this.left.convertImplicitly(unit),
-            this.top.convertImplicitly(unit),
-            this.right.convertImplicitly(unit),
-            this.bottom.convertImplicitly(unit),
+            this.left.convert(unit, element, Orientation.Horizontal),
+            this.top.convert(unit, element, Orientation.Vertical),
+            this.right.convert(unit, element, Orientation.Horizontal),
+            this.bottom.convert(unit, element, Orientation.Vertical),
         );
     }
 

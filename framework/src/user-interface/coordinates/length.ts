@@ -104,7 +104,7 @@ export class Length {
         assertParams({ a, b }, [Length]);
 
         return new Length(
-            Math.max(a.amount, b.convertImplicitly(a.unit).amount),
+            Math.max(a.amount, b.convert(a.unit).amount),
             a.unit
         );
     }
@@ -113,7 +113,7 @@ export class Length {
         assertParams({ a, b }, [Length]);
 
         return new Length(
-            Math.min(a.amount, b.convertImplicitly(a.unit).amount),
+            Math.min(a.amount, b.convert(a.unit).amount),
             a.unit
         );
     }
@@ -126,163 +126,102 @@ export class Length {
         this.#unit = unit;
     }
 
-    toCentimeters(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Centimeters),
-            LengthUnit.Centimeters
-        );
+    toCentimeters(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Centimeters, element, orientation);
     }
 
-    toMillimeters(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Millimeters),
-            LengthUnit.Millimeters
-        );
+    toMillimeters(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Millimeters, element, orientation);
     }
 
-    toInches(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Inches),
-            LengthUnit.Inches
-        );
+    toInches(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Inches, element, orientation);
     }
 
-    toPixels(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Pixels),
-            LengthUnit.Pixels
-        );
+    toPixels(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Pixels, element, orientation);
     }
 
-    toPoints(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Points),
-            LengthUnit.Points
-        );
+    toPoints(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Points, element, orientation);
     }
 
-    toPicas(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Picas),
-            LengthUnit.Picas
-        );
+    toPicas(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Picas, element, orientation);
     }
 
-    toEm(element: Element): Length {
-        assertParams({ element }, [Element]);
-
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Em, element),
-            LengthUnit.Em
-        );
+    toEm(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Em, element, orientation);
     }
 
-    toEx(element: Element): Length {
-        assertParams({ element }, [Element]);
-
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Ex, element),
-            LengthUnit.Ex
-        );
+    toEx(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Ex, element, orientation);
     }
 
-    toCh(element: Element): Length {
-        assertParams({ element }, [Element]);
-
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Ch, element),
-            LengthUnit.Ch
-        );
+    toCh(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Ch, element, orientation);
     }
 
-    toRem(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Rem),
-            LengthUnit.Rem
-        );
+    toRem(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Rem, element, orientation);
     }
 
-    toVw(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Vw),
-            LengthUnit.Vw
-        );
+    toVw(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Vw, element, orientation);
     }
 
-    toVh(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Vh),
-            LengthUnit.Vh
-        );
+    toVh(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Vh, element, orientation);
     }
 
-    toVmin(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmin),
-            LengthUnit.Vmin
-        );
+    toVmin(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Vmin, element, orientation);
     }
 
-    toVmax(): Length {
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Vmax),
-            LengthUnit.Vmax
-        );
+    toVmax(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Vmax, element, orientation);
     }
 
-    toPercent(element: Element, orientation: number): Length {
-        assertParams({ element }, [Element]);
-        assertParams({ orientation }, [Number]);
-        Orientation.assertFlag(orientation);
-
-        return new Length(
-            __UnitConversion.convert(this.amount, this.unit, LengthUnit.Percent, element, orientation),
-            LengthUnit.Percent
-        );
+    toPercent(element: Element | null = null, orientation: number | null = null): Length {
+        return this.convert(LengthUnit.Percent, element, orientation);
     }
 
-    convertImplicitly(unit: number): Length {
+    convert(unit: number, element: Element | null = null, orientation: number | null = null): Length {
         assertParams({ unit }, [Number]);
-        LengthUnit.assertFlag(unit);
+        assertParams({element}, [Element, null]);
+        assertParams({orientation}, [Number, null]);
 
-        if (__UnitConversion.isUnitRelative(unit) ||
-            __UnitConversion.isUnitRelative(this.unit))
-            throw new InvalidOperationException("Cannot convert length. Relative units are not implicitly convertible.");
-
-        if (this.unit == unit)
-            return this;
-
-        return new Length(this.amount + __UnitConversion.convert(this.amount, this.unit, unit), this.unit);
+        return new Length(this.amount + __UnitConversion.convert(this.amount, this.unit, unit, element, orientation), this.unit);
     }
 
     equals(length: Length): boolean {
         assertParams({ length }, [Length]);
 
-        return this.amount == length.convertImplicitly(this.unit).amount;
+        return this.amount == length.convert(this.unit).amount;
     }
 
     greaterThan(length: Length): boolean {
         assertParams({ length }, [Length]);
 
-        return this.amount >= length.convertImplicitly(this.unit).amount;
+        return this.amount >= length.convert(this.unit).amount;
     }
 
     lessThan(length: Length): boolean {
         assertParams({ length }, [Length]);
 
-        return this.amount <= length.convertImplicitly(this.unit).amount;
+        return this.amount <= length.convert(this.unit).amount;
     }
 
     greaterThanOrEquals(length: Length): boolean {
         assertParams({ length }, [Length]);
 
-        return this.amount >= length.convertImplicitly(this.unit).amount;
+        return this.amount >= length.convert(this.unit).amount;
     }
 
     lessThanOrEquals(length: Length): boolean {
         assertParams({ length }, [Length]);
 
-        return this.amount <= length.convertImplicitly(this.unit).amount;
+        return this.amount <= length.convert(this.unit).amount;
     }
 
     invert(): Length {
@@ -292,7 +231,7 @@ export class Length {
     add(length: Length) {
         assertParams({ length }, [Length]);
 
-        return new Length(this.amount + length.convertImplicitly(this.unit).amount, this.unit);
+        return new Length(this.amount + length.convert(this.unit).amount, this.unit);
     }
 
     subtract(length: Length) {

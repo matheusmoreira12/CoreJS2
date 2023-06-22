@@ -5,7 +5,10 @@ import { ArgumentException } from "../../standard/exceptions/index.js";
 
 export class Size {
     static get zero(): Size {
-        return new Size(Length.zero, Length.zero);
+        return new Size(
+            Length.zero,
+            Length.zero
+        );
     };
 
     static getCentimeters(width: number, height: number): Size {
@@ -125,128 +128,74 @@ export class Size {
         this.__height = height;
     }
 
-    toCentimeters(): Size {
-        return new Size(
-            this.width.toCentimeters(),
-            this.height.toCentimeters(),
-        );
+    toCentimeters(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Centimeters, element);
     }
 
-    toMillimeters(): Size {
-        return new Size(
-            this.width.toMillimeters(),
-            this.height.toMillimeters(),
-        );
+    toMillimeters(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Millimeters, element);
     }
 
-    toInches(): Size {
-        return new Size(
-            this.width.toInches(),
-            this.height.toInches(),
-        );
+    toInches(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Inches, element);
     }
 
-    toPixels(): Size {
-        return new Size(
-            this.width.toPixels(),
-            this.height.toPixels(),
-        );
+    toPixels(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Pixels, element);
     }
 
-    toPoints(): Size {
-        return new Size(
-            this.width.toPoints(),
-            this.height.toPoints(),
-        );
+    toPoints(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Points, element);
     }
 
-    toPicas(): Size {
-        return new Size(
-            this.width.toPicas(),
-            this.height.toPicas(),
-        );
+    toPicas(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Picas, element);
     }
 
-    toEm(element: Element): Size {
-        assertParams({ element }, [Element]);
-
-        return new Size(
-            this.width.toEm(element),
-            this.height.toEm(element),
-        );
+    toEm(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Em, element);
     }
 
-    toEx(element: Element): Size {
-        assertParams({ element }, [Element]);
-
-        return new Size(
-            this.width.toEx(element),
-            this.height.toEx(element),
-        );
+    toEx(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Ex, element);
     }
 
-    toCh(element: Element): Size {
-        assertParams({ element }, [Element]);
-
-        return new Size(
-            this.width.toCh(element),
-            this.height.toCh(element),
-        );
+    toCh(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Ch, element);
     }
 
-    toRem(): Size {
-        return new Size(
-            this.width.toRem(),
-            this.height.toRem(),
-        );
+    toRem(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Rem, element);
     }
 
-    toVw(): Size {
-        return new Size(
-            this.width.toVw(),
-            this.height.toVw(),
-        );
+    toVw(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Vw, element);
     }
 
-    toVh(): Size {
-        return new Size(
-            this.width.toVh(),
-            this.height.toVh(),
-        );
+    toVh(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Vh, element);
     }
 
-    toVmin(): Size {
-        return new Size(
-            this.width.toVmin(),
-            this.height.toVmin(),
-        );
+    toVmin(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Vmin, element);
     }
 
-    toVmax(): Size {
-        return new Size(
-            this.width.toVmax(),
-            this.height.toVmax(),
-        );
+    toVmax(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Vmax, element);
     }
 
-    toPercent(element: Element, orientation: number): Size {
-        assertParams({ element }, [Element]);
-        Orientation.assertFlag(orientation);
-
-        return new Size(
-            this.width.toPercent(element, Orientation.Horizontal),
-            this.height.toPercent(element, Orientation.Vertical),
-        );
-
+    toPercent(element: Element | null = null): Size {
+        return this.convert(LengthUnit.Percent, element);
     }
 
-    convertImplicitly(unit: number): Size {
+    convert(unit: number, element: Element | null = null): Size {
         assertParams({ unit }, [Number]);
         LengthUnit.assertFlag(unit);
+        assertParams({ element }, [Element, null]);
 
         return new Size(
-            this.width.convertImplicitly(unit),
-            this.height.convertImplicitly(unit),
+            this.width.convert(unit),
+            this.height.convert(unit),
         );
     }
 

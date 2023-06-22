@@ -1,5 +1,5 @@
 import { StringUtils } from "../../core-base/utils/index.js";
-import { ArgumentException, NotSupportedException } from "../../standard/exceptions/index.js";
+import { ArgumentException, ArgumentNullException, NotSupportedException } from "../../standard/exceptions/index.js";
 import { LengthUnit, Orientation } from "./index.js";
 
 export namespace __UnitConversion {
@@ -95,7 +95,7 @@ export namespace __UnitConversion {
             unit == LengthUnit.Percent;
     }
 
-    export function convert(amount: number, srcUnit: number, destUnit: number, elem?: Element, orientation?: number): number {
+    export function convert(amount: number, srcUnit: number, destUnit: number, element: Element | null = null, orientation: number | null = null): number {
         if (srcUnit == destUnit)
             return amount;
 
@@ -117,19 +117,33 @@ export namespace __UnitConversion {
                     return amount / SCREEN_PPI / 6;
 
                 case LengthUnit.Em:
-                    return amount / getEmInPixels(elem!);
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+
+                    return amount / getEmInPixels(element);
 
                 case LengthUnit.Ex:
-                    return amount / getExInPixels(elem!);
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+
+                    return amount / getExInPixels(element);
 
                 case LengthUnit.Ch:
-                    return amount / getChInPixels(elem!);
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+
+                    return amount / getChInPixels(element);
 
                 case LengthUnit.Rem:
                     return amount / getRemInPixels();
 
                 case LengthUnit.Percent:
-                    return amount / getPercentInPixels(elem!, orientation!)!;
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+                    if (orientation === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+
+                    return amount / getPercentInPixels(element, orientation);
 
                 case LengthUnit.Vh:
                     return amount / getVhInPixels();
@@ -166,19 +180,33 @@ export namespace __UnitConversion {
                     return amount * SCREEN_PPI * 6;
 
                 case LengthUnit.Em:
-                    return amount * getEmInPixels(elem!);
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+
+                    return amount * getEmInPixels(element);
 
                 case LengthUnit.Ex:
-                    return amount * getExInPixels(elem!);
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+
+                    return amount * getExInPixels(element);
 
                 case LengthUnit.Ch:
-                    return amount * getChInPixels(elem!);
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+
+                    return amount * getChInPixels(element);
 
                 case LengthUnit.Rem:
                     return amount * getRemInPixels();
 
                 case LengthUnit.Percent:
-                    return amount * getPercentInPixels(elem!, orientation!)!;
+                    if (element === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ element }))
+                    if (orientation === null)
+                        throw new ArgumentNullException(StringUtils.nameOf({ orientation }))
+
+                    return amount * getPercentInPixels(element, orientation);
 
                 case LengthUnit.Vh:
                     return amount * getVhInPixels();
@@ -197,6 +225,6 @@ export namespace __UnitConversion {
             }
         }
 
-        return convert(convert(amount, srcUnit, LengthUnit.Pixels, elem, orientation)!, LengthUnit.Pixels, destUnit, elem, orientation);
+        return convert(convert(amount, srcUnit, LengthUnit.Pixels, element, orientation)!, LengthUnit.Pixels, destUnit, element, orientation);
     }
 }
