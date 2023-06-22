@@ -1,4 +1,4 @@
-import { StringUtils } from "../../core-base/utils/index.js";
+import { ArrayUtils, StringUtils } from "../../core-base/utils/index.js";
 import { ArgumentException } from "../../standard/exceptions/index.js";
 import { assertParams } from "../../validation/index.js";
 import { Length, LengthUnit, Orientation, Point, Size, RectangularOffset } from "./index.js";
@@ -332,6 +332,36 @@ export class Rectangle {
         )
     }
 
+    includes(point: Point) {
+        return point.x.greaterThanOrEquals(this.left) &&
+            point.x.lessThanOrEquals(this.right) &&
+            point.y.greaterThanOrEquals(this.top) &&
+            point.y.lessThanOrEquals(this.bottom);
+    }
+
+    intersectsWith(rectangle: Rectangle): boolean {
+        assertParams({ rectangle }, [Rectangle])
+
+        return ArrayUtils.any(rectangle.corners, corner => this.includes(corner));
+    }
+
+    intersect(rectangle: Rectangle) {
+        if (!this.intersectsWith(rectangle))
+            return false;
+
+        const left = Length.max(rectangle.left, this.left);
+        const right = Length.min(rectangle.right, this.right);
+        const top = Length.max(rectangle.top, this.top);
+        const bottom = Length.min(rectangle.bottom, this.bottom);
+
+        return new Rectangle(
+            left,
+            top,
+            right.subtract(left),
+            bottom.subtract(top)
+        );
+    }
+
     scale(factor: number): Rectangle {
         assertParams({ factor }, [Number]);
 
@@ -405,5 +435,14 @@ export class Rectangle {
 
     get size() {
         return new Size(this.width, this.height);
+    }
+
+    get corners(): Point[] {
+        return [
+            new Point(this.left, this.top),
+            new Point(this.right, this.top),
+            new Point(this.right, this.bottom),
+            new Point(this.left, this.bottom)
+        ];
     }
 }
