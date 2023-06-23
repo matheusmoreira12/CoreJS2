@@ -51,6 +51,8 @@ export class RectangularOffset {
     static getPercent(left: number, top: number, right: number, bottom: number): RectangularOffset { return new RectangularOffset(Length.getPercent(left), Length.getPercent(top), Length.getPercent(right), Length.getPercent(bottom)); }
 
     constructor(left: Length, top: Length, right: Length, bottom: Length) {
+        assertParams({ left, top, right, bottom }, [Length]);
+
         this.#left = left;
         this.#top = top;
         this.#right = right;

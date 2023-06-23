@@ -149,7 +149,7 @@ export class Rectangle {
     }
 
     constructor(left: Length, top: Length, width: Length, height: Length) {
-        assertParams({ left, top, width, height }, [Point]);
+        assertParams({ left, top, width, height }, [Length]);
 
         if (width.amount < 0)
             throw new ArgumentException(StringUtils.nameOf({ width }), "Width cannot be less than zero.");
