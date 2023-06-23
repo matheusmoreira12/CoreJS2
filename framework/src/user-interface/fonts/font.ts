@@ -2,7 +2,7 @@ import { FontWeight } from "./font-weight.js";
 import { TextDecoration } from "./text-decoration.js";
 import { FontStyle } from "./font-style.js";
 import { assertParams } from "../../validation/index.js";
-import { Length, LengthUnit } from "../coordinates/index.js";
+import { Length, LengthUnit } from "../coordinate-system/index.js";
 
 export class Font {
     static get default(): Font { return DEFAULT_FONT; }

@@ -35,8 +35,8 @@ export { Resources };
 import * as Controls from "./controls/index.js";
 export { Controls };
 
-import * as Coordinates from "./coordinates/index.js";
-export { Coordinates };
+import * as CoordinateSystem from "./coordinate-system/index.js";
+export { CoordinateSystem };
 
 import * as UserInteractions from "./user-interactions/index.js";
 export { UserInteractions };

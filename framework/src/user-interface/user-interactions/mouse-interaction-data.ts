@@ -1,4 +1,4 @@
-import { Point } from "../coordinates/index.js";
+import { Point } from "../coordinate-system/index.js";
 import { MouseButton, UserInteractionData } from "./index.js";
 
 export class MouseInteractionData extends UserInteractionData {

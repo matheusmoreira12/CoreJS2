@@ -1,6 +1,6 @@
 import { DependencyObject, DependencyProperty, PropertyMetadata } from "../../../standard/dependency-objects/index.js";
 import { Type } from "../../../standard/reflection/type.js";
-import { Length } from "../../coordinates/index.js";
+import { Length } from "../../coordinate-system/index.js";
 
 export class ColumnDefinition extends DependencyObject {
     static widthProperty = DependencyProperty.registerAttached(Type.get(ColumnDefinition), "width", new PropertyMetadata(Type.get(Length), Length.zero));
