@@ -9,18 +9,15 @@
             display: flex;
             flex-flow: row;
             flex-wrap: wrap;
+            place-items: center;
+            place-content: center;
         }
     </style>
 </head>
 
 <body>
     <script type="module">
-        import * as Core from "../framework/dist/index.js";
-
-        const Web = Core.Web;
-        const Ajax = Web.Ajax.Ajax;
-        const AjaxResponseType = Web.Ajax.AjaxResponseType;
-
+        import { Ajax, AjaxResponseType } from "../framework/dist/web/ajax/index.js";
         class CoreControl extends HTMLElement {
             constructor() {
                 super();
@@ -307,6 +304,21 @@
         }
         customElements.define("core-picture", CorePicture);
     </script>
+
+    <core-picture core-src="https://picsum.photos/320/240">
+    </core-picture>
+
+    <core-picture core-src="https://picsum.photos/320/240">
+    </core-picture>
+
+    <core-picture core-src="https://picsum.photos/320/240">
+    </core-picture>
+
+    <core-picture core-src="https://picsum.photos/320/240">
+    </core-picture>
+
+    <core-picture core-src="https://picsum.photos/320/240">
+    </core-picture>
 
     <core-picture core-src="https://picsum.photos/320/240">
     </core-picture>
