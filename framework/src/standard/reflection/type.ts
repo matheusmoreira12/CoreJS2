@@ -69,18 +69,18 @@ export class Type {
     }
 
     getProperty(name: string, options: number = MemberSelectionOptions.Any): PropertyInfo | null {
-        const o = options// & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
-        return this.getMember(name, MemberSelectionOptions.Properties | o) as PropertyInfo | null;
+        const staticityOptions = options & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
+        return this.getMember(name, MemberSelectionOptions.Properties | staticityOptions) as PropertyInfo | null;
     }
 
     getMethod(name: string, options: number = MemberSelectionOptions.Any): MethodInfo | null {
-        const o = options// & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
-        return this.getMember(name, MemberSelectionOptions.Methods | o) as MethodInfo | null;
+        const staticityOptions = options & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
+        return this.getMember(name, MemberSelectionOptions.Methods | staticityOptions) as MethodInfo | null;
     }
 
     getConstructor(options: number = MemberSelectionOptions.Any, name: string): ConstructorInfo | null {
-        const o = options// & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
-        return this.getMember(name, MemberSelectionOptions.Constructor | o) as ConstructorInfo | null;
+        const staticityOptions = options & (MemberSelectionOptions.InstanceOnly | MemberSelectionOptions.StaticOnly);
+        return this.getMember(name, MemberSelectionOptions.Constructor | staticityOptions) as ConstructorInfo | null;
     }
 
     obeysConstraint(constraint: TypeConstraint): boolean {
