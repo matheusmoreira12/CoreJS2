@@ -1,0 +1,49 @@
+<script type="module">
+    import { Type } from "../../../framework/dist/standard/reflection/index.js";
+    import { DependencyProperty, PropertyMetadata } from "../../../framework/dist/standard/dependency-objects/index.js";
+    import { Control } from "../../../framework/dist/user-interface/controls/index.js";
+    import { HTML } from "../../../framework/dist/user-interface/controls/native/index.js";
+    import { ControlTemplate, TemplatedControl, TemplateBinding } from "../../../framework/dist/user-interface/controls/templating/index.js";
+
+    class Control1 extends Control {
+        static get textProperty() { return this.#textProperty; }
+        static #textProperty = DependencyProperty.registerAttached(Type.get(Control1), "text", new PropertyMetadata(Type.get(String)));
+        get text() { return this.get(textProperty); }
+        set text(value) { return this.set(textProperty, value); }
+    }
+    Control.register(Control1, "hello-control1");
+
+    const body_ctrl = new HTML.body;
+    const control1 = new Control1();
+    body_ctrl.children.add(control1);
+
+    const template1 = new ControlTemplate(Type.get(Control1));
+
+    const div1 = new TemplatedControl(Type.get(HTML.div));
+    template1.visualTree = div1;
+
+    const input1 = new TemplatedControl(Type.get(HTML.input));
+    input1.propertyValues.set(HTML.input.typeProperty, "text");
+    input1.propertyValues.set(HTML.input.valueProperty, new TemplateBinding((templatedParent) => templatedParent, Control1.textProperty));
+    div1.children.add(input1);
+
+    const button1 = new TemplatedControl(Type.get(HTML.button));
+    input1.propertyValues.set(HTML.input.innerTextProperty, "Search");
+    div1.children.add(button1);
+
+
+
+    const visualTree = new (template1.visualTree.type.getConstructor().body)();
+    control1.children.add(visualTree);
+
+    for (let child of template1.visualTree.children) {
+        const childControl = new (child.type.getConstructor().body)();
+        visualTree.children.add(childControl);
+    }
+
+
+
+    console.log(body_ctrl);
+    console.log(control1);
+    console.log(template1);
+</script>

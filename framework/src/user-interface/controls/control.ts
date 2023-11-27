@@ -23,11 +23,11 @@ export abstract class Control extends DependencyObject {
             throw new InvalidOperationException("Invalid constructor.");
         if (!__Activator.tryBeginControlInstanceLifecycle(this))
             throw new InvalidOperationException("Cannot begin control instance lifecycle.");
-        this.set(Control.__childrenPropertyKey, new ControlChildrenCollection());
-        this.children.ChangeEvent.attach(this.__children_onChange, this);
+        this.set(Control._childrenPropertyKey, new ControlChildrenCollection());
+        this.children.ChangeEvent.attach(this.#children_onChange, this);
     }
 
-    private __children_onChange(_sender: ObservableCollection<Control>, args: ObservableCollectionChangeArgs<Control>) {
+    #children_onChange(_sender: ObservableCollection<Control>, args: ObservableCollectionChangeArgs<Control>) {
         switch (args.action) {
             case ObservableCollectionChangeAction.Add:
                 DOMUtils.insertElementsAt(this.domElement, args.newIndex, args.newItems.map(c => c.domElement));
@@ -38,8 +38,8 @@ export abstract class Control extends DependencyObject {
         }
     }
 
-    protected destructor(): void {
-        super.destructor();
+    protected _destructor(): void {
+        super._destructor();
 
         if (!__Activator.tryEndControlInstanceLifecycle(this))
             throw new InvalidOperationException("Cannot end control instance lifecycle.");
@@ -50,18 +50,17 @@ export abstract class Control extends DependencyObject {
     finalize() { }
 
     get domElement(): Element {
-        if (this.__domElement)
-            return this.__domElement;
+        if (this.#domElement)
+            return this.#domElement;
 
         const tryGetControlInstanceDOMElementOutput: OutputArgument<Element> = {};
         if (!__Activator.tryGetControlInstanceDOMElement(this, tryGetControlInstanceDOMElementOutput))
             throw new InvalidOperationException("Cannot get control instance DOM element.");
-        return this.__domElement = tryGetControlInstanceDOMElementOutput.value!;
+        return this.#domElement = tryGetControlInstanceDOMElementOutput.value!;
     }
-
-    private __domElement?: Element;
+    #domElement?: Element;
 
     get children(): ControlChildrenCollection { return this.get(Control.childrenProperty); }
-    private static __childrenPropertyKey = DependencyProperty.registerReadonly(Type.get(Control), "children", new PropertyMetadata(Type.get(ControlChildrenCollection)));
-    static childrenProperty = Control.__childrenPropertyKey.property;
+    protected static _childrenPropertyKey = DependencyProperty.registerReadonly(Type.get(Control), "children", new PropertyMetadata(Type.get(ControlChildrenCollection)));
+    static childrenProperty = Control._childrenPropertyKey.property;
 }
