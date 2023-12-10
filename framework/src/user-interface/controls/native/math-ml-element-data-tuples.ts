@@ -2,7 +2,7 @@ const NS = "http://www.w3.org/1998/Math/MathML";
 
 export const MATH_ML_ELEMENT_DATA_TUPLES = [
     //Extracted from: https://www.w3.org/TR/mathml4/
-    //$$("code").map(c => c.innerText.match(/<(\w+?)>/)).filter(m => m).map(m => m[1]).map(n => `["${n}", typeof ${document.createElementNS(NS, n).constructor.name}]`).join(", ")
+    //$$("code").map(c => c.innerText.match(/<(\w+?)>/)).filter(m => m).map(m => m[1]).map(n => `["${n}", NS, "${document.createElementNS(NS, n).constructor.name}"]`).join(", ")
     ["math", NS, "MathMLElement"],
     ["mrow", NS, "MathMLElement"],
     ["mi", NS, "MathMLElement"],

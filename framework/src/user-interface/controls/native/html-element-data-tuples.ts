@@ -2,7 +2,7 @@ const NS = "http://www.w3.org/1999/xhtml";
 
 export const HTML_ELEMENT_DATA_TUPLES = [
     //Extracted from: https://html.spec.whatwg.org/
-    //$$("a").map(a => a.href.match(/the-(\w+)-element/)).filter(m => m).map(m => m[1]).sort((n, o) => n > o ? 1 : -1).map(n => `["${n}", typeof ${document.createElement(n).constructor.name}]`).join(", ")
+    //$$("a").map(a => a.href.match(/the-(\w+)-element/)).filter(m => m).map(m => m[1]).sort((n, o) => n > o ? 1 : -1).map(n => `["${n}", NS, "${document.createElement(n).constructor.name}"]`).join(", ")
     ["a", NS, "HTMLAnchorElement"],
     ["abbr", NS, "HTMLElement"],
     ["address", NS, "HTMLElement"],
@@ -105,5 +105,5 @@ export const HTML_ELEMENT_DATA_TUPLES = [
     ["ul", NS, "HTMLUListElement"],
     ["var", NS, "HTMLElement"],
     ["video", NS, "HTMLVideoElement"],
-    ["wbr", NS, "HTMLElement"]
+    ["wbr", NS, "HTMLElement"],
 ] as const;

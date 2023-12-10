@@ -14,7 +14,3 @@ type ElementCtorFromName<TName> = typeof globalThis[TName & keyof typeof globalT
 export type NativeControls<TTuples extends DataTuples> = {
     readonly [I in number as TagNameFromTuple<TTuples[I]>]: NativeControl<ElementCtorFromTuple<TTuples[I]>>;
 };
-
-type a = { [I in number] : [typeof HTML_ELEMENT_DATA_TUPLES[I][0], typeof HTML_ELEMENT_DATA_TUPLES[I][2]] };
-
-let x: a[0];

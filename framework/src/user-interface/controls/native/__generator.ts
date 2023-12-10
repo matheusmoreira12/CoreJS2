@@ -38,51 +38,39 @@ export namespace __Generator {
             });
 
             function createNativeControl() {
-                const NativeControl = nativeControlFactory(elementName) as unknown as ControlConstructor;
+                const NativeControl = nativeControlFactory(elementName, elemCtor) as unknown as ControlConstructor;
                 Control.register(NativeControl, elementName, namespaceUri);
-                defineDependencyProperties(NativeControl, elemCtor.prototype);
-                defineInitializer(NativeControl.prototype);
                 return NativeControl;
-            }
-        }
-
-        function defineDependencyProperties(nativeControl: ControlConstructor, elemProto: Element) {
-            for (let [propName, substPropName] of getOriginalAndSubstitutedPropertyNames(elemProto)) {
-                const finalPropName = substPropName ?? propName;
-                Object.defineProperty(nativeControl.prototype, finalPropName, {
-                    get() { return this.get(prop); },
-                    set(value: any) { return this.set(prop, value); }
-                });
-                const prop = DependencyProperty.registerAttached(Type.get(nativeControl), finalPropName, new PropertyMetadata(new AnyConstraint(), null));
-                Object.defineProperty(nativeControl, `${finalPropName}Property`, {
-                    get() { return prop; }
-                });
-            }
-        }
-
-        function defineInitializer(proto: Control) {
-            Object.defineProperty(proto, "initialize", {
-                get() { return initializeControl; }
-            });
-            function initializeControl(this: Control, elem: Element) {
-                defineEvents(this, elem);
-
-                function defineEvents(control: Control, elem: Element) {
-                    for (let eventName of getEventNames(elem)) {
-                        let event: NativeEvent | undefined;
-                        Object.defineProperty(control, `${eventName}Event`, {
-                            get(this: Element) {
-                                return event ?? (event = new NativeEvent(elem, eventName));
-                            }
-                        });
-                    }
-                }
             }
         }
     }
 
-    function nativeControlFactory(tagName: string): NativeControlBase {
-        return new Function("NativeControlBase", `return class ${tagName}_NativeControl extends NativeControlBase {};`)(NativeControlBase)
+    function nativeControlFactory(tagName: string, elemCtor: typeof Element): NativeControlBase {
+        const elemProto = elemCtor.prototype;
+        const nativeControlClassName = `${tagName}_NativeControl`;
+
+        let bodyStr = `return class ${nativeControlClassName} extends NativeControlBase {`;
+
+        for (let [prop, subProp] of getOriginalAndSubstitutedPropertyNames(elemProto)) {
+            const newProp = subProp ?? prop;
+            const dependencyProp = `${newProp}Property`;
+
+            bodyStr += `static get ${dependencyProp}() { return this.#${dependencyProp}; } static #${dependencyProp} = DependencyProperty.registerAttached(Type.get(${nativeControlClassName}), "${newProp}", new PropertyMetadata(new AnyConstraint(), null)); get ${newProp}() { return this.get(${nativeControlClassName}.${dependencyProp}); } set ${newProp}(value) { this.set(${nativeControlClassName}.${dependencyProp}, value); }`
+        }
+
+        const eventNames = [...getEventNames(elemProto)];
+
+        for (let eventName of eventNames) {
+            const nativeEvt = `${eventName}Event`;
+
+            bodyStr += `get ${nativeEvt}() { return this.#${nativeEvt}; } #${nativeEvt} = new NativeEvent(this.domElement, "${eventName}");`;
+        }
+
+        bodyStr += "initialize() {} finalize() {} };";
+
+        const NativeControl = new Function("Type", "DependencyProperty", "PropertyMetadata", "NativeControlBase", "AnyConstraint", "NativeEvent", bodyStr)(Type, DependencyProperty, PropertyMetadata, NativeControlBase, AnyConstraint, NativeEvent);
+
+        return NativeControl;
     }
 
     function getEventNames(elemProto: Element): IterableIterator<string> {
@@ -99,7 +87,7 @@ export namespace __Generator {
         return ArrayUtils.select(
             ArrayUtils.where(
                 ObjectUtils.getAllPropertyNames(elemProto),
-                prop => !isEventName(prop) && !isExcludedProperty(prop)
+                prop => !isExcludedProperty(prop) && !isEventName(prop)
             ),
             prop => [prop, getSubstitutedPropertyNameOrNull(prop)]
         );

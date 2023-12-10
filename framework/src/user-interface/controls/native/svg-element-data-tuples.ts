@@ -2,7 +2,7 @@ const NS = "http://www.w3.org/2000/svg";
 
 export const SVG_ELEMENT_DATA_TUPLES = [
     //Extracted from https://svgwg.org/svg2-draft/struct.html#SVGElement
-    //$$("a").map(a => a.href.match(/(\w+)Element/)).filter(m => m).map(m => m[1].replace(/^[A-Z]+/, s => s.toLowerCase())).sort((n, o) => n > o ? 1 : -1).map(n => `["${n}", typeof ${document.createElementNS(NS, n).constructor.name}]`]).join(", ")
+    //$$("a").map(a => a.href.match(/(\w+)Element/)).filter(m => m).map(m => m[1].replace(/^[A-Z]+/, s => s.toLowerCase())).sort((n, o) => n > o ? 1 : -1).map(n => `["${n}", NS, "${document.createElementNS(NS, n).constructor.name}"]`).join(", ")
     ["a", NS, "SVGAElement"],
     ["animate", NS, "SVGAnimateElement"],
     ["animateMotion", NS, "SVGAnimateMotionElement"],
