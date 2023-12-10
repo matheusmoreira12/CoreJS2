@@ -45,9 +45,9 @@ export abstract class Control extends DependencyObject {
             throw new InvalidOperationException("Cannot end control instance lifecycle.");
     }
 
-    initialize() { }
+    abstract initialize(): void;
 
-    finalize() { }
+    abstract finalize(): void;
 
     get domElement(): Element {
         if (this.#domElement)
