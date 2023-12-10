@@ -2,7 +2,7 @@
     import { Type } from "../../../framework/dist/standard/reflection/index.js";
     import { DependencyProperty, PropertyMetadata } from "../../../framework/dist/standard/dependency-objects/index.js";
     import { Control } from "../../../framework/dist/user-interface/controls/index.js";
-    import { HTML } from "../../../framework/dist/user-interface/controls/native/index.js";
+    import { HTML, MathML, SVG } from "../../../framework/dist/user-interface/controls/native/index.js";
     import { ControlTemplate, TemplatedControl, TemplateBinding } from "../../../framework/dist/user-interface/controls/templating/index.js";
 
     class Control1 extends Control {
@@ -10,10 +10,14 @@
         static #textProperty = DependencyProperty.registerAttached(Type.get(Control1), "text", new PropertyMetadata(Type.get(String)));
         get text() { return this.get(textProperty); }
         set text(value) { return this.set(textProperty, value); }
+
+        initialize() {}
+
+        finalize() {}
     }
     Control.register(Control1, "hello-control1");
 
-    const body_ctrl = new HTML.body;
+    const body_ctrl = new HTML.body();
     const control1 = new Control1();
     body_ctrl.children.add(control1);
 
@@ -43,7 +47,7 @@
 
 
 
-    console.log(body_ctrl);
+    console.log(HTML, SVG, MathML);
     console.log(control1);
     console.log(template1);
 </script>
