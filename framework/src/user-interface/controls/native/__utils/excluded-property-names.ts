@@ -1,4 +1,4 @@
-export const EXCLUDED_PROPERTIES = [
+export const EXCLUDED_PROPERTY_NAMES = [
     "appendChild",
     "ATTRIBUTE_NODE",
     "CDATA_SECTION_NODE",

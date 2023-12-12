@@ -1,5 +1,4 @@
-import { DataMapItem, DataMap } from "./data-map";
-import { NativeControl } from "./native-control";
+import { DataMap, DataMapItem, NativeControl } from "./index";
 
 type ElementCtorFromTuple<TTuple extends DataMapItem> = ElementCtorFromName<TTuple["ctorName"]>;
 

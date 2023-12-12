@@ -1,8 +1,8 @@
-import { HTML_ELEMENT_DATA_MAP } from "./html-element-data-map.js";
-import { MATH_ML_ELEMENT_DATA_MAP } from "./math-ml-element-data-map.js";
-import { SVG_ELEMENT_DATA_MAP } from "./svg-element-data-map.js";
+import { HTML_ELEMENT_DATA_MAP } from "./__utils/html-element-data-map.js";
+import { MATH_ML_ELEMENT_DATA_MAP } from "./__utils/math-ml-element-data-map.js";
+import { SVG_ELEMENT_DATA_MAP } from "./__utils/svg-element-data-map.js";
 import { __Generator } from "./__generator.js";
-import { NativeControls } from "./native-controls";
+import { NativeControls } from "./__utils/native-controls.js";
 
 export * from "./native-control-base.js";
 

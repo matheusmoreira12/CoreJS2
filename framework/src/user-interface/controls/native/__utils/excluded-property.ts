@@ -1,4 +1,4 @@
-import { EXCLUDED_PROPERTIES as EXCLUDED_PROPERTY_NAMES } from "./excluded-properties.js";
+import { EXCLUDED_PROPERTY_NAMES } from "./index.js";
 
 export type ExcludedProperty = typeof EXCLUDED_PROPERTY_NAMES[number];
 
