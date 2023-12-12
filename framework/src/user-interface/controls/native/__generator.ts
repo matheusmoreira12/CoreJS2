@@ -11,12 +11,14 @@ import { AnyConstraint } from "../../../standard/reflection/type-constraints/ind
 import { getEventName, isEventName } from "./event-name.js";
 import { isExcludedProperty } from "./excluded-property.js";
 import { getSubstitutedPropertyNameOrNull } from "./substituted-property.js";
+import { DataMap } from "./data-map.js";
 
 export namespace __Generator {
-    export function generateNativeControls(elemDataTuples: readonly (readonly [string, string, string])[]): { readonly [K: string]: NativeControl<any> } {
+    export function generateNativeControls(elemDataMap: DataMap): { readonly [K: string]: NativeControl<any> } {
         const result = {};
-        for (let [elementName, namespaceUri, elemCtorName] of elemDataTuples) {
-            const elemCtor = globalThis[elemCtorName as keyof typeof globalThis] as typeof Element;
+        for (let elementName of Object.getOwnPropertyNames(elemDataMap)) {
+            const { namespaceUri, ctorName } = elemDataMap[elementName];
+            const elemCtor = globalThis[ctorName as keyof typeof globalThis] as typeof Element;
             if (elemCtor === undefined) {
                 defineUnsuportedNativeControl(elementName);
                 continue;

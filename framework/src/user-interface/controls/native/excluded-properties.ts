@@ -45,4 +45,7 @@ export const EXCLUDED_PROPERTIES = [
     "valueOf",
     "__proto__",
     "toLocaleString",
+    "addEventListener",
+    "removeEventListener",
+    "dispatchEvent",
 ] as const;
