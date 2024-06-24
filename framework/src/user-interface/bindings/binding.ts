@@ -1,10 +1,7 @@
 import { BindingDirection } from "./index.js";
 import { InvalidOperationException } from "../../standard/exceptions/index.js"
 import { assertParams } from "../../validation/index.js";
-import { DependencyProperty, DependencyPropertyKey, PropertyMetadata } from "../../standard/dependency-objects/index.js";
 import { IValueConverter } from "../value-converters/index.js";
-import { OrConstraint } from "../../standard/reflection/type-constraints/index.js";
-import { Type } from "../../standard/reflection/index.js";
 import { Destructible } from "../../standard/index.js";
 
 /**
@@ -18,7 +15,7 @@ export abstract class Binding extends Destructible {
         super();
 
         BindingDirection.assertFlag(BindingDirection.Both);
-        assertParams({ valueConverter }, [IValueConverter, undefined]);
+        assertParams({ valueConverter }, [IValueConverter, null]);
 
         this.__direction = direction;
         this.__valueConverter = valueConverter;

@@ -12,7 +12,7 @@ import { __Storage } from "../../standard/dependency-objects/__storage.js";
  * Allows the binding of two framework properties.
  */
 export class PropertyBinding extends Binding {
-    constructor(source: DependencyObject, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, direction: number = BindingDirection.Both, valueConverter?: IValueConverter) {
+    constructor(source: DependencyObject, sourceProperty: DependencyProperty, target: DependencyObject, targetProperty: DependencyProperty, direction: number = BindingDirection.Both, valueConverter: IValueConverter | null = null) {
         super(direction, valueConverter);
 
         assertParams({ source }, [DependencyObject]);
