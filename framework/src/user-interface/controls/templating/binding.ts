@@ -2,6 +2,7 @@ import { DependencyObject, DependencyProperty } from "../../../standard/dependen
 import { FrameworkException } from "../../../standard/exceptions/index.js";
 import { Type } from "../../../standard/reflection/index.js";
 import { BindingDirection } from "../../bindings/index.js";
+import { IValueConverter } from "../../value-converters/index.js";
 
 type RelativeSourceSelector = (target: DependencyObject, templatedParent: DependencyObject) => DependencyObject;
 type PropertySelector = (targetCtor: typeof DependencyObject) => DependencyProperty;
@@ -9,10 +10,13 @@ type PropertySelector = (targetCtor: typeof DependencyObject) => DependencyPrope
 export class Binding {
     constructor(property: DependencyProperty);
     constructor(property: DependencyProperty, direction: number);
+    constructor(property: DependencyProperty, direction: number, valueConverter: IValueConverter);
     constructor(relativeSource: DependencyObject, property: DependencyProperty);
-    constructor(relativeSource: RelativeSourceSelector, property: PropertySelector);
     constructor(relativeSource: DependencyObject, property: DependencyProperty, direction: number);
+    constructor(relativeSource: DependencyObject, property: DependencyProperty, direction: number, valueConverter: IValueConverter);
+    constructor(relativeSource: RelativeSourceSelector, property: PropertySelector);
     constructor(relativeSource: RelativeSourceSelector, property: PropertySelector, direction: number);
+    constructor(relativeSource: RelativeSourceSelector, property: PropertySelector, direction: number, valueConverter: IValueConverter);
     constructor() {
         if (arguments.length == 1) {
             if (Type.of(arguments[0]).matches(Type.get(DependencyProperty))) {
@@ -41,6 +45,14 @@ export class Binding {
             }
         }
         else if (arguments.length == 3) {
+            if (Type.of(arguments[0]).matches(Type.get(DependencyProperty)) &&
+                Type.of(arguments[1]).matches(Type.get(Number)) &&
+                Type.of(arguments[2]).matches(IValueConverter)) {
+                this.#relativeSource = arguments[0];
+                this.#property = arguments[1];
+                this.#valueConverter = arguments[2];
+                return;
+            }
             if (Type.of(arguments[0]).matches(Type.get(DependencyObject)) &&
                 Type.of(arguments[1]).matches(Type.get(DependencyProperty)) &&
                 Type.of(arguments[2]).matches(Type.get(Number))) {
@@ -58,6 +70,28 @@ export class Binding {
                 return;
             }
         }
+        else if (arguments.length == 4) {
+            if (Type.of(arguments[0]).matches(Type.get(DependencyObject)) &&
+                Type.of(arguments[1]).matches(Type.get(DependencyProperty)) &&
+                Type.of(arguments[3]).matches(Type.get(Number)) &&
+                Type.of(arguments[4]).matches(IValueConverter)) {
+                this.#relativeSource = arguments[0];
+                this.#property = arguments[1];
+                this.#direction = arguments[2];
+                this.#valueConverter = arguments[3];
+                return;
+            }
+            if (Type.of(arguments[0]).matches(Type.get(Function)) &&
+                Type.of(arguments[1]).matches(Type.get(Function)) &&
+                Type.of(arguments[3]).matches(Type.get(Number)) &&
+                Type.of(arguments[4]).matches(IValueConverter)) {
+                this.#relativeSource = arguments[0];
+                this.#property = arguments[1];
+                this.#direction = arguments[2];
+                this.#valueConverter = arguments[3];
+                return;
+            }
+        }
         else
             throw new FrameworkException(`No overload takes ${arguments.length} arguments.`);
         throw new FrameworkException(`No overload matches this call.`);
@@ -71,4 +105,7 @@ export class Binding {
 
     get direction(): number { return this.#direction; }
     #direction: number = BindingDirection.Both;
+
+    get valueConverter(): IValueConverter | null { return this.#valueConverter; }
+    #valueConverter: IValueConverter | null = null;
 }
