@@ -3,46 +3,58 @@ import { FrameworkException } from "../../../standard/exceptions/index.js";
 import { Type } from "../../../standard/reflection/index.js";
 import { BindingDirection } from "../../bindings/index.js";
 
-type RelativeSourceSelector = (templatedParent: DependencyObject, context: object) => DependencyObject;
-type DependencyPropertySelector = (source: DependencyObject) => DependencyProperty;
+type RelativeSourceSelector = (target: DependencyObject, templatedParent: DependencyObject) => DependencyObject;
+type PropertySelector = (targetCtor: typeof DependencyObject) => DependencyProperty;
 
 export class Binding {
-    constructor(property: DependencyPropertySelector);
-    constructor(property: DependencyPropertySelector, direction: number);
-    constructor(relativeSource: RelativeSourceSelector, property: DependencyPropertySelector);
-    constructor(relativeSource: RelativeSourceSelector, property: DependencyPropertySelector, direction: number);
+    constructor(property: DependencyProperty);
+    constructor(property: DependencyProperty, direction: number);
+    constructor(relativeSource: DependencyObject, property: DependencyProperty);
+    constructor(relativeSource: RelativeSourceSelector, property: PropertySelector);
+    constructor(relativeSource: DependencyObject, property: DependencyProperty, direction: number);
+    constructor(relativeSource: RelativeSourceSelector, property: PropertySelector, direction: number);
     constructor() {
         if (arguments.length == 1) {
-            if (Type.of(arguments[0]).matches(Type.get(Function))) {
+            if (Type.of(arguments[0]).matches(Type.get(DependencyProperty))) {
                 this.#property = arguments[0];
-
                 return;
             }
         }
         else if (arguments.length == 2) {
-            if (Type.of(arguments[0]).matches(Type.get(Function)) &&
+            if (Type.of(arguments[0]).matches(Type.get(DependencyProperty)) &&
                 Type.of(arguments[1]).matches(Type.get(Number))) {
                 this.#property = arguments[0];
                 this.#direction = arguments[1];
-
+                return;
+            }
+            if (Type.of(arguments[0]).matches(Type.get(DependencyObject)) &&
+                Type.of(arguments[1]).matches(Type.get(DependencyProperty))) {
+                this.#relativeSource = arguments[0];
+                this.#property = arguments[1];
                 return;
             }
             if (Type.of(arguments[0]).matches(Type.get(Function)) &&
                 Type.of(arguments[1]).matches(Type.get(Function))) {
                 this.#relativeSource = arguments[0];
                 this.#property = arguments[1];
-
                 return;
             }
         }
         else if (arguments.length == 3) {
+            if (Type.of(arguments[0]).matches(Type.get(DependencyObject)) &&
+                Type.of(arguments[1]).matches(Type.get(DependencyProperty)) &&
+                Type.of(arguments[2]).matches(Type.get(Number))) {
+                this.#relativeSource = arguments[0];
+                this.#property = arguments[1];
+                this.#direction = arguments[2];
+                return;
+            }
             if (Type.of(arguments[0]).matches(Type.get(Function)) &&
                 Type.of(arguments[1]).matches(Type.get(Function)) &&
                 Type.of(arguments[2]).matches(Type.get(Number))) {
                 this.#relativeSource = arguments[0];
                 this.#property = arguments[1];
-                this.#direction = arguments[1];
-
+                this.#direction = arguments[2];
                 return;
             }
         }
@@ -54,8 +66,8 @@ export class Binding {
     get relativeSource(): RelativeSourceSelector | null { return this.#relativeSource; }
     #relativeSource: RelativeSourceSelector | null = null;
 
-    get property(): DependencyPropertySelector { return this.#property; }
-    #property: DependencyPropertySelector;
+    get property(): DependencyProperty { return this.#property; }
+    #property: DependencyProperty;
 
     get direction(): number { return this.#direction; }
     #direction: number = BindingDirection.Both;

@@ -1,15 +1,13 @@
-import { DependencyObject, DependencyProperty } from "../../../standard/dependency-objects/index.js";
+import { DependencyProperty } from "../../../standard/dependency-objects/index.js";
 import { assertParams } from "../../../validation/index.js";
 
-type DependencyPropertySelector = (templatedParent: DependencyObject) => DependencyProperty;
-
 export class TemplateBinding {
-    constructor(property: DependencyPropertySelector) {
-        assertParams({ property }, [Function]);
+    constructor(property: DependencyProperty) {
+        assertParams({ property }, [DependencyProperty]);
 
         this.#property = property;
     }
 
-    get property(): DependencyPropertySelector { return this.#property; }
-    #property: DependencyPropertySelector;
+    get property(): DependencyProperty { return this.#property; }
+    #property: DependencyProperty;
 }
