@@ -1,11 +1,12 @@
 import { DependencyProperty } from "../../../standard/dependency-objects/index.js";
 import { FrameworkException } from "../../../standard/exceptions/index.js";
 import { Type } from "../../../standard/reflection/index.js";
+import { OrConstraint } from "../../../standard/reflection/type-constraints/index.js";
 import { IValueConverter } from "../../value-converters/index.js";
 
 export class TemplateBinding {
     constructor(property: DependencyProperty);
-    constructor(property: DependencyProperty, valueConverter: IValueConverter);
+    constructor(property: DependencyProperty, valueConverter: IValueConverter | null);
     constructor() {
         if (arguments.length == 1) {
             if (Type.of(arguments[0]).matches(Type.get(DependencyProperty))) {
@@ -15,7 +16,7 @@ export class TemplateBinding {
         }
         else if (arguments.length == 2) {
             if (Type.of(arguments[0]).matches(Type.get(DependencyProperty)) &&
-                Type.of(arguments[1]).matches(IValueConverter)) {
+                Type.of(arguments[1]).matches(new OrConstraint([Type.of(null), IValueConverter]))) {
                 this.#property = arguments[0];
                 this.#valueConverter = arguments[1];
                 return;
