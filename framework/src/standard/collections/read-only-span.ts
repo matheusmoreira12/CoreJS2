@@ -17,7 +17,7 @@ class ReadOnlySpanIterator<T> implements Iterator<T> {
     #advanceSourceToStart(startIndex: number) {
         let result = null;
         let index = 0;
-        while (result == null || !result.done && index < startIndex) {
+        while ((result === null || !result.done) && index < startIndex) {
             result = this.#originIterator.next();
             index++;
         }
